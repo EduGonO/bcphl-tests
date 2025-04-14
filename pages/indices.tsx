@@ -43,7 +43,7 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
         }}
       >
         <h1 style={{ fontSize: '24px', marginBottom: '10px', textAlign: 'center' }}>
-          Indices
+          Indices!!
         </h1>
         <p style={{ fontSize: '14px', textAlign: 'center', marginBottom: '30px' }}>
           {totalCategories} categories, {totalArticles} articles
