@@ -68,7 +68,11 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
             />
           </div>
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
-          <div>
+          <div
+            style={{
+              padding: 20px,
+            }}
+            >
             {/* Some logic to decide if you want to show the grid vs. list */}
             <ArticleGrid 
               articles={filteredArticles} 
@@ -78,6 +82,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           </div>
           <Footer />
         </main>
+        /*
         <DebugOverlay
           layout={layout}
           onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
@@ -92,6 +97,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           articleSidebar={false}
           onToggleArticleSidebar={() => {}}
         />
+        */
       </div>
     </>
   );
