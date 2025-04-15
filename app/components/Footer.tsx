@@ -2,15 +2,28 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 interface FooterProps {
-  /** 
-   * Background color for the entire footer area.
-   * Pass in the same color used for article categories, e.g. "#607d8b".
-   * Defaults to a soft green as shown in your mockup.
+  /**
+   * Category color (or default) to be used for styling.
+   * This color is used at full opacity for titles and at 50% opacity for the background.
+   * Example: "#607d8b"
    */
   footerColor?: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
+/**
+ * Converts a hex color (e.g. "#607d8b") to an rgba() string with the given alpha.
+ */
+const hexToRGBA = (hex: string, alpha: number): string => {
+  let r = 0, g = 0, b = 0;
+  if (hex.length === 7) { // Expected "#RRGGBB"
+    r = parseInt(hex.slice(1, 3), 16);
+    g = parseInt(hex.slice(3, 5), 16);
+    b = parseInt(hex.slice(5, 7), 16);
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
   const [newsletterOpen, setNewsletterOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -25,31 +38,17 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [newsletterOpen]);
 
-  // Here you can refine your link and button styles further if needed
   const linkStyle: React.CSSProperties = {
-    color: '#000', 
+    color: '#000',
     textDecoration: 'none',
-    cursor: 'pointer',
-  };
-
-  const buttonStyle: React.CSSProperties = {
-    background: '#000',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '8px 16px',
-    fontSize: '14px',
     cursor: 'pointer',
   };
 
   return (
     <>
-      {/* Newsletter Modal */}
       {newsletterOpen && (
         <div className="overlay">
           <div className="popover" ref={popoverRef}>
@@ -60,40 +59,34 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
           </div>
         </div>
       )}
-
-      {/* Footer Layout */}
-      <footer className="footer" style={{ background: footerColor }}>
+      <footer className="footer">
         <div className="footer-inner">
-
-          {/* Top area: "Rester en lien(s)" and "Contribuer" */}
           <div className="footer-top">
             <div className="footer-col">
-              <h4 className="footer-heading">Rester en lien(s)</h4>
+              <h4 className="footer-title">Rester en lien(s)</h4>
               <p className="footer-text">
                 Abonnez-vous à la lettre d’information des Bicéphale
               </p>
-              <button style={buttonStyle} onClick={() => setNewsletterOpen(true)}>
+              <button className="action-button" onClick={() => setNewsletterOpen(true)}>
                 S’abonner
               </button>
               <p className="footer-text">Suivez-nous</p>
               <div className="social-row">
                 <a href="#" style={linkStyle}>
-                  <img src="/media/social-youtube.png" alt="YouTube" style={{ height: 24 }} />
+                  <img src="/media/social-youtube.png" alt="YouTube" style={{ height: '24px' }} />
                 </a>
                 <a href="#" style={linkStyle}>
-                  <img src="/media/social-instagram.png" alt="Instagram" style={{ height: 24 }} />
+                  <img src="/media/social-instagram.png" alt="Instagram" style={{ height: '24px' }} />
                 </a>
                 <a href="#" style={linkStyle}>
-                  <img src="/media/social-facebook.png" alt="Facebook" style={{ height: 24 }} />
+                  <img src="/media/social-facebook.png" alt="Facebook" style={{ height: '24px' }} />
                 </a>
               </div>
             </div>
-
             <div className="footer-col">
-              <h4 className="footer-heading">Contribuer</h4>
+              <h4 className="footer-title">Contribuer</h4>
               <ul className="footer-list">
                 <li>
-                  <Link href="/contact">
                     <a style={linkStyle}>Contacter la rédaction</a>
                   </Link>
                 </li>
@@ -104,7 +97,9 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
                   <a href="#" style={linkStyle}>Commenter avec Hypothesis</a>
                 </li>
                 <li>
-                  <a href="#" style={linkStyle}>Plan du site</a>
+                  <Link href="/indices">
+                    <a href="#" style={linkStyle}>Plan du site</a>
+                  </Link> 
                 </li>
                 <li>
                   <a href="#" style={linkStyle}>Mentions légales</a>
@@ -112,8 +107,6 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
               </ul>
             </div>
           </div>
-
-          {/* Bottom area: "Propulsée par ..." + button + logo + copyright */}
           <div className="footer-bottom">
             <div className="powered-by">
               <p>
@@ -121,7 +114,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
                 <br />
                 <strong>Brigade d’Interventions Contributives</strong>
               </p>
-              <button style={buttonStyle}>Nous soutenir</button>
+              <button className="action-button">Nous soutenir</button>
             </div>
             <div className="footer-brand">
               <img
@@ -136,19 +129,17 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
           </div>
         </div>
       </footer>
-
-      {/* Inline or styled-jsx Styles */}
       <style jsx>{`
         .footer {
-          margin-top: 40px;
-          padding: 40px 20px 20px;
+          background: ${hexToRGBA(footerColor, 0.5)};
           color: #000;
+          padding: 40px 20px 20px;
+          margin-top: 40px;
         }
         .footer-inner {
           max-width: 1024px;
           margin: 0 auto;
         }
-        /* Two columns on top */
         .footer-top {
           display: flex;
           flex-direction: column;
@@ -164,10 +155,12 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
         .footer-col {
           flex: 1;
         }
-        .footer-heading {
-          font-size: 18px;
+        .footer-title {
+          font-size: 20px;
           margin-bottom: 12px;
           font-weight: bold;
+          font-family: 'RecoletaMedium', 'GayaRegular', sans-serif;
+          color: ${footerColor}; /* Full opacity for titles */
         }
         .footer-text {
           margin: 0 0 10px;
@@ -182,19 +175,20 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
           list-style: none;
           padding: 0;
           margin: 0;
+          font-size: 14px;
         }
         .footer-list li {
           margin-bottom: 8px;
         }
-
-        /* Bottom row styling */
         .footer-bottom {
           display: flex;
           flex-direction: column;
           gap: 20px;
-          align-items: flex-start;
+          align-items: center;
+          border-top: 1px solid #ccc;
+          padding-top: 20px;
         }
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
           .footer-bottom {
             flex-direction: row;
             justify-content: space-between;
@@ -211,13 +205,22 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#d7e3db' }) => {
         }
         .footer-brand img {
           display: block;
-          margin: 0 auto;
+          margin: 0 auto 8px;
         }
         .copyright {
           margin: 0;
           font-size: 12px;
         }
-
+        .action-button {
+          background: #000;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          padding: 8px 16px;
+          font-size: 14px;
+          cursor: pointer;
+          margin-top: 8px;
+        }
         /* Newsletter overlay styles */
         .overlay {
           position: fixed;
