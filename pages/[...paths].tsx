@@ -182,7 +182,7 @@ const ArticlePage: React.FC<{
         </div>
 
         <Footer />
-
+/*
         <DebugOverlay
           layout={layout}
           onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
@@ -197,6 +197,7 @@ const ArticlePage: React.FC<{
           articleSidebar={showArticleSidebar}
           onToggleArticleSidebar={() => setShowArticleSidebar(!showArticleSidebar)}
         />
+*/
       </div>
 
       <style jsx>{`

@@ -68,11 +68,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
             />
           </div>
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
-          <div
-            style={{
-              padding: 20px,
-            }}
-            >
+          <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
             <ArticleGrid 
               articles={filteredArticles} 
