@@ -7,6 +7,7 @@ import Footer from '../app/components/Footer';
 import ArticleList from '../app/components/ArticleList';
 import { Article } from '../types';
 import { getArticleData } from '../lib/articleService';
+import ArticleGrid from '../app/components/ArticleGrid';
 
 interface HomeProps {
   articles: Article[];
@@ -60,6 +61,14 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
         />
         <main style={mainStyle}>
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
+          <div>
+            {/* Some logic to decide if you want to show the grid vs. list */}
+            <ArticleGrid 
+              articles={filteredArticles} 
+              categories={categories} 
+              titleFont="GayaRegular"
+            />
+          </div>
           <Footer />
         </main>
         <DebugOverlay
@@ -87,3 +96,4 @@ export async function getStaticProps() {
 }
 
 export default Home;
+op
