@@ -39,9 +39,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const author = lines[2] || 'Unknown Author';
   const content = lines.slice(3).join('\n').trim();
 
-  // Using the same article service as index.tsx for categories & articles
+  // Fetch all articles and categories
   const { articles, categories } = getArticleData();
-  // Filter to show only articles from the current category (excluding the current one)
+  // Only show grid articles from the current category (excluding current article)
   const gridArticles = articles.filter(
     (a) =>
       a.category.toLowerCase() === category.toLowerCase() &&
@@ -85,7 +85,6 @@ const ArticlePage: React.FC<{
 
   const articleColor =
     categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
-
   const backdropColor = hexToRgba(articleColor, 0.5);
 
   const mainStyle: React.CSSProperties =
@@ -111,7 +110,7 @@ const ArticlePage: React.FC<{
       >
         <Header categories={categories} />
 
-        {/* BACKDROP */}
+        {/* Backdrop using article's category color at 50% opacity */}
         <div
           style={{
             height: '240px',
@@ -119,7 +118,7 @@ const ArticlePage: React.FC<{
           }}
         />
 
-        {/* HERO SECTION: White card overlay */}
+        {/* HERO SECTION */}
         <div className="hero-card">
           <div className="hero-text">
             <p>{category}</p>
@@ -145,22 +144,47 @@ const ArticlePage: React.FC<{
                   <div className="author-avatar" />
                   <h4>{author}</h4>
                 </div>
-                {/* Additional sidebar content */}
+                <p className="sidebar-bio">
+                  Ceci est une courte biographie de l'auteur qui est une courte biographie de l'auteur.
+                </p>
+                <div className="sidebar-links">
+                  <a href="#">Portfolio</a>
+                  <a href="#">Twitter</a>
+                  <a href="#">LinkedIn</a>
+                </div>
+                <h4 className="sidebar-heading">References</h4>
+                <ul className="sidebar-list">
+                  <li>
+                    <a href="#">Example Reference 1</a>
+                  </li>
+                  <li>
+                    <a href="#">Example Reference 2</a>
+                  </li>
+                  <li>
+                    <a href="#">Example Reference 3</a>
+                  </li>
+                </ul>
+                <h4 className="sidebar-heading">Commentaires</h4>
+                <ul className="sidebar-list">
+                  <li>
+                    <strong>User1:</strong> Example de commentaire
+                  </li>
+                  <li>
+                    <strong>User2:</strong> Un autre exemple de commentaire.
+                  </li>
+                </ul>
               </aside>
             )}
           </div>
         </main>
 
-        {/* ARTICLE GRID: Only articles from this category */}
+        {/* ARTICLE GRID: Only articles from current category */}
         <div className="article-grid-container">
-          <ArticleGrid
-            articles={gridArticles}
-            categories={categories}
-            titleFont="GayaRegular"
-          />
+          <ArticleGrid articles={gridArticles} categories={categories} titleFont="GayaRegular" />
         </div>
 
         <Footer />
+
         <DebugOverlay
           layout={layout}
           onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
@@ -185,7 +209,7 @@ const ArticlePage: React.FC<{
           display: flex;
           gap: 30px;
           align-items: center;
-          padding: 0 0 0 60px;
+          padding: 0 20px 20px 20px; /* equal left/right padding */
           background-color: #fff;
           border-top-left-radius: 142px;
           border-top-right-radius: 8px;
@@ -193,22 +217,26 @@ const ArticlePage: React.FC<{
           border-bottom-left-radius: 8px;
           transform: translateY(-140px);
         }
+        .hero-text {
+          flex: 1;
+        }
         .hero-text p {
           margin: 0 0 8px;
           font-size: 14px;
-          font-weight: normal;
           text-transform: uppercase;
+          text-align: left;
         }
         .hero-text h1 {
           margin: 0 0 8px;
           font-family: ${titleFont};
           font-size: 32px;
           line-height: 1.2;
+          text-align: left;
         }
         .hero-text p:last-of-type {
           font-size: 14px;
-          font-weight: normal;
           font-style: italic;
+          text-align: left;
         }
         .hero-image {
           width: 400px;
@@ -216,18 +244,35 @@ const ArticlePage: React.FC<{
           background-color: #ccc;
           flex-shrink: 0;
         }
-        /* MAIN CONTENT LAYOUT */
+        /* MAIN CONTENT STYLES */
+        .main-content {
+          flex: 1;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+        }
         .content-wrapper {
           display: flex;
           gap: 20px;
         }
-        /* Responsive adjustments for mobile */
+        /* Sidebar styling (desktop) */
+        .sidebar {
+          width: 20%;
+          min-width: 200px;
+          border-left: 1px solid #ddd;
+          padding: 24px;
+        }
+        /* Mobile adjustments */
         @media (max-width: 768px) {
           .hero-card {
             flex-direction: column;
-            align-items: flex-start;
-            padding: 0 20px 20px 20px; /* reduce left padding on mobile */
+            align-items: center;
+            padding: 20px;
             transform: translateY(-80px);
+          }
+          .hero-text {
+            text-align: center;
+            padding-top: 20px;
           }
           .hero-image {
             width: 100%;
@@ -238,6 +283,9 @@ const ArticlePage: React.FC<{
             flex-direction: column;
           }
           .sidebar {
+            width: 100%;
+            border-left: none;
+            padding: 20px;
             margin-top: 20px;
           }
         }
