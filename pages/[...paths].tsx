@@ -1,16 +1,14 @@
+
+
 import React, { useState } from 'react';
 import Head from 'next/head';
 import fs from 'fs';
 import path from 'path';
 import { GetStaticProps, GetStaticPaths } from 'next';
-
 import Header, { Category } from '../app/components/Header';
 import DebugOverlay from '../app/components/DebugOverlay';
 import Footer from '../app/components/Footer';
 
-/************************************************************
- * getStaticPaths + getStaticProps
- ************************************************************/
 export const getStaticPaths: GetStaticPaths = async () => {
   const textsDir = path.join(process.cwd(), 'texts');
   const pathsArr: { params: { paths: string[] } }[] = [];
@@ -44,9 +42,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return { props: { title, date, author, category, content } };
 };
 
-/************************************************************
- * ArticlePage Component
- ************************************************************/
 const ArticlePage: React.FC<{
   title: string;
   date: string;
@@ -54,9 +49,6 @@ const ArticlePage: React.FC<{
   category: string;
   content: string;
 }> = ({ title, date, author, category, content }) => {
-  /************************************************************
-   * For color lookup, if you have a categories array:
-   ************************************************************/
   const categories: Category[] = [
     { name: 'Love Letters', color: '#f44336' },
     { name: 'Image-Critique', color: '#3f51b5' },
@@ -68,10 +60,6 @@ const ArticlePage: React.FC<{
     { name: 'Cartographie', color: '#607d8b' },
   ];
 
-
-  /************************************************************
-   * DebugOverlay States (no layout toggles)
-   ************************************************************/
   const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal'); 
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
@@ -124,7 +112,7 @@ return (
       {/* Backdrop – using the article's category color at 50% opacity */}
       <div
         style={{
-          height: '300px',
+          height: '240px',
           backgroundColor: backdropColor,
         }}
       />
@@ -137,11 +125,14 @@ return (
           display: 'flex',
           gap: '30px',
           alignItems: 'center',
-          padding: '20px',
+          padding: '0 20px 20px 40px',
           backgroundColor: '#fff',
-          borderRadius: '8px',
-          transform: 'translateY(-150px)', // Overlap the backdrop
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          // Only top-left corner has a higher rounding
+          borderTopLeftRadius: '50px',
+          borderTopRightRadius: '8px',
+          borderBottomRightRadius: '8px',
+          borderBottomLeftRadius: '8px',
+          transform: 'translateY(-140px)', // Overlap the backdrop
         }}
       >
         {/* Left side: Category, Title, Author/Date */}
@@ -193,9 +184,7 @@ return (
         />
       </div>
 
-        {/************************************************************
-         MAIN CONTENT
-         ************************************************************/}
+        {/* MAIN CONTENT */}
         <main style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
           <div style={{ display: 'flex', gap: '20px' }}>
             {/* Article text */}
@@ -318,14 +307,10 @@ return (
           </div>
         </main>
 
-        {/************************************************************
-         FOOTER
-         ************************************************************/}
+        {/* FOOTER */}
         <Footer />
 
-        {/************************************************************
-         DEBUG OVERLAY (no layout toggles)
-         ************************************************************/}
+        {/* DEBUG OVERLAY */}
         <DebugOverlay
           layout={layout}
           onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
@@ -346,3 +331,4 @@ return (
 };
 
 export default ArticlePage;
+
