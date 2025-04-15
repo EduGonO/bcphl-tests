@@ -61,6 +61,7 @@ const ArticlePage: React.FC<{
    * or define it here. The key is to find the color by name,
    * defaulting to #f0f0f0.
    ************************************************************/
+   
   const categories: Category[] = [
     { name: 'Love Letters', color: '#f44336' },
     { name: 'Image-Critique', color: '#3f51b5' },
@@ -78,6 +79,7 @@ const ArticlePage: React.FC<{
   /************************************************************
    * Basic states for DebugOverlay
    ************************************************************/
+  const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal'); 
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
   const [titleFont, setTitleFont] = useState<'RecoletaMedium' | 'GayaRegular'>('RecoletaMedium');
