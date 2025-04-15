@@ -177,6 +177,9 @@ const ArticlePage: React.FC<{
 
           {/* ARTICLE GRID */}
           <div className="article-grid-container">
+            <h1 style={{ fontFamily: 'RecoletaMedium', marginLeft: '20px' }}>
+              À lire également
+            </h1>
             <ArticleGrid articles={gridArticles} categories={categories} titleFont="GayaRegular" />
           </div>
         </div>

@@ -70,7 +70,9 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
-            <h1>  À lire également</h1>
+            <h1 style={{ fontFamily: 'RecoletaMedium', marginLeft: '20px' }}>
+              À lire également
+            </h1>
             <ArticleGrid 
               articles={filteredArticles} 
               categories={categories} 
