@@ -125,10 +125,10 @@ return (
           display: 'flex',
           gap: '30px',
           alignItems: 'center',
-          padding: '0 20px 20px 40px',
+          padding: '0 0px 0px 60px',
           backgroundColor: '#fff',
           // Only top-left corner has a higher rounding
-          borderTopLeftRadius: '50px',
+          borderTopLeftRadius: '142px',
           borderTopRightRadius: '8px',
           borderBottomRightRadius: '8px',
           borderBottomLeftRadius: '8px',
