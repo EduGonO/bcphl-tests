@@ -267,8 +267,8 @@ const ArticlePage: React.FC<{
           .hero-card {
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            transform: translateY(-80px);
+            padding: 0 0px 0px 60px;
+            transform: translateY(-140px);
           }
           .hero-text {
             text-align: center;
