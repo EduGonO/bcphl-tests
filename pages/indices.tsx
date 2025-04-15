@@ -19,7 +19,6 @@ type IndicesProps = {
   indices: CategoryIndex[];
 };
 
-// Category color mapping (if a category isn’t in this map, default to '#607d8b')
 const categoryColorMap: { [key: string]: string } = {
   'Love Letters': '#f44336',
   'Image-Critique': '#3f51b5',
@@ -31,7 +30,6 @@ const categoryColorMap: { [key: string]: string } = {
   'Cartographie': '#607d8b',
 };
 
-// Helper to convert hex to rgba
 const hexToRgba = (hex: string, alpha: number): string => {
   let r = 0, g = 0, b = 0;
   if (hex.length === 7) {
@@ -52,54 +50,41 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
         <title>Indices – BICÉPHALE</title>
         <meta name="description" content="Index of all categories and texts" />
       </Head>
-      {/* Pass category info to the Header using mapping */}
       <Header
+        // Supply categories with colors from our mapping (defaulting to '#607d8b')
         categories={indices.map((cat) => ({
           name: cat.name,
           color: categoryColorMap[cat.name] || '#607d8b',
         }))}
       />
-
       <div
         style={{
           maxWidth: '800px',
-          margin: '80px auto',
-          padding: '20px',
+          margin: '60px auto', // reduced vertical margin for compactness
+          padding: '15px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           color: '#333',
         }}
       >
-        {/* Summary Card */}
-        <div style={{
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          padding: '20px',
-          textAlign: 'center',
-          marginBottom: '40px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-        }}>
-          <h1 style={{ fontSize: '24px', margin: 0, marginBottom: '10px' }}>Indices</h1>
+        {/* Summary Section */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h1 style={{ fontSize: '24px', margin: 0, marginBottom: '8px' }}>Indices</h1>
           <p style={{ fontSize: '16px', margin: 0 }}>
             {totalCategories} categories • {totalArticles} articles
           </p>
         </div>
 
-        {/* Detailed List of Categories and Articles */}
+        {/* Detailed List of Categories and their Articles */}
         {indices.map((cat) => (
-          <section key={cat.name} style={{
-            marginBottom: '20px',
-            border: '1px solid #eee',
-            borderRadius: '8px',
-            padding: '15px',
-          }}>
-            <h2 style={{ fontSize: '16px', marginBottom: '10px' }}>
+          <section key={cat.name} style={{ marginBottom: '15px', padding: '10px 0' }}>
+            <h2 style={{ fontSize: '16px', marginBottom: '8px' }}>
               <Link href={`/?category=${encodeURIComponent(cat.name)}`}>
                 <a style={{ color: '#333', textDecoration: 'none' }}>{cat.name}</a>
               </Link>
             </h2>
             <ul style={{ listStyleType: 'disc', margin: 0, paddingLeft: '20px' }}>
               {cat.texts.map((text) => (
-                <li key={text.slug} style={{ marginBottom: '5px', fontSize: '12px' }}>
+                <li key={text.slug} style={{ marginBottom: '4px', fontSize: '12px' }}>
                   <Link href={`/${encodeURIComponent(cat.name)}/${text.slug}`}>
                     <a style={{ color: '#333', textDecoration: 'none' }}>{text.title}</a>
                   </Link>
@@ -109,16 +94,16 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
           </section>
         ))}
 
-        {/* Separator */}
-        <hr style={{ margin: '40px 0' }} />
+        {/* Line break separator */}
+        <hr style={{ margin: '30px 0' }} />
 
         {/* Grid View of Categories */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '20px',
-            marginTop: '20px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: '15px',
+            marginTop: '15px',
           }}
         >
           {indices.map((cat) => {
@@ -128,11 +113,11 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
               <div
                 key={cat.name}
                 style={{
-                  padding: '20px',
+                  padding: '10px',
                   backgroundColor: gridBg,
                   textAlign: 'center',
-                  borderRadius: '8px',
-                  fontSize: '16px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                   color: '#333',
                 }}
@@ -140,7 +125,7 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
                 <Link href={`/?category=${encodeURIComponent(cat.name)}`}>
                   <a style={{ textDecoration: 'none', color: '#333' }}>{cat.name}</a>
                 </Link>
-                <p style={{ margin: '10px 0 0', fontSize: '14px', fontWeight: 'normal' }}>
+                <p style={{ margin: '8px 0 0', fontSize: '12px', fontWeight: 'normal' }}>
                   {cat.texts.length} articles
                 </p>
               </div>
@@ -149,7 +134,6 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
         </div>
       </div>
 
-      {/* Global style override to ensure no link underlines */}
       <style jsx global>{`
         a {
           text-decoration: none !important;
