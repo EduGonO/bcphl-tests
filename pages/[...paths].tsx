@@ -39,9 +39,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const author = lines[2] || 'Unknown Author';
   const content = lines.slice(3).join('\n').trim();
 
-  // Fetch all articles and categories using your article service helper.
+  // Using the same article service as index.tsx for categories & articles
   const { articles, categories } = getArticleData();
-  // Filter articles to only keep those from the same category (excluding current one)
+  // Filter to show only articles from the current category (excluding the current one)
   const gridArticles = articles.filter(
     (a) =>
       a.category.toLowerCase() === category.toLowerCase() &&
@@ -60,7 +60,6 @@ const ArticlePage: React.FC<{
   gridArticles: { title: string; slug: string; category: string; date: string; author: string; preview: string }[];
   categories: Category[];
 }> = ({ title, date, author, category, content, gridArticles, categories }) => {
-  // Retain debug overlay controls (layout state remains only for debugging font and such)
   const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal');
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
@@ -68,19 +67,12 @@ const ArticlePage: React.FC<{
   const [imagePreview, setImagePreview] = useState<boolean>(true);
   const [showArticleSidebar, setShowArticleSidebar] = useState<boolean>(true);
 
-  // Format date as "MMM dd, YYYY"
   const formattedDate = new Date(date).toLocaleDateString('en-US', {
     month: 'short',
     day: '2-digit',
     year: 'numeric',
   });
 
-  // Get the article color from categories, or default to '#f0f0f0'
-  const articleColor =
-    categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color ||
-    '#f0f0f0';
-
-  // Helper function to convert a hex color to rgba with given opacity
   const hexToRgba = (hex: string, alpha: number): string => {
     let r = 0, g = 0, b = 0;
     if (hex.length === 7) {
@@ -91,12 +83,15 @@ const ArticlePage: React.FC<{
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  // Create a backdrop color (50% opacity version of articleColor)
+  const articleColor =
+    categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
+
   const backdropColor = hexToRgba(articleColor, 0.5);
 
-  // Main style remains similar
   const mainStyle: React.CSSProperties =
-    layout === 'vertical' ? { marginLeft: '250px', padding: '20px' } : { marginTop: '140px', padding: '20px' };
+    layout === 'vertical'
+      ? { marginLeft: '250px', padding: '20px' }
+      : { marginTop: '140px', padding: '20px' };
 
   return (
     <>
@@ -114,11 +109,9 @@ const ArticlePage: React.FC<{
           fontFamily: bodyFont,
         }}
       >
-        {/* Pass categories to Header */}
         <Header categories={categories} />
 
-        {/* HERO SECTION: Backdrop and White Card Overlap */}
-        {/* Backdrop – using the article's category color at 50% opacity */}
+        {/* BACKDROP */}
         <div
           style={{
             height: '240px',
@@ -126,203 +119,48 @@ const ArticlePage: React.FC<{
           }}
         />
 
-        {/* Overlapping white card: retains your previous styling */}
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'flex',
-            gap: '30px',
-            alignItems: 'center',
-            padding: '0 0px 0px 60px',
-            backgroundColor: '#fff',
-            borderTopLeftRadius: '142px',
-            borderTopRightRadius: '8px',
-            borderBottomRightRadius: '8px',
-            borderBottomLeftRadius: '8px',
-            transform: 'translateY(-140px)',
-          }}
-        >
-          {/* Left side: Category, Title, Author/Date */}
-          <div style={{ flex: 1 }}>
-            <p
-              style={{
-                margin: '0 0 8px',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                textTransform: 'uppercase',
-              }}
-            >
-              {category}
-            </p>
-            <h1
-              style={{
-                margin: '0 0 8px',
-                fontFamily: titleFont,
-                fontSize: '32px',
-                lineHeight: 1.2,
-              }}
-            >
-              {title}
-            </h1>
-            <p
-              style={{
-                margin: '0',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                fontStyle: 'italic',
-              }}
-            >
-              {author} &nbsp;•&nbsp; {formattedDate}
-            </p>
+        {/* HERO SECTION: White card overlay */}
+        <div className="hero-card">
+          <div className="hero-text">
+            <p>{category}</p>
+            <h1>{title}</h1>
+            <p>{author} &nbsp;•&nbsp; {formattedDate}</p>
           </div>
-
-          {/* Right side: Gray rectangle (example image) */}
-          <div
-            style={{
-              width: '400px',
-              height: '250px',
-              backgroundColor: '#ccc',
-              flexShrink: 0,
-            }}
-          />
+          <div className="hero-image" />
         </div>
 
         {/* MAIN CONTENT */}
-        <main style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-          <div style={{ display: 'flex', gap: '20px' }}>
-            {/* Article text */}
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  marginTop: '20px',
-                  lineHeight: '1.6',
-                  whiteSpace: 'pre-wrap',
-                  color: '#333',
-                }}
-              >
-                {content}
-              </div>
+        <main className="main-content">
+          <div className="content-wrapper">
+            <div className="article-text">
+              {content}
             </div>
-
-            {/* Sidebar */}
             {showArticleSidebar && (
-              <aside
-                style={{
-                  width: '20%',
-                  minWidth: '200px',
-                  borderLeft: '1px solid #ddd',
-                  paddingLeft: '24px',
-                  paddingRight: '24px',
-                  paddingTop: '24px',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    marginBottom: '10px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '14px',
-                      backgroundColor: articleColor,
-                      borderRadius: '5px',
-                      color: '#fff',
-                      padding: '5px 10px',
-                      fontWeight: 'bold',
-                      display: 'inline-block',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {category}
-                  </span>
-                  <span style={{ color: 'gray', fontSize: '14px' }}>{formattedDate}</span>
+              <aside className="sidebar">
+                <div className="sidebar-header">
+                  <span className="sidebar-category">{category}</span>
+                  <span className="sidebar-date">{formattedDate}</span>
                 </div>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    marginBottom: '10px',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: '50%',
-                      backgroundColor: 'gray',
-                    }}
-                  />
-                  <h4 style={{ margin: 0 }}>{author}</h4>
+                <div className="sidebar-author">
+                  <div className="author-avatar" />
+                  <h4>{author}</h4>
                 </div>
-
-                <p style={{ fontStyle: 'italic', marginBottom: '10px' }}>
-                  Ceci est une courte biographie de l'auteur...
-                </p>
-
-                <div style={{ marginBottom: '20px' }}>
-                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5', marginRight: '10px' }}>
-                    Portfolio
-                  </a>
-                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5', marginRight: '10px' }}>
-                    Twitter
-                  </a>
-                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>
-                    LinkedIn
-                  </a>
-                </div>
-
-                <h4 style={{ marginBottom: '4px' }}>References</h4>
-                <ul style={{ paddingLeft: '20px', marginTop: '4px', marginBottom: '20px' }}>
-                  <li>
-                    <a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>
-                      Example Reference 1
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>
-                      Example Reference 2
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>
-                      Example Reference 3
-                    </a>
-                  </li>
-                </ul>
-
-                <h4>Commentaires</h4>
-                <ul style={{ paddingLeft: '20px', marginTop: '4px', marginBottom: '20px' }}>
-                  <li>
-                    <strong>User1:</strong> Example de commentaire
-                  </li>
-                  <li>
-                    <strong>User2:</strong> Un autre exemple de commentaire.
-                  </li>
-                </ul>
+                {/* Additional sidebar content */}
               </aside>
             )}
           </div>
         </main>
 
-        {/* ARTICLE GRID: Only show articles from the current category */}
-        <div style={{ margin: '20px auto', maxWidth: '1200px', padding: '0 20px' }}>
+        {/* ARTICLE GRID: Only articles from this category */}
+        <div className="article-grid-container">
           <ArticleGrid
-            articles={gridArticles} 
+            articles={gridArticles}
             categories={categories}
             titleFont="GayaRegular"
           />
         </div>
 
-        {/* FOOTER */}
         <Footer />
-
-        {/* DEBUG OVERLAY */}
         <DebugOverlay
           layout={layout}
           onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
@@ -338,6 +176,78 @@ const ArticlePage: React.FC<{
           onToggleArticleSidebar={() => setShowArticleSidebar(!showArticleSidebar)}
         />
       </div>
+
+      <style jsx>{`
+        /* HERO CARD STYLES */
+        .hero-card {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          gap: 30px;
+          align-items: center;
+          padding: 0 0 0 60px;
+          background-color: #fff;
+          border-top-left-radius: 142px;
+          border-top-right-radius: 8px;
+          border-bottom-right-radius: 8px;
+          border-bottom-left-radius: 8px;
+          transform: translateY(-140px);
+        }
+        .hero-text p {
+          margin: 0 0 8px;
+          font-size: 14px;
+          font-weight: normal;
+          text-transform: uppercase;
+        }
+        .hero-text h1 {
+          margin: 0 0 8px;
+          font-family: ${titleFont};
+          font-size: 32px;
+          line-height: 1.2;
+        }
+        .hero-text p:last-of-type {
+          font-size: 14px;
+          font-weight: normal;
+          font-style: italic;
+        }
+        .hero-image {
+          width: 400px;
+          height: 250px;
+          background-color: #ccc;
+          flex-shrink: 0;
+        }
+        /* MAIN CONTENT LAYOUT */
+        .content-wrapper {
+          display: flex;
+          gap: 20px;
+        }
+        /* Responsive adjustments for mobile */
+        @media (max-width: 768px) {
+          .hero-card {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0 20px 20px 20px; /* reduce left padding on mobile */
+            transform: translateY(-80px);
+          }
+          .hero-image {
+            width: 100%;
+            height: auto;
+            margin-top: 20px;
+          }
+          .content-wrapper {
+            flex-direction: column;
+          }
+          .sidebar {
+            margin-top: 20px;
+          }
+        }
+        /* ARTICLE GRID container */
+        .article-grid-container {
+          margin: 20px auto;
+          max-width: 1200px;
+          padding: 0 20px;
+        }
+      `}</style>
     </>
   );
 };
