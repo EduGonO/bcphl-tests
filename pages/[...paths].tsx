@@ -35,7 +35,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const filePath = path.join(process.cwd(), 'texts', category, `${slug}.md`);
   const fileContents = fs.readFileSync(filePath, 'utf-8');
   const lines = fileContents.split('\n').map((l: string) => l.trim());
-  
+
   const title = lines[0]?.startsWith('#') ? lines[0].replace(/^#+\s*/, '') : 'Untitled';
   const date = lines[1] || 'Unknown Date';
   const author = lines[2] || 'Unknown Author';
@@ -53,15 +53,10 @@ const ArticlePage: React.FC<{
   author: string;
   category: string;
   content: string;
-  // If you have a categories array available from somewhere else,
-  // pass it in as props. For now, we demonstrate "just looking it up" here.
 }> = ({ title, date, author, category, content }) => {
   /************************************************************
-   * We rely on an external categories array if available,
-   * or define it here. The key is to find the color by name,
-   * defaulting to #f0f0f0.
+   * For color lookup, if you have a categories array:
    ************************************************************/
-   
   const categories: Category[] = [
     { name: 'Love Letters', color: '#f44336' },
     { name: 'Image-Critique', color: '#3f51b5' },
@@ -72,12 +67,13 @@ const ArticlePage: React.FC<{
     { name: 'Banque des rêves', color: '#607d8b' },
     { name: 'Cartographie', color: '#607d8b' },
   ];
-  
+
+  // We find the matching color or use a default (#f0f0f0).
   const articleColor =
     categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
 
   /************************************************************
-   * Basic states for DebugOverlay
+   * DebugOverlay States (no layout toggles)
    ************************************************************/
   const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal'); 
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
@@ -100,8 +96,8 @@ const ArticlePage: React.FC<{
       </Head>
 
       {/************************************************************
-       Wrap entire page in a flex container so the Footer sits
-       at the bottom edge. We'll let the main content flex:1
+       Wrapping everything in a flex container ensures the footer
+       can sit at the bottom (flex:1 in main content).
       ************************************************************/}
       <div
         style={{
@@ -113,95 +109,95 @@ const ArticlePage: React.FC<{
           fontFamily: bodyFont,
         }}
       >
+        {/* Standard Header with no category dropdown logic */}
         <Header categories={[]} />
 
         {/************************************************************
-         Hero Section
-         - Uses articleColor as background
-         - Category + Title + Author/Date on LEFT
-         - Example circle image on RIGHT
-         ************************************************************/}
+         TOP BACKDROP
+         - For demonstration, we use a color OR background image
+         - We'll do a 300px-high section to mimic the "colorful texture"
+        ************************************************************/}
         <div
           style={{
-            backgroundColor: articleColor,
-            padding: '60px 20px',
-            color: '#fff',
+            height: '300px',
+            backgroundImage: 'url("/media/someColorfulTexture.jpg")', // or backgroundColor: articleColor
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
           }}
         >
-          <div
-            style={{
-              maxWidth: '1200px',
-              margin: '0 auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '40px',
-            }}
-          >
-            {/* LEFT: Category, Title, Author/Date */}
-            <div style={{ flex: 1 }}>
-              {/* Category in the same font as author/date */}
-              <p
-                style={{
-                  margin: '0 0 10px',
-                  fontSize: '14px',
-                  fontWeight: 'normal',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {category}
-              </p>
-              <h1
-                style={{
-                  margin: '0 0 10px',
-                  fontFamily: titleFont,
-                  fontSize: '32px',
-                  lineHeight: '1.2',
-                }}
-              >
-                {title}
-              </h1>
-              <p
-                style={{
-                  margin: '0',
-                  fontSize: '14px',
-                  fontWeight: 'normal',
-                  fontStyle: 'italic',
-                }}
-              >
-                {author} &nbsp;•&nbsp; {formattedDate}
-              </p>
-            </div>
-
-            {/* RIGHT: Circular cutout image */}
-            <div
-              style={{
-                width: '220px',
-                height: '220px',
-                borderRadius: '50%',
-                overflow: 'hidden',
-                flexShrink: 0,
-              }}
-            >
-              <img
-                src="/media/exampleImage.jpg"
-                alt="Hero"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
-              />
-            </div>
-          </div>
+          {/* The backdrop only. The row with category, title, image
+              will partially overlap via negative margin. */}
         </div>
 
         {/************************************************************
-         Main Content (flex:1) so Footer sits at bottom
+         Category/Title/Author + Gray Image
+         - starts "in the middle" of the backdrop, going below it.
+         - negative margin to overlap the above section.
         ************************************************************/}
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'flex',
+            gap: '30px',
+            alignItems: 'flex-start',
+            padding: '0 20px',
+            transform: 'translateY(-150px)', // Overlap the backdrop
+            marginBottom: '-150px', // ensure space is recaptured so the rest doesn't jump up
+          }}
+        >
+          {/* Left side: category, title, date/author */}
+          <div style={{ flex: 1 }}>
+            {/* Category in same font style as author + date */}
+            <p
+              style={{
+                margin: '0 0 8px',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                textTransform: 'uppercase',
+              }}
+            >
+              {category}
+            </p>
+            <h1
+              style={{
+                margin: '0 0 8px',
+                fontFamily: titleFont,
+                fontSize: '32px',
+                lineHeight: 1.2,
+              }}
+            >
+              {title}
+            </h1>
+            <p
+              style={{
+                margin: '0',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                fontStyle: 'italic',
+              }}
+            >
+              {author} &nbsp;•&nbsp; {formattedDate}
+            </p>
+          </div>
+
+          {/* Right side: a big gray rectangle to represent example image */}
+          <div
+            style={{
+              width: '400px',
+              height: '250px',
+              backgroundColor: '#ccc',
+              flexShrink: 0,
+            }}
+          />
+        </div>
+
+        {/************************************************************
+         MAIN CONTENT
+         ************************************************************/}
         <main style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
           <div style={{ display: 'flex', gap: '20px' }}>
-            {/* Article content */}
+            {/* Article text */}
             <div style={{ flex: 1 }}>
               <div
                 style={{
@@ -235,7 +231,7 @@ const ArticlePage: React.FC<{
                     marginBottom: '10px',
                   }}
                 >
-                  {/* Same color as hero */}
+                  {/* Category label in color */}
                   <span
                     style={{
                       fontSize: '14px',
@@ -322,13 +318,13 @@ const ArticlePage: React.FC<{
         </main>
 
         {/************************************************************
-         Footer at the very bottom, 100% width
-        ************************************************************/}
+         FOOTER
+         ************************************************************/}
         <Footer />
 
         {/************************************************************
-         DebugOverlay - No references to layout
-        ************************************************************/}
+         DEBUG OVERLAY (no layout toggles)
+         ************************************************************/}
         <DebugOverlay
           layout={layout}
           onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
