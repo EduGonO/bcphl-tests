@@ -182,22 +182,6 @@ const ArticlePage: React.FC<{
         </div>
 
         <Footer />
-/*
-        <DebugOverlay
-          layout={layout}
-          onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
-          bodyFontSize={bodyFontSize}
-          onBodyFontSizeChange={setBodyFontSize}
-          bodyFont={bodyFont}
-          onBodyFontChange={setBodyFont}
-          titleFont={titleFont}
-          onTitleFontChange={setTitleFont}
-          imagePreview={imagePreview}
-          onToggleImagePreview={() => setImagePreview(!imagePreview)}
-          articleSidebar={showArticleSidebar}
-          onToggleArticleSidebar={() => setShowArticleSidebar(!showArticleSidebar)}
-        />
-*/
       </div>
 
       <style jsx>{`

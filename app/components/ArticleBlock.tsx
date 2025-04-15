@@ -53,6 +53,7 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
             handlePrev();
           }}
           disabled={currentIndex === 0}
+          type="button"
         >
           ◀
         </button>
@@ -63,6 +64,7 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
             handleNext();
           }}
           disabled={currentIndex === articles.length - 1}
+          type="button"
         >
           ▶
         </button>
@@ -90,7 +92,7 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
 
         .image-placeholder {
           width: 100%;
-          height: 250px;
+          height: 280px; /* Taller image placeholder */
           background-size: cover;
           background-position: center;
         }
@@ -100,7 +102,7 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
           left: 20px;
           bottom: 20px;
           right: 20px;
-          /* Remove background and padding for a cleaner look */
+          /* Removed background and padding for a cleaner look */
           padding: 0;
         }
 
@@ -123,20 +125,20 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
-          background: rgba(255, 255, 255, 0.7);
+          background: none; /* No background for a minimal look */
           border: none;
-          padding: 8px;
-          font-size: 18px;
+          padding: 4px;
+          font-size: 24px;
+          color: #fff;
           cursor: pointer;
           z-index: 2;
-          border-radius: 50%;
           transition: background-color 0.2s ease;
         }
         .nav-button:hover:not(:disabled) {
-          background: rgba(255, 255, 255, 1);
+          opacity: 0.8;
         }
         .nav-button:disabled {
-          opacity: 0.5;
+          opacity: 0.4;
           cursor: not-allowed;
         }
         .nav-button.left {
