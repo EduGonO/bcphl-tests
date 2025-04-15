@@ -60,7 +60,6 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
         />
         <main style={mainStyle}>
          <div>
-          <h1></h1>
             <ArticleBlock
               articles={articles}
               categories={categories}
