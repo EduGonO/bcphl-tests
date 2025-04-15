@@ -6,6 +6,7 @@ import { GetStaticProps, GetStaticPaths } from 'next';
 import Header, { Category } from '../app/components/Header';
 import DebugOverlay from '../app/components/DebugOverlay';
 import Footer from '../app/components/Footer';
+import ArticleGrid from '../app/components/ArticleGrid';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const textsDir = path.join(process.cwd(), 'texts');
