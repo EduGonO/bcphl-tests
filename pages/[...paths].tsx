@@ -39,9 +39,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const author = lines[2] || 'Unknown Author';
   const content = lines.slice(3).join('\n').trim();
 
-  // Fetch all articles and categories
+  // Fetch articles and categories from article service
   const { articles, categories } = getArticleData();
-  // Only show grid articles from the current category (excluding current article)
   const gridArticles = articles.filter(
     (a) =>
       a.category.toLowerCase() === category.toLowerCase() &&
@@ -73,6 +72,7 @@ const ArticlePage: React.FC<{
     year: 'numeric',
   });
 
+  // Helper: convert hex to rgba
   const hexToRgba = (hex: string, alpha: number): string => {
     let r = 0, g = 0, b = 0;
     if (hex.length === 7) {
@@ -87,10 +87,12 @@ const ArticlePage: React.FC<{
     categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
   const backdropColor = hexToRgba(articleColor, 0.5);
 
-  const mainStyle: React.CSSProperties =
-    layout === 'vertical'
-      ? { marginLeft: '250px', padding: '20px' }
-      : { marginTop: '140px', padding: '20px' };
+  // We'll remove layout toggles (vertical/horizontal) and rely on a consistent common container style.
+  const containerStyle = {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '0 20px',
+  };
 
   return (
     <>
@@ -110,7 +112,7 @@ const ArticlePage: React.FC<{
       >
         <Header categories={categories} />
 
-        {/* Backdrop using article's category color at 50% opacity */}
+        {/* Backdrop */}
         <div
           style={{
             height: '240px',
@@ -118,68 +120,101 @@ const ArticlePage: React.FC<{
           }}
         />
 
-        {/* HERO SECTION */}
-        <div className="hero-card">
-          <div className="hero-text">
-            <p>{category}</p>
-            <h1>{title}</h1>
-            <p>{author} &nbsp;•&nbsp; {formattedDate}</p>
+        {/* HERO SECTION – Using common container style */}
+        <div className="hero-card common-container" style={{ 
+          display: 'flex',
+          gap: '30px',
+          alignItems: 'center',
+          padding: '0', // remove extra padding here – common container provides horizontal padding
+          backgroundColor: '#fff',
+          borderTopLeftRadius: '142px',
+          borderTopRightRadius: '8px',
+          borderBottomRightRadius: '8px',
+          borderBottomLeftRadius: '8px',
+          transform: 'translateY(-140px)',
+        }}>
+          <div className="hero-text" style={{ flex: 1 }}>
+            <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 'normal', textTransform: 'uppercase', textAlign: 'left' }}>
+              {category}
+            </p>
+            <h1 style={{ margin: '0 0 8px', fontFamily: titleFont, fontSize: '32px', lineHeight: 1.2, textAlign: 'left' }}>
+              {title}
+            </h1>
+            <p style={{ margin: '0', fontSize: '14px', fontWeight: 'normal', fontStyle: 'italic', textAlign: 'left' }}>
+              {author} &nbsp;•&nbsp; {formattedDate}
+            </p>
           </div>
-          <div className="hero-image" />
+          <div className="hero-image" style={{
+            width: '400px',
+            height: '250px',
+            backgroundColor: '#ccc',
+            flexShrink: 0,
+          }} />
         </div>
 
-        {/* MAIN CONTENT */}
-        <main className="main-content">
-          <div className="content-wrapper">
-            <div className="article-text">
-              {content}
+        {/* MAIN CONTENT – using common container style */}
+        <main className="main-content common-container" style={{ padding: '20px 0' }}>
+          <div className="content-wrapper" style={{ display: 'flex', gap: '20px' }}>
+            <div className="article-text" style={{ flex: 1 }}>
+              <div style={{ marginTop: '20px', lineHeight: '1.6', whiteSpace: 'pre-wrap', color: '#333' }}>
+                {content}
+              </div>
             </div>
             {showArticleSidebar && (
-              <aside className="sidebar">
-                <div className="sidebar-header">
-                  <span className="sidebar-category">{category}</span>
-                  <span className="sidebar-date">{formattedDate}</span>
+              <aside className="sidebar" style={{
+                width: '20%',
+                minWidth: '200px',
+                borderLeft: '1px solid #ddd',
+                paddingLeft: '24px',
+                paddingRight: '24px',
+                paddingTop: '24px',
+              }}>
+                <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <span className="sidebar-category" style={{
+                    fontSize: '14px',
+                    backgroundColor: articleColor,
+                    borderRadius: '5px',
+                    color: '#fff',
+                    padding: '5px 10px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                  }}>
+                    {category}
+                  </span>
+                  <span className="sidebar-date" style={{ color: 'gray', fontSize: '14px' }}>
+                    {formattedDate}
+                  </span>
                 </div>
-                <div className="sidebar-author">
-                  <div className="author-avatar" />
-                  <h4>{author}</h4>
+                <div className="sidebar-author" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <div className="author-avatar" style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'gray' }} />
+                  <h4 style={{ margin: 0 }}>{author}</h4>
                 </div>
-                <p className="sidebar-bio">
-                  Ceci est une courte biographie de l'auteur qui est une courte biographie de l'auteur.
+                <p className="sidebar-bio" style={{ fontStyle: 'italic', marginBottom: '10px' }}>
+                  Ceci est une courte biographie de l'auteur...
                 </p>
-                <div className="sidebar-links">
-                  <a href="#">Portfolio</a>
-                  <a href="#">Twitter</a>
-                  <a href="#">LinkedIn</a>
+                <div className="sidebar-links" style={{ marginBottom: '20px' }}>
+                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5', marginRight: '10px' }}>Portfolio</a>
+                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5', marginRight: '10px' }}>Twitter</a>
+                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>LinkedIn</a>
                 </div>
-                <h4 className="sidebar-heading">References</h4>
-                <ul className="sidebar-list">
-                  <li>
-                    <a href="#">Example Reference 1</a>
-                  </li>
-                  <li>
-                    <a href="#">Example Reference 2</a>
-                  </li>
-                  <li>
-                    <a href="#">Example Reference 3</a>
-                  </li>
+                <h4 className="sidebar-heading" style={{ marginBottom: '4px' }}>References</h4>
+                <ul className="sidebar-list" style={{ paddingLeft: '20px', marginTop: '4px', marginBottom: '20px' }}>
+                  <li><a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>Example Reference 1</a></li>
+                  <li><a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>Example Reference 2</a></li>
+                  <li><a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>Example Reference 3</a></li>
                 </ul>
                 <h4 className="sidebar-heading">Commentaires</h4>
-                <ul className="sidebar-list">
-                  <li>
-                    <strong>User1:</strong> Example de commentaire
-                  </li>
-                  <li>
-                    <strong>User2:</strong> Un autre exemple de commentaire.
-                  </li>
+                <ul className="sidebar-list" style={{ paddingLeft: '20px', marginTop: '4px', marginBottom: '20px' }}>
+                  <li><strong>User1:</strong> Example de commentaire</li>
+                  <li><strong>User2:</strong> Un autre exemple de commentaire.</li>
                 </ul>
               </aside>
             )}
           </div>
         </main>
 
-        {/* ARTICLE GRID: Only articles from current category */}
-        <div className="article-grid-container">
+        {/* ARTICLE GRID – using common container style */}
+        <div className="article-grid-container common-container" style={{ margin: '20px 0' }}>
           <ArticleGrid articles={gridArticles} categories={categories} titleFont="GayaRegular" />
         </div>
 
@@ -202,23 +237,23 @@ const ArticlePage: React.FC<{
       </div>
 
       <style jsx>{`
-        /* HERO CARD STYLES */
-        .hero-card {
+        /* Define a common container style to ensure equal widths and horizontal padding */
+        .common-container {
           max-width: 1200px;
           margin: 0 auto;
+          padding: 0 20px;
+        }
+        /* HERO CARD STYLES */
+        .hero-card {
           display: flex;
           gap: 30px;
           align-items: center;
-          padding: 0 0px 0px 60px; /* equal left/right padding */
           background-color: #fff;
           border-top-left-radius: 142px;
           border-top-right-radius: 8px;
           border-bottom-right-radius: 8px;
           border-bottom-left-radius: 8px;
           transform: translateY(-140px);
-        }
-        .hero-text {
-          flex: 1;
         }
         .hero-text p {
           margin: 0 0 8px;
@@ -246,29 +281,19 @@ const ArticlePage: React.FC<{
         }
         /* MAIN CONTENT STYLES */
         .main-content {
-          flex: 1;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
+          padding: 20px 0;
         }
         .content-wrapper {
           display: flex;
           gap: 20px;
-        }
-        /* Sidebar styling (desktop) */
-        .sidebar {
-          width: 20%;
-          min-width: 200px;
-          border-left: 1px solid #ddd;
-          padding: 24px;
         }
         /* Mobile adjustments */
         @media (max-width: 768px) {
           .hero-card {
             flex-direction: column;
             align-items: center;
-            padding: 0 0px 0px 60px;
-            transform: translateY(-140px);
+            padding: 20px; /* mobile: consistent padding on all sides */
+            transform: translateY(-80px);
           }
           .hero-text {
             text-align: center;
@@ -289,13 +314,7 @@ const ArticlePage: React.FC<{
             margin-top: 20px;
           }
         }
-        
-        /* ARTICLE GRID container */
-        .article-grid-container {
-          margin: 20px auto;
-          max-width: 1200px;
-          padding: 0 20px;
-        }
+        /* ARTICLE GRID container already uses common-container */
       `}</style>
     </>
   );
