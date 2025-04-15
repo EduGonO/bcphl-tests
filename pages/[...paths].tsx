@@ -121,7 +121,7 @@ const ArticlePage: React.FC<{
           style={{
             height: '300px',
             //backgroundImage: 'url("/media/exampleImage.jpg")', // or 
-            backgroundColor: articleColor
+            backgroundColor: articleColor,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
