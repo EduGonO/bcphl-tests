@@ -71,7 +71,7 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
       </a>
       <style jsx>{`
         .article-block-container {
-          margin: 20px auto;
+          margin-bottom: 20px;
           width: 100%;
           position: relative;
         }
