@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import Head from 'next/head';
 import fs from 'fs';
@@ -101,100 +99,97 @@ const ArticlePage: React.FC<{
     layout === 'vertical' ? { marginLeft: '250px', padding: '20px' } : { marginTop: '140px', padding: '20px' };
 
   return (
-  <>
-    <Head>
-      <title>{title}</title>
-    </Head>
+    <>
+      <Head>
+        <title>{title}</title>
+      </Head>
 
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        backgroundColor: '#fff',
-        fontSize: `${bodyFontSize}px`,
-        fontFamily: bodyFont,
-      }}
-    >
-      <Header categories={[]} />
-
-      {/* Backdrop – using the article's category color at 50% opacity */}
       <div
         style={{
-          height: '240px',
-          backgroundColor: backdropColor,
-        }}
-      />
-
-      {/* Overlapping white card: starts halfway down the backdrop and extends below */}
-      <div
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
           display: 'flex',
-          gap: '30px',
-          alignItems: 'center',
-          padding: '0 0px 0px 60px',
+          flexDirection: 'column',
+          minHeight: '100vh',
           backgroundColor: '#fff',
-          // Only top-left corner has a higher rounding
-          borderTopLeftRadius: '142px',
-          borderTopRightRadius: '8px',
-          borderBottomRightRadius: '8px',
-          borderBottomLeftRadius: '8px',
-          transform: 'translateY(-140px)', // Overlap the backdrop
+          fontSize: `${bodyFontSize}px`,
+          fontFamily: bodyFont,
         }}
       >
-        {/* Left side: Category, Title, Author/Date */}
-        <div style={{ flex: 1 }}>
-          <p
-            style={{
-              margin: '0 0 8px',
-              fontSize: '14px',
-              fontWeight: 'normal',
-              textTransform: 'uppercase',
-            }}
-          >
-            {category}
-          </p>
-          <h1
-            style={{
-              margin: '0 0 8px',
-              fontFamily: titleFont,
-              fontSize: '32px',
-              lineHeight: 1.2,
-            }}
-          >
-            {title}
-          </h1>
-          <p
-            style={{
-              margin: '0',
-              fontSize: '14px',
-              fontWeight: 'normal',
-              fontStyle: 'italic',
-            }}
-          >
-            {author} &nbsp;•&nbsp; {new Date(date).toLocaleDateString('en-US', {
-              month: 'short',
-              day: '2-digit',
-              year: 'numeric',
-            })}
-          </p>
-        </div>
+        {/* Pass categories to Header */}
+        <Header categories={categories} />
 
-        {/* Right side: Gray rectangle */}
+        {/* HERO SECTION: Backdrop and White Card Overlap */}
+        {/* Backdrop – using the article's category color at 50% opacity */}
         <div
           style={{
-            width: '400px',
-            height: '250px',
-            backgroundColor: '#ccc',
-            flexShrink: 0,
+            height: '240px',
+            backgroundColor: backdropColor,
           }}
         />
-      </div>
+
+        {/* Overlapping white card: retains your previous styling */}
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'flex',
+            gap: '30px',
+            alignItems: 'center',
+            padding: '0 0px 0px 60px',
+            backgroundColor: '#fff',
+            borderTopLeftRadius: '142px',
+            borderTopRightRadius: '8px',
+            borderBottomRightRadius: '8px',
+            borderBottomLeftRadius: '8px',
+            transform: 'translateY(-140px)',
+          }}
+        >
+          {/* Left side: Category, Title, Author/Date */}
+          <div style={{ flex: 1 }}>
+            <p
+              style={{
+                margin: '0 0 8px',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                textTransform: 'uppercase',
+              }}
+            >
+              {category}
+            </p>
+            <h1
+              style={{
+                margin: '0 0 8px',
+                fontFamily: titleFont,
+                fontSize: '32px',
+                lineHeight: 1.2,
+              }}
+            >
+              {title}
+            </h1>
+            <p
+              style={{
+                margin: '0',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                fontStyle: 'italic',
+              }}
+            >
+              {author} &nbsp;•&nbsp; {formattedDate}
+            </p>
+          </div>
+
+          {/* Right side: Gray rectangle (example image) */}
+          <div
+            style={{
+              width: '400px',
+              height: '250px',
+              backgroundColor: '#ccc',
+              flexShrink: 0,
+            }}
+          />
+        </div>
 
         {/* MAIN CONTENT */}
-        <main style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', padding: '20px', marginTop: '-20px'}}>
+        <main style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
           <div style={{ display: 'flex', gap: '20px' }}>
             {/* Article text */}
             <div style={{ flex: 1 }}>
@@ -230,7 +225,6 @@ const ArticlePage: React.FC<{
                     marginBottom: '10px',
                   }}
                 >
-                  {/* Category label in color */}
                   <span
                     style={{
                       fontSize: '14px',
@@ -316,6 +310,15 @@ const ArticlePage: React.FC<{
           </div>
         </main>
 
+        {/* ARTICLE GRID: Only show articles from the current category */}
+        <div style={{ margin: '20px auto', maxWidth: '1200px', padding: '0 20px' }}>
+          <ArticleGrid
+            articles={gridArticles} 
+            categories={categories}
+            titleFont="GayaRegular"
+          />
+        </div>
+
         {/* FOOTER */}
         <Footer />
 
@@ -340,4 +343,3 @@ const ArticlePage: React.FC<{
 };
 
 export default ArticlePage;
-
