@@ -101,9 +101,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
               <h4 className="footer-heading">Contribuer</h4>
               <ul className="footer-list">
                 <li>
-                  <Link href="/contact">
-                    <a style={linkStyle}>Contacter la rédaction</a>
-                  </Link>
+                  <a style={linkStyle}>Contacter la rédaction</a>
                 </li>
                 <li>
                   <a href="#" style={linkStyle}>Nous soutenir</a>
@@ -112,7 +110,9 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
                   <a href="#" style={linkStyle}>Commenter avec Hypothesis</a>
                 </li>
                 <li>
-                  <a href="#" style={linkStyle}>Plan du site</a>
+                  <Link href="/indices">
+                    <a href="#" style={linkStyle}>Plan du site</a>
+                  </Link>
                 </li>
                 <li>
                   <a href="#" style={linkStyle}>Mentions légales</a>
