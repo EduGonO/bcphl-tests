@@ -185,7 +185,7 @@ return (
       </div>
 
         {/* MAIN CONTENT */}
-        <main style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+        <main style={{ flex: 1, maxWidth: '1200px', margin: '0 auto', padding: '20px', marginTop: '-20px'}}>
           <div style={{ display: 'flex', gap: '20px' }}>
             {/* Article text */}
             <div style={{ flex: 1 }}>
