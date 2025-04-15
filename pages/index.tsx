@@ -55,8 +55,6 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
       >
         <Header
           categories={categories}
-          activeCategory={activeCategory}
-          onCategoryChange={handleCategoryChange}
         />
         <main style={mainStyle}>
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
