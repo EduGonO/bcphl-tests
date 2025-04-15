@@ -12,18 +12,20 @@ export type HeaderProps = {
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [triggerHovered, setTriggerHovered] = useState(false);
   const [dropdownHovered, setDropdownHovered] = useState(false);
 
   const rubriquesRef = useRef<HTMLDivElement>(null);
 
+  // Adjust the computed position: on mobile, stretch full width (left: 0)
   const showDropdown = () => {
     if (rubriquesRef.current) {
       const rect = rubriquesRef.current.getBoundingClientRect();
+      const isMobile = window.innerWidth < 768;
       setDropdownPos({
         top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
+        left: isMobile ? 0 : rect.left + window.scrollX,
       });
     }
     setDropdownVisible(true);
@@ -53,6 +55,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     hideDropdownWithDelay();
   };
 
+  // Create the dropdown content with a simple block layout.
   const dropdownContent = (
     <div className="rubriques-dropdown">
       {categories.map((cat) =>
@@ -79,6 +82,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     </div>
   );
 
+  // Render the dropdown in a portal.
   const dropdownPortal = dropdownVisible
     ? ReactDOM.createPortal(
         <div
@@ -88,6 +92,8 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
             top: dropdownPos.top,
             left: dropdownPos.left,
             zIndex: 10000,
+            // On mobile, occupy full width.
+            width: window.innerWidth < 768 ? '100%' : 'auto',
           }}
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
@@ -221,32 +227,25 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           width: 18px;
           height: 18px;
         }
-        /* Updated Dropdown styles for a vertical list */
+        /* Simplified dropdown container: use display block */
         .rubriques-dropdown {
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: flex-start !important;
-          background: #cce2d0 !important;
+          display: block;
+          background: #cce2d0;
           border-radius: 4px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-          min-width: 160px;
           padding: 8px 0;
-          white-space: normal !important; /* override "nowrap" */
         }
-
-        .rubriques-dropdown .dropdown-item {
-          display: block !important;
+        .dropdown-item {
+          display: block;
           padding: 8px 16px;
           font-size: 14px;
           cursor: pointer;
-          text-decoration: none !important;
-          color: #000 !important;
-          width: 100% !important;
-          white-space: normal !important;
+          text-decoration: none;
+          color: #000;
+          width: 100%;
         }
-
-        .rubriques-dropdown .dropdown-item:hover {
-          background: #b6d4b9 !important;
+        .dropdown-item:hover {
+          background: #b6d4b9;
         }
       `}</style>
     </header>
