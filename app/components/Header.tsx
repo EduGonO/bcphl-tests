@@ -1,5 +1,6 @@
 // /app/components/Header.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import Link from 'next/link';
 
 export type Category = { name: string; color: string };
@@ -10,36 +11,95 @@ export type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
-  // Manage the hover state for "Rubriques"
-  const [isRubriquesHovered, setIsRubriquesHovered] = useState(false);
-  const [isDropdownHovered, setIsDropdownHovered] = useState(false);
-  const dropdownVisible = isRubriquesHovered || isDropdownHovered;
+  // State to control dropdown visibility
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  // State to store dropdown position (set once dropdown is shown)
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
+  // Reference for the "Rubriques" element (the trigger)
+  const rubriquesRef = useRef<HTMLDivElement>(null);
 
-  // Render the dropdown as a vertical list
-  const renderDropdown = () => {
-    return (
-      <div className="rubriques-dropdown">
-        {categories.map((cat) =>
-          onCategoryChange ? (
-            <button
-              key={cat.name}
-              onClick={() => onCategoryChange(cat.name)}
-              className="dropdown-item"
-              style={{ color: cat.color }}
-            >
-              {cat.name}
-            </button>
-          ) : (
-            <Link key={cat.name} href={`/?category=${cat.name}`}>
-              <a className="dropdown-item" style={{ color: cat.color }}>
-                {cat.name}
-              </a>
-            </Link>
-          )
-        )}
-      </div>
-    );
+  // When the user hovers over "Rubriques", measure its position and show dropdown via portal
+  const showDropdown = () => {
+    if (rubriquesRef.current) {
+      const rect = rubriquesRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 4 + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+    }
+    setDropdownVisible(true);
   };
+
+  const hideDropdown = () => {
+    setDropdownVisible(false);
+  };
+
+  // The dropdown content as a vertical list
+  const dropdownContent = (
+    <div className="dropdown-content">
+      {categories.map((cat) =>
+        onCategoryChange ? (
+          <button
+            key={cat.name}
+            onClick={() => {
+              onCategoryChange(cat.name);
+              hideDropdown();
+            }}
+            className="dropdown-item"
+            style={{ color: cat.color }}
+          >
+            {cat.name}
+          </button>
+        ) : (
+          <Link key={cat.name} href={`/?category=${cat.name}`}>
+            <a className="dropdown-item" style={{ color: cat.color }} onClick={hideDropdown}>
+              {cat.name}
+            </a>
+          </Link>
+        )
+      )}
+      <style jsx>{`
+        .dropdown-content {
+          background: #fafafa;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          padding: 8px 0;
+        }
+        .dropdown-item {
+          display: block;
+          padding: 8px 16px;
+          font-size: 14px;
+          border: none;
+          background: none;
+          text-align: left;
+          width: 100%;
+          cursor: pointer;
+          text-decoration: none;
+        }
+        .dropdown-item:hover {
+          background: #eee;
+        }
+      `}</style>
+    </div>
+  );
+
+  // Render the dropdown as a portal so it sits on top of everything and does not expand the nav bar.
+  const dropdownPortal = dropdownVisible
+    ? ReactDOM.createPortal(
+        <div
+          className="dropdown-portal"
+          style={{
+            position: 'absolute',
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            width: dropdownPos.width,
+            zIndex: 10000,
+          }}
+          onMouseEnter={() => {}}
+          onMouseLeave={hideDropdown}
+        >
+          {dropdownContent}
+        </div>,
+        document.body
+      )
+    : null;
 
   return (
     <header className="header">
@@ -52,25 +112,16 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           </a>
         </Link>
       </div>
-
-      {/* Bottom row: Full-width gray nav bar */}
+      {/* Bottom row: Full-width gray navigation */}
       <nav className="header-nav">
         <div className="nav-inner">
           <div
             className="nav-item rubriques"
-            onMouseEnter={() => setIsRubriquesHovered(true)}
-            onMouseLeave={() => setIsRubriquesHovered(false)}
+            ref={rubriquesRef}
+            onMouseEnter={showDropdown}
+            onMouseLeave={hideDropdown}
           >
             <span>Rubriques ▾</span>
-            {dropdownVisible && (
-              <div
-                className="dropdown-container"
-                onMouseEnter={() => setIsDropdownHovered(true)}
-                onMouseLeave={() => setIsDropdownHovered(false)}
-              >
-                {renderDropdown()}
-              </div>
-            )}
           </div>
           <Link href="/evenements">
             <a className="nav-item">Événements</a>
@@ -105,9 +156,9 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           </div>
         </div>
       </nav>
-
+      {dropdownPortal}
       <style jsx>{`
-        /* GENERAL OVERRIDES: All anchor tags inside .header get no underline, black color */
+        /* FORCE NO UNDERLINE AND BLACK COLOR */
         .header a,
         .header a:visited,
         .header a:hover,
@@ -115,15 +166,15 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           text-decoration: none !important;
           color: #000 !important;
         }
-
         .header {
           width: 100%;
           background: #fff;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          z-index: 1000;
           font-family: sans-serif;
+          position: relative;
+          z-index: 1000;
         }
-        /* TOP ROW: Centered Brand */
+        /* TOP ROW */
         .header-top {
           display: flex;
           justify-content: center;
@@ -144,7 +195,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           color: #000;
         }
-        /* BOTTOM ROW: Full-Width Gray Navigation */
+        /* BOTTOM ROW: Gray navigation bar */
         .header-nav {
           width: 100%;
           background: #f5f5f5;
@@ -166,9 +217,8 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           font-weight: 500;
           padding: 8px 4px;
           cursor: pointer;
-          position: relative; /* for dropdown positioning */
+          position: relative;
         }
-        /* Search button styles */
         .search-button {
           display: flex;
           align-items: center;
@@ -178,45 +228,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         .search-button svg {
           width: 18px;
           height: 18px;
-        }
-        /* Rubriques Dropdown: Independent and Vertical */
-        .rubriques {
-          position: relative;
-        }
-        .dropdown-container {
-          position: absolute;
-          top: calc(100% + 4px);
-          left: 0;
-          z-index: 10000;
-        }
-        .rubriques-dropdown {
-          background: #fafafa;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-          padding: 8px 0;
-          min-width: 150px;
-        }
-        .dropdown-item {
-          display: block;
-          padding: 8px 16px;
-          font-size: 14px;
-          cursor: pointer;
-          border: none;
-          background: none;
-          text-decoration: none;
-          color: inherit;
-        }
-        .dropdown-item:hover {
-          background: #eee;
-        }
-
-        /* Optional scrollbar styling for nav-inner */
-        .header-nav::-webkit-scrollbar {
-          height: 6px;
-        }
-        .header-nav::-webkit-scrollbar-thumb {
-          background: #ccc;
-          border-radius: 3px;
         }
       `}</style>
     </header>
