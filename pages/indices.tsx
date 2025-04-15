@@ -31,7 +31,6 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
       </Head>
       <Header
         categories={indices.map((cat) => ({ name: cat.name, color: '#607d8b' }))}
-        layout="horizontal"
       />
       <div
         style={{
