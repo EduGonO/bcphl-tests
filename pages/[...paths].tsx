@@ -68,9 +68,6 @@ const ArticlePage: React.FC<{
     { name: 'Cartographie', color: '#607d8b' },
   ];
 
-  // We find the matching color or use a default (#f0f0f0).
-  const articleColor =
-    categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
 
   /************************************************************
    * DebugOverlay States (no layout toggles)
@@ -88,110 +85,113 @@ const ArticlePage: React.FC<{
     day: '2-digit',
     year: 'numeric',
   });
+  
+const hexToRgba = (hex: string, alpha: number): string => {
+  let r = 0, g = 0, b = 0;
+  if (hex.length === 7) {
+    r = parseInt(hex.slice(1, 3), 16);
+    g = parseInt(hex.slice(3, 5), 16);
+    b = parseInt(hex.slice(5, 7), 16);
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
-  return (
-    <>
-      <Head>
-        <title>{title}</title>
-      </Head>
+// Determine the article color using your lookup.
+const articleColor =
+  categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
 
-      {/************************************************************
-       Wrapping everything in a flex container ensures the footer
-       can sit at the bottom (flex:1 in main content).
-      ************************************************************/}
+// Create an rgba version of the article color at 50% opacity.
+const backdropColor = hexToRgba(articleColor, 0.5);
+
+return (
+  <>
+    <Head>
+      <title>{title}</title>
+    </Head>
+
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        backgroundColor: '#fff',
+        fontSize: `${bodyFontSize}px`,
+        fontFamily: bodyFont,
+      }}
+    >
+      <Header categories={[]} />
+
+      {/* Backdrop – using the article's category color at 50% opacity */}
       <div
         style={{
+          height: '300px',
+          backgroundColor: backdropColor,
+        }}
+      />
+
+      {/* Overlapping white card: starts halfway down the backdrop and extends below */}
+      <div
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
           display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
+          gap: '30px',
+          alignItems: 'center',
+          padding: '20px',
           backgroundColor: '#fff',
-          fontSize: `${bodyFontSize}px`,
-          fontFamily: bodyFont,
+          borderRadius: '8px',
+          transform: 'translateY(-150px)', // Overlap the backdrop
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         }}
       >
-        {/* Standard Header with no category dropdown logic */}
-        <Header categories={[]} />
-
-        {/************************************************************
-         TOP BACKDROP
-         - For demonstration, we use a color OR background image
-         - We'll do a 300px-high section to mimic the "colorful texture"
-        ************************************************************/}
-        <div
-          style={{
-            height: '300px',
-            //backgroundImage: 'url("/media/exampleImage.jpg")', // or 
-            backgroundColor: articleColor,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          {/* The backdrop only. The row with category, title, image
-              will partially overlap via negative margin. */}
-        </div>
-
-        {/************************************************************
-         Category/Title/Author + Gray Image
-         - starts "in the middle" of the backdrop, going below it.
-         - negative margin to overlap the above section.
-        ************************************************************/}
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'flex',
-            gap: '30px',
-            alignItems: 'flex-start',
-            padding: '0 20px',
-            transform: 'translateY(-150px)', // Overlap the backdrop
-            marginBottom: '-150px', // ensure space is recaptured so the rest doesn't jump up
-          }}
-        >
-          {/* Left side: category, title, date/author */}
-          <div style={{ flex: 1 }}>
-            {/* Category in same font style as author + date */}
-            <p
-              style={{
-                margin: '0 0 8px',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                textTransform: 'uppercase',
-              }}
-            >
-              {category}
-            </p>
-            <h1
-              style={{
-                margin: '0 0 8px',
-                fontFamily: titleFont,
-                fontSize: '32px',
-                lineHeight: 1.2,
-              }}
-            >
-              {title}
-            </h1>
-            <p
-              style={{
-                margin: '0',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                fontStyle: 'italic',
-              }}
-            >
-              {author} &nbsp;•&nbsp; {formattedDate}
-            </p>
-          </div>
-
-          {/* Right side: a big gray rectangle to represent example image */}
-          <div
+        {/* Left side: Category, Title, Author/Date */}
+        <div style={{ flex: 1 }}>
+          <p
             style={{
-              width: '400px',
-              height: '250px',
-              backgroundColor: '#ccc',
-              flexShrink: 0,
+              margin: '0 0 8px',
+              fontSize: '14px',
+              fontWeight: 'normal',
+              textTransform: 'uppercase',
             }}
-          />
+          >
+            {category}
+          </p>
+          <h1
+            style={{
+              margin: '0 0 8px',
+              fontFamily: titleFont,
+              fontSize: '32px',
+              lineHeight: 1.2,
+            }}
+          >
+            {title}
+          </h1>
+          <p
+            style={{
+              margin: '0',
+              fontSize: '14px',
+              fontWeight: 'normal',
+              fontStyle: 'italic',
+            }}
+          >
+            {author} &nbsp;•&nbsp; {new Date(date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric',
+            })}
+          </p>
         </div>
+
+        {/* Right side: Gray rectangle */}
+        <div
+          style={{
+            width: '400px',
+            height: '250px',
+            backgroundColor: '#ccc',
+            flexShrink: 0,
+          }}
+        />
+      </div>
 
         {/************************************************************
          MAIN CONTENT
