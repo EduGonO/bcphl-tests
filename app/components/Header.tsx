@@ -12,7 +12,7 @@ export type HeaderProps = {
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const [triggerHovered, setTriggerHovered] = useState(false);
   const [dropdownHovered, setDropdownHovered] = useState(false);
 
@@ -29,9 +29,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     setDropdownVisible(true);
   };
 
-  const hideDropdown = () => {
-    setDropdownVisible(false);
-  };
+  const hideDropdown = () => setDropdownVisible(false);
 
   const hideDropdownWithDelay = () => {
     setTimeout(() => {
@@ -49,10 +47,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     setTriggerHovered(false);
     hideDropdownWithDelay();
   };
-
-  const handleDropdownMouseEnter = () => {
-    setDropdownHovered(true);
-  };
+  const handleDropdownMouseEnter = () => setDropdownHovered(true);
   const handleDropdownMouseLeave = () => {
     setDropdownHovered(false);
     hideDropdownWithDelay();
@@ -228,25 +223,30 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         }
         /* Updated Dropdown styles for a vertical list */
         .rubriques-dropdown {
-          display: flex;
-          flex-direction: column;
-          background: #cce2d0;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          background: #cce2d0 !important;
           border-radius: 4px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           min-width: 160px;
           padding: 8px 0;
+          white-space: normal !important; /* override "nowrap" */
         }
-        .dropdown-item {
-          display: block;
+
+        .rubriques-dropdown .dropdown-item {
+          display: block !important;
           padding: 8px 16px;
           font-size: 14px;
           cursor: pointer;
-          text-decoration: none;
-          color: #000;
-          width: 100%;
+          text-decoration: none !important;
+          color: #000 !important;
+          width: 100% !important;
+          white-space: normal !important;
         }
-        .dropdown-item:hover {
-          background: #b6d4b9;
+
+        .rubriques-dropdown .dropdown-item:hover {
+          background: #b6d4b9 !important;
         }
       `}</style>
     </header>
