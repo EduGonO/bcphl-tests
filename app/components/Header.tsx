@@ -1,3 +1,4 @@
+// /app/components/Header.tsx
 import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
@@ -10,20 +11,17 @@ export type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
-  // Tracks if the dropdown is visible, plus the absolute position where it should appear
+  // State controlling dropdown visibility and position.
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
-
-  // Separate hover states for the "Rubriques" trigger and the dropdown
+  // Separate hover states for the trigger and dropdown.
   const [triggerHovered, setTriggerHovered] = useState(false);
   const [dropdownHovered, setDropdownHovered] = useState(false);
 
-  // Reference to the "Rubriques" trigger element
+  // Reference for the "Rubriques" trigger element.
   const rubriquesRef = useRef<HTMLDivElement>(null);
 
-  /************************************************************
-   * SHOW / HIDE LOGIC
-   ************************************************************/
+  // Show dropdown by computing the trigger's position.
   const showDropdown = () => {
     if (rubriquesRef.current) {
       const rect = rubriquesRef.current.getBoundingClientRect();
@@ -39,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     setDropdownVisible(false);
   };
 
-  // Hide with a small delay to allow the user time to move from the trigger to the dropdown
+  // Use a short delay when hiding so that moving from trigger to dropdown doesn't immediately close the menu.
   const hideDropdownWithDelay = () => {
     setTimeout(() => {
       if (!triggerHovered && !dropdownHovered) {
@@ -48,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     }, 120);
   };
 
-  // Mouse events on the "Rubriques" trigger
+  // Trigger handlers.
   const handleTriggerMouseEnter = () => {
     setTriggerHovered(true);
     showDropdown();
@@ -58,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     hideDropdownWithDelay();
   };
 
-  // Mouse events on the dropdown container
+  // Dropdown handlers.
   const handleDropdownMouseEnter = () => {
     setDropdownHovered(true);
   };
@@ -67,10 +65,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     hideDropdownWithDelay();
   };
 
-  /************************************************************
-   * DROPDOWN CONTENT
-   ************************************************************/
-  // Vertical list of categories on a green background
+  // Render the dropdown content as a vertical list with a green background.
   const dropdownContent = (
     <div className="rubriques-dropdown">
       {categories.map((cat) =>
@@ -88,11 +83,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           </button>
         ) : (
           <Link key={cat.name} href={`/?category=${cat.name}`}>
-            <a
-              className="dropdown-item"
-              style={{ color: cat.color }}
-              onClick={hideDropdown}
-            >
+            <a className="dropdown-item" style={{ color: cat.color }} onClick={hideDropdown}>
               {cat.name}
             </a>
           </Link>
@@ -101,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     </div>
   );
 
-  // Render via portal to avoid affecting the header's layout
+  // Render the dropdown in a portal so that it floats above the nav bar.
   const dropdownPortal = dropdownVisible
     ? ReactDOM.createPortal(
         <div
@@ -121,9 +112,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       )
     : null;
 
-  /************************************************************
-   * RENDER
-   ************************************************************/
   return (
     <header className="header">
       {/* Top Row: Centered Brand */}
@@ -135,7 +123,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           </a>
         </Link>
       </div>
-
       {/* Bottom Row: Full-Width Gray Navigation */}
       <nav className="header-nav">
         <div className="nav-inner">
@@ -181,11 +168,8 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         </div>
       </nav>
       {dropdownPortal}
-
       <style jsx>{`
-        /********************************************************
-         * GLOBAL LINK OVERRIDES (NO UNDERLINE, BLACK COLOR)
-         ********************************************************/
+        /* Global override for header links */
         :global(.header a),
         :global(.header a:visited),
         :global(.header a:hover),
@@ -193,7 +177,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           text-decoration: none !important;
           color: #000 !important;
         }
-
         .header {
           width: 100%;
           background: #fff;
@@ -202,8 +185,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           z-index: 1000;
           font-family: sans-serif;
         }
-
-        /* TOP ROW */
+        /* Top Row: Centered Brand */
         .header-top {
           display: flex;
           justify-content: center;
@@ -224,8 +206,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           color: #000;
         }
-
-        /* BOTTOM ROW: GRAY NAV */
+        /* Bottom Row: Gray Navigation */
         .header-nav {
           width: 100%;
           background: #f5f5f5;
@@ -249,34 +230,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           cursor: pointer;
           position: relative;
         }
-
-        /* "Rubriques" dropdown (independent, via portal) */
-        .rubriques-dropdown {
-          display: flex;
-          flex-direction: column; /* FORCES VERTICAL LIST */
-          background: #cce2d0; /* The green color you want */
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-          min-width: 160px;
-          padding: 8px 0;
-        }
-        .dropdown-item {
-          display: block;
-          padding: 8px 16px;
-          font-size: 14px;
-          border: none;
-          background: none;
-          text-align: left;
-          cursor: pointer;
-          text-decoration: none;
-          color: #000; /* default black, overridden by cat.color if present */
-          width: 100%;
-        }
-        .dropdown-item:hover {
-          background: #b6d4b9; /* A slightly darker green on hover */
-        }
-
-        /* SEARCH BUTTON */
+        /* Search button */
         .search-button {
           display: flex;
           align-items: center;
@@ -286,6 +240,28 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         .search-button svg {
           width: 18px;
           height: 18px;
+        }
+        /* Dropdown styles: vertical list with green background */
+        .rubriques-dropdown {
+          display: flex !important;
+          flex-direction: column !important;
+          background: #cce2d0 !important; /* green background */
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          min-width: 160px;
+          padding: 8px 0;
+        }
+        .dropdown-item {
+          display: block !important;
+          padding: 8px 16px;
+          font-size: 14px;
+          cursor: pointer;
+          text-decoration: none !important;
+          color: #000 !important;
+          width: 100%;
+        }
+        .dropdown-item:hover {
+          background: #b6d4b9 !important;
         }
       `}</style>
     </header>
