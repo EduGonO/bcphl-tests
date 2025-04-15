@@ -19,6 +19,31 @@ type IndicesProps = {
   indices: CategoryIndex[];
 };
 
+// Define your category color map
+const categoryColorMap: { [key: string]: string } = {
+  'Love Letters': '#f44336',
+  'Image-Critique': '#3f51b5',
+  'Bascule': '#4caf50',
+  'Sensure': '#ff9800',
+  'Automaton': '#9c27b0',
+  'Bicaméralité': '#009688',
+  'Banque des rêves': '#607d8b',
+  'Cartographie': '#607d8b',
+};
+
+// Helper to convert hex to rgba
+const hexToRgba = (hex: string, alpha: number): string => {
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (hex.length === 7) {
+    r = parseInt(hex.slice(1, 3), 16);
+    g = parseInt(hex.slice(3, 5), 16);
+    b = parseInt(hex.slice(5, 7), 16);
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const Indices: React.FC<IndicesProps> = ({ indices }) => {
   const totalCategories = indices.length;
   const totalArticles = indices.reduce((acc, cat) => acc + cat.texts.length, 0);
@@ -30,7 +55,12 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
         <meta name="description" content="Index of all categories and texts" />
       </Head>
       <Header
-        categories={indices.map((cat) => ({ name: cat.name, color: '#607d8b' }))}
+        // Pass categories to Header using the color mapping;
+        // if a category isn't in the map, default to '#607d8b'
+        categories={indices.map((cat) => ({
+          name: cat.name,
+          color: categoryColorMap[cat.name] || '#607d8b',
+        }))}
       />
       <div
         style={{
@@ -41,17 +71,31 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
           color: '#333',
         }}
       >
-        <h1 style={{ fontSize: '24px', marginBottom: '10px', textAlign: 'center' }}>
+        <h1
+          style={{
+            fontSize: '24px',
+            marginBottom: '10px',
+            textAlign: 'center',
+          }}
+        >
           Indices!!
         </h1>
-        <p style={{ fontSize: '14px', textAlign: 'center', marginBottom: '30px' }}>
+        <p
+          style={{
+            fontSize: '14px',
+            textAlign: 'center',
+            marginBottom: '30px',
+          }}
+        >
           {totalCategories} categories, {totalArticles} articles
         </p>
         {indices.map((cat) => (
           <section key={cat.name} style={{ marginBottom: '20px' }}>
             <h2 style={{ fontSize: '16px', marginBottom: '10px' }}>
               <Link href={`/?category=${encodeURIComponent(cat.name)}`}>
-                <a style={{ color: '#333', textDecoration: 'none' }}>{cat.name}</a>
+                <a style={{ color: '#333', textDecoration: 'none' }}>
+                  {cat.name}
+                </a>
               </Link>
             </h2>
             <ul style={{ listStyleType: 'disc', margin: 0, paddingLeft: '20px' }}>
@@ -67,7 +111,53 @@ const Indices: React.FC<IndicesProps> = ({ indices }) => {
             </ul>
           </section>
         ))}
+
+        {/* Add a line break */}
+        <hr style={{ margin: '40px 0' }} />
+
+        {/* Grid view of categories */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '20px',
+            marginTop: '20px',
+          }}
+        >
+          {indices.map((cat) => {
+            // Get the color for the category, then create a 50% opacity version
+            const catColor = categoryColorMap[cat.name] || '#607d8b';
+            const gridBg = hexToRgba(catColor, 0.5);
+            return (
+              <div
+                key={cat.name}
+                style={{
+                  padding: '20px',
+                  backgroundColor: gridBg,
+                  textAlign: 'center',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: '#333',
+                }}
+              >
+                <Link href={`/?category=${encodeURIComponent(cat.name)}`}>
+                  <a style={{ textDecoration: 'none', color: '#333' }}>
+                    {cat.name}
+                  </a>
+                </Link>
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Global style override to ensure no <a> elements have underlines */}
+      <style jsx global>{`
+        a {
+          text-decoration: none !important;
+        }
+      `}</style>
     </>
   );
 };
