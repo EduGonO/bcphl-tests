@@ -209,7 +209,7 @@ const ArticlePage: React.FC<{
           display: flex;
           gap: 30px;
           align-items: center;
-          padding: 0 60px 0px 0px; /* equal left/right padding */
+          padding: 0 0px 0px 60px; /* equal left/right padding */
           background-color: #fff;
           border-top-left-radius: 142px;
           border-top-right-radius: 8px;
