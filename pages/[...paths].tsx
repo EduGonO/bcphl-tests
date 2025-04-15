@@ -120,7 +120,8 @@ const ArticlePage: React.FC<{
         <div
           style={{
             height: '300px',
-            backgroundImage: 'url("/media/someColorfulTexture.jpg")', // or backgroundColor: articleColor
+            //backgroundImage: 'url("/media/exampleImage.jpg")', // or 
+            backgroundColor: articleColor
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
