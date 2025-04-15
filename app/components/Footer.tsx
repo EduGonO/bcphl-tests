@@ -191,7 +191,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
         }
         /* Increase title size for the two key headings */
         .footer-heading {
-          font-size: 16px;
+          font-size: 18px;
           margin-bottom: 10px;
           font-weight: bold;
           color: ${footerColor};
@@ -230,8 +230,8 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
         .powered-by p {
           margin: 0 0 8px;
           font-size: 12px;
-          line-height: 1.4;
-          text-align: center;
+          line-height: 1.2;
+          /*text-align: center;*/
         }
         .footer-brand {
           text-align: center;
