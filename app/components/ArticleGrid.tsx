@@ -14,89 +14,102 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   titleFont = 'RecoletaMedium',
 }) => {
   return (
-    <section style={{ padding: '20px 0' }}>
-      {/* Outer container with horizontal scroll */}
-      <div
-        style={{
-          display: 'grid',
-          gridAutoFlow: 'column',
-          gridAutoColumns: 'min-content',
-          gap: '20px',
-          overflowX: 'auto',
-          scrollBehavior: 'smooth',
-          paddingBottom: '8px', // provide a bit of spacing if needed
-        }}
-      >
+    <section className="article-grid">
+      <div className="grid-container">
         {articles.map((article, index) => {
-          const catColor = categories.find((c) => c.name === article.category)?.color || '#f0f0f0';
+          const catColor =
+            categories.find((c) => c.name === article.category)?.color || '#f0f0f0';
 
           return (
-            <div
+            <a
+              href={`/${article.category}/${article.slug}`}
               key={index}
-              style={{
-                width: '280px',
-                border: '1px solid #ddd',
-                borderRadius: '6px',
-                backgroundColor: '#fff',
-                flexShrink: 0,
-              }}
+              className="card-link"
             >
-              {/* Image/Thumbnail placeholder */}
-              <div
-                style={{
-                  height: '160px',
-                  backgroundColor: '#e0e0e0',
-                  borderRadius: '6px 6px 0 0',
-                }}
-              />
-
-              {/* Card content */}
-              <div style={{ padding: '12px' }}>
-                <a
-                  href={`/${article.category}/${article.slug}`}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <h3
+              <div className="card">
+                <div className="card-image" />
+                <div className="card-content">
+                  <h3 className="card-title">{article.title}</h3>
+                  <p className="card-meta">
+                    {article.date} • {article.author}
+                  </p>
+                  <div
+                    className="card-category"
                     style={{
-                      margin: '0 0 5px',
-                      fontSize: '16px',
-                      fontFamily: titleFont,
-                      color: '#000',
-                      lineHeight: 1.3,
+                      color: catColor,
+                      border: `1px solid ${catColor}`,
+                      backgroundColor: catColor + '20',
                     }}
                   >
-                    {article.title}
-                  </h3>
-                </a>
-
-                <p style={{ margin: '0 0 5px', fontSize: '13px', color: '#666' }}>
-                  {article.date} • {article.author}
-                </p>
-
-                <div
-                  style={{
-                    display: 'inline-block',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    padding: '3px 8px',
-                    color: catColor,
-                    border: `1px solid ${catColor}`,
-                    backgroundColor: catColor + '20',
-                    borderRadius: '4px',
-                    marginBottom: '6px',
-                  }}
-                >
-                  {article.category}
+                    {article.category}
+                  </div>
+                  <p className="card-preview">{article.preview}</p>
                 </div>
-
-                <p style={{ margin: '0', fontSize: '14px', color: '#444' }}>
-                  {article.preview}
-                </p>
               </div>
-            </div>
+            </a>
           );
         })}
       </div>
+      <style jsx>{`
+        .grid-container {
+          display: grid;
+          grid-auto-flow: column;
+          grid-auto-columns: min-content;
+          gap: 20px;
+          overflow-x: auto;
+          scroll-behavior: smooth;
+          padding-bottom: 8px;
+        }
+        .card-link {
+          text-decoration: none;
+          color: inherit;
+          display: block;
+        }
+        .card {
+          width: 280px;
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+          transform: scale(1.03);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .card-image {
+          height: 160px;
+          background: #e0e0e0;
+        }
+        .card-content {
+          padding: 12px;
+        }
+        .card-title {
+          margin: 0 0 5px;
+          font-size: 16px;
+          font-family: ${titleFont};
+          line-height: 1.3;
+          color: #000;
+        }
+        .card-meta {
+          margin: 0 0 5px;
+          font-size: 13px;
+          color: #666;
+        }
+        .card-category {
+          display: inline-block;
+          font-size: 12px;
+          font-weight: bold;
+          padding: 3px 8px;
+          border-radius: 4px;
+          margin-bottom: 6px;
+        }
+        .card-preview {
+          margin: 0;
+          font-size: 14px;
+          color: #444;
+        }
+      `}</style>
     </section>
   );
 };
