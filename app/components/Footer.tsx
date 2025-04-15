@@ -1,27 +1,15 @@
+// /app/components/Footer.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 interface FooterProps {
   /**
-   * Category color (or default) to be used for styling.
-   * This color is used at full opacity for titles and at 50% opacity for the background.
-   * Example: "#607d8b"
+   * The category color is used to style the footer.
+   * It is applied at 50% opacity in the background and 100% opacity for the titles.
+   * Provide a hex value (e.g. "#607d8b"). Default is "#607d8b".
    */
   footerColor?: string;
 }
-
-/**
- * Converts a hex color (e.g. "#607d8b") to an rgba() string with the given alpha.
- */
-const hexToRGBA = (hex: string, alpha: number): string => {
-  let r = 0, g = 0, b = 0;
-  if (hex.length === 7) { // Expected "#RRGGBB"
-    r = parseInt(hex.slice(1, 3), 16);
-    g = parseInt(hex.slice(3, 5), 16);
-    b = parseInt(hex.slice(5, 7), 16);
-  }
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
 
 const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
   const [newsletterOpen, setNewsletterOpen] = useState(false);
@@ -38,17 +26,42 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () =>
+      document.removeEventListener('mousedown', handleClickOutside);
   }, [newsletterOpen]);
 
+  // Helper to convert a hex code to an rgba color string
+  const toRGBA = (hex: string, alpha: number): string => {
+    const cleanedHex = hex.replace('#', '');
+    const r = parseInt(cleanedHex.substring(0, 2), 16);
+    const g = parseInt(cleanedHex.substring(2, 4), 16);
+    const b = parseInt(cleanedHex.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  };
+
+  // Background color with 50% opacity
+  const bgColor = toRGBA(footerColor, 0.5);
+
+  // Refined link & button styles – you can further adjust these as needed.
   const linkStyle: React.CSSProperties = {
     color: '#000',
     textDecoration: 'none',
     cursor: 'pointer',
   };
 
+  const buttonStyle: React.CSSProperties = {
+    background: '#000',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '8px 16px',
+    fontSize: '14px',
+    cursor: 'pointer',
+  };
+
   return (
     <>
+      {/* Newsletter Modal */}
       {newsletterOpen && (
         <div className="overlay">
           <div className="popover" ref={popoverRef}>
@@ -59,34 +72,36 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
           </div>
         </div>
       )}
+
+      {/* Footer Layout */}
       <footer className="footer">
         <div className="footer-inner">
+          {/* Top Section: Two Columns */}
           <div className="footer-top">
             <div className="footer-col">
-              <h4 className="footer-title">Rester en lien(s)</h4>
-              <p className="footer-text">
-                Abonnez-vous à la lettre d’information des Bicéphale
-              </p>
-              <button className="action-button" onClick={() => setNewsletterOpen(true)}>
+              <h4 className="footer-heading">Rester en lien(s)</h4>
+              <p className="footer-text">Abonnez-vous à la lettre d’information des Bicéphale</p>
+              <button style={buttonStyle} onClick={() => setNewsletterOpen(true)}>
                 S’abonner
               </button>
               <p className="footer-text">Suivez-nous</p>
               <div className="social-row">
                 <a href="#" style={linkStyle}>
-                  <img src="/media/social-youtube.png" alt="YouTube" style={{ height: '24px' }} />
+                  <img src="/media/social-youtube.png" alt="YouTube" style={{ height: 24 }} />
                 </a>
                 <a href="#" style={linkStyle}>
-                  <img src="/media/social-instagram.png" alt="Instagram" style={{ height: '24px' }} />
+                  <img src="/media/social-instagram.png" alt="Instagram" style={{ height: 24 }} />
                 </a>
                 <a href="#" style={linkStyle}>
-                  <img src="/media/social-facebook.png" alt="Facebook" style={{ height: '24px' }} />
+                  <img src="/media/social-facebook.png" alt="Facebook" style={{ height: 24 }} />
                 </a>
               </div>
             </div>
             <div className="footer-col">
-              <h4 className="footer-title">Contribuer</h4>
+              <h4 className="footer-heading">Contribuer</h4>
               <ul className="footer-list">
                 <li>
+                  <Link href="/contact">
                     <a style={linkStyle}>Contacter la rédaction</a>
                   </Link>
                 </li>
@@ -97,9 +112,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
                   <a href="#" style={linkStyle}>Commenter avec Hypothesis</a>
                 </li>
                 <li>
-                  <Link href="/indices">
-                    <a href="#" style={linkStyle}>Plan du site</a>
-                  </Link> 
+                  <a href="#" style={linkStyle}>Plan du site</a>
                 </li>
                 <li>
                   <a href="#" style={linkStyle}>Mentions légales</a>
@@ -107,6 +120,8 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
               </ul>
             </div>
           </div>
+
+          {/* Bottom Section */}
           <div className="footer-bottom">
             <div className="powered-by">
               <p>
@@ -114,14 +129,10 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
                 <br />
                 <strong>Brigade d’Interventions Contributives</strong>
               </p>
-              <button className="action-button">Nous soutenir</button>
+              <button style={buttonStyle}>Nous soutenir</button>
             </div>
             <div className="footer-brand">
-              <img
-                src="/media/logo.png"
-                alt="Logo"
-                style={{ height: '60px', marginBottom: '8px' }}
-              />
+              <img src="/media/logo.png" alt="Logo" style={{ height: '60px', marginBottom: '8px' }} />
               <p className="copyright">
                 © Bicéphale, 2025. Tous droits réservés.
               </p>
@@ -129,22 +140,28 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
           </div>
         </div>
       </footer>
+
+      {/* Styled JSX */}
       <style jsx>{`
         .footer {
-          background: ${hexToRGBA(footerColor, 0.5)};
+          background: ${bgColor};
           color: #000;
-          padding: 40px 20px 20px;
+          padding: 40px 20px;
           margin-top: 40px;
+          font-family: sans-serif;
         }
         .footer-inner {
           max-width: 1024px;
           margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 40px;
         }
+        /* Top section: responsive two-column layout */
         .footer-top {
           display: flex;
           flex-direction: column;
           gap: 20px;
-          margin-bottom: 40px;
         }
         @media (min-width: 768px) {
           .footer-top {
@@ -155,12 +172,12 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
         .footer-col {
           flex: 1;
         }
-        .footer-title {
+        .footer-heading {
           font-size: 20px;
           margin-bottom: 12px;
           font-weight: bold;
-          font-family: 'RecoletaMedium', 'GayaRegular', sans-serif;
-          color: ${footerColor}; /* Full opacity for titles */
+          color: ${footerColor};
+          font-family: "GayaRegular", "RecoletaMedium", sans-serif;
         }
         .footer-text {
           margin: 0 0 10px;
@@ -175,24 +192,21 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
           list-style: none;
           padding: 0;
           margin: 0;
-          font-size: 14px;
         }
         .footer-list li {
           margin-bottom: 8px;
         }
+        /* Bottom section */
         .footer-bottom {
           display: flex;
           flex-direction: column;
           gap: 20px;
           align-items: center;
-          border-top: 1px solid #ccc;
-          padding-top: 20px;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
           .footer-bottom {
             flex-direction: row;
             justify-content: space-between;
-            align-items: center;
           }
         }
         .powered-by p {
@@ -205,21 +219,11 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
         }
         .footer-brand img {
           display: block;
-          margin: 0 auto 8px;
+          margin: 0 auto;
         }
         .copyright {
           margin: 0;
           font-size: 12px;
-        }
-        .action-button {
-          background: #000;
-          color: #fff;
-          border: none;
-          border-radius: 4px;
-          padding: 8px 16px;
-          font-size: 14px;
-          cursor: pointer;
-          margin-top: 8px;
         }
         /* Newsletter overlay styles */
         .overlay {
