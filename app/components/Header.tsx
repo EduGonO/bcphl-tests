@@ -13,7 +13,6 @@ export type HeaderProps = {
 
 const Header: React.FC<HeaderProps> = ({
   categories,
-  activeCategory,
   onCategoryChange,
   layout = 'horizontal',
 }) => {
@@ -21,24 +20,23 @@ const Header: React.FC<HeaderProps> = ({
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const dropdownVisible = isRubriquesHovered || isDropdownHovered;
 
-  // Style applied to all category items in the dropdown
+  // Category item style for the dropdown
   const categoryItemStyle: React.CSSProperties = {
     display: 'block',
-    padding: '6px 12px',
+    padding: '8px 16px',
     fontSize: '14px',
     cursor: 'pointer',
-    background: 'none',
-    border: 'none',
-    textAlign: 'left',
     textDecoration: 'none',
-    width: '100%',
+    border: 'none',
+    background: 'none',
+    textAlign: 'left',
     color: '#000',
   };
 
-  // Renders the dropdown with vertical list of categories
   const renderDropdown = () => {
     return (
-      <div className="rubriques-dropdown"
+      <div
+        className="rubriques-dropdown"
         onMouseEnter={() => setIsDropdownHovered(true)}
         onMouseLeave={() => setIsDropdownHovered(false)}
       >
@@ -54,7 +52,10 @@ const Header: React.FC<HeaderProps> = ({
             </button>
           ) : (
             <Link key={cat.name} href={`/?category=${cat.name}`}>
-              <a style={{ ...categoryItemStyle, color: cat.color }} className="cat-item">
+              <a
+                style={{ ...categoryItemStyle, color: cat.color }}
+                className="cat-item"
+              >
                 {cat.name}
               </a>
             </Link>
@@ -64,12 +65,14 @@ const Header: React.FC<HeaderProps> = ({
     );
   };
 
-  // "Rubriques" menu item with dropdown
+  // "Rubriques" menu item
   const rubriquesMenu = (
-    <div className="nav-item rubriques"
-         onMouseEnter={() => setIsRubriquesHovered(true)}
-         onMouseLeave={() => setIsRubriquesHovered(false)}>
-      <span>Rubriques ▾</span>
+    <div
+      className="nav-item rubriques"
+      onMouseEnter={() => setIsRubriquesHovered(true)}
+      onMouseLeave={() => setIsRubriquesHovered(false)}
+    >
+      Rubriques ▾
       {dropdownVisible && renderDropdown()}
     </div>
   );
@@ -112,9 +115,9 @@ const Header: React.FC<HeaderProps> = ({
     </>
   );
 
-  /****************************************************************
-   * VERTICAL LAYOUT (SIDEBAR)
-   ****************************************************************/
+  /********************************************************
+   * VERTICAL LAYOUT
+   ********************************************************/
   if (layout === 'vertical') {
     return (
       <div className="vertical-header">
@@ -124,10 +127,7 @@ const Header: React.FC<HeaderProps> = ({
             <h1 className="vertical-title">BICÉPHALE</h1>
           </a>
         </Link>
-        {/* Optionally include navigation for vertical layout */}
-        <nav className="vertical-nav">
-          {menuItems}
-        </nav>
+        <nav className="vertical-nav">{menuItems}</nav>
 
         <style jsx>{`
           .vertical-header {
@@ -151,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({
             flex-direction: column;
             align-items: flex-start;
             gap: 8px;
-            color: #000;
+            color: #000 !important;
           }
           .vertical-logo {
             height: 60px;
@@ -159,7 +159,7 @@ const Header: React.FC<HeaderProps> = ({
           .vertical-title {
             font-size: 34px;
             margin: 0;
-            color: #000;
+            color: #000 !important;
             font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           }
           .vertical-nav {
@@ -170,8 +170,11 @@ const Header: React.FC<HeaderProps> = ({
           }
           .nav-item,
           .nav-item a {
-            text-decoration: none;
-            color: #000;
+            color: #000 !important;
+            text-decoration: none !important;
+          }
+          .rubriques {
+            position: relative; /* needed so dropdown can absolutely position */
           }
           .rubriques-dropdown {
             position: absolute;
@@ -179,10 +182,10 @@ const Header: React.FC<HeaderProps> = ({
             left: 0;
             right: 0;
             background: #fafafa;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             border-radius: 4px;
             padding: 8px 0;
-            z-index: 2000;
+            z-index: 9999;
           }
           .cat-item:hover {
             background: #eee;
@@ -192,12 +195,12 @@ const Header: React.FC<HeaderProps> = ({
     );
   }
 
-  /****************************************************************
-   * HORIZONTAL LAYOUT (TWO ROWS)
-   ****************************************************************/
+  /********************************************************
+   * HORIZONTAL LAYOUT (DEFAULT)
+   ********************************************************/
   return (
     <header className="header">
-      {/* Top row: center the brand */}
+      {/* Top row: brand centered */}
       <div className="header-top">
         <Link href="/">
           <a className="brand-link">
@@ -207,20 +210,21 @@ const Header: React.FC<HeaderProps> = ({
         </Link>
       </div>
 
-      {/* Bottom row: centered nav items in a horizontally scrollable row */}
+      {/* Bottom row: wide, subtle gray, centered nav with horizontal scroll */}
       <nav className="header-nav">
-        {menuItems}
+        <div className="nav-inner">{menuItems}</div>
       </nav>
 
       <style jsx>{`
         .header {
           width: 100%;
-          background: #fff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           display: flex;
           flex-direction: column;
+          background: #fff;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           z-index: 1000;
         }
+
         /* TOP ROW */
         .header-top {
           display: flex;
@@ -232,8 +236,11 @@ const Header: React.FC<HeaderProps> = ({
           display: flex;
           align-items: center;
           gap: 10px;
-          text-decoration: none;
-          color: #000;
+          text-decoration: none !important;
+          color: #000 !important;
+        }
+        .brand-link:visited {
+          color: #000 !important;
         }
         .brand-logo {
           height: 60px;
@@ -242,21 +249,27 @@ const Header: React.FC<HeaderProps> = ({
           font-size: 36px;
           margin: 0;
           line-height: 1;
+          color: #000 !important;
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
-          color: #000;
         }
-        /* BOTTOM ROW */
+
+        /* BOTTOM ROW (GRAY) */
         .header-nav {
-          display: flex;
-          justify-content: center;
+          width: 100%;
+          background: #f5f5f5;
+          overflow-x: auto; /* horizontal scroll if needed */
+        }
+
+        .nav-inner {
+          display: inline-flex;
           align-items: center;
           gap: 24px;
           white-space: nowrap;
-          overflow-x: auto;
           padding: 12px 16px;
-          background: #f5f5f5;
-          margin: 0;
+          margin: 0 auto;
         }
+
+        /* Custom scrollbar styling (optional) */
         .header-nav::-webkit-scrollbar {
           height: 6px;
         }
@@ -264,40 +277,47 @@ const Header: React.FC<HeaderProps> = ({
           background: #ccc;
           border-radius: 3px;
         }
-        .nav-item {
-          display: inline-block;
+
+        /* Menu Items */
+        .nav-item,
+        .nav-item a {
+          color: #000 !important;
+          text-decoration: none !important;
           font-size: 14px;
-          text-decoration: none;
-          color: #000;
           font-weight: 500;
-          cursor: pointer;
           position: relative;
+          cursor: pointer;
           padding: 8px 4px;
         }
         .nav-item:visited,
         .nav-item a:visited {
-          color: #000;
+          color: #000 !important;
         }
-        /* "Rubriques" dropdown */
+
+        /* "Rubriques" specifically (for the dropdown) */
+        .rubriques {
+          position: relative; /* allows absolutely positioned dropdown */
+        }
         .rubriques-dropdown {
           position: absolute;
           top: calc(100% + 4px);
           left: 0;
-          min-width: 180px;
+          min-width: 150px;
           background: #fafafa;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
           border-radius: 4px;
           padding: 8px 0;
-          z-index: 2000;
+          z-index: 9999; /* ensure it floats above the gray row */
         }
         .cat-item {
           display: block;
-          text-decoration: none;
+          text-decoration: none !important;
           color: inherit;
         }
         .cat-item:hover {
           background: #eee;
         }
+
         /* Search button */
         .search-item {
           display: flex;
@@ -306,8 +326,8 @@ const Header: React.FC<HeaderProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #000;
-          text-decoration: none;
+          color: #000 !important;
+          text-decoration: none !important;
           padding: 4px;
         }
         .search-button svg {
@@ -315,14 +335,9 @@ const Header: React.FC<HeaderProps> = ({
           height: 18px;
         }
 
-        /* Center the nav items in the row */
-        .header-nav {
-          margin-left: auto;
-          margin-right: auto;
-        }
-
+        /* Media queries for spacing on large screens */
         @media (min-width: 1024px) {
-          .header-nav {
+          .nav-inner {
             gap: 32px;
             padding: 12px 40px;
           }
