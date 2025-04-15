@@ -289,6 +289,7 @@ const ArticlePage: React.FC<{
             margin-top: 20px;
           }
         }
+        
         /* ARTICLE GRID container */
         .article-grid-container {
           margin: 20px auto;
