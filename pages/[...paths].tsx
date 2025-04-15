@@ -39,8 +39,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const author = lines[2] || 'Unknown Author';
   const content = lines.slice(3).join('\n').trim();
 
-  // Fetch articles and categories from article service
+  // Fetch all articles and categories
   const { articles, categories } = getArticleData();
+  // Only show grid articles from the current category (excluding current article)
   const gridArticles = articles.filter(
     (a) =>
       a.category.toLowerCase() === category.toLowerCase() &&
@@ -59,7 +60,7 @@ const ArticlePage: React.FC<{
   gridArticles: { title: string; slug: string; category: string; date: string; author: string; preview: string }[];
   categories: Category[];
 }> = ({ title, date, author, category, content, gridArticles, categories }) => {
-  const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal');
+  const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal'); 
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
   const [titleFont, setTitleFont] = useState<'RecoletaMedium' | 'GayaRegular'>('RecoletaMedium');
@@ -72,7 +73,6 @@ const ArticlePage: React.FC<{
     year: 'numeric',
   });
 
-  // Helper: convert hex to rgba
   const hexToRgba = (hex: string, alpha: number): string => {
     let r = 0, g = 0, b = 0;
     if (hex.length === 7) {
@@ -86,13 +86,6 @@ const ArticlePage: React.FC<{
   const articleColor =
     categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
   const backdropColor = hexToRgba(articleColor, 0.5);
-
-  // We'll remove layout toggles (vertical/horizontal) and rely on a consistent common container style.
-  const containerStyle = {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '0 20px',
-  };
 
   return (
     <>
@@ -112,7 +105,7 @@ const ArticlePage: React.FC<{
       >
         <Header categories={categories} />
 
-        {/* Backdrop */}
+        {/* Backdrop using article's category color at 50% opacity */}
         <div
           style={{
             height: '240px',
@@ -120,102 +113,72 @@ const ArticlePage: React.FC<{
           }}
         />
 
-        {/* HERO SECTION – Using common container style */}
-        <div className="hero-card common-container" style={{ 
-          display: 'flex',
-          gap: '30px',
-          alignItems: 'center',
-          padding: '0', // remove extra padding here – common container provides horizontal padding
-          backgroundColor: '#fff',
-          borderTopLeftRadius: '142px',
-          borderTopRightRadius: '8px',
-          borderBottomRightRadius: '8px',
-          borderBottomLeftRadius: '8px',
-          transform: 'translateY(-140px)',
-        }}>
-          <div className="hero-text" style={{ flex: 1 }}>
-            <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 'normal', textTransform: 'uppercase', textAlign: 'left' }}>
-              {category}
-            </p>
-            <h1 style={{ margin: '0 0 8px', fontFamily: titleFont, fontSize: '32px', lineHeight: 1.2, textAlign: 'left' }}>
-              {title}
-            </h1>
-            <p style={{ margin: '0', fontSize: '14px', fontWeight: 'normal', fontStyle: 'italic', textAlign: 'left' }}>
-              {author} &nbsp;•&nbsp; {formattedDate}
-            </p>
+        {/* Common container wraps hero, main content, and article grid for consistent widths */}
+        <div className="common-container">
+          {/* HERO SECTION */}
+          <div className="hero-card">
+            <div className="hero-text">
+              <p>{category}</p>
+              <h1>{title}</h1>
+              <p>{author} &nbsp;•&nbsp; {formattedDate}</p>
+            </div>
+            <div className="hero-image" />
           </div>
-          <div className="hero-image" style={{
-            width: '400px',
-            height: '250px',
-            backgroundColor: '#ccc',
-            flexShrink: 0,
-          }} />
-        </div>
 
-        {/* MAIN CONTENT – using common container style */}
-        <main className="main-content common-container" style={{ padding: '0px 20px' }}>
-          <div className="content-wrapper" style={{ display: 'flex', gap: '20px' }}>
-            <div className="article-text" style={{ flex: 1 }}>
-              <div style={{ marginTop: '20px', lineHeight: '1.6', whiteSpace: 'pre-wrap', color: '#333' }}>
+          {/* MAIN CONTENT */}
+          <main className="main-content">
+            <div className="content-wrapper">
+              <div className="article-text">
                 {content}
               </div>
+              {showArticleSidebar && (
+                <aside className="sidebar">
+                  <div className="sidebar-header">
+                    <span className="sidebar-category">{category}</span>
+                    <span className="sidebar-date">{formattedDate}</span>
+                  </div>
+                  <div className="sidebar-author">
+                    <div className="author-avatar" />
+                    <h4>{author}</h4>
+                  </div>
+                  <p className="sidebar-bio">
+                    Ceci est une courte biographie de l'auteur qui est une courte biographie de l'auteur.
+                  </p>
+                  <div className="sidebar-links">
+                    <a href="#">Portfolio</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">LinkedIn</a>
+                  </div>
+                  <h4 className="sidebar-heading">References</h4>
+                  <ul className="sidebar-list">
+                    <li>
+                      <a href="#">Example Reference 1</a>
+                    </li>
+                    <li>
+                      <a href="#">Example Reference 2</a>
+                    </li>
+                    <li>
+                      <a href="#">Example Reference 3</a>
+                    </li>
+                  </ul>
+                  <h4 className="sidebar-heading">Commentaires</h4>
+                  <ul className="sidebar-list">
+                    <li>
+                      <strong>User1:</strong> Example de commentaire
+                    </li>
+                    <li>
+                      <strong>User2:</strong> Un autre exemple de commentaire.
+                    </li>
+                  </ul>
+                </aside>
+              )}
             </div>
-            {showArticleSidebar && (
-              <aside className="sidebar" style={{
-                width: '20%',
-                minWidth: '200px',
-                borderLeft: '1px solid #ddd',
-                paddingLeft: '24px',
-                paddingRight: '24px',
-                paddingTop: '24px',
-              }}>
-                <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <span className="sidebar-category" style={{
-                    fontSize: '14px',
-                    backgroundColor: articleColor,
-                    borderRadius: '5px',
-                    color: '#fff',
-                    padding: '5px 10px',
-                    fontWeight: 'bold',
-                    textTransform: 'uppercase',
-                  }}>
-                    {category}
-                  </span>
-                  <span className="sidebar-date" style={{ color: 'gray', fontSize: '14px' }}>
-                    {formattedDate}
-                  </span>
-                </div>
-                <div className="sidebar-author" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <div className="author-avatar" style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'gray' }} />
-                  <h4 style={{ margin: 0 }}>{author}</h4>
-                </div>
-                <p className="sidebar-bio" style={{ fontStyle: 'italic', marginBottom: '10px' }}>
-                  Ceci est une courte biographie de l'auteur...
-                </p>
-                <div className="sidebar-links" style={{ marginBottom: '20px' }}>
-                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5', marginRight: '10px' }}>Portfolio</a>
-                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5', marginRight: '10px' }}>Twitter</a>
-                  <a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>LinkedIn</a>
-                </div>
-                <h4 className="sidebar-heading" style={{ marginBottom: '4px' }}>References</h4>
-                <ul className="sidebar-list" style={{ paddingLeft: '20px', marginTop: '4px', marginBottom: '20px' }}>
-                  <li><a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>Example Reference 1</a></li>
-                  <li><a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>Example Reference 2</a></li>
-                  <li><a href="#" style={{ textDecoration: 'none', color: '#3f51b5' }}>Example Reference 3</a></li>
-                </ul>
-                <h4 className="sidebar-heading">Commentaires</h4>
-                <ul className="sidebar-list" style={{ paddingLeft: '20px', marginTop: '4px', marginBottom: '20px' }}>
-                  <li><strong>User1:</strong> Example de commentaire</li>
-                  <li><strong>User2:</strong> Un autre exemple de commentaire.</li>
-                </ul>
-              </aside>
-            )}
-          </div>
-        </main>
+          </main>
 
-        {/* ARTICLE GRID – using common container style */}
-        <div className="article-grid-container common-container" style={{ margin: '20px 0' }}>
-          <ArticleGrid articles={gridArticles} categories={categories} titleFont="GayaRegular" />
+          {/* ARTICLE GRID */}
+          <div className="article-grid-container">
+            <ArticleGrid articles={gridArticles} categories={categories} titleFont="GayaRegular" />
+          </div>
         </div>
 
         <Footer />
@@ -237,11 +200,11 @@ const ArticlePage: React.FC<{
       </div>
 
       <style jsx>{`
-        /* Define a common container style to ensure equal widths and horizontal padding */
+        /* Common container ensures unified width and padding */
         .common-container {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 0px;
+          padding: 0 20px;
         }
         /* HERO CARD STYLES */
         .hero-card {
@@ -255,23 +218,24 @@ const ArticlePage: React.FC<{
           border-bottom-left-radius: 8px;
           transform: translateY(-140px);
         }
+        .hero-text {
+          flex: 1;
+          text-align: left;
+        }
         .hero-text p {
           margin: 0 0 8px;
           font-size: 14px;
           text-transform: uppercase;
-          text-align: left;
         }
         .hero-text h1 {
           margin: 0 0 8px;
           font-family: ${titleFont};
           font-size: 32px;
           line-height: 1.2;
-          text-align: left;
         }
         .hero-text p:last-of-type {
           font-size: 14px;
           font-style: italic;
-          text-align: left;
         }
         .hero-image {
           width: 400px;
@@ -281,18 +245,25 @@ const ArticlePage: React.FC<{
         }
         /* MAIN CONTENT STYLES */
         .main-content {
-          padding: 0px 0;
+          padding: 20px 0;
         }
         .content-wrapper {
           display: flex;
           gap: 20px;
+        }
+        /* Sidebar styling */
+        .sidebar {
+          width: 20%;
+          min-width: 200px;
+          border-left: 1px solid #ddd;
+          padding: 24px;
         }
         /* Mobile adjustments */
         @media (max-width: 768px) {
           .hero-card {
             flex-direction: column;
             align-items: center;
-            padding: 20px; /* mobile: consistent padding on all sides */
+            padding: 20px;
             transform: translateY(-80px);
           }
           .hero-text {
@@ -314,7 +285,10 @@ const ArticlePage: React.FC<{
             margin-top: 20px;
           }
         }
-        /* ARTICLE GRID container already uses common-container */
+        /* ARTICLE GRID container uses common-container */
+        .article-grid-container {
+          margin: 20px 0;
+        }
       `}</style>
     </>
   );
