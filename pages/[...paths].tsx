@@ -8,6 +8,8 @@ import { GetStaticProps, GetStaticPaths } from 'next';
 import Header, { Category } from '../app/components/Header';
 import DebugOverlay from '../app/components/DebugOverlay';
 import Footer from '../app/components/Footer';
+import ArticleGrid from '../app/components/ArticleGrid';
+import { getArticleData } from '../lib/articleService';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const textsDir = path.join(process.cwd(), 'texts');
@@ -39,7 +41,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const author = lines[2] || 'Unknown Author';
   const content = lines.slice(3).join('\n').trim();
 
-  return { props: { title, date, author, category, content } };
+  // Fetch all articles and categories using your article service helper.
+  const { articles, categories } = getArticleData();
+  // Filter articles to only keep those from the same category (excluding current one)
+  const gridArticles = articles.filter(
+    (a) =>
+      a.category.toLowerCase() === category.toLowerCase() &&
+      a.slug !== slug
+  );
+
+  return { props: { title, date, author, category, content, gridArticles, categories } };
 };
 
 const ArticlePage: React.FC<{
@@ -48,23 +59,15 @@ const ArticlePage: React.FC<{
   author: string;
   category: string;
   content: string;
-}> = ({ title, date, author, category, content }) => {
-  const categories: Category[] = [
-    { name: 'Love Letters', color: '#f44336' },
-    { name: 'Image-Critique', color: '#3f51b5' },
-    { name: 'Bascule', color: '#4caf50' },
-    { name: 'Sensure', color: '#ff9800' },
-    { name: 'Automaton', color: '#9c27b0' },
-    { name: 'Bicaméralité', color: '#009688' },
-    { name: 'Banque des rêves', color: '#607d8b' },
-    { name: 'Cartographie', color: '#607d8b' },
-  ];
-
-  const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal'); 
+  gridArticles: { title: string; slug: string; category: string; date: string; author: string; preview: string }[];
+  categories: Category[];
+}> = ({ title, date, author, category, content, gridArticles, categories }) => {
+  // Retain debug overlay controls (layout state remains only for debugging font and such)
+  const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal');
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
   const [titleFont, setTitleFont] = useState<'RecoletaMedium' | 'GayaRegular'>('RecoletaMedium');
-  const [imagePreview, setImagePreview] = useState<boolean>(false);
+  const [imagePreview, setImagePreview] = useState<boolean>(true);
   const [showArticleSidebar, setShowArticleSidebar] = useState<boolean>(true);
 
   // Format date as "MMM dd, YYYY"
@@ -73,25 +76,31 @@ const ArticlePage: React.FC<{
     day: '2-digit',
     year: 'numeric',
   });
-  
-const hexToRgba = (hex: string, alpha: number): string => {
-  let r = 0, g = 0, b = 0;
-  if (hex.length === 7) {
-    r = parseInt(hex.slice(1, 3), 16);
-    g = parseInt(hex.slice(3, 5), 16);
-    b = parseInt(hex.slice(5, 7), 16);
-  }
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
 
-// Determine the article color using your lookup.
-const articleColor =
-  categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
+  // Get the article color from categories, or default to '#f0f0f0'
+  const articleColor =
+    categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color ||
+    '#f0f0f0';
 
-// Create an rgba version of the article color at 50% opacity.
-const backdropColor = hexToRgba(articleColor, 0.5);
+  // Helper function to convert a hex color to rgba with given opacity
+  const hexToRgba = (hex: string, alpha: number): string => {
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 7) {
+      r = parseInt(hex.slice(1, 3), 16);
+      g = parseInt(hex.slice(3, 5), 16);
+      b = parseInt(hex.slice(5, 7), 16);
+    }
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
 
-return (
+  // Create a backdrop color (50% opacity version of articleColor)
+  const backdropColor = hexToRgba(articleColor, 0.5);
+
+  // Main style remains similar
+  const mainStyle: React.CSSProperties =
+    layout === 'vertical' ? { marginLeft: '250px', padding: '20px' } : { marginTop: '140px', padding: '20px' };
+
+  return (
   <>
     <Head>
       <title>{title}</title>
