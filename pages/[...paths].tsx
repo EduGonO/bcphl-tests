@@ -263,6 +263,14 @@ const ArticlePage: React.FC<{
               </aside>
             )}
           </div>
+          <div>
+            {/* Some logic to decide if you want to show the grid vs. list */}
+            <ArticleGrid 
+              articles={filteredArticles} 
+              categories={categories} 
+              titleFont="GayaRegular"
+            />
+          </div>
           <Footer />
         </main>
         <DebugOverlay
