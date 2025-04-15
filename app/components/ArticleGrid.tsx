@@ -58,7 +58,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
           gap: 20px;
           overflow-x: auto;
           scroll-behavior: smooth;
-          padding-bottom: 8px;
+          padding-bottom: 0px 20px;
         }
         .card-link {
           text-decoration: none;

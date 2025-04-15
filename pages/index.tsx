@@ -38,7 +38,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
   };
 
   const mainStyle: React.CSSProperties =
-    layout === 'vertical' ? { marginLeft: '250px' } : { marginTop: '140px' };
+    layout === 'vertical' ? { marginLeft: '250px' } : { marginTop: '0px' };
 
   return (
     <>
@@ -70,6 +70,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
+            <h2>À lire également</h2>
             <ArticleGrid 
               articles={filteredArticles} 
               categories={categories} 
@@ -78,22 +79,6 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           </div>
           <Footer />
         </main>
-        /*
-        <DebugOverlay
-          layout={layout}
-          onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
-          bodyFontSize={bodyFontSize}
-          onBodyFontSizeChange={setBodyFontSize}
-          bodyFont={bodyFont}
-          onBodyFontChange={setBodyFont}
-          titleFont={titleFont}
-          onTitleFontChange={setTitleFont}
-          imagePreview={imagePreview}
-          onToggleImagePreview={() => setImagePreview(!imagePreview)}
-          articleSidebar={false}
-          onToggleArticleSidebar={() => {}}
-        />
-        */
       </div>
     </>
   );
