@@ -212,6 +212,7 @@ const ArticlePage: React.FC<{
           gap: 30px;
           align-items: center;
           background-color: #fff;
+          padding: 0 0px 0px 60px;
           border-top-left-radius: 142px;
           border-top-right-radius: 8px;
           border-bottom-right-radius: 8px;
@@ -264,7 +265,7 @@ const ArticlePage: React.FC<{
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            transform: translateY(-80px);
+            transform: translateY(-142px);
           }
           .hero-text {
             text-align: center;

@@ -8,6 +8,7 @@ import ArticleList from '../app/components/ArticleList';
 import { Article } from '../types';
 import { getArticleData } from '../lib/articleService';
 import ArticleGrid from '../app/components/ArticleGrid';
+import ArticleBlock from '../app/components/ArticleBlock';
 
 interface HomeProps {
   articles: Article[];
@@ -58,6 +59,14 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           onCategoryChange={handleCategoryChange}
         />
         <main style={mainStyle}>
+         <div>
+          <h1></h1>
+            <ArticleBlock
+              articles={articles}
+              categories={categories}
+              titleFont="RecoletaMedium"
+            />
+          </div>
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
