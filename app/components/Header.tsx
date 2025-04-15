@@ -10,12 +10,12 @@ export type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
-  // Manage hover state for "Rubriques"
+  // Manage the hover state for "Rubriques"
   const [isRubriquesHovered, setIsRubriquesHovered] = useState(false);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const dropdownVisible = isRubriquesHovered || isDropdownHovered;
 
-  // Render the vertical dropdown list for Rubriques
+  // Render the dropdown as a vertical list
   const renderDropdown = () => {
     return (
       <div className="rubriques-dropdown">
@@ -43,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 
   return (
     <header className="header">
-      {/* Top Row: Logo and Brand */}
+      {/* Top row: Centered brand */}
       <div className="header-top">
         <Link href="/">
           <a className="brand-link">
@@ -53,75 +53,77 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         </Link>
       </div>
 
-      {/* Bottom Row: Navigation Bar */}
-      <div className="header-bottom">
-        <nav className="nav-bar">
-          <div className="nav-menu">
-            {/* Rubriques with Dropdown */}
-            <div
-              className="nav-item rubriques"
-              onMouseEnter={() => setIsRubriquesHovered(true)}
-              onMouseLeave={() => setIsRubriquesHovered(false)}
-            >
-              <span>Rubriques ▾</span>
-              {dropdownVisible && (
-                <div
-                  className="rubriques-dropdown-container"
-                  onMouseEnter={() => setIsDropdownHovered(true)}
-                  onMouseLeave={() => setIsDropdownHovered(false)}
-                >
-                  {renderDropdown()}
-                </div>
-              )}
-            </div>
-
-            <Link href="/evenements">
-              <a className="nav-item">Événements</a>
-            </Link>
-            <Link href="/manifeste">
-              <a className="nav-item">Manifeste</a>
-            </Link>
-            <Link href="/banque-des-reves">
-              <a className="nav-item">Banque des rêves</a>
-            </Link>
-            <Link href="/cartographie-des-lieux">
-              <a className="nav-item">Cartographie des lieux</a>
-            </Link>
-            <div className="nav-item search-item">
-              <Link href="/indices">
-                <a className="search-button" aria-label="Search">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </a>
-              </Link>
-            </div>
+      {/* Bottom row: Full-width gray nav bar */}
+      <nav className="header-nav">
+        <div className="nav-inner">
+          <div
+            className="nav-item rubriques"
+            onMouseEnter={() => setIsRubriquesHovered(true)}
+            onMouseLeave={() => setIsRubriquesHovered(false)}
+          >
+            <span>Rubriques ▾</span>
+            {dropdownVisible && (
+              <div
+                className="dropdown-container"
+                onMouseEnter={() => setIsDropdownHovered(true)}
+                onMouseLeave={() => setIsDropdownHovered(false)}
+              >
+                {renderDropdown()}
+              </div>
+            )}
           </div>
-        </nav>
-      </div>
+          <Link href="/evenements">
+            <a className="nav-item">Événements</a>
+          </Link>
+          <Link href="/manifeste">
+            <a className="nav-item">Manifeste</a>
+          </Link>
+          <Link href="/banque-des-reves">
+            <a className="nav-item">Banque des rêves</a>
+          </Link>
+          <Link href="/cartographie-des-lieux">
+            <a className="nav-item">Cartographie des lieux</a>
+          </Link>
+          <div className="nav-item search-item">
+            <Link href="/indices">
+              <a className="search-button" aria-label="Search">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </a>
+            </Link>
+          </div>
+        </div>
+      </nav>
 
       <style jsx>{`
-        /* GENERAL HEADER STYLES */
+        /* GENERAL OVERRIDES: All anchor tags inside .header get no underline, black color */
+        .header a,
+        .header a:visited,
+        .header a:hover,
+        .header a:active {
+          text-decoration: none !important;
+          color: #000 !important;
+        }
+
         .header {
           width: 100%;
           background: #fff;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          z-index: 1000;
+          font-family: sans-serif;
         }
-        .header a {
-          text-decoration: none !important;
-          color: #000 !important;
-        }
-        /* TOP ROW: CENTERED BRAND */
+        /* TOP ROW: Centered Brand */
         .header-top {
           display: flex;
           justify-content: center;
@@ -142,39 +144,31 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           color: #000;
         }
-        /* BOTTOM ROW: FULL-WIDTH GRAY NAVIGATION */
-        .header-bottom {
+        /* BOTTOM ROW: Full-Width Gray Navigation */
+        .header-nav {
           width: 100%;
           background: #f5f5f5;
-        }
-        .nav-bar {
-          width: 100%;
           overflow-x: auto;
         }
-        .nav-menu {
+        .nav-inner {
           max-width: 1200px;
           margin: 0 auto;
           display: flex;
-          justify-content: center;
           align-items: center;
+          justify-content: center;
           gap: 24px;
-          position: relative;
           padding: 12px 16px;
           white-space: nowrap;
+          position: relative;
         }
         .nav-item {
-          position: relative;
           font-size: 14px;
           font-weight: 500;
           padding: 8px 4px;
           cursor: pointer;
+          position: relative; /* for dropdown positioning */
         }
-        /* Ensure no underlines or blue visuals on links */
-        .nav-item a {
-          text-decoration: none !important;
-          color: #000 !important;
-        }
-        /* Search button styling */
+        /* Search button styles */
         .search-button {
           display: flex;
           align-items: center;
@@ -185,18 +179,20 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           width: 18px;
           height: 18px;
         }
-        /* Rubriques Dropdown: Absolutely Positioned */
-        .rubriques-dropdown-container {
+        /* Rubriques Dropdown: Independent and Vertical */
+        .rubriques {
+          position: relative;
+        }
+        .dropdown-container {
           position: absolute;
-          top: 100%;
+          top: calc(100% + 4px);
           left: 0;
-          transform: translateY(4px);
           z-index: 10000;
         }
         .rubriques-dropdown {
           background: #fafafa;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           padding: 8px 0;
           min-width: 150px;
         }
@@ -208,9 +204,19 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           border: none;
           background: none;
           text-decoration: none;
+          color: inherit;
         }
         .dropdown-item:hover {
           background: #eee;
+        }
+
+        /* Optional scrollbar styling for nav-inner */
+        .header-nav::-webkit-scrollbar {
+          height: 6px;
+        }
+        .header-nav::-webkit-scrollbar-thumb {
+          background: #ccc;
+          border-radius: 3px;
         }
       `}</style>
     </header>
