@@ -92,7 +92,7 @@ const ArticlePage: React.FC<{
         {/* Note: Global font declarations are now in your global CSS */}
       </Head>
       <div style={{ backgroundColor: '#fff', fontSize: `${bodyFontSize}px`, fontFamily: bodyFont }}>
-        <Header categories={cats} layout={layout} />
+        <Header categories={cats}/>
         <main style={mainStyle}>
           <div style={{ display: 'flex', gap: '20px', margin: '0 auto', maxWidth: '1200px' }}>
             <div style={{ flex: 1 }}>
