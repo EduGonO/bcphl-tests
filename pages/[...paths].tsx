@@ -153,7 +153,7 @@ const ArticlePage: React.FC<{
         </div>
 
         {/* MAIN CONTENT – using common container style */}
-        <main className="main-content common-container" style={{ padding: '20px 0' }}>
+        <main className="main-content common-container" style={{ padding: '0px 20px' }}>
           <div className="content-wrapper" style={{ display: 'flex', gap: '20px' }}>
             <div className="article-text" style={{ flex: 1 }}>
               <div style={{ marginTop: '20px', lineHeight: '1.6', whiteSpace: 'pre-wrap', color: '#333' }}>
@@ -241,7 +241,7 @@ const ArticlePage: React.FC<{
         .common-container {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 20px;
+          padding: 0 0px;
         }
         /* HERO CARD STYLES */
         .hero-card {
@@ -281,7 +281,7 @@ const ArticlePage: React.FC<{
         }
         /* MAIN CONTENT STYLES */
         .main-content {
-          padding: 20px 0;
+          padding: 0px 0;
         }
         .content-wrapper {
           display: flex;
