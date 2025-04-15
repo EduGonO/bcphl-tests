@@ -11,12 +11,12 @@ export type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
-  // Using state to show/hide the dropdown and store its position.
+  // State to control dropdown visibility and position.
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  // Ref for the "Rubriques" trigger element.
   const rubriquesRef = useRef<HTMLDivElement>(null);
 
-  // When hover begins, compute the trigger’s position and show the dropdown.
   const showDropdown = () => {
     if (rubriquesRef.current) {
       const rect = rubriquesRef.current.getBoundingClientRect();
@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     setDropdownVisible(false);
   };
 
-  // The dropdown content as a vertical list.
+  // Render the dropdown content as a vertical list.
   const dropdownContent = (
     <div className="rubriques-dropdown">
       {categories.map((cat) =>
@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     </div>
   );
 
-  // Render the dropdown in a portal so it’s independent.
+  // Render dropdown as a portal so it doesn't influence layout.
   const dropdownPortal = dropdownVisible
     ? ReactDOM.createPortal(
         <div
@@ -81,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 
   return (
     <header className="header">
-      {/* Top row: Centered brand */}
+      {/* Top Row: Centered Brand */}
       <div className="header-top">
         <Link href="/">
           <a className="brand-link">
@@ -90,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           </a>
         </Link>
       </div>
-      {/* Bottom row: Gray navigation bar */}
+      {/* Bottom Row: Full-width Gray Navigation */}
       <nav className="header-nav">
         <div className="nav-inner">
           <div
@@ -136,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       </nav>
       {dropdownPortal}
       <style jsx>{`
-        /* Global override for all header links */
+        /* Global link override within header */
         :global(.header a),
         :global(.header a:visited),
         :global(.header a:hover),
@@ -152,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           z-index: 1000;
           font-family: sans-serif;
         }
-        /* TOP ROW */
+        /* Top Row: Centered Brand */
         .header-top {
           display: flex;
           justify-content: center;
@@ -173,7 +173,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           color: #000;
         }
-        /* BOTTOM ROW */
+        /* Bottom Row: Full-width Gray Nav Bar */
         .header-nav {
           width: 100%;
           background: #f5f5f5;
@@ -197,6 +197,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           cursor: pointer;
           position: relative;
         }
+        /* Search Button */
         .search-button {
           display: flex;
           align-items: center;
@@ -212,7 +213,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           position: relative;
         }
         .dropdown-portal {
-          /* Portal container has no fixed width so dropdown can size naturally. */
+          /* No fixed width so dropdown can size naturally */
         }
         .rubriques-dropdown {
           background: #fafafa;
@@ -220,7 +221,8 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           padding: 8px 0;
           min-width: 200px;
-          white-space: nowrap;
+          display: flex;
+          flex-direction: column;
         }
         .dropdown-item {
           display: block;
