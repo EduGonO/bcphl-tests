@@ -36,9 +36,6 @@ const ArticleList: React.FC<ArticleListProps> = ({
               <h4 className="pre-title">{article.category.toUpperCase()}</h4>
 
               <h3 className="title">{article.title}</h3>
-              <p className="meta">
-                {article.date} • {article.author}
-              </p>
 
               <div
                 className="category-label"
@@ -52,6 +49,10 @@ const ArticleList: React.FC<ArticleListProps> = ({
               </div>
 
               <p className="preview">{article.preview}</p>
+              
+              <p className="meta">
+                {article.date} • {article.author}
+              </p>
             </div>
           </a>
         );
@@ -75,12 +76,12 @@ const ArticleList: React.FC<ArticleListProps> = ({
           transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .list-row:hover {
-          transform: scale(1.02);
+          transform: scale(1.01);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .thumb {
-          width: 60px;
+          width: 100px;
           height: 80px;
           background-color: #e0e0e0;
           border-radius: 4px;
