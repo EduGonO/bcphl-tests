@@ -6,11 +6,23 @@ import { GetStaticProps, GetStaticPaths } from 'next';
 import Header, { Category } from '../app/components/Header';
 import DebugOverlay from '../app/components/DebugOverlay';
 import Footer from '../app/components/Footer';
-import ArticleGrid from '../app/components/ArticleGrid';
+
+// Example category array for color references, if needed
+const cats: Category[] = [
+  { name: 'Love Letters', color: '#f44336' },
+  { name: 'Image-Critique', color: '#3f51b5' },
+  { name: 'Bascule', color: '#4caf50' },
+  { name: 'Sensure', color: '#ff9800' },
+  { name: 'Automaton', color: '#9c27b0' },
+  { name: 'Bicaméralité', color: '#009688' },
+  { name: 'Banque des rêves', color: '#607d8b' },
+  { name: 'Cartographie', color: '#607d8b' },
+];
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const textsDir = path.join(process.cwd(), 'texts');
   const pathsArr: { params: { paths: string[] } }[] = [];
+
   if (fs.existsSync(textsDir)) {
     fs.readdirSync(textsDir).forEach((cat) => {
       const catPath = path.join(textsDir, cat);
@@ -27,11 +39,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const [category, slug] = params?.paths as string[];
+  const [category, slug] = (params?.paths as string[]) || [];
   const filePath = path.join(process.cwd(), 'texts', category, `${slug}.md`);
   const fileContents = fs.readFileSync(filePath, 'utf-8');
   const lines = fileContents.split('\n').map((l: string) => l.trim());
-  const title = lines[0].startsWith('#') ? lines[0].replace(/^#+\s*/, '') : 'Untitled';
+  const title = lines[0]?.startsWith('#') ? lines[0].replace(/^#+\s*/, '') : 'Untitled';
   const date = lines[1] || 'Unknown Date';
   const author = lines[2] || 'Unknown Author';
   const content = lines.slice(3).join('\n').trim();
@@ -45,39 +57,17 @@ const ArticlePage: React.FC<{
   category: string;
   content: string;
 }> = ({ title, date, author, category, content }) => {
-  const cats: Category[] = [
-    { name: 'Love Letters', color: '#f44336' },
-    { name: 'Image-Critique', color: '#3f51b5' },
-    { name: 'Bascule', color: '#4caf50' },
-    { name: 'Sensure', color: '#ff9800' },
-    { name: 'Automaton', color: '#9c27b0' },
-    { name: 'Bicaméralité', color: '#009688' },
-    { name: 'Banque des rêves', color: '#607d8b' },
-    { name: 'Cartographie', color: '#607d8b' },
-  ];
-
+  // Layout states for the DebugOverlay
   const [layout, setLayout] = useState<'vertical' | 'horizontal'>('vertical');
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
   const [titleFont, setTitleFont] = useState<'RecoletaMedium' | 'GayaRegular'>('RecoletaMedium');
-  const [imagePreview, setImagePreview] = useState<boolean>(true);
+  const [imagePreview, setImagePreview] = useState<boolean>(false);
   const [showArticleSidebar, setShowArticleSidebar] = useState<boolean>(true);
 
-   const mainStyle: React.CSSProperties =
-    layout === 'vertical'
-      ? { marginLeft: '250px', padding: '20px' }
-      : { marginTop: '140px', padding: '20px' };
-
-  // Style similar to header category button.
-  const headerCategoryStyle: React.CSSProperties = {
-    fontSize: '14px',
-    backgroundColor: '#3f51b5',
-    borderRadius: '5px',
-    color: '#fff',
-    padding: '5px 10px',
-    fontWeight: 'bold',
-    display: 'inline-block',
-  };
+  // Determine category color from cats array; default to #607d8b
+  const catColor =
+    cats.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#607d8b';
 
   // Format the date to "MMM dd, YYYY"
   const formattedDate = new Date(date).toLocaleDateString('en-US', {
@@ -86,48 +76,116 @@ const ArticlePage: React.FC<{
     year: 'numeric',
   });
 
+  // Layout style
+  const mainStyle: React.CSSProperties =
+    layout === 'vertical'
+      ? { marginLeft: '250px', padding: '20px' }
+      : { marginTop: '140px', padding: '20px' };
+
   return (
     <>
       <Head>
         <title>{title}</title>
-        {/* Note: Global font declarations are now in your global CSS */}
       </Head>
-      <div style={{ backgroundColor: '#fff', fontSize: `${bodyFontSize}px`, fontFamily: bodyFont }}>
-        <Header categories={cats}/>
-        <main style={mainStyle}>
-          <div style={{ display: 'flex', gap: '20px', margin: '0 auto', maxWidth: '1200px' }}>
+      <div
+        style={{
+          backgroundColor: '#fff',
+          fontSize: `${bodyFontSize}px`,
+          fontFamily: bodyFont,
+        }}
+      >
+        {/* Standard Header with categories */}
+        <Header categories={[]} />
+
+        {/* HERO SECTION
+           - Category color as background
+           - Circle cutout on the left
+           - Title, author, date on the right
+        */}
+        <div
+          style={{
+            backgroundColor: catColor,
+            padding: '40px 20px',
+            color: '#fff',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '40px',
+            }}
+          >
+            {/* Left side: circular cutout with a background image */}
+            <div
+              style={{
+                flexShrink: 0,
+                width: '200px',
+                height: '200px',
+                borderRadius: '50%',
+                backgroundImage: 'url("/media/exampleImage.jpg")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+
+            {/* Right side: text info */}
             <div style={{ flex: 1 }}>
-              {imagePreview && (
-                <img
-                  src="/media/exampleImage.jpg"
-                  alt="Article Preview"
-                  style={{
-                    width: '100%',
-                    maxHeight: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    marginBottom: '20px',
-                  }}
-                />
-              )}
-              <h1 style={{ margin: '0 0 10px', fontFamily: titleFont }}>
+              <h2
+                style={{
+                  margin: '0 0 10px',
+                  textTransform: 'uppercase',
+                  fontFamily: titleFont,
+                }}
+              >
+                {category}
+              </h2>
+              <h1
+                style={{
+                  margin: '0 0 10px',
+                  fontFamily: titleFont,
+                  fontSize: '32px',
+                  lineHeight: 1.2,
+                }}
+              >
                 {title}
               </h1>
-              <p style={{ margin: '0 0 10px', color: '#555' }}>
-                {date} • {author} • {category.charAt(0).toUpperCase() + category.slice(1)}
+              <p style={{ margin: '0', fontStyle: 'italic', fontSize: '16px' }}>
+                By {author} &nbsp;•&nbsp; {formattedDate}
               </p>
-              <div style={{ marginTop: '20px', lineHeight: '1.6', whiteSpace: 'pre-wrap', color: '#333' }}>
+            </div>
+          </div>
+        </div>
+
+        {/* Main content section */}
+        <main style={mainStyle}>
+          <div style={{ display: 'flex', gap: '20px', margin: '0 auto', maxWidth: '1200px' }}>
+            {/* Article text */}
+            <div style={{ flex: 1 }}>
+              {/* Moved all textual content here */}
+              <div
+                style={{
+                  marginTop: '20px',
+                  lineHeight: '1.6',
+                  whiteSpace: 'pre-wrap',
+                  color: '#333',
+                }}
+              >
                 {content}
               </div>
             </div>
-            {/* Sidebar: Always on the right, fixed to max 20% width */}
+
+            {/* Sidebar on the right */}
             {showArticleSidebar && (
               <aside
                 style={{
                   width: '20%',
                   minWidth: '200px',
                   borderLeft: '1px solid #ddd',
-                  paddingLeft: '24px', // increased padding to push content to the right
+                  paddingLeft: '24px',
                   paddingRight: '24px',
                   paddingTop: '24px',
                 }}
@@ -140,12 +198,21 @@ const ArticlePage: React.FC<{
                     marginBottom: '10px',
                   }}
                 >
-                  <span style={headerCategoryStyle}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  <span
+                    style={{
+                      fontSize: '14px',
+                      backgroundColor: catColor,
+                      borderRadius: '5px',
+                      color: '#fff',
+                      padding: '5px 10px',
+                      fontWeight: 'bold',
+                      display: 'inline-block',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {category}
                   </span>
-                  <span style={{ color: 'gray', fontSize: '14px' }}>
-                    {formattedDate}
-                  </span>
+                  <span style={{ color: 'gray', fontSize: '14px' }}>{formattedDate}</span>
                 </div>
 
                 <div
@@ -264,16 +331,12 @@ const ArticlePage: React.FC<{
               </aside>
             )}
           </div>
-          <div>
-            {/* Some logic to decide if you want to show the grid vs. list */}
-            <ArticleGrid 
-              articles={filteredArticles} 
-              categories={categories} 
-              titleFont="GayaRegular"
-            />
-          </div>
+
+          {/* Footer */}
           <Footer />
         </main>
+
+        {/* Debug overlay for controlling layout */}
         <DebugOverlay
           layout={layout}
           onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
