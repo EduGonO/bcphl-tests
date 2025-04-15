@@ -11,22 +11,18 @@ export type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
-  // State controlling dropdown visibility and position.
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
-  // Separate hover states for the trigger and dropdown.
   const [triggerHovered, setTriggerHovered] = useState(false);
   const [dropdownHovered, setDropdownHovered] = useState(false);
 
-  // Reference for the "Rubriques" trigger element.
   const rubriquesRef = useRef<HTMLDivElement>(null);
 
-  // Show dropdown by computing the trigger's position.
   const showDropdown = () => {
     if (rubriquesRef.current) {
       const rect = rubriquesRef.current.getBoundingClientRect();
       setDropdownPos({
-        top: rect.bottom + window.scrollY + 4, // 4px gap
+        top: rect.bottom + window.scrollY + 4,
         left: rect.left + window.scrollX,
       });
     }
@@ -37,7 +33,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     setDropdownVisible(false);
   };
 
-  // Use a short delay when hiding so that moving from trigger to dropdown doesn't immediately close the menu.
   const hideDropdownWithDelay = () => {
     setTimeout(() => {
       if (!triggerHovered && !dropdownHovered) {
@@ -46,7 +41,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     }, 120);
   };
 
-  // Trigger handlers.
   const handleTriggerMouseEnter = () => {
     setTriggerHovered(true);
     showDropdown();
@@ -56,7 +50,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     hideDropdownWithDelay();
   };
 
-  // Dropdown handlers.
   const handleDropdownMouseEnter = () => {
     setDropdownHovered(true);
   };
@@ -65,7 +58,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     hideDropdownWithDelay();
   };
 
-  // Render the dropdown content as a vertical list with a green background.
   const dropdownContent = (
     <div className="rubriques-dropdown">
       {categories.map((cat) =>
@@ -92,7 +84,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     </div>
   );
 
-  // Render the dropdown in a portal so that it floats above the nav bar.
   const dropdownPortal = dropdownVisible
     ? ReactDOM.createPortal(
         <div
@@ -114,7 +105,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 
   return (
     <header className="header">
-      {/* Top Row: Centered Brand */}
       <div className="header-top">
         <Link href="/">
           <a className="brand-link">
@@ -123,7 +113,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           </a>
         </Link>
       </div>
-      {/* Bottom Row: Full-Width Gray Navigation */}
       <nav className="header-nav">
         <div className="nav-inner">
           <div
@@ -169,7 +158,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       </nav>
       {dropdownPortal}
       <style jsx>{`
-        /* Global override for header links */
         :global(.header a),
         :global(.header a:visited),
         :global(.header a:hover),
@@ -185,7 +173,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           z-index: 1000;
           font-family: sans-serif;
         }
-        /* Top Row: Centered Brand */
         .header-top {
           display: flex;
           justify-content: center;
@@ -206,7 +193,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           color: #000;
         }
-        /* Bottom Row: Gray Navigation */
         .header-nav {
           width: 100%;
           background: #f5f5f5;
@@ -230,7 +216,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           cursor: pointer;
           position: relative;
         }
-        /* Search button */
         .search-button {
           display: flex;
           align-items: center;
@@ -241,27 +226,27 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           width: 18px;
           height: 18px;
         }
-        /* Dropdown styles: vertical list with green background */
+        /* Updated Dropdown styles for a vertical list */
         .rubriques-dropdown {
-          display: flex !important;
-          flex-direction: column !important;
-          background: #cce2d0 !important; /* green background */
+          display: flex;
+          flex-direction: column;
+          background: #cce2d0;
           border-radius: 4px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           min-width: 160px;
           padding: 8px 0;
         }
         .dropdown-item {
-          display: block !important;
+          display: block;
           padding: 8px 16px;
           font-size: 14px;
           cursor: pointer;
-          text-decoration: none !important;
-          color: #000 !important;
+          text-decoration: none;
+          color: #000;
           width: 100%;
         }
         .dropdown-item:hover {
-          background: #b6d4b9 !important;
+          background: #b6d4b9;
         }
       `}</style>
     </header>
