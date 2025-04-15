@@ -328,6 +328,8 @@ const ArticlePage: React.FC<{
          DebugOverlay - No references to layout
         ************************************************************/}
         <DebugOverlay
+          layout={layout}
+          onToggleLayout={() => setLayout(layout === 'vertical' ? 'horizontal' : 'vertical')}
           bodyFontSize={bodyFontSize}
           onBodyFontSizeChange={setBodyFontSize}
           bodyFont={bodyFont}
