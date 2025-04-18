@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Script from 'next/script';
 import Head from 'next/head';
 import fs from 'fs';
 import path from 'path';
@@ -91,8 +92,20 @@ const ArticlePage: React.FC<{
     <>
       <Head>
         <title>{title}</title>
+        {/* Hypothesis config (optional) */}
+          <script
+            type="application/json"
+            className="js-hypothesis-config"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({ openSidebar: false }),
+              }}
+            />
       </Head>
-
+      <Script
+        src="https://hypothes.is/embed.js"
+        strategy="afterInteractive"
+      />
+      
       <div
         style={{
           display: 'flex',
