@@ -99,7 +99,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
   }, [handleSave]);
 
   // --------------------------------------------------------
-return (
+  return (
   <>
     <Head>
       <title>Files – BICÉPHALE</title>
@@ -206,7 +206,6 @@ return (
     `}</style>
   </>
 );
-
 
 export const getStaticProps: GetStaticProps = async () => {
   const textsDir = path.join(process.cwd(), "texts");
