@@ -99,108 +99,114 @@ const Indices: React.FC<Props> = ({ indices }) => {
   }, [handleSave]);
 
   // --------------------------------------------------------
-  return (
-    <>
-      <Head>
-        <title>Files – BICÉPHALE</title>
-      </Head>
+return (
+  <>
+    <Head>
+      <title>Files – BICÉPHALE</title>
+    </Head>
 
-      <Header
-        categories={indices.map((c) => ({ name: c.name, color: "#607d8b" }))}
-      />
+    {/* top bar already supplied by <Header/> */}
+    <Header categories={indices.map(c => ({ name: c.name, color: '#607d8b' }))} />
 
-      <main className="flex h-[calc(100vh-64px)]"> {/* 64px ≈ Header height */}
-        {/* ---------- sidebar ---------- */}
-        <aside className="w-64 shrink-0 bg-gray-50 border-r overflow-y-auto">
-          <h1 className="px-4 py-3 text-lg font-semibold">Files</h1>
-          <nav className="px-2 pb-4 space-y-1 text-sm">
-            {indices.map((cat) => (
-              <div key={cat.name}>
-                <button
-                  onClick={() => toggle(cat.name)}
-                  className="flex w-full items-center justify-between px-2 py-1 rounded hover:bg-gray-200"
-                >
-                  <span className="truncate">{cat.name}</span>
-                  <span className="text-xs">
-                    {open[cat.name] ? "▼" : "►"}
-                  </span>
-                </button>
+    {/* ───────── layout ───────── */}
+    <main className="flex w-full h-[calc(100vh-64px)]"> {/* 64 px ≈ header */}
+      {/* sidebar */}
+      <aside className="w-72 shrink-0 bg-gray-50 border-r shadow-inner overflow-y-auto">
+        <h1 className="px-5 pt-4 pb-3 text-base font-semibold tracking-wide">
+          Files
+        </h1>
 
-                {open[cat.name] && (
-                  <ul className="pl-4 mt-0.5 space-y-0.5">
-                    {cat.texts.map((t) => {
-                      const active =
-                        selCat === cat.name && selSlug === t.slug;
-                      return (
-                        <li key={t.slug}>
-                          <button
-                            onClick={() => load(cat.name, t.slug)}
-                            className={`block w-full text-left px-2 py-0.5 rounded hover:bg-blue-50 ${
-                              active ? "bg-blue-100 text-blue-700" : "text-gray-700"
-                            }`}
-                          >
-                            {t.title}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </nav>
-        </aside>
-
-        {/* ---------- editor ---------- */}
-        <section className="flex flex-col flex-1 min-w-0">
-          {selCat && selSlug ? (
-            <>
-              {/* editor header */}
-              <div className="flex items-center justify-between border-b px-4 py-2 bg-white">
-                <span className="text-sm font-medium truncate">
-                  {selCat}/{selSlug}.md
+        <nav className="space-y-1 pb-6">
+          {indices.map(cat => (
+            <div key={cat.name}>
+              {/* folder row */}
+              <button
+                onClick={() => toggle(cat.name)}
+                className="group flex w-full items-center justify-between px-5 py-1.5 text-sm font-medium hover:bg-gray-200 transition"
+              >
+                <span className="truncate">{cat.name}</span>
+                <span className="transform text-xs transition group-hover:translate-x-0.5">
+                  {open[cat.name] ? '▼' : '►'}
                 </span>
-                <button
-                  onClick={handleSave}
-                  disabled={!dirty || status === "saving"}
-                  className="px-3 py-1 text-sm rounded font-medium bg-blue-600 text-white disabled:opacity-50"
-                >
-                  {status === "saving" ? "Saving…" : "Save"}
-                </button>
-              </div>
+              </button>
 
-              {/* textarea */}
-              <textarea
-                ref={txtRef}
-                value={content}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  setDirty(true);
-                }}
-                className="flex-1 p-4 font-mono text-sm resize-none outline-none bg-gray-50"
-              />
-            </>
-          ) : (
-            <div className="flex items-center justify-center flex-1 text-gray-400">
-              Select a file to begin.
+              {/* file list */}
+              {open[cat.name] && (
+                <ul className="pl-8 pr-2 space-y-0.5">
+                  {cat.texts.map(t => {
+                    const active = selCat === cat.name && selSlug === t.slug;
+                    return (
+                      <li key={t.slug}>
+                        <button
+                          onClick={() => load(cat.name, t.slug)}
+                          className={`block w-full truncate rounded px-2 py-0.5 text-left text-sm
+                            ${active
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'hover:bg-blue-50 text-gray-700'}`}
+                        >
+                          {t.title}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
-          )}
-        </section>
-      </main>
+          ))}
+        </nav>
+      </aside>
 
-      {/* subtle scrollbar for textarea */}
-      <style jsx>{`
-        textarea::-webkit-scrollbar {
-          width: 8px;
-        }
-        textarea::-webkit-scrollbar-thumb {
-          background: rgba(100, 100, 100, 0.3);
-          border-radius: 4px;
-        }
-      `}</style>
-    </>
-  );
-};
+      {/* editor pane */}
+      <section className="flex-1 flex flex-col min-w-0">
+        {selCat && selSlug ? (
+          <>
+            {/* file bar */}
+            <div className="flex items-center justify-between border-b bg-white px-4 py-2">
+              <span className="truncate text-sm">
+                {selCat}/{selSlug}.md
+              </span>
+              <button
+                onClick={handleSave}
+                disabled={!dirty || status === 'saving'}
+                className="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white disabled:opacity-40"
+              >
+                {status === 'saving' ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+
+            {/* text editor */}
+            <textarea
+              ref={txtRef}
+              value={content}
+              onChange={e => {
+                setContent(e.target.value);
+                setDirty(true);
+              }}
+              className="flex-1 resize-none bg-gray-50 p-4 font-mono text-sm outline-none"
+            />
+          </>
+        ) : (
+          <div className="flex flex-1 items-center justify-center text-gray-400">
+            Select a file to begin.
+          </div>
+        )}
+      </section>
+    </main>
+
+    {/* custom scrollbars */}
+    <style jsx global>{`
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 4px;
+      }
+    `}</style>
+  </>
+);
+
 
 export const getStaticProps: GetStaticProps = async () => {
   const textsDir = path.join(process.cwd(), "texts");
