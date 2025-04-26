@@ -107,31 +107,32 @@ return (
 
     <Header categories={indices.map(c => ({ name: c.name, color: "#607d8b" }))} />
 
-    {/* ───────── layout ───────── */}
     <div className="layout">
-      {/* === sidebar === */}
+      {/* ── sidebar ─────────────────────────────── */}
       <aside className="nav">
-        <h2 className="nav-title">Files</h2>
+        <div className="summary">
+          {indices.length} categories • {indices.reduce((n,c)=>n+c.texts.length,0)} articles
+        </div>
 
         {indices.map(cat => (
           <div key={cat.name}>
-            <button
-              onClick={() => toggle(cat.name)}
-              className="row folder"
-            >
+            <button onClick={() => toggle(cat.name)} className="row folder">
               <span className="ellip">{cat.name}</span>
-              <span className={`arrow ${open[cat.name] ? "open" : ""}`} />
+              <span className="meta">
+                <span className="count">{cat.texts.length}</span>
+                <span className={`arrow ${open[cat.name] ? "open" : ""}`} />
+              </span>
             </button>
 
             {open[cat.name] && (
               <ul className="file-ul">
                 {cat.texts.map(t => {
-                  const active = selCat === cat.name && selSlug === t.slug;
+                  const act = selCat === cat.name && selSlug === t.slug;
                   return (
                     <li key={t.slug}>
                       <button
                         onClick={() => load(cat.name, t.slug)}
-                        className={`row file${active ? " act" : ""}`}
+                        className={`row file${act ? " act" : ""}`}
                       >
                         {t.title}
                       </button>
@@ -144,12 +145,12 @@ return (
         ))}
       </aside>
 
-      {/* === editor === */}
+      {/* ── editor ──────────────────────────────── */}
       <section className="stage">
         {selCat && selSlug ? (
           <div className="doc">
             <header className="bar">
-              <span className="pill ellip">{selCat}/{selSlug}.md</span>
+              <span className="path ellip">{selCat}/{selSlug}.md</span>
               <button
                 onClick={handleSave}
                 disabled={!dirty || status === "saving"}
@@ -172,92 +173,44 @@ return (
       </section>
     </div>
 
-    {/* ───────── styles ───────── */}
     <style jsx>{`
       :root{
-        --bg:#f6f7f8;
-        --nav-bg:#fafafa;
-        --nav-border:#e2e4e8;
-        --row-hover:#eef2ff;
-        --row-active:#dbe4ff;
-        --txt:#2f3437;
+        --bg:#f5f6f7;
+        --nav-bg:#fbfbfb;
+        --nav-border:#e1e3e7;
+        --row-hov:#f1f4ff;
+        --row-act:#d6e1ff;
+        --txt:#202325;
         --accent:#0069ff;
+        --shadow:0 3px 8px rgba(0,0,0,.08);
       }
-      .layout{
-        display:flex;
-        height:calc(100vh - 64px);
-        background:var(--bg);
-      }
-      /* ---- sidebar ---- */
-      .nav{
-        width:260px;
-        padding:20px 16px 32px;
-        overflow-y:auto;
-        background:var(--nav-bg);
-        border-right:1px solid var(--nav-border);
-      }
-      .nav-title{
-        margin:0 0 16px;
-        font:600 18px/1.2 Helvetica,Arial,sans-serif;
-        color:var(--txt);
-      }
-      .row{
-        width:100%;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        border:0;
-        background:transparent;
-        padding:6px 10px;
-        margin:1px 0;
-        font:500 14px/1 Helvetica,Arial,sans-serif;
-        color:var(--txt);
-        border-radius:6px;
-        cursor:pointer;
-        transition:background .1s;
-      }
-      .row:hover{background:var(--row-hover);}
-      .folder{font-weight:600;}
-      .file{font-weight:400;font-size:13px;padding-left:16px;}
-      .file.act{background:var(--row-active);color:var(--accent);}
-      .arrow{
-        width:0;height:0;border:5px solid transparent;border-left-color:var(--txt);margin-left:8px;transition:transform .15s;
-      }
-      .arrow.open{transform:rotate(90deg);}
+      .layout{display:flex;height:calc(100vh - 64px);background:var(--bg);}
+      /* sidebar */
+      .nav{width:260px;padding:20px 16px 32px;overflow-y:auto;background:var(--nav-bg);border-right:1px solid var(--nav-border);}
+      .summary{font:500 13px/1 Helvetica,Arial,sans-serif;color:#555;margin-bottom:14px;}
+      .row{width:100%;display:flex;justify-content:space-between;align-items:center;border:0;background:none;padding:6px 10px;margin:1px 0;font:500 14px/1 Helvetica,Arial,sans-serif;color:var(--txt);border-radius:6px;cursor:pointer;transition:background .1s;}
+      .row:hover{background:var(--row-hov);}
+      .folder{font-weight:500;}
+      .file{font-weight:400;font-size:13px;padding-left:18px;}
+      .file.act{background:var(--row-act);color:var(--accent);}
       .file-ul{list-style:none;margin:2px 0 6px 0;padding:0;}
-      /* ---- editor ---- */
-      .stage{flex:1 1 0;display:flex;align-items:center;justify-content:center;padding:40px 60px;min-width:0;}
-      .doc{
-        display:flex;flex-direction:column;flex:1;min-height:0;
-        background:#fff;border-radius:12px;
-        box-shadow:0 1px 3px rgba(0,0,0,.06);
-      }
-      .bar{
-        display:flex;justify-content:space-between;align-items:center;
-        padding:12px 20px;border-bottom:1px solid #ececec;border-top-left-radius:12px;border-top-right-radius:12px;
-      }
-      .pill{
-        background:#f0f0f0;padding:4px 14px;border-radius:20px;font:500 13px/1 Helvetica,Arial,sans-serif;
-      }
-      .save{
-        padding:5px 18px;border:0;border-radius:6px;font:500 13px/1 Helvetica,Arial,sans-serif;color:#fff;
-        background:var(--accent);cursor:pointer;transition:opacity .1s;
-      }
+      .meta{display:flex;align-items:center;gap:8px;}
+      .count{font:400 11px/1 Helvetica,Arial,sans-serif;color:#777;}
+      .arrow{width:0;height:0;border:5px solid transparent;border-left-color:#666;transition:transform .15s;}
+      .arrow.open{transform:rotate(90deg);}
+      /* editor */
+      .stage{flex:1 1 0;display:flex;align-items:center;justify-content:center;padding:24px;min-width:0;}
+      .doc{display:flex;flex-direction:column;flex:1 1 0;min-height:0;background:#fff;border-radius:12px;box-shadow:var(--shadow);}
+      .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid #e7e7e7;}
+      .path{font:500 13px/1 Helvetica,Arial,sans-serif;color:#555;}
+      .save{padding:5px 18px;border:0;border-radius:6px;font:500 13px/1 Helvetica,Arial,sans-serif;color:#fff;background:var(--accent);cursor:pointer;transition:opacity .1s;}
       .save:disabled{opacity:.5;cursor:default;}
-      .editor{
-        flex:1 1 0;border:0;outline:none;resize:none;width:100%;
-        padding:28px 24px;font:14px/1.6 "SFMono-Regular",Consolas,"Liberation Mono",monospace;
-        border-bottom-left-radius:12px;border-bottom-right-radius:12px;
-        background:#fafafa;
-      }
+      .editor{flex:1 1 0;border:0;outline:none;resize:none;width:100%;padding:26px 22px;font:14px/1.6 "SFMono-Regular",Consolas,"Liberation Mono",monospace;border-bottom-left-radius:12px;border-bottom-right-radius:12px;background:#fcfcfc;}
       .hint{color:#888;font:14px/1 Helvetica,Arial,sans-serif;}
-      /* ---- helpers ---- */
       .ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-      /* scrollbars */
+      /* scrollbar */
       .nav::-webkit-scrollbar,.editor::-webkit-scrollbar{width:8px;}
-      .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{
-        background:rgba(0,0,0,.2);border-radius:4px;
-      }
+      .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:4px;}
     `}</style>
   </>
 );
