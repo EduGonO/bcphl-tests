@@ -105,42 +105,42 @@ const Indices: React.FC<Props> = ({ indices }) => {
       <title>Files – BICÉPHALE</title>
     </Head>
 
-    {/* your existing header */}
     <Header
-      categories={indices.map(c => ({ name: c.name, color: '#607d8b' }))}
+      categories={indices.map(c => ({ name: c.name, color: "#607d8b" }))}
     />
 
-    {/* two-column flex layout, full height minus header */}
-    <div className="h-[calc(100vh-64px)] flex bg-white">
-      {/* ─── sidebar ─── */}
-      <aside className="w-64 bg-gray-50 border-r overflow-y-auto p-4">
-        <h2 className="text-xl font-semibold mb-4">Files</h2>
+    {/* ───────── LAYOUT ───────── */}
+    <div className="indices-layout">
+      {/* ---------- sidebar ---------- */}
+      <aside className="sidebar">
+        <h2 className="sidebar-title">Files</h2>
+
         {indices.map(cat => (
-          <div key={cat.name} className="mb-3">
+          <div key={cat.name}>
+            {/* folder row */}
             <button
               onClick={() => toggle(cat.name)}
-              className="w-full flex items-center justify-between px-2 py-1 text-sm font-medium hover:bg-gray-200 rounded"
+              className="folder-btn"
             >
-              <span className="truncate">{cat.name}</span>
-              <span className="text-xs">{open[cat.name] ? '▼' : '►'}</span>
+              <span className="ellipsis">{cat.name}</span>
+              <span className="arrow">{open[cat.name] ? "▼" : "►"}</span>
             </button>
+
+            {/* file list */}
             {open[cat.name] && (
-              <ul className="mt-1 ml-4 space-y-1">
+              <ul className="file-list">
                 {cat.texts.map(t => {
                   const active = selCat === cat.name && selSlug === t.slug;
                   return (
                     <li key={t.slug}>
                       <button
                         onClick={() => load(cat.name, t.slug)}
-                        className={`block w-full text-left px-2 py-1 text-sm rounded
-                          ${active
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'hover:bg-blue-50 text-gray-700'}`}
+                        className={`file-btn${active ? " active" : ""}`}
                       >
                         {t.title}
                       </button>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             )}
@@ -148,51 +148,138 @@ const Indices: React.FC<Props> = ({ indices }) => {
         ))}
       </aside>
 
-      {/* ─── editor pane ─── */}
-      <main className="flex-1 flex flex-col">
+      {/* ---------- editor pane ---------- */}
+      <section className="editor-pane">
         {selCat && selSlug ? (
           <>
-            {/* file toolbar */}
-            <header className="flex items-center justify-between border-b bg-white p-4">
-              <span className="truncate text-sm font-medium">
+            <header className="toolbar">
+              <span className="ellipsis">
                 {selCat}/{selSlug}.md
               </span>
               <button
                 onClick={handleSave}
-                disabled={!dirty || status === 'saving'}
-                className="px-3 py-1 text-sm font-medium rounded bg-blue-600 text-white disabled:opacity-50"
+                disabled={!dirty || status === "saving"}
+                className="save-btn"
               >
-                {status === 'saving' ? 'Saving…' : 'Save'}
+                {status === "saving" ? "Saving…" : "Save"}
               </button>
             </header>
 
-            {/* full-height textarea */}
             <textarea
               ref={txtRef}
               value={content}
               onChange={e => {
-                setContent(e.target.value)
-                setDirty(true)
+                setContent(e.target.value);
+                setDirty(true);
               }}
-              className="flex-1 p-6 font-mono text-sm bg-gray-50 outline-none resize-none"
+              className="editor"
             />
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400">
-            Select a file to begin.
-          </div>
+          <div className="empty-hint">Select a file to begin.</div>
         )}
-      </main>
+      </section>
     </div>
 
-    {/* custom scrollbar */}
-    <style jsx global>{`
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+    <style jsx>{`
+      /* ---------- layout ---------- */
+      .indices-layout {
+        display: flex;
+        height: calc(100vh - 64px); /* header ≈64 px */
+        background: #fff;
       }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.25);
+      /* ---------- sidebar ---------- */
+      .sidebar {
+        width: 260px;
+        padding: 16px;
+        overflow-y: auto;
+        background: #f7f7f7;
+        border-right: 1px solid #ddd;
+      }
+      .sidebar-title {
+        margin: 0 0 12px;
+        font: 600 18px/1 Helvetica, Arial, sans-serif;
+      }
+      .folder-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 6px 8px;
+        margin-bottom: 2px;
+        font: 500 14px/1 Helvetica, Arial, sans-serif;
+        background: none;
+        border: 0;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .folder-btn:hover { background: #e5e5e5; }
+      .file-list { margin: 2px 0 6px 0; padding: 0 0 0 12px; list-style: none; }
+      .file-btn {
+        width: 100%;
+        padding: 4px 8px;
+        font: 400 13px/1 Helvetica, Arial, sans-serif;
+        background: none;
+        border: 0;
+        border-radius: 4px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .file-btn:hover   { background: #eef2ff; }
+      .file-btn.active  { background: #dbe3ff; color: #0030ff; }
+      /* ---------- editor ---------- */
+      .editor-pane {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid #ddd;
+        background: #fff;
+        font: 500 14px/1 Helvetica, Arial, sans-serif;
+      }
+      .save-btn {
+        padding: 4px 14px;
+        font: 500 13px/1 Helvetica, Arial, sans-serif;
+        color: #fff;
+        background: #0050ff;
+        border: 0;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .save-btn:disabled { opacity: 0.4; cursor: default; }
+      .editor {
+        flex: 1 1 0;
+        width: 100%;
+        padding: 16px;
+        font: 14px/1.4 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        border: 0;
+        resize: none;
+        background: #fafafa;
+        outline: none;
+      }
+      .empty-hint {
+        flex: 1 1 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        font: 14px/1 Helvetica, Arial, sans-serif;
+      }
+      /* ---------- helpers ---------- */
+      .ellipsis       { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .arrow          { flex-shrink: 0; }
+      /* nice scrollbar */
+      .sidebar::-webkit-scrollbar,
+      .editor::-webkit-scrollbar { width: 8px; }
+      .sidebar::-webkit-scrollbar-thumb,
+      .editor::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,.25);
         border-radius: 4px;
       }
     `}</style>
