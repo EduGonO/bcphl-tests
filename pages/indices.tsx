@@ -101,51 +101,51 @@ const Indices: React.FC<Props> = ({ indices }) => {
   // --------------------------------------------------------
 return (
   <>
-    <Head>
-      <title>Files – BICÉPHALE</title>
-    </Head>
-
-    <Header categories={indices.map(c => ({ name: c.name, color: "#607d8b" }))} />
+    <Head><title>Files – BICÉPHALE</title></Head>
+    <Header categories={indices.map(c => ({ name: c.name, color: '#607d8b' }))} />
 
     <div className="layout">
-      {/* ── sidebar ─────────────────────────────── */}
+      {/* ── sidebar ───────────────────────────── */}
       <aside className="nav">
         <div className="summary">
           {indices.length} categories • {indices.reduce((n,c)=>n+c.texts.length,0)} articles
         </div>
 
-        {indices.map(cat => (
-          <div key={cat.name}>
-            <button onClick={() => toggle(cat.name)} className="row folder">
-              <span className="ellip">{cat.name}</span>
-              <span className="meta">
-                <span className="count">{cat.texts.length}</span>
-                <span className={`arrow ${open[cat.name] ? "open" : ""}`} />
-              </span>
-            </button>
+        {indices.map(cat => {
+          const opened = open[cat.name];
+          return (
+            <div key={cat.name}>
+              <button onClick={() => toggle(cat.name)} className={`row folder${opened?' on':''}`}>
+                <span className="ellip">{cat.name}</span>
+                <span className="meta">
+                  <span className="count">{cat.texts.length}</span>
+                  <span className={`arrow ${opened?'open':''}`} />
+                </span>
+              </button>
 
-            {open[cat.name] && (
-              <ul className="file-ul">
-                {cat.texts.map(t => {
-                  const act = selCat === cat.name && selSlug === t.slug;
-                  return (
-                    <li key={t.slug}>
-                      <button
-                        onClick={() => load(cat.name, t.slug)}
-                        className={`row file${act ? " act" : ""}`}
-                      >
-                        {t.title}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-        ))}
+              {opened && (
+                <ul className="file-ul">
+                  {cat.texts.map(t =>{
+                    const act = selCat===cat.name && selSlug===t.slug;
+                    return (
+                      <li key={t.slug}>
+                        <button
+                          onClick={()=>load(cat.name,t.slug)}
+                          className={`row file${act?' act':''}`}
+                        >
+                          {t.title}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
       </aside>
 
-      {/* ── editor ──────────────────────────────── */}
+      {/* ── editor ────────────────────────────── */}
       <section className="stage">
         {selCat && selSlug ? (
           <div className="doc">
@@ -153,17 +153,17 @@ return (
               <span className="path ellip">{selCat}/{selSlug}.md</span>
               <button
                 onClick={handleSave}
-                disabled={!dirty || status === "saving"}
+                disabled={!dirty || status==='saving'}
                 className="save"
               >
-                {status === "saving" ? "Saving…" : "Save"}
+                {status==='saving' ? 'Saving…' : 'Save'}
               </button>
             </header>
 
             <textarea
               ref={txtRef}
               value={content}
-              onChange={e => { setContent(e.target.value); setDirty(true); }}
+              onChange={e => {setContent(e.target.value); setDirty(true);}}
               className="editor"
             />
           </div>
@@ -175,42 +175,50 @@ return (
 
     <style jsx>{`
       :root{
-        --bg:#f5f6f7;
-        --nav-bg:#fbfbfb;
-        --nav-border:#e1e3e7;
-        --row-hov:#f1f4ff;
-        --row-act:#d6e1ff;
-        --txt:#202325;
-        --accent:#0069ff;
-        --shadow:0 3px 8px rgba(0,0,0,.08);
+        --bg:#f5f6f7; --nav-bg:#fbfbfb; --nav-border:#e1e3e7;
+        --row-hov:#f1f4ff; --row-act:#d6e1ff;
+        --txt:#202325; --accent:#0069ff; --shadow:0 3px 8px rgba(0,0,0,.09);
       }
       .layout{display:flex;height:calc(100vh - 64px);background:var(--bg);}
-      /* sidebar */
-      .nav{width:260px;padding:20px 16px 32px;overflow-y:auto;background:var(--nav-bg);border-right:1px solid var(--nav-border);}
-      .summary{font:500 13px/1 Helvetica,Arial,sans-serif;color:#555;margin-bottom:14px;}
-      .row{width:100%;display:flex;justify-content:space-between;align-items:center;border:0;background:none;padding:6px 10px;margin:1px 0;font:500 14px/1 Helvetica,Arial,sans-serif;color:var(--txt);border-radius:6px;cursor:pointer;transition:background .1s;}
-      .row:hover{background:var(--row-hov);}
-      .folder{font-weight:500;}
-      .file{font-weight:400;font-size:13px;padding-left:18px;}
-      .file.act{background:var(--row-act);color:var(--accent);}
-      .file-ul{list-style:none;margin:2px 0 6px 0;padding:0;}
+
+      /* ── nav */
+      .nav{width:260px;padding:20px 16px 32px;overflow-y:auto;
+           background:var(--nav-bg);border-right:1px solid var(--nav-border);}
+      .summary{font:500 13px Helvetica,Arial,sans-serif;color:#666;margin-bottom:14px;}
+      .row{width:100%;display:flex;justify-content:space-between;align-items:center;
+           border:0;background:none;padding:6px 10px;margin:1px 0;border-radius:6px;
+           cursor:pointer;transition:background .12s,opacity .12s;opacity:.55;}
+      .row:hover{background:var(--row-hov);opacity:1;}
+      .folder{font:500 14px Helvetica,Arial,sans-serif;}
+      .folder.on{opacity:1;}
+      .file{font:400 13px Helvetica,Arial,sans-serif;padding-left:18px;}
+      .file.act{opacity:1;background:var(--row-act);}
+      .file-ul{list-style:none;margin:2px 0 6px;padding:0;}
       .meta{display:flex;align-items:center;gap:8px;}
-      .count{font:400 11px/1 Helvetica,Arial,sans-serif;color:#777;}
-      .arrow{width:0;height:0;border:5px solid transparent;border-left-color:#666;transition:transform .15s;}
+      .count{font:400 11px Helvetica,Arial,sans-serif;color:#777;}
+      .arrow{width:0;height:0;border:5px solid transparent;border-left-color:#666;
+             transition:transform .15s;}
       .arrow.open{transform:rotate(90deg);}
-      /* editor */
-      .stage{flex:1 1 0;display:flex;align-items:center;justify-content:center;padding:24px;min-width:0;}
-      .doc{display:flex;flex-direction:column;flex:1 1 0;min-height:0;background:#fff;border-radius:12px;box-shadow:var(--shadow);}
-      .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid #e7e7e7;}
-      .path{font:500 13px/1 Helvetica,Arial,sans-serif;color:#555;}
-      .save{padding:5px 18px;border:0;border-radius:6px;font:500 13px/1 Helvetica,Arial,sans-serif;color:#fff;background:var(--accent);cursor:pointer;transition:opacity .1s;}
-      .save:disabled{opacity:.5;cursor:default;}
-      .editor{flex:1 1 0;border:0;outline:none;resize:none;width:100%;padding:26px 22px;font:14px/1.6 "SFMono-Regular",Consolas,"Liberation Mono",monospace;border-bottom-left-radius:12px;border-bottom-right-radius:12px;background:#fcfcfc;}
-      .hint{color:#888;font:14px/1 Helvetica,Arial,sans-serif;}
-      .ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-      /* scrollbar */
+
+      /* ── stage / editor */
+      .stage{flex:1 1 0;display:flex;flex-direction:column;padding:24px 40px 32px;min-width:0;}
+      .doc{flex:1 1 0;display:flex;flex-direction:column;min-height:0;
+           background:#fff;border-radius:12px;box-shadow:var(--shadow);}
+      .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;
+           border-bottom:1px solid #e7e7e7;border-top-left-radius:12px;border-top-right-radius:12px;}
+      .path{font:500 13px Helvetica,Arial,sans-serif;color:#555;}
+      .save{padding:5px 18px;border:0;border-radius:6px;font:500 13px Helvetica,Arial,sans-serif;
+            color:#fff;background:var(--accent);cursor:pointer;transition:opacity .12s;}
+      .save:disabled{opacity:.46;cursor:default;}
+      .editor{flex:1 1 0;width:100%;border:0;outline:none;resize:none;
+              padding:26px 22px;font:14px/1.6 "SFMono-Regular",Consolas,"Liberation Mono",monospace;
+              border-bottom-left-radius:12px;border-bottom-right-radius:12px;background:#fcfcfc;}
+      .hint{margin:auto;color:#888;font:14px Helvetica,Arial,sans-serif;}
+
+      /* scrollbars */
       .nav::-webkit-scrollbar,.editor::-webkit-scrollbar{width:8px;}
-      .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:4px;}
+      .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{
+        background:rgba(0,0,0,.22);border-radius:4px;}
     `}</style>
   </>
 );
