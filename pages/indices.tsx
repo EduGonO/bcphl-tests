@@ -206,6 +206,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
     `}</style>
   </>
 );
+};
 
 export const getStaticProps: GetStaticProps = async () => {
   const textsDir = path.join(process.cwd(), "texts");
