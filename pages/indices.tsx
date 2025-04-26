@@ -99,43 +99,39 @@ const Indices: React.FC<Props> = ({ indices }) => {
   }, [handleSave]);
 
   // --------------------------------------------------------
-  return (
+return (
   <>
     <Head>
       <title>Files – BICÉPHALE</title>
     </Head>
 
-    <Header
-      categories={indices.map(c => ({ name: c.name, color: "#607d8b" }))}
-    />
+    <Header categories={indices.map(c => ({ name: c.name, color: "#607d8b" }))} />
 
-    {/* ───────── LAYOUT ───────── */}
-    <div className="indices-layout">
-      {/* ---------- sidebar ---------- */}
-      <aside className="sidebar">
-        <h2 className="sidebar-title">Files</h2>
+    {/* ───────── layout ───────── */}
+    <div className="layout">
+      {/* === sidebar === */}
+      <aside className="nav">
+        <h2 className="nav-title">Files</h2>
 
         {indices.map(cat => (
           <div key={cat.name}>
-            {/* folder row */}
             <button
               onClick={() => toggle(cat.name)}
-              className="folder-btn"
+              className="row folder"
             >
-              <span className="ellipsis">{cat.name}</span>
-              <span className="arrow">{open[cat.name] ? "▼" : "►"}</span>
+              <span className="ellip">{cat.name}</span>
+              <span className={`arrow ${open[cat.name] ? "open" : ""}`} />
             </button>
 
-            {/* file list */}
             {open[cat.name] && (
-              <ul className="file-list">
+              <ul className="file-ul">
                 {cat.texts.map(t => {
                   const active = selCat === cat.name && selSlug === t.slug;
                   return (
                     <li key={t.slug}>
                       <button
                         onClick={() => load(cat.name, t.slug)}
-                        className={`file-btn${active ? " active" : ""}`}
+                        className={`row file${active ? " act" : ""}`}
                       >
                         {t.title}
                       </button>
@@ -148,18 +144,16 @@ const Indices: React.FC<Props> = ({ indices }) => {
         ))}
       </aside>
 
-      {/* ---------- editor pane ---------- */}
-      <section className="editor-pane">
+      {/* === editor === */}
+      <section className="stage">
         {selCat && selSlug ? (
-          <>
-            <header className="toolbar">
-              <span className="ellipsis">
-                {selCat}/{selSlug}.md
-              </span>
+          <div className="doc">
+            <header className="bar">
+              <span className="pill ellip">{selCat}/{selSlug}.md</span>
               <button
                 onClick={handleSave}
                 disabled={!dirty || status === "saving"}
-                className="save-btn"
+                className="save"
               >
                 {status === "saving" ? "Saving…" : "Save"}
               </button>
@@ -168,123 +162,106 @@ const Indices: React.FC<Props> = ({ indices }) => {
             <textarea
               ref={txtRef}
               value={content}
-              onChange={e => {
-                setContent(e.target.value);
-                setDirty(true);
-              }}
+              onChange={e => { setContent(e.target.value); setDirty(true); }}
               className="editor"
             />
-          </>
+          </div>
         ) : (
-          <div className="empty-hint">Select a file to begin.</div>
+          <div className="hint">Select a file</div>
         )}
       </section>
     </div>
 
+    {/* ───────── styles ───────── */}
     <style jsx>{`
-      /* ---------- layout ---------- */
-      .indices-layout {
-        display: flex;
-        height: calc(100vh - 64px); /* header ≈64 px */
-        background: #fff;
+      :root{
+        --bg:#f6f7f8;
+        --nav-bg:#fafafa;
+        --nav-border:#e2e4e8;
+        --row-hover:#eef2ff;
+        --row-active:#dbe4ff;
+        --txt:#2f3437;
+        --accent:#0069ff;
       }
-      /* ---------- sidebar ---------- */
-      .sidebar {
-        width: 260px;
-        padding: 16px;
-        overflow-y: auto;
-        background: #f7f7f7;
-        border-right: 1px solid #ddd;
+      .layout{
+        display:flex;
+        height:calc(100vh - 64px);
+        background:var(--bg);
       }
-      .sidebar-title {
-        margin: 0 0 12px;
-        font: 600 18px/1 Helvetica, Arial, sans-serif;
+      /* ---- sidebar ---- */
+      .nav{
+        width:260px;
+        padding:20px 16px 32px;
+        overflow-y:auto;
+        background:var(--nav-bg);
+        border-right:1px solid var(--nav-border);
       }
-      .folder-btn {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        padding: 6px 8px;
-        margin-bottom: 2px;
-        font: 500 14px/1 Helvetica, Arial, sans-serif;
-        background: none;
-        border: 0;
-        border-radius: 4px;
-        cursor: pointer;
+      .nav-title{
+        margin:0 0 16px;
+        font:600 18px/1.2 Helvetica,Arial,sans-serif;
+        color:var(--txt);
       }
-      .folder-btn:hover { background: #e5e5e5; }
-      .file-list { margin: 2px 0 6px 0; padding: 0 0 0 12px; list-style: none; }
-      .file-btn {
-        width: 100%;
-        padding: 4px 8px;
-        font: 400 13px/1 Helvetica, Arial, sans-serif;
-        background: none;
-        border: 0;
-        border-radius: 4px;
-        text-align: left;
-        cursor: pointer;
+      .row{
+        width:100%;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        border:0;
+        background:transparent;
+        padding:6px 10px;
+        margin:1px 0;
+        font:500 14px/1 Helvetica,Arial,sans-serif;
+        color:var(--txt);
+        border-radius:6px;
+        cursor:pointer;
+        transition:background .1s;
       }
-      .file-btn:hover   { background: #eef2ff; }
-      .file-btn.active  { background: #dbe3ff; color: #0030ff; }
-      /* ---------- editor ---------- */
-      .editor-pane {
-        flex: 1 1 0;
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
+      .row:hover{background:var(--row-hover);}
+      .folder{font-weight:600;}
+      .file{font-weight:400;font-size:13px;padding-left:16px;}
+      .file.act{background:var(--row-active);color:var(--accent);}
+      .arrow{
+        width:0;height:0;border:5px solid transparent;border-left-color:var(--txt);margin-left:8px;transition:transform .15s;
       }
-      .toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 16px;
-        border-bottom: 1px solid #ddd;
-        background: #fff;
-        font: 500 14px/1 Helvetica, Arial, sans-serif;
+      .arrow.open{transform:rotate(90deg);}
+      .file-ul{list-style:none;margin:2px 0 6px 0;padding:0;}
+      /* ---- editor ---- */
+      .stage{flex:1 1 0;display:flex;align-items:center;justify-content:center;padding:40px 60px;min-width:0;}
+      .doc{
+        display:flex;flex-direction:column;flex:1;min-height:0;
+        background:#fff;border-radius:12px;
+        box-shadow:0 1px 3px rgba(0,0,0,.06);
       }
-      .save-btn {
-        padding: 4px 14px;
-        font: 500 13px/1 Helvetica, Arial, sans-serif;
-        color: #fff;
-        background: #0050ff;
-        border: 0;
-        border-radius: 4px;
-        cursor: pointer;
+      .bar{
+        display:flex;justify-content:space-between;align-items:center;
+        padding:12px 20px;border-bottom:1px solid #ececec;border-top-left-radius:12px;border-top-right-radius:12px;
       }
-      .save-btn:disabled { opacity: 0.4; cursor: default; }
-      .editor {
-        flex: 1 1 0;
-        width: 100%;
-        padding: 16px;
-        font: 14px/1.4 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-        border: 0;
-        resize: none;
-        background: #fafafa;
-        outline: none;
+      .pill{
+        background:#f0f0f0;padding:4px 14px;border-radius:20px;font:500 13px/1 Helvetica,Arial,sans-serif;
       }
-      .empty-hint {
-        flex: 1 1 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #888;
-        font: 14px/1 Helvetica, Arial, sans-serif;
+      .save{
+        padding:5px 18px;border:0;border-radius:6px;font:500 13px/1 Helvetica,Arial,sans-serif;color:#fff;
+        background:var(--accent);cursor:pointer;transition:opacity .1s;
       }
-      /* ---------- helpers ---------- */
-      .ellipsis       { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .arrow          { flex-shrink: 0; }
-      /* nice scrollbar */
-      .sidebar::-webkit-scrollbar,
-      .editor::-webkit-scrollbar { width: 8px; }
-      .sidebar::-webkit-scrollbar-thumb,
-      .editor::-webkit-scrollbar-thumb {
-        background: rgba(0,0,0,.25);
-        border-radius: 4px;
+      .save:disabled{opacity:.5;cursor:default;}
+      .editor{
+        flex:1 1 0;border:0;outline:none;resize:none;width:100%;
+        padding:28px 24px;font:14px/1.6 "SFMono-Regular",Consolas,"Liberation Mono",monospace;
+        border-bottom-left-radius:12px;border-bottom-right-radius:12px;
+        background:#fafafa;
+      }
+      .hint{color:#888;font:14px/1 Helvetica,Arial,sans-serif;}
+      /* ---- helpers ---- */
+      .ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      /* scrollbars */
+      .nav::-webkit-scrollbar,.editor::-webkit-scrollbar{width:8px;}
+      .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{
+        background:rgba(0,0,0,.2);border-radius:4px;
       }
     `}</style>
   </>
 );
+
 };
 
 export const getStaticProps: GetStaticProps = async () => {
