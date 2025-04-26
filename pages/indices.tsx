@@ -102,7 +102,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
   return (
   <>
     <Head>
-      <title>Files – BICÉPHALE</title>
+      <title>Files2 – BICÉPHALE</title>
     </Head>
 
     {/* top bar already supplied by <Header/> */}
