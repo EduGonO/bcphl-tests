@@ -168,7 +168,7 @@ return (
             />
           </div>
         ) : (
-          <div className="hint">Select a file</div>
+          <div className="hint">Choisir Article</div>
         )}
       </section>
     </div>
