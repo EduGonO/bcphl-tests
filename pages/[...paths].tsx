@@ -33,34 +33,58 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const [category, slug] = (params?.paths as string[]) || [];
   const filePath = path.join(process.cwd(), 'texts', category, `${slug}.md`);
   const fileContents = fs.readFileSync(filePath, 'utf-8');
-  const lines = fileContents.split('\n').map((l: string) => l.trim());
 
-  const title = lines[0]?.startsWith('#') ? lines[0].replace(/^#+\s*/, '') : 'Untitled';
-  const date = lines[1] || 'Unknown Date';
-  const author = lines[2] || 'Unknown Author';
-  const content = lines.slice(3).join('\n').trim();
+  let metadata: Record<string, string> = {};
+  let content = '';
 
-  // Fetch all articles and categories
+  const match = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(fileContents);
+  if (match) {
+    const yaml = match[1];
+    content = match[2].trim();
+
+    yaml.split('\n').forEach(line => {
+      const [key, ...rest] = line.split(':');
+      if (key && rest.length) {
+        metadata[key.trim()] = rest.join(':').trim();
+      }
+    });
+  }
+
+  const title = metadata.title || content.split('\n')[0]?.replace(/^#+\s*/, '') || 'Untitled';
+  const author = metadata.author || 'Unknown Author';
+  const date = metadata.date || 'Unknown Date';
+  const headerImage = metadata['header-image'] || ''; // e.g. 'images/foo.jpg' or URL
+
   const { articles, categories } = getArticleData();
-  // Only show grid articles from the current category (excluding current article)
   const gridArticles = articles.filter(
-    (a) =>
-      a.category.toLowerCase() === category.toLowerCase() &&
-      a.slug !== slug
+    (a) => a.category.toLowerCase() === category.toLowerCase() && a.slug !== slug
   );
 
-  return { props: { title, date, author, category, content, gridArticles, categories } };
+  return {
+    props: {
+      title,
+      date,
+      author,
+      headerImage,
+      category,
+      content,
+      gridArticles,
+      categories
+    }
+  };
 };
+
 
 const ArticlePage: React.FC<{
   title: string;
   date: string;
   author: string;
+  headerImage: string;
   category: string;
   content: string;
   gridArticles: { title: string; slug: string; category: string; date: string; author: string; preview: string }[];
   categories: Category[];
-}> = ({ title, date, author, category, content, gridArticles, categories }) => {
+}> = ({ title, date, author, headerImage, category, content, gridArticles, categories }) => {
   const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal'); 
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
