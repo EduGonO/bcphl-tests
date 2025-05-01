@@ -42,8 +42,15 @@ const saveFile = async (
 
 // ---------- ui ----------
 const Indices: React.FC<Props> = ({ indices }) => {
-  const { data: session, status } = useSession({ required: true });
+  const { data: session, status } = useSession();
   const router = useRouter();
+  
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/auth/signin");
+    }
+  }, [status, router]);
   
   // ui state ------------------------------------------------
   const [open, setOpen] = useState<Record<string, boolean>>({});
@@ -128,13 +135,18 @@ const Indices: React.FC<Props> = ({ indices }) => {
     return () => window.removeEventListener("keydown", onKey as any);
   }, [handleSave]);
 
-  // If loading session or not authenticated yet, show loading state
+  // If loading session, show loading state
   if (status === "loading") {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
         <p>Loading...</p>
       </div>
     );
+  }
+  
+  // If not authenticated, don't render anything (useEffect will handle redirect)
+  if (status === "unauthenticated") {
+    return null;
   }
 
   // --------------------------------------------------------
@@ -150,7 +162,10 @@ const Indices: React.FC<Props> = ({ indices }) => {
             <div>{indices.length} categories • {indices.reduce((n,c)=>n+c.texts.length,0)} articles</div>
             <div className="user-info">
               <span>{session?.user?.email}</span>
-              <button onClick={() => signOut({ callbackUrl: '/auth/signin' })} className="logout-btn">
+              <button 
+                onClick={() => signOut({ callbackUrl: '/auth/signin' })} 
+                className="logout-btn"
+              >
                 Log out
               </button>
             </div>
@@ -338,18 +353,20 @@ const Indices: React.FC<Props> = ({ indices }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Check authentication
   const session = await getSession(context);
   
   // Redirect to login if not authenticated
   if (!session) {
     return { 
       redirect: { 
-        destination: "/auth/signin", 
+        destination: `/auth/signin?callbackUrl=${encodeURIComponent(context.resolvedUrl)}`, 
         permanent: false 
       } 
     };
   }
 
+  // If authenticated, proceed with data fetching
   const textsDir = path.join(process.cwd(), "texts");
   const categoryFolders = fs
     .readdirSync(textsDir, { withFileTypes: true })

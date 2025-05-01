@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import type { GetServerSideProps } from "next";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 
 export default function SignInPage() {
@@ -10,11 +10,19 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { status } = useSession();
   
   // Check if we have a callback URL from the query parameters
   const callbackUrl = Array.isArray(router.query.callbackUrl)
     ? router.query.callbackUrl[0]
     : router.query.callbackUrl || "/indices";
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push(callbackUrl);
+    }
+  }, [status, callbackUrl, router]);
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,17 +39,14 @@ export default function SignInPage() {
       
       if (res?.error) {
         setError("Invalid credentials. Please try again.");
-        setIsLoading(false);
       } else if (res?.url) {
         // Successful login with a redirect URL
-        window.location.href = res.url;
-      } else {
-        // Successful login but no redirect URL (shouldn't happen with our config)
-        router.push("/indices");
+        router.push(res.url);
       }
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
