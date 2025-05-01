@@ -1,6 +1,15 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user?: DefaultSession["user"] & {
+      role?: string | null;
+    };
+  }
+}
 
 const roleMap: Record<string,"admin"|"editor"> = {
   "admin@example.com": "admin",
