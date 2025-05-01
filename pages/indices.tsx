@@ -11,13 +11,8 @@ import path from "path";
 import { GetStaticProps } from "next";
 import Header from "../app/components/Header";
 import { getSession } from "next-auth/react";
-export const getServerSideProps = async (ctx) => {
-  const session = await getSession(ctx);
-  if (!session || !["editor","admin"].includes(session.user.role)) {
-    return { redirect: { destination: "/auth/signin", permanent: false } };
-  }
-  return { props: {} };
-};
+import { GetServerSideProps } from "next";
+
 
 // ---------- types ----------
 export type TextEntry = { title: string; slug: string };
@@ -289,7 +284,12 @@ onChange={(e) => {
 
 };
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+  if (!session) {
+    return { redirect: { destination: "/auth/signin", permanent: false } };
+  }
+
   const textsDir = path.join(process.cwd(), "texts");
   const categoryFolders = fs
     .readdirSync(textsDir, { withFileTypes: true })
@@ -314,5 +314,6 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return { props: { indices } };
 };
+
 
 export default Indices;
