@@ -19,12 +19,17 @@ export default NextAuth({
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      authorize: async ({ username, password }) => {
+      async authorize(credentials) {
+        const { username, password } = credentials || {};
         if (
           username === process.env.EDITOR_USER &&
           password === process.env.EDITOR_PASS
         ) {
-          return { email: username };
+          return {
+            id: username,              // <-- required
+            email: username,
+            name: "Demo Editor"        // optional
+          };
         }
         return null;
       }
