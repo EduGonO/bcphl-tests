@@ -362,7 +362,8 @@ const Indices: React.FC<Props> = ({ indices }) => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // Check authentication
-  const session = await getSession(context);
+  const session = await getServerSession(context.req, context.res, authOptions);
+
   
   // Redirect to login if not authenticated
   if (!session) {
