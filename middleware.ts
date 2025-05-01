@@ -25,8 +25,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect to indices if already logged in and trying to access signin
-  if (request.nextUrl.pathname === '/auth/signin' && token) {
-    return NextResponse.redirect(new URL('/indices', request.url));
+  if (request.nextUrl.pathname === '/pages/auth/signin' && token) {
+    return NextResponse.redirect(new URL('/pages/indices', request.url));
   }
 
   return NextResponse.next();
@@ -35,9 +35,9 @@ export async function middleware(request: NextRequest) {
 // Specify which paths should be processed by middleware
 export const config = {
   matcher: [
-    '/indices', 
-    '/auth/signin', 
-    '/api/file',
-    '/api/save-file'
+    '/pages/indices', 
+    '/pages/auth/signin', 
+    '/pages/api/file',
+    '/pages/api/save-file'
   ],
 };
