@@ -9,24 +9,22 @@ export async function middleware(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  // Protect the indices page and any API routes that should require authentication
-  if (request.nextUrl.pathname === '/indices' && !token) {
-    // Save the original URL to redirect back after login
-    const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
-    return NextResponse.redirect(new URL(`/auth/signin?callbackUrl=${callbackUrl}`, request.url));
-  }
+  // For debugging purposes - this will appear in server logs
+  console.log(`Middleware check: Path=${request.nextUrl.pathname}, HasToken=${!!token}`);
 
-  // Protect the API routes that require authentication
-  if (request.nextUrl.pathname.startsWith('/api/file') || 
-      request.nextUrl.pathname.startsWith('/api/save-file')) {
+  // Protect the indices page
+  if (request.nextUrl.pathname === '/indices') {
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      // Save the original URL to redirect back after login
+      const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
+      const redirectUrl = new URL(`/auth/signin?callbackUrl=${callbackUrl}`, request.url);
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
   // Redirect to indices if already logged in and trying to access signin
-  if (request.nextUrl.pathname === '/pages/auth/signin' && token) {
-    return NextResponse.redirect(new URL('/pages/indices', request.url));
+  if (request.nextUrl.pathname === '/auth/signin' && token) {
+    return NextResponse.redirect(new URL('/indices', request.url));
   }
 
   return NextResponse.next();
@@ -35,9 +33,7 @@ export async function middleware(request: NextRequest) {
 // Specify which paths should be processed by middleware
 export const config = {
   matcher: [
-    '/pages/indices', 
-    '/pages/auth/signin', 
-    '/pages/api/file',
-    '/pages/api/save-file'
+    '/indices', 
+    '/auth/signin',
   ],
 };

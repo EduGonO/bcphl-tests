@@ -1,13 +1,15 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req });
+  // Check authentication using getServerSession instead of getSession
+  const session = await getServerSession(req, res, authOptions);
 
-  // Check authentication
   if (!session) {
+    console.log('Save-file API: Unauthorized access attempt');
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -37,8 +39,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     
     fs.writeFileSync(filePath, body);
+    console.log(`File saved: ${safeCat}/${safeSlug}.md by ${session.user?.email}`);
     res.status(200).json({ success: true });
   } catch (error) {
-    res.status(500).end();
+    console.error('Error saving file:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

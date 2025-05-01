@@ -1,16 +1,19 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import type { GetServerSideProps } from "next";
-import { getSession, signIn, useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
+import { authOptions } from "../api/auth/[...nextauth]";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   
   // Check if we have a callback URL from the query parameters
   const callbackUrl = Array.isArray(router.query.callbackUrl)
@@ -20,14 +23,21 @@ export default function SignInPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (status === "authenticated") {
+      console.log("SignIn: Already authenticated, redirecting to:", callbackUrl);
       router.push(callbackUrl);
     }
   }, [status, callbackUrl, router]);
+
+  // Debug information
+  useEffect(() => {
+    setDebugInfo(`Auth Status: ${status} | Callback URL: ${callbackUrl}`);
+  }, [status, callbackUrl]);
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+    setDebugInfo(`Attempting login with email: ${email}`);
     
     try {
       const res = await signIn("credentials", {
@@ -37,22 +47,24 @@ export default function SignInPage() {
         callbackUrl
       });
       
+      setDebugInfo(`Login response: ${JSON.stringify(res)}`);
+      
       if (res?.error) {
         setError("Invalid credentials. Please try again.");
       } else if (res?.url) {
         // Successful login with a redirect URL
         router.push(res.url);
+      } else if (res?.ok) {
+        // If ok but no URL (shouldn't happen with our config)
+        router.push(callbackUrl);
       }
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error(err);
+      setDebugInfo(`Error during login: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleLogin = async () => {
-    await signIn("google", { callbackUrl });
   };
 
   return (
@@ -85,10 +97,13 @@ export default function SignInPage() {
           {isLoading ? "Signing in..." : "Sign In"}
         </button>
       </form>
-      <hr />
-      <button onClick={handleGoogleLogin} disabled={isLoading} className="google-button">
-        Sign in with Google
-      </button>
+      
+      {process.env.NODE_ENV === "development" && debugInfo && (
+        <div className="debug-info">
+          <h3>Debug Info</h3>
+          <pre>{debugInfo}</pre>
+        </div>
+      )}
 
       <style jsx>{`
         .container {
@@ -153,12 +168,17 @@ export default function SignInPage() {
           text-align: center;
         }
         
-        .google-button {
-          background-color: #4285f4;
+        .debug-info {
+          margin-top: 1rem;
+          padding: 1rem;
+          background-color: #f5f5f5;
+          border-radius: 8px;
+          font-size: 0.8rem;
         }
         
-        .google-button:hover:not(:disabled) {
-          background-color: #3367d6;
+        .debug-info pre {
+          white-space: pre-wrap;
+          word-break: break-all;
         }
       `}</style>
     </div>
@@ -166,13 +186,14 @@ export default function SignInPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getSession(ctx);
+  // Use getServerSession instead of getSession
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
   
   // If user is already logged in, redirect to indices page
   if (session) {
     return { 
       redirect: { 
-        destination: "/indices", 
+        destination: ctx.query.callbackUrl as string || "/indices", 
         permanent: false 
       } 
     };

@@ -2,12 +2,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req });
+  // Check authentication using getServerSession instead of getSession
+  const session = await getServerSession(req, res, authOptions);
 
-  // Check authentication
   if (!session) {
     return res.status(401).json({ error: 'Unauthorized' });
   }

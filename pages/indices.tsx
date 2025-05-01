@@ -10,7 +10,9 @@ import fs from "fs";
 import path from "path";
 import { GetServerSideProps } from "next";
 import Header from "../app/components/Header";
-import { getSession, useSession, signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]";
 import { useRouter } from "next/router";
 
 // ---------- types ----------
@@ -48,7 +50,8 @@ const Indices: React.FC<Props> = ({ indices }) => {
   // Redirect if not authenticated
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.replace("/auth/signin");
+      console.log("Indices: Not authenticated, redirecting to login");
+      router.replace("/auth/signin?callbackUrl=/indices");
     }
   }, [status, router]);
   
@@ -135,6 +138,11 @@ const Indices: React.FC<Props> = ({ indices }) => {
     return () => window.removeEventListener("keydown", onKey as any);
   }, [handleSave]);
 
+  // Handle logout
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/auth/signin' });
+  };
+
   // If loading session, show loading state
   if (status === "loading") {
     return (
@@ -163,7 +171,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
             <div className="user-info">
               <span>{session?.user?.email}</span>
               <button 
-                onClick={() => signOut({ callbackUrl: '/auth/signin' })} 
+                onClick={handleLogout} 
                 className="logout-btn"
               >
                 Log out

@@ -1,8 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { DefaultSession } from "next-auth";
 
+// Extend the default session and JWT types
 declare module "next-auth" {
   interface Session {
     user?: DefaultSession["user"] & {
@@ -22,10 +22,6 @@ const roleMap: Record<string, "admin" | "editor"> = {
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID || "",
-      clientSecret: process.env.GOOGLE_SECRET || ""
-    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -53,6 +49,9 @@ export const authOptions: NextAuthOptions = {
             role: roleMap[credentials.email] || null
           };
         }
+        
+        // Add debug logging
+        console.log(`Login attempt failed for email: ${credentials.email}`);
         return null;
       }
     })
@@ -61,7 +60,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.email = user.email;
-        // @ts-ignore - The user type doesn't know about our custom role property
+        // Add role to token
         token.role = user.role || roleMap[user.email as string] || null;
       }
       return token;
