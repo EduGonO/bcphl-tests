@@ -3,25 +3,25 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
-  const session = await getToken({
+  const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   });
 
   // Protect the indices page
-  if (request.nextUrl.pathname === '/indices' && !session) {
+  if (request.nextUrl.pathname === '/indices' && !token) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
   // Redirect to indices if already logged in and trying to access signin
-  if (request.nextUrl.pathname === '/auth/signin' && session) {
+  if (request.nextUrl.pathname === '/auth/signin' && token) {
     return NextResponse.redirect(new URL('/indices', request.url));
   }
 
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
+// Specify which paths should be processed by middleware
 export const config = {
   matcher: ['/indices', '/auth/signin'],
 };
