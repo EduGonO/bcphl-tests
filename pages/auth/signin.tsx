@@ -3,6 +3,9 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { GetServerSideProps } from "next";
+import { getSession, signIn } from "next-auth/react";
+
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
