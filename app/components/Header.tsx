@@ -1,3 +1,5 @@
+'use client';
+
 // /app/components/Header.tsx
 import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
