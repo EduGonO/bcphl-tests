@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { DefaultSession } from "next-auth";
@@ -9,6 +9,10 @@ declare module "next-auth" {
       role?: string | null;
     };
   }
+  
+  interface JWT {
+    role?: string | null;
+  }
 }
 
 const roleMap: Record<string, "admin" | "editor"> = {
@@ -16,7 +20,7 @@ const roleMap: Record<string, "admin" | "editor"> = {
   "editor@example.com": "editor"
 };
 
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID || "",
@@ -45,7 +49,8 @@ export default NextAuth({
           return {
             id: "1",
             email: credentials.email,
-            name: "Editor"
+            name: "Editor",
+            role: roleMap[credentials.email] || null
           };
         }
         return null;
@@ -56,7 +61,8 @@ export default NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.email = user.email;
-        token.role = roleMap[user.email as string] || null;
+        // @ts-ignore - The user type doesn't know about our custom role property
+        token.role = user.role || roleMap[user.email as string] || null;
       }
       return token;
     },
@@ -78,4 +84,6 @@ export default NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development"
-});
+};
+
+export default NextAuth(authOptions);

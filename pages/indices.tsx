@@ -42,16 +42,9 @@ const saveFile = async (
 
 // ---------- ui ----------
 const Indices: React.FC<Props> = ({ indices }) => {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({ required: true });
   const router = useRouter();
   
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/auth/signin");
-    }
-  }, [status, router]);
-
   // ui state ------------------------------------------------
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [selCat, setSelCat] = useState<string | null>(null);
@@ -136,12 +129,19 @@ const Indices: React.FC<Props> = ({ indices }) => {
   }, [handleSave]);
 
   // If loading session or not authenticated yet, show loading state
-  if (status === "loading" || status === "unauthenticated") {
+  if (status === "loading") {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
         <p>Loading...</p>
       </div>
     );
+  }
+  
+  // If not authenticated, this shouldn't be needed with required:true on useSession,
+  // but adding as a fallback protection
+  if (status === "unauthenticated") {
+    router.replace("/auth/signin");
+    return null;
   }
 
   // --------------------------------------------------------

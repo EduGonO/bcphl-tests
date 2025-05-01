@@ -1,7 +1,8 @@
-import { useRouter } from "next/router"; // Changed from next/navigation
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 import type { GetServerSideProps } from "next";
 import { getSession, signIn } from "next-auth/react";
+import Head from "next/head";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,11 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  
+  // Check if we have a callback URL from the query parameters
+  const callbackUrl = Array.isArray(router.query.callbackUrl)
+    ? router.query.callbackUrl[0]
+    : router.query.callbackUrl || "/indices";
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,28 +26,36 @@ export default function SignInPage() {
         redirect: false,
         email,
         password,
+        callbackUrl
       });
       
-      if (res?.ok) {
-        // Successful login
-        router.push("/indices");
-      } else {
+      if (res?.error) {
         setError("Invalid credentials. Please try again.");
+        setIsLoading(false);
+      } else if (res?.url) {
+        // Successful login with a redirect URL
+        window.location.href = res.url;
+      } else {
+        // Successful login but no redirect URL (shouldn't happen with our config)
+        router.push("/indices");
       }
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error(err);
-    } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    await signIn("google", { callbackUrl: "/indices" });
+    await signIn("google", { callbackUrl });
   };
 
   return (
     <div className="container">
+      <Head>
+        <title>Sign In – BICÉPHALE</title>
+      </Head>
+      
       <h1>Sign In</h1>
       {error && <div className="error-message">{error}</div>}
       
@@ -67,7 +81,7 @@ export default function SignInPage() {
         </button>
       </form>
       <hr />
-      <button onClick={handleGoogleLogin} disabled={isLoading}>
+      <button onClick={handleGoogleLogin} disabled={isLoading} className="google-button">
         Sign in with Google
       </button>
 
@@ -132,6 +146,14 @@ export default function SignInPage() {
           border-radius: 8px;
           font-size: 0.9rem;
           text-align: center;
+        }
+        
+        .google-button {
+          background-color: #4285f4;
+        }
+        
+        .google-button:hover:not(:disabled) {
+          background-color: #3367d6;
         }
       `}</style>
     </div>
