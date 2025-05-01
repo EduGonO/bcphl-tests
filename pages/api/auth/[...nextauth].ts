@@ -15,6 +15,11 @@ declare module "next-auth" {
   }
 }
 
+type UserWithRole = {
+  email?: string | null;
+  role?: string | null;
+};
+
 const roleMap: Record<string, "admin" | "editor"> = {
   "admin@example.com": "admin",
   "editor@example.com": "editor"
@@ -58,13 +63,13 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.email = user.email;
-        // Add role to token
-        token.role = user.role || roleMap[user.email as string] || null;
-      }
-      return token;
-    },
+    if (user) {
+      const u = user as UserWithRole;
+      token.email = u.email;
+      token.role = u.role || roleMap[u.email || ""] || null;
+    }
+    return token;
+  },
     async session({ session, token }) {
       if (session.user) {
         session.user.email = token.email as string;
