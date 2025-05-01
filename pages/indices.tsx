@@ -315,5 +315,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return { props: { indices } };
 };
 
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const session = await getSession(ctx);
+  if (!session) {
+    return { redirect: { destination: "/auth/signin", permanent: false } };
+  }
+  return {
+    props: {
+      session,
+      indices: await loadIndices(), // replace with your actual loader
+    },
+  };
+};
 
 export default Indices;
