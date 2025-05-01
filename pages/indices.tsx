@@ -10,6 +10,14 @@ import fs from "fs";
 import path from "path";
 import { GetStaticProps } from "next";
 import Header from "../app/components/Header";
+import { getSession } from "next-auth/react";
+export const getServerSideProps = async (ctx) => {
+  const session = await getSession(ctx);
+  if (!session || !["editor","admin"].includes(session.user.role)) {
+    return { redirect: { destination: "/auth/signin", permanent: false } };
+  }
+  return { props: {} };
+};
 
 // ---------- types ----------
 export type TextEntry = { title: string; slug: string };
