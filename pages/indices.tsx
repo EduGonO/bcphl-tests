@@ -191,11 +191,11 @@ return (
       key={key}
       className="meta-input"
       placeholder={key}
-      value={meta[key] || ""}
-      onChange={(e) => {
-        setMeta({ ...meta, [key]: e.target.value });
-        setDirty(true);
-      }}
+      value={meta[key as keyof typeof meta] || ""}
+onChange={(e) => {
+  setMeta({ ...meta, [key as keyof typeof meta]: e.target.value });
+  setDirty(true);
+}}
     />
   ))}
 </div>
