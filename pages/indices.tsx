@@ -60,7 +60,22 @@ const Indices: React.FC<Props> = ({ indices }) => {
         const body = await fetchFile(cat, slug);
         setSelCat(cat);
         setSelSlug(slug);
-        setContent(body);
+        const match = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body);
+if (match) {
+  const yaml = match[1];
+  const text = match[2];
+  const obj: any = {};
+  yaml.split("\n").forEach(line => {
+    const [k, ...v] = line.split(":");
+    if (k && v.length) obj[k.trim()] = v.join(":").trim();
+  });
+  setMeta({ title: "", author: "", date: "", "header-image": "", ...obj });
+  setContent(text.trim());
+} else {
+  setMeta({ title: "", author: "", date: "", "header-image": "" });
+  setContent(body);
+}
+
         setDirty(false);
         setStatus("idle");
         // focus editor
@@ -72,12 +87,22 @@ const Indices: React.FC<Props> = ({ indices }) => {
     []
   );
 
+const [meta, setMeta] = useState({ title: "", author: "", date: "", "header-image": "" });
+
   // save handler -------------------------------------------
   const handleSave = useCallback(async () => {
     if (!selCat || !selSlug || !dirty) return;
     try {
       setStatus("saving");
-      await saveFile(selCat, selSlug, content);
+      const yaml =
+  `---\n` +
+  Object.entries(meta)
+    .filter(([_, v]) => v)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n") +
+  `\n---\n\n`;
+await saveFile(selCat, selSlug, yaml + content);
+
       setDirty(false);
       setStatus("saved");
       setTimeout(() => setStatus("idle"), 1200);
@@ -160,12 +185,28 @@ return (
               </button>
             </header>
 
-            <textarea
-              ref={txtRef}
-              value={content}
-              onChange={e => {setContent(e.target.value); setDirty(true);}}
-              className="editor"
-            />
+            <div className="fields">
+  {["title", "author", "date", "header-image"].map((key) => (
+    <input
+      key={key}
+      className="meta-input"
+      placeholder={key}
+      value={meta[key] || ""}
+      onChange={(e) => {
+        setMeta({ ...meta, [key]: e.target.value });
+        setDirty(true);
+      }}
+    />
+  ))}
+</div>
+
+<textarea
+  ref={txtRef}
+  value={content}
+  onChange={e => {setContent(e.target.value); setDirty(true);}}
+  className="editor"
+/>
+
           </div>
         ) : (
           <div className="hint">Choisir Article</div>
@@ -214,6 +255,21 @@ return (
               padding:26px 22px;font:14px/1.6 "SFMono-Regular",Consolas,"Liberation Mono",monospace;
               border-bottom-left-radius:12px;border-bottom-right-radius:12px;background:#fcfcfc;}
       .hint{margin:auto;color:#888;font:14px Helvetica,Arial,sans-serif;}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 18px;
+  border-bottom: 1px solid #e7e7e7;
+  background: #fefefe;
+}
+.meta-input {
+  font: 13px Helvetica, Arial, sans-serif;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+}
 
       /* scrollbars */
       .nav::-webkit-scrollbar,.editor::-webkit-scrollbar{width:8px;}
