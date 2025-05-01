@@ -1,102 +1,104 @@
-import { signIn, getSession } from "next-auth/react";
-import { GetServerSideProps } from "next";
+"use client";
+
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function SignIn() {
-  const [username, setUsername] = useState("");
+export default function SignInPage() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  const handleCredentials = async () => {
-    await signIn("credentials", {
-      redirect: true,
-      callbackUrl: "/",
+  const handleCredentialsLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await signIn("credentials", {
+      redirect: false,
       email,
       password,
     });
+    if (res?.ok) router.push("/");
+    else alert("Invalid credentials");
+  };
+
+  const handleGoogleLogin = async () => {
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (
-    <div className="wrapper">
+    <div className="container">
       <h1>Sign In</h1>
-
-      <div className="box">
+      <form onSubmit={handleCredentialsLogin}>
         <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          required
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
+          required
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button onClick={handleCredentials}>Sign in</button>
-        <hr />
-        <button className="google" onClick={() => signIn("google")}>
-          Sign in with Google
-        </button>
-      </div>
+        <button type="submit">Sign In</button>
+      </form>
+      <hr />
+      <button onClick={handleGoogleLogin}>Sign in with Google</button>
 
       <style jsx>{`
-        .wrapper {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 48px 16px;
-          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        h1 {
-          font-size: 24px;
-          margin-bottom: 24px;
-        }
-        .box {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          width: 100%;
-          max-width: 320px;
+        .container {
+          max-width: 400px;
+          margin: 80px auto;
+          padding: 2rem;
           background: #fff;
-          padding: 24px;
           border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
         }
+
+        h1 {
+          margin-bottom: 1rem;
+          font-size: 1.8rem;
+          text-align: center;
+        }
+
         input {
-          padding: 10px 12px;
-          font-size: 14px;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-          outline: none;
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          font-size: 1rem;
         }
+
         button {
-          padding: 10px;
-          font-size: 14px;
-          background: #0069ff;
+          width: 100%;
+          padding: 0.75rem;
+          background-color: #111;
           color: #fff;
           border: none;
-          border-radius: 6px;
+          border-radius: 8px;
           cursor: pointer;
-          transition: background 0.2s;
+          font-size: 1rem;
         }
+
         button:hover {
-          background: #0055cc;
+          background-color: #333;
         }
-        .google {
-          background: #ea4335;
-        }
-        .google:hover {
-          background: #c53d2f;
-        }
+
         hr {
-          margin: 12px 0;
-          border: 0;
+          margin: 1.5rem 0;
+          border: none;
           border-top: 1px solid #eee;
         }
       `}</style>
     </div>
   );
 }
+
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
