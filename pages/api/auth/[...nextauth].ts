@@ -48,12 +48,15 @@ export default NextAuth({
 
   ],
   callbacks: {
-    async session({ session }) {
-      const email = session.user?.email || "";
-      session.user.role = roleMap[email] || null;
-      return session;
+  async session({ session }) {
+    if (session.user) {
+      const email = session.user.email ?? "";
+      session.user.role = roleMap[email] ?? null;
     }
-  },
+    return session;
+  }
+},
+
   pages: { signIn: "/auth/signin" },
   secret: process.env.NEXTAUTH_SECRET
 });
