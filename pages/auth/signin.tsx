@@ -10,7 +10,7 @@ export default function SignIn() {
     await signIn("credentials", {
       redirect: true,
       callbackUrl: "/",
-      username,
+      email,
       password,
     });
   };

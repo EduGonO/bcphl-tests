@@ -1,3 +1,4 @@
+
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -25,28 +26,25 @@ export default NextAuth({
     CredentialsProvider({
   name: "Credentials",
   credentials: {
-    username: { label: "Username", type: "text" },
+    email: { label: "Email", type: "text" },
     password: { label: "Password", type: "password" }
   },
   async authorize(credentials, req) {
-    // 1) ensure credentials object and fields exist
     if (
       !credentials ||
-      typeof credentials.username !== "string" ||
+      typeof credentials.email !== "string" ||
       typeof credentials.password !== "string"
     ) {
       return null;
     }
 
-    // 2) check against your demo env vars
     if (
-      credentials.username === process.env.EDITOR_USER &&
+      credentials.email === process.env.EDITOR_USER &&
       credentials.password === process.env.EDITOR_PASS
     ) {
-      const u = credentials.username;  // now a guaranteed string
       return {
-        id: u,
-        email: u,
+        id: credentials.email,
+        email: credentials.email,
         name: "Demo Editor"
       };
     }
@@ -54,6 +52,7 @@ export default NextAuth({
     return null;
   }
 })
+
 
   ],
   callbacks: {
