@@ -136,13 +136,6 @@ const Indices: React.FC<Props> = ({ indices }) => {
       </div>
     );
   }
-  
-  // If not authenticated, this shouldn't be needed with required:true on useSession,
-  // but adding as a fallback protection
-  if (status === "unauthenticated") {
-    router.replace("/auth/signin");
-    return null;
-  }
 
   // --------------------------------------------------------
   return (
