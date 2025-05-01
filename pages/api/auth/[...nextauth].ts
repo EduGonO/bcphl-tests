@@ -14,26 +14,38 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_SECRET!
     }),
     CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        const { username, password } = credentials || {};
-        if (
-          username === process.env.EDITOR_USER &&
-          password === process.env.EDITOR_PASS
-        ) {
-          return {
-            id: username,              // <-- required
-            email: username,
-            name: "Demo Editor"        // optional
-          };
-        }
-        return null;
-      }
-    })
+  name: "Credentials",
+  credentials: {
+    username: { label: "Username", type: "text" },
+    password: { label: "Password", type: "password" }
+  },
+  async authorize(credentials, req) {
+    // 1) ensure credentials object and fields exist
+    if (
+      !credentials ||
+      typeof credentials.username !== "string" ||
+      typeof credentials.password !== "string"
+    ) {
+      return null;
+    }
+
+    // 2) check against your demo env vars
+    if (
+      credentials.username === process.env.EDITOR_USER &&
+      credentials.password === process.env.EDITOR_PASS
+    ) {
+      const u = credentials.username;  // now a guaranteed string
+      return {
+        id: u,
+        email: u,
+        name: "Demo Editor"
+      };
+    }
+
+    return null;
+  }
+})
+
   ],
   callbacks: {
     async session({ session }) {
