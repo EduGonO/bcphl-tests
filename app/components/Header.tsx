@@ -1,12 +1,7 @@
-'use client';
-
 // /app/components/Header.tsx
 import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
-import { useSession, signOut } from "next-auth/react";
-
-const { data: session } = useSession();
 
 export type Category = { name: string; color: string };
 
@@ -160,12 +155,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
               </a>
             </Link>
           </div>
-          {session?.user && (
-  <div className="session-bar">
-    Signed in as {session.user.email}{" "}
-    <button onClick={() => signOut({ callbackUrl: "/auth/signin" })}>Sign out</button>
-  </div>
-)}
         </div>
       </nav>
       {dropdownPortal}
