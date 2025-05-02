@@ -3,18 +3,8 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { getArticleData } from '../../lib/articleService';
 import { Article } from '../../types';
-import { ParsedUrlQuery } from 'querystring';
 
-type Props = {
-  category: string;
-  articles: Article[];
-};
-
-interface Params extends ParsedUrlQuery {
-  category: string;
-}
-
-export default function CategoryPage({ category, articles }: Props) {
+export default function CategoryPage({ category, articles }: { category: string; articles: Article[] }) {
   const config = categoryConfigMap[category];
   if (!config) return <div>Catégorie introuvable.</div>;
 
@@ -33,7 +23,7 @@ export default function CategoryPage({ category, articles }: Props) {
   );
 }
 
-export const getStaticPaths: GetStaticPaths<Params> = async () => {
+export const getStaticPaths: GetStaticPaths = async () => {
   const paths = Object.keys(categoryConfigMap).map((category) => ({
     params: { category },
   }));
@@ -44,16 +34,20 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
-  if (!params || !params.category || !(params.category in categoryConfigMap)) {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const category = typeof params?.category === 'string' ? params.category : null;
+
+  if (!category || !(category in categoryConfigMap)) {
     return { notFound: true };
   }
 
   const { articles } = getArticleData();
-  const category = params.category;
   const filtered = articles.filter((a) => a.category === category);
 
   return {
-    props: { category, articles: filtered },
+    props: {
+      category,
+      articles: filtered,
+    },
   };
 };
