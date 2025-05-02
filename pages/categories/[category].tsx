@@ -1,4 +1,5 @@
 // /pages/categories/[category].tsx
+import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import { getArticleData } from '../../lib/articleService';
