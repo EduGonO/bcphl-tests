@@ -3,7 +3,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
-import SharedCategoryPage from './shared';
+import SharedCategoryPage from '../../components/shared';
 import { Article } from '../../types'; // Ensure you import your Article type
 
 interface CategoryEntryProps {
