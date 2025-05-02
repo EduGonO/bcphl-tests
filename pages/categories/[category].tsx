@@ -5,7 +5,7 @@ import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
 import SharedCategoryPage from '../../app/components/shared';
 import { Article } from '../../types'; // Ensure you import your Article type
-import Header, { Category } from '../app/components/Header';
+import Header, { Category } from '../../app/components/Header';
 
 
 
