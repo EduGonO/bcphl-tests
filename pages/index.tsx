@@ -9,6 +9,7 @@ import { Article } from '../types';
 import { getArticleData } from '../lib/articleService';
 import ArticleGrid from '../app/components/ArticleGrid';
 import ArticleBlock from '../app/components/ArticleBlock';
+import CategoryBanner from '../app/components/CategoryBanner';
 
 interface HomeProps {
   articles: Article[];
@@ -59,6 +60,9 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           onCategoryChange={handleCategoryChange}
         />
         <main style={mainStyle}>
+        {activeCategory && (
+  <CategoryBanner category={activeCategory} />
+)}
          <div>
             <ArticleBlock
               articles={articles}
