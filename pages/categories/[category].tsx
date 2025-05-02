@@ -1,15 +1,12 @@
-// /pages/categories/[category].tsx
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { getArticleData } from '../../lib/articleService';
-import { useRouter } from 'next/router';
 import { Article } from '../../types';
 
 type Props = {
   category: string;
   articles: Article[];
 };
-
 
 export default function CategoryPage({ category, articles }: Props) {
   const config = categoryConfigMap[category];
@@ -39,10 +36,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  if (!params?.category || typeof params.category !== 'string') {
+    return { notFound: true };
+  }
+
   const { articles } = getArticleData();
-  const category = params?.category as string;
+  const category = params.category;
   const filtered = articles.filter((a) => a.category === category);
+
   return {
     props: { category, articles: filtered },
   };
