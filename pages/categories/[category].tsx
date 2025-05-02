@@ -4,7 +4,7 @@ import { categoryConfigMap } from '../../config/categoryColors';
 import { getArticleData } from '../../lib/articleService';
 import { useRouter } from 'next/router';
 
-export default function CategoryPage({ category, articles }) {
+export default function CategoryPage({ category, articles }: Props) {
   const config = categoryConfigMap[category];
   if (!config) return <div>Catégorie introuvable.</div>;
 
