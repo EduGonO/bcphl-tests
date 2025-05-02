@@ -40,11 +40,12 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
   };
 
   return (
+    <div style={{ padding: '2rem' }}>
+    
   <Header
           categories={categories}
           onCategoryChange={handleCategoryChange}
         />
-    <div style={{ padding: '2rem' }}>
       <h1 style={{ color: config.color }}>{category}</h1>
       {config.media.map((src, i) => (
         <img key={i} src={src} alt={`Media ${i}`} style={{ maxWidth: '100%', marginBottom: '1rem' }} />
