@@ -58,7 +58,9 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   // Create the dropdown content with a simple block layout.
   const dropdownContent = (
     <div className="rubriques-dropdown">
-      {categories.map((cat) =>
+      {categories
+  .filter((cat) => categoryConfigMap[cat.name]?.showInDropdown)
+  .map((cat) =>
         onCategoryChange ? (
           <button
             key={cat.name}

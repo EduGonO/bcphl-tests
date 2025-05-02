@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Article } from '../types';
-import { defaultCategoryColor, categoryColorMap } from '../config/categoryColors';
+import { defaultCategoryColor, categoryConfigMap } from '../config/categoryColors';
 
 export function getArticleData(): { articles: Article[]; categories: { name: string; color: string }[] } {
   const textsDir = path.join(process.cwd(), 'texts');
@@ -14,10 +14,13 @@ export function getArticleData(): { articles: Article[]; categories: { name: str
     .map((dirent) => dirent.name);
   
   // Build the categories array using our mapping.
-  const categories = categoryFolders.map((cat) => ({
+  const categories = categoryFolders.map((cat) => {
+  const config = categoryConfigMap[cat];
+  return {
     name: cat,
-    color: categoryColorMap[cat] || defaultCategoryColor, 
-  }));
+    color: config?.color || defaultCategoryColor,
+  };
+});
 
   // Loop over each category folder and read markdown files.
   for (const cat of categoryFolders) {
