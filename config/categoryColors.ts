@@ -38,6 +38,12 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     showInDropdown: false,
     media: [],
   },
+  'Hypothèses': {
+    color: '#009688',
+    showInHeader: true,
+    showInDropdown: false,
+    media: [],
+  },
   'Bicaméralité': {
     color: '#009688',
     showInHeader: true,
