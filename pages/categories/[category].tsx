@@ -47,7 +47,7 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
     <div style={{ padding: '2rem' }}>
     
   <Header
-          categories={categories}
+          categories={category}
           onCategoryChange={handleCategoryChange}
         />
       <h1 style={{ color: config.color }}>{category}</h1>
