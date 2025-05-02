@@ -5,6 +5,10 @@ import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
 import SharedCategoryPage from '../../app/components/shared';
 import { Article } from '../../types'; // Ensure you import your Article type
+import Header, { Category } from '../app/components/Header';
+
+
+
 
 interface CategoryEntryProps {
   category: string;
@@ -21,8 +25,25 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
   if (usesSharedPage) {
     return <SharedCategoryPage category={category} articles={articles} />;
   }
+  
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const handleCategoryChange = (category: string) => {
+    if (activeCategory === category) {
+      setActiveCategory(null);
+      setFilteredArticles(articles);
+      setBackgroundColor('#ffffff');
+    } else {
+      setActiveCategory(category);
+      setFilteredArticles(articles.filter((a) => a.category === category));
+      setBackgroundColor('#ffffff');
+    }
+  };
 
   return (
+  <Header
+          categories={categories}
+          onCategoryChange={handleCategoryChange}
+        />
     <div style={{ padding: '2rem' }}>
       <h1 style={{ color: config.color }}>{category}</h1>
       {config.media.map((src, i) => (
