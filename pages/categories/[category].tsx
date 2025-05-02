@@ -3,7 +3,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { getArticleData } from '../../lib/articleService';
 import { useRouter } from 'next/router';
-import { Article } from '../types';
+import { Article } from '../../types';
 
 type Props = {
   category: string;
