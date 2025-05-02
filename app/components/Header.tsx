@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
+import { defaultCategoryColor, categoryConfigMap } from '../config/categoryColors';
 
 export type Category = { name: string; color: string };
 
