@@ -1,7 +1,13 @@
 // /pages/categories/shared.tsx
 import { categoryConfigMap } from '../../config/categoryColors';
+import { Article } from '../../types'; // Ensure you import the Article type
 
-export default function SharedCategoryPage({ category, articles }) {
+interface SharedCategoryPageProps {
+  category: string;
+  articles: Article[];
+}
+
+export default function SharedCategoryPage({ category, articles }: SharedCategoryPageProps) {
   const config = categoryConfigMap[category];
 
   return (
