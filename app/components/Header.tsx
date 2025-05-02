@@ -2,7 +2,8 @@
 import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
-import { defaultCategoryColor, categoryConfigMap } from '../config/categoryColors';
+import { categoryConfigMap } from '../../config/categoryColors';
+
 
 export type Category = { name: string; color: string };
 
@@ -61,27 +62,16 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     <div className="rubriques-dropdown">
       {categories
   .filter((cat) => categoryConfigMap[cat.name]?.showInDropdown)
-  .map((cat) =>
-        onCategoryChange ? (
-          <button
-            key={cat.name}
-            onClick={() => {
-              onCategoryChange(cat.name);
-              hideDropdown();
-            }}
-            className="dropdown-item"
-            style={{ color: cat.color }}
-          >
-            {cat.name}
-          </button>
-        ) : (
-          <Link key={cat.name} href={`/?category=${cat.name}`}>
-            <a className="dropdown-item" style={{ color: cat.color }} onClick={hideDropdown}>
-              {cat.name}
-            </a>
-          </Link>
-        )
-      )}
+  .map((cat) => {
+    const config = categoryConfigMap[cat.name];
+    return (
+      <Link key={cat.name} href={`/categories/${cat.name}`}>
+        <a className="dropdown-item" style={{ color: config.color }}>
+          {cat.name}
+        </a>
+      </Link>
+    );
+  })}
     </div>
   );
 
