@@ -16,8 +16,8 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
   },
   'Image-Critique': {
     color: '#3f51b5',
-    showInHeader: true,
-    showInDropdown: false,
+    showInHeader: false,
+    showInDropdown: true,
     media: ['/media/image-header.jpg'],
   },
   'Bascule': {
@@ -34,32 +34,32 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
   },
   'Automaton': {
     color: '#9c27b0',
-    showInHeader: true,
-    showInDropdown: false,
+    showInHeader: false,
+    showInDropdown: true,
     media: [],
   },
   'Hypothèses': {
     color: '#009688',
-    showInHeader: true,
-    showInDropdown: false,
+    showInHeader: false,
+    showInDropdown: true,
     media: [],
   },
   'Bicaméralité': {
     color: '#009688',
     showInHeader: true,
-    showInDropdown: false,
+    showInDropdown: true,
     media: [],
   },
   'Banque des rêves': {
     color: '#607d8b',
-    showInHeader: false,
-    showInDropdown: true,
+    showInHeader: true,
+    showInDropdown: false,
     media: [],
   },
   'Cartographie': {
     color: '#607d8b',
-    showInHeader: false,
-    showInDropdown: true,
+    showInHeader: true,
+    showInDropdown: false,
     media: [],
   },
 };

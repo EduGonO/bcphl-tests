@@ -1,6 +1,7 @@
 // /pages/categories/shared.tsx
 import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types'; // Ensure you import the Article type
+import Header, { Category } from '../Header';
 
 interface SharedCategoryPageProps {
   category: string;
@@ -11,6 +12,10 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
   const config = categoryConfigMap[category];
 
   return (
+          <Header
+          categories={categories}
+          onCategoryChange={handleCategoryChange}
+        />
     <div style={{ padding: '2rem', background: '#fafafa' }}>
       <h1 style={{ color: config.color }}>{category}</h1>
       {config.media.length > 0 && (
