@@ -4,8 +4,14 @@ import { useRouter } from 'next/router';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
 import SharedCategoryPage from './shared';
+import { Article } from '../../types'; // Ensure you import your Article type
 
-export default function CategoryEntry({ category, articles }) {
+interface CategoryEntryProps {
+  category: string;
+  articles: Article[];
+}
+
+export default function CategoryEntry({ category, articles }: CategoryEntryProps) {
   const config = categoryConfigMap[category];
 
   if (!config) return <div>Catégorie introuvable.</div>;
@@ -51,6 +57,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: { category, articles: filtered },
   };
 };
+
 
 
 
