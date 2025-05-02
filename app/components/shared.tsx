@@ -12,11 +12,9 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
   const config = categoryConfigMap[category];
 
   return (
-          <Header
-          categories={categories}
-          onCategoryChange={handleCategoryChange}
-        />
+          
     <div style={{ padding: '2rem', background: '#fafafa' }}>
+    <Header/>
       <h1 style={{ color: config.color }}>{category}</h1>
       {config.media.length > 0 && (
         <div style={{ marginBottom: '2rem' }}>
