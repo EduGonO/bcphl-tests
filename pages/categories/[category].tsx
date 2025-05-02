@@ -27,7 +27,10 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
     return <SharedCategoryPage category={category} articles={articles} />;
   }
   
+  const [filteredArticles, setFilteredArticles] = useState<Article[]>(articles);
+  const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  
   const handleCategoryChange = (category: string) => {
     if (activeCategory === category) {
       setActiveCategory(null);
