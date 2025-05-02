@@ -1,12 +1,18 @@
+// /pages/categories/[category].tsx
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { getArticleData } from '../../lib/articleService';
 import { Article } from '../../types';
+import { ParsedUrlQuery } from 'querystring';
 
 type Props = {
   category: string;
   articles: Article[];
 };
+
+interface Params extends ParsedUrlQuery {
+  category: string;
+}
 
 export default function CategoryPage({ category, articles }: Props) {
   const config = categoryConfigMap[category];
@@ -27,17 +33,19 @@ export default function CategoryPage({ category, articles }: Props) {
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
+export const getStaticPaths: GetStaticPaths<Params> = async () => {
+  const paths = Object.keys(categoryConfigMap).map((category) => ({
+    params: { category },
+  }));
+
   return {
-    paths: Object.keys(categoryConfigMap).map((category) => ({
-      params: { category },
-    })),
+    paths,
     fallback: false,
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  if (!params?.category || typeof params.category !== 'string') {
+export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
+  if (!params || !params.category || !(params.category in categoryConfigMap)) {
     return { notFound: true };
   }
 
