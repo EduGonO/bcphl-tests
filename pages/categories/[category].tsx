@@ -21,7 +21,7 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
 
   if (!config) return <div>Catégorie introuvable.</div>;
 
-  const usesSharedPage = ['Love Letters', 'Bascule', 'Sensure1', 'Banque des rêves', 'Cartographie1'].includes(category);
+  const usesSharedPage = ['Love Letters', 'Bascule', 'Sensure', 'Banque des rêves', 'Cartographie'].includes(category);
 
   if (usesSharedPage) {
     return <SharedCategoryPage category={category} articles={articles} />;
