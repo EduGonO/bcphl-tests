@@ -1,9 +1,8 @@
 // /app/components/Header.tsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
-import { categoryConfigMap } from '../../config/categoryColors';
-
+import { categoryConfigMap, getCategoryLink } from '../../config/categoryColors';
 
 export type Category = { name: string; color: string };
 
@@ -17,8 +16,14 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [triggerHovered, setTriggerHovered] = useState(false);
   const [dropdownHovered, setDropdownHovered] = useState(false);
+  const [portalContainer, setPortalContainer] = useState<Element | null>(null);
 
   const rubriquesRef = useRef<HTMLDivElement>(null);
+
+  // Set up portal container on client side only
+  useEffect(() => {
+    setPortalContainer(document.body);
+  }, []);
 
   // Adjust the computed position: on mobile, stretch full width (left: 0)
   const showDropdown = () => {
@@ -61,22 +66,45 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   const dropdownContent = (
     <div className="rubriques-dropdown">
       {categories
-  .filter((cat) => categoryConfigMap[cat.name]?.showInDropdown)
-  .map((cat) => {
-    const config = categoryConfigMap[cat.name];
-    return (
-      <Link key={cat.name} href={`/categories/${cat.name}`}>
-        <a className="dropdown-item" style={{ color: config.color }}>
-          {cat.name}
-        </a>
-      </Link>
-    );
-  })}
+        .filter((cat) => categoryConfigMap[cat.name]?.showInDropdown)
+        .map((cat) => {
+          const config = categoryConfigMap[cat.name];
+          const categoryLink = getCategoryLink(cat.name);
+          
+          return (
+            <Link key={cat.name} href={categoryLink}>
+              <a 
+                className="dropdown-item" 
+                style={{ color: config.color }}
+                onClick={() => onCategoryChange && onCategoryChange(cat.name)}
+              >
+                {cat.name}
+              </a>
+            </Link>
+          );
+        })}
     </div>
   );
 
+  // Get header nav items
+  const headerNavItems = categories
+    .filter((cat) => categoryConfigMap[cat.name]?.showInHeader)
+    .map((cat) => {
+      const categoryLink = getCategoryLink(cat.name);
+      return (
+        <Link key={cat.name} href={categoryLink}>
+          <a 
+            className="nav-item"
+            onClick={() => onCategoryChange && onCategoryChange(cat.name)}
+          >
+            {cat.name}
+          </a>
+        </Link>
+      );
+    });
+
   // Render the dropdown in a portal.
-  const dropdownPortal = dropdownVisible
+  const dropdownPortal = dropdownVisible && portalContainer
     ? ReactDOM.createPortal(
         <div
           className="dropdown-portal"
@@ -93,7 +121,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         >
           {dropdownContent}
         </div>,
-        document.body
+        portalContainer
       )
     : null;
 
@@ -117,18 +145,10 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           >
             <span>Rubriques ▾</span>
           </div>
-          <Link href="/evenements">
-            <a className="nav-item">Événements</a>
-          </Link>
-          <Link href="/manifeste">
-            <a className="nav-item">Manifeste</a>
-          </Link>
-          <Link href="/banque-des-reves">
-            <a className="nav-item">Banque des rêves</a>
-          </Link>
-          <Link href="/cartographie-des-lieux">
-            <a className="nav-item">Cartographie des lieux</a>
-          </Link>
+          
+          {/* Dynamically render header nav items based on categoryConfigMap */}
+          {headerNavItems}
+          
           <div className="nav-item search-item">
             <Link href="/indices">
               <a className="search-button" aria-label="Search">

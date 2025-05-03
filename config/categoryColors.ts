@@ -19,7 +19,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     dataFolder: 'texts/Love-Letter',
   },
   'Image-Critique': {
-    color: '#3f51b5',
+    color: '#aa51b5',
     showInHeader: false,
     showInDropdown: true,
     media: ['/media/image-header.jpg'],
