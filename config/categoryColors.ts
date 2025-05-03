@@ -83,7 +83,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     showInHeader: true,
     showInDropdown: false,
     media: [],
-    linkTo: '/categories/evenements',
+    linkTo: '/evenements',
     dataFolder: 'texts/Événements',
   },
   'À propos': {
