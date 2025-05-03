@@ -48,6 +48,7 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
             articles.map((article) => (
               <div key={article.slug} className="article-item" style={{ marginBottom: '1.5rem' }}>
                 <h3>{article.title}</h3>
+                <h4>design example v0 - Apr29, liens + structure</h4>
                 <div className="article-meta">{article.date} · {article.author}</div>
                 <p className="article-preview">{article.preview}</p>
               </div>

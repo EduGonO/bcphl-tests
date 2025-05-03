@@ -44,7 +44,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
   return (
     <>
       <Head>
-        <title>Article Collection</title>
+        <title>Bicéphale</title>
         {/* Additional meta tags, scripts, etc. */}
       </Head>
       <div
