@@ -7,13 +7,13 @@ import { Article } from '../../types';
 import Header, { Category } from '../../app/components/Header';
 import Footer from '../../app/components/Footer';
 
-interface ImageCritiquePageProps {
+interface SensurePageProps {
   articles: Article[];
   categories: Category[];
 }
 
 export default function ImageCritiquePage({ articles, categories }: SensurePageProps) {
-  const categoryName = 'Image-Critique';
+  const categoryName = 'Sensure';
   const config = categoryConfigMap[categoryName];
 
   if (!config) {
