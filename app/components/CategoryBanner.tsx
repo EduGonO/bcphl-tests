@@ -22,7 +22,7 @@ const CategoryBanner: React.FC<Props> = ({ category }) => {
         .banner-title {
           font-size: 28px;
           margin-top: 10px;
-          font-family: 'RecoletaMedium';
+          font-family: 'GayaRegular';
         }
       `}</style>
     </div>

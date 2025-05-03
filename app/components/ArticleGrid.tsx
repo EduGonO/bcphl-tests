@@ -11,7 +11,7 @@ interface ArticleGridProps {
 const ArticleGrid: React.FC<ArticleGridProps> = ({
   articles,
   categories,
-  titleFont = 'RecoletaMedium',
+  titleFont = 'GayaRegular',
 }) => {
   return (
     <section className="article-grid">

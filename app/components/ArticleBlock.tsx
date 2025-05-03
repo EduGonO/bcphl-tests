@@ -11,7 +11,7 @@ interface ArticleBlockProps {
 const ArticleBlock: React.FC<ArticleBlockProps> = ({
   articles,
   categories,
-  titleFont = 'RecoletaMedium',
+  titleFont = 'GayaRegular',
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 

@@ -11,7 +11,7 @@ interface ArticleListProps {
 const ArticleList: React.FC<ArticleListProps> = ({
   articles,
   categories,
-  titleFont = 'RecoletaMedium',
+  titleFont = 'GayaRegular',
 }) => {
   return (
     <section className="article-list">
