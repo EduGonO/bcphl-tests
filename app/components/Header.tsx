@@ -39,6 +39,24 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   // Set up portal container on client side only
   useEffect(() => {
     setPortalContainer(document.body);
+    
+    // Add CSS variables for category colors to use in hover effects
+    document.documentElement.style.setProperty('--default-category-color', '#333');
+    
+    // Setup event delegation for hover effects
+    const handleMouseOver = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('dropdown-item')) {
+        const color = target.getAttribute('data-category-color') || '#333';
+        document.documentElement.style.setProperty('--category-color', color);
+      }
+    };
+    
+    document.addEventListener('mouseover', handleMouseOver);
+    
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+    };
   }, []);
 
   // Adjust the computed position with improved positioning logic
@@ -48,23 +66,15 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       const isMobile = window.innerWidth < 768;
       
       // For desktop: align dropdown with the left edge of the trigger
-      // For mobile: apply special handling for full width or centered dropdown
+      // For mobile: apply special handling for centered dropdown
       if (isMobile) {
-        // Full width on very small screens, otherwise centered with max-width
-        if (window.innerWidth < 480) {
-          setDropdownPos({
-            top: rect.bottom + window.scrollY,
-            left: 0,
-          });
-        } else {
-          // Center the dropdown for medium-small screens
-          const dropdownWidth = 220; // Approximate width of dropdown
-          const leftPos = Math.max(0, (window.innerWidth - dropdownWidth) / 2);
-          setDropdownPos({
-            top: rect.bottom + window.scrollY,
-            left: leftPos,
-          });
-        }
+        // Center the dropdown for all mobile screens
+        // Use fixed position for mobile to avoid scrolling issues
+        setDropdownPos({
+          top: rect.bottom,
+          // For mobile, we'll center it with CSS margins instead of absolute positioning
+          left: window.innerWidth / 2,
+        });
       } else {
         // Desktop positioning - align with trigger
         setDropdownPos({
@@ -135,13 +145,14 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
               <a 
                 className="dropdown-item" 
                 style={{ 
-                  color: config.color,
-                  backgroundColor: '#ffffff',
+                  // Use consistent text color instead of category color for text
+                  // Category color will be used on hover via CSS
                   // Staggered animation for items (slightly delayed appearance)
                   transitionDelay: `${index * 30}ms`,
                   opacity: dropdownVisible ? 1 : 0,
                   transform: dropdownVisible ? 'translateY(0)' : 'translateY(-5px)'
                 }}
+                data-category-color={config.color}
                 onClick={() => onCategoryChange && onCategoryChange(cat.name)}
               >
                 {cat.name}
@@ -175,16 +186,18 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         <div
           className={`dropdown-portal ${dropdownVisible ? 'visible' : ''}`}
           style={{
-            position: 'absolute',
+            position: 'fixed', // Changed from absolute to fixed for better mobile positioning
             top: dropdownPos.top,
             left: dropdownPos.left,
             zIndex: 10000,
-            // On mobile, occupy full width.
-            width: window.innerWidth < 768 ? '100%' : 'auto',
+            // On mobile, occupy full width and center
+            width: window.innerWidth < 768 ? 'calc(100% - 32px)' : 'auto',
+            maxWidth: '300px', // Limit width for better readability
             opacity: dropdownVisible ? 1 : 0,
             transform: dropdownVisible ? 'translateY(0)' : 'translateY(-10px)',
             pointerEvents: dropdownVisible ? 'auto' : 'none',
             transition: 'opacity 0.2s ease, transform 0.2s ease',
+            margin: window.innerWidth < 768 ? '0 16px' : '0', // Add margin on mobile
           }}
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
@@ -267,31 +280,62 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         }
         :global(.header a),
         :global(.header a:visited),
-        :global(.header a:hover),
         :global(.header a:active) {
           text-decoration: none !important;
           color: #000 !important;
         }
-        /* Fix for dropdown items: ensure they display as block elements to stack vertically */
+        :global(.header-nav a:hover) {
+          text-decoration: none !important;
+          color: #000 !important;
+        }
+        /* Elegant dropdown styles with blur effect and better mobile support */
         :global(.rubriques-dropdown) {
           display: flex;
           flex-direction: column !important;
           min-width: 180px;
-          background: #ffffff;
-          border-radius: 4px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border-radius: 8px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
           padding: 8px 0;
-          border: 1px solid #e0e0e0;
+          border: 1px solid rgba(230, 230, 230, 0.8);
           overflow: hidden;
         }
         :global(.dropdown-item) {
           display: block !important;
           width: 100% !important;
-          padding: 10px 16px !important;
+          padding: 12px 16px !important;
           font-size: 14px;
           text-align: left;
           white-space: nowrap;
-          background-color: #ffffff !important;
+          color: #333 !important;
+          text-decoration: none !important;
+          position: relative;
+          transition: all 0.2s ease;
+        }
+        :global(.dropdown-item:hover) {
+          background-color: rgba(240, 240, 240, 0.8) !important;
+        }
+        /* Dynamic hover color based on data-attribute */
+        :global(.dropdown-item:hover::before) {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background-color: var(--category-color);
+        }
+        @media (max-width: 767px) {
+          :global(.dropdown-portal) {
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: calc(100% - 32px) !important;
+          }
+          :global(.dropdown-portal.visible) {
+            transform: translateX(-50%) translateY(0) !important;
+          }
         }
         .header {
           width: 100%;
@@ -325,6 +369,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           width: 100%;
           background: #f5f5f5;
           overflow-x: auto;
+          -webkit-overflow-scrolling: touch; /* Improve mobile scrolling */
         }
         .nav-inner {
           max-width: 1200px;
@@ -369,45 +414,76 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           width: 18px;
           height: 18px;
         }
-        /* Improved dropdown styling for a traditional vertical dropdown menu */
+        /* Mobile enhancements */
+        @media (max-width: 767px) {
+          .header-nav {
+            padding: 0 8px;
+          }
+          .nav-inner {
+            padding: 10px 8px;
+            gap: 16px;
+          }
+          .nav-item {
+            padding: 6px 8px;
+            font-size: 13px;
+          }
+          .brand-title {
+            font-size: 28px;
+          }
+          .brand-logo {
+            height: 48px;
+          }
+        }
+        
+        /* Add padding to ensure items at the edge are fully visible when scrolling */
+        @media (max-width: 767px) {
+          .nav-inner::before,
+          .nav-inner::after {
+            content: '';
+            min-width: 8px;
+          }
+        }
+        
+        /* Elegant dropdown styling with proper spacing and dividers */
         .rubriques-dropdown {
           display: flex;
           flex-direction: column;
           min-width: 180px;
-          background: #ffffff;
-          border-radius: 4px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border-radius: 8px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
           padding: 8px 0;
-          border: 1px solid #e0e0e0;
-          overflow: hidden; /* Ensures content respects border radius */
+          border: 1px solid rgba(230, 230, 230, 0.8);
+          overflow: hidden;
         }
         .dropdown-item {
           display: block;
-          padding: 10px 16px;
+          padding: 12px 16px;
           font-size: 14px;
           cursor: pointer;
           text-decoration: none;
-          transition: all 0.25s ease;
-          border-left: 3px solid transparent;
+          transition: all 0.2s ease;
           width: 100%;
           position: relative;
           overflow: hidden;
+          color: #333;
         }
         .dropdown-item:hover {
-          background: #f5f5f5;
-          border-left-color: currentColor; /* Uses the text color for the left border */
+          background: rgba(245, 245, 245, 0.8);
         }
         .dropdown-item:active {
-          background: #e8e8e8;
+          background: rgba(235, 235, 235, 0.9);
         }
         .dropdown-item::after {
           content: '';
           position: absolute;
           bottom: 0;
-          left: 0;
-          width: 100%;
+          left: 16px;
+          width: calc(100% - 32px);
           height: 1px;
-          background: #f0f0f0;
+          background: rgba(240, 240, 240, 0.8);
         }
         .dropdown-item:last-child::after {
           display: none; /* No divider after last item */
