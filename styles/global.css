@@ -6,7 +6,7 @@
 }
 @font-face {
   font-family: 'GayaRegular';
-  src: url('/fonts/Gaya.woff') format('woff');
+  src: url('/fonts/Gaya.otf') format('opentype');
   font-display: swap;
 }
 @font-face {
