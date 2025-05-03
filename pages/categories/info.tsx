@@ -1,6 +1,5 @@
 // /pages/categories/[category].tsx
 import React, { useState } from 'react';
-import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
@@ -60,21 +59,3 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
     </div>
   );
 }
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: Object.keys(categoryConfigMap).map((category) => ({
-      params: { category },
-    })),
-    fallback: false,
-  };
-};
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { articles } = getArticleData();
-  const category = params?.category as string;
-  const filtered = articles.filter((a) => a.category === category);
-  return {
-    props: { category, articles: filtered },
-  };
-};
