@@ -38,7 +38,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     showInHeader: false,
     showInDropdown: true,
     media: [],
-    linkTo: '/categories/sensure1',
+    linkTo: '/categories/sensure',
     dataFolder: 'texts/Sensure',
   },
   'Automaton': {
@@ -57,7 +57,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
   },
   'Bicaméralité': {
     color: '#009688',
-    showInHeader: true,
+    showInHeader: false,
     showInDropdown: true,
     media: [],
     dataFolder: 'texts/Bicaméralité',
@@ -75,7 +75,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     showInHeader: true,
     showInDropdown: false,
     media: [],
-    linkTo: '/categories/cartographie1',
+    linkTo: '/categories/cartographie',
     dataFolder: 'texts/Cartographie des lieux',
   },
   'Événements': {
