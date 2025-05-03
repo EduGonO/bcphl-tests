@@ -65,15 +65,13 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       const rect = rubriquesRef.current.getBoundingClientRect();
       const isMobile = window.innerWidth < 768;
       
-      // For desktop: align dropdown with the left edge of the trigger
-      // For mobile: apply special handling for centered dropdown
       if (isMobile) {
-        // Center the dropdown for all mobile screens
+        // For mobile: position the dropdown with the trigger item
         // Use fixed position for mobile to avoid scrolling issues
         setDropdownPos({
           top: rect.bottom,
-          // For mobile, we'll center it with CSS margins instead of absolute positioning
-          left: window.innerWidth / 2,
+          // Use the actual left position of the trigger rather than centering
+          left: rect.left
         });
       } else {
         // Desktop positioning - align with trigger
@@ -186,18 +184,15 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         <div
           className={`dropdown-portal ${dropdownVisible ? 'visible' : ''}`}
           style={{
-            position: 'fixed', // Changed from absolute to fixed for better mobile positioning
+            position: 'fixed', // Fixed positioning for better mobile support
             top: dropdownPos.top,
             left: dropdownPos.left,
             zIndex: 10000,
-            // On mobile, occupy full width and center
-            width: window.innerWidth < 768 ? 'calc(100% - 32px)' : 'auto',
             maxWidth: '300px', // Limit width for better readability
             opacity: dropdownVisible ? 1 : 0,
             transform: dropdownVisible ? 'translateY(0)' : 'translateY(-10px)',
             pointerEvents: dropdownVisible ? 'auto' : 'none',
             transition: 'opacity 0.2s ease, transform 0.2s ease',
-            margin: window.innerWidth < 768 ? '0 16px' : '0', // Add margin on mobile
           }}
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
@@ -288,6 +283,13 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           text-decoration: none !important;
           color: #000 !important;
         }
+        /* Remove underline from dropdown items */
+        :global(.dropdown-item),
+        :global(.dropdown-item:hover),
+        :global(.dropdown-item:visited),
+        :global(.dropdown-item:active) {
+          text-decoration: none !important;
+        }
         /* Elegant dropdown styles with blur effect and better mobile support */
         :global(.rubriques-dropdown) {
           display: flex;
@@ -329,12 +331,12 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         }
         @media (max-width: 767px) {
           :global(.dropdown-portal) {
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            width: calc(100% - 32px) !important;
+            /* Don't center the dropdown on mobile; align to trigger instead */
+            width: auto !important;
+            max-width: 90vw !important;
           }
           :global(.dropdown-portal.visible) {
-            transform: translateX(-50%) translateY(0) !important;
+            transform: translateY(0) !important;
           }
         }
         .header {
@@ -370,14 +372,20 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           width: 100%;
           background: #f5f5f5;
           overflow-x: auto;
+          scrollbar-width: none; /* Hide scrollbar for Firefox */
           -webkit-overflow-scrolling: touch; /* Improve mobile scrolling */
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .header-nav::-webkit-scrollbar {
+          display: none;
         }
         .nav-inner {
           max-width: 1200px;
           margin: 0 auto;
           display: flex;
           align-items: center;
-          justify-content: center;
+          /* Start items from the left on mobile */
+          justify-content: flex-start;
           gap: 24px;
           padding: 12px 16px;
           white-space: nowrap;
@@ -418,10 +426,10 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         /* Mobile enhancements */
         @media (max-width: 767px) {
           .header-nav {
-            padding: 0 8px;
+            padding: 0;
           }
           .nav-inner {
-            padding: 10px 8px;
+            padding: 10px 16px; /* Increased horizontal padding */
             gap: 16px;
           }
           .nav-item {
@@ -438,10 +446,15 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         
         /* Add padding to ensure items at the edge are fully visible when scrolling */
         @media (max-width: 767px) {
-          .nav-inner::before,
-          .nav-inner::after {
+          .nav-inner::before {
             content: '';
             min-width: 8px;
+            flex: 0 0 auto;
+          }
+          .nav-inner::after {
+            content: '';
+            min-width: 16px;
+            flex: 0 0 auto;
           }
         }
         
@@ -477,17 +490,13 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         .dropdown-item:active {
           background: rgba(235, 235, 235, 0.9);
         }
+        /* Remove the underline effect from dropdown items */
         .dropdown-item::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 16px;
-          width: calc(100% - 32px);
-          height: 1px;
-          background: rgba(240, 240, 240, 0.8);
+          display: none;
         }
-        .dropdown-item:last-child::after {
-          display: none; /* No divider after last item */
+        /* Optional divider between items (without underline) */
+        .dropdown-item:not(:last-child) {
+          border-bottom: 1px solid rgba(240, 240, 240, 0.5);
         }
       `}</style>
     </header>
