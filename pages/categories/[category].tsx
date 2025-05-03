@@ -1,4 +1,96 @@
 // /pages/categories/[category].tsx
+import React from 'react';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
+import { getArticleData } from '../../lib/articleService';
+import { categoryConfigMap, categoryToSlug } from '../../config/categoryColors';
+import SharedCategoryPage from '../../app/components/shared';
+import { Article } from '../../types';
+import Header, { Category } from '../../app/components/Header';
+
+interface CategoryEntryProps {
+  category: string;
+  articles: Article[];
+  categories: Category[];
+}
+
+export default function CategoryEntry({ category, articles, categories }: CategoryEntryProps) {
+  const router = useRouter();
+  const slug = router.query.category as string;
+  
+  // Find the actual category name from the slug
+  const categoryName = Object.keys(categoryConfigMap).find(
+    catName => categoryToSlug(catName) === slug
+  ) || category;
+  
+  const config = categoryConfigMap[categoryName];
+
+  if (!config) return <div>Catégorie introuvable.</div>;
+
+  // Check if this category should be handled by a specific page
+  // If it has a linkTo property and it's not the current path, redirect to that page
+  if (config.linkTo && typeof window !== 'undefined') {
+    const currentPath = router.asPath;
+    const targetPath = config.linkTo;
+    
+    // Only redirect if we're not already on the target page
+    if (!currentPath.includes(targetPath)) {
+      router.push(targetPath);
+      return <div>Redirection...</div>;
+    }
+  }
+
+  // Otherwise use the shared page component
+  return <SharedCategoryPage category={categoryName} articles={articles} />;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Generate paths for categories that should use the shared component
+  const paths = Object.keys(categoryConfigMap)
+    .filter(category => !categoryConfigMap[category].linkTo)
+    .map(category => ({
+      params: { category: categoryToSlug(category) },
+    }));
+
+  return {
+    paths,
+    fallback: false,
+  };
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { articles, categories } = getArticleData();
+  const slug = params?.category as string;
+  
+  // Find category name from slug
+  const categoryName = Object.keys(categoryConfigMap).find(
+    catName => categoryToSlug(catName) === slug
+  );
+  
+  // If no matching category found, return empty array
+  if (!categoryName) {
+    return {
+      props: { category: slug, articles: [], categories },
+    };
+  }
+
+  // Filter articles by category
+  const filteredArticles = articles.filter(a => a.category === categoryName);
+  
+  return {
+    props: { 
+      category: categoryName, 
+      articles: filteredArticles,
+      categories 
+    },
+  };
+};
+
+
+
+/*
+
+// /pages/categories/[category].tsx
 import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
@@ -82,7 +174,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 
 
-/*
+
 // /pages/categories/[category].tsx
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { categoryConfigMap } from '../../config/categoryColors';
