@@ -41,49 +41,92 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     setPortalContainer(document.body);
   }, []);
 
-  // Adjust the computed position: on mobile, stretch full width (left: 0)
+  // Adjust the computed position with improved positioning logic
   const showDropdown = () => {
     if (rubriquesRef.current) {
       const rect = rubriquesRef.current.getBoundingClientRect();
       const isMobile = window.innerWidth < 768;
-      setDropdownPos({
-        top: rect.bottom + window.scrollY + 4,
-        left: isMobile ? 0 : rect.left + window.scrollX,
-      });
+      
+      // For desktop: align dropdown with the left edge of the trigger
+      // For mobile: apply special handling for full width or centered dropdown
+      if (isMobile) {
+        // Full width on very small screens, otherwise centered with max-width
+        if (window.innerWidth < 480) {
+          setDropdownPos({
+            top: rect.bottom + window.scrollY,
+            left: 0,
+          });
+        } else {
+          // Center the dropdown for medium-small screens
+          const dropdownWidth = 220; // Approximate width of dropdown
+          const leftPos = Math.max(0, (window.innerWidth - dropdownWidth) / 2);
+          setDropdownPos({
+            top: rect.bottom + window.scrollY,
+            left: leftPos,
+          });
+        }
+      } else {
+        // Desktop positioning - align with trigger
+        setDropdownPos({
+          top: rect.bottom + window.scrollY,
+          left: rect.left + window.scrollX,
+        });
+      }
     }
     setDropdownVisible(true);
   };
 
   const hideDropdown = () => setDropdownVisible(false);
 
+  // More robust dropdown handling with proper timing
   const hideDropdownWithDelay = () => {
+    // Use a longer delay to prevent accidental closing when moving between trigger and dropdown
     setTimeout(() => {
       if (!triggerHovered && !dropdownHovered) {
         hideDropdown();
       }
-    }, 120);
+    }, 150);
+  };
+
+  // Add click handler for mobile/touch devices
+  const handleTriggerClick = () => {
+    if (dropdownVisible) {
+      hideDropdown();
+    } else {
+      showDropdown();
+    }
   };
 
   const handleTriggerMouseEnter = () => {
     setTriggerHovered(true);
-    showDropdown();
+    // Small delay before showing dropdown prevents flickering on accidental hover
+    setTimeout(() => {
+      if (triggerHovered) {
+        showDropdown();
+      }
+    }, 50);
   };
+  
   const handleTriggerMouseLeave = () => {
     setTriggerHovered(false);
     hideDropdownWithDelay();
   };
-  const handleDropdownMouseEnter = () => setDropdownHovered(true);
+  
+  const handleDropdownMouseEnter = () => {
+    setDropdownHovered(true);
+  };
+  
   const handleDropdownMouseLeave = () => {
     setDropdownHovered(false);
     hideDropdownWithDelay();
   };
 
-  // Create the dropdown content with a simple block layout.
+  // Create the dropdown content with improved animations and styling
   const dropdownContent = (
     <div className="rubriques-dropdown">
       {mergedCategories
         .filter((cat) => categoryConfigMap[cat.name]?.showInDropdown)
-        .map((cat) => {
+        .map((cat, index) => {
           const config = categoryConfigMap[cat.name];
           const categoryLink = getCategoryLink(cat.name);
           
@@ -91,7 +134,13 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
             <Link key={cat.name} href={categoryLink}>
               <a 
                 className="dropdown-item" 
-                style={{ color: config.color }}
+                style={{ 
+                  color: config.color,
+                  // Staggered animation for items (slightly delayed appearance)
+                  transitionDelay: `${index * 30}ms`,
+                  opacity: dropdownVisible ? 1 : 0,
+                  transform: dropdownVisible ? 'translateY(0)' : 'translateY(-5px)'
+                }}
                 onClick={() => onCategoryChange && onCategoryChange(cat.name)}
               >
                 {cat.name}
@@ -119,11 +168,11 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       );
     });
 
-  // Render the dropdown in a portal.
-  const dropdownPortal = dropdownVisible && portalContainer
+  // Render the dropdown in a portal with improved styling and animation.
+  const dropdownPortal = portalContainer
     ? ReactDOM.createPortal(
         <div
-          className="dropdown-portal"
+          className={`dropdown-portal ${dropdownVisible ? 'visible' : ''}`}
           style={{
             position: 'absolute',
             top: dropdownPos.top,
@@ -131,6 +180,10 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
             zIndex: 10000,
             // On mobile, occupy full width.
             width: window.innerWidth < 768 ? '100%' : 'auto',
+            opacity: dropdownVisible ? 1 : 0,
+            transform: dropdownVisible ? 'translateY(0)' : 'translateY(-10px)',
+            pointerEvents: dropdownVisible ? 'auto' : 'none',
+            transition: 'opacity 0.2s ease, transform 0.2s ease',
           }}
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
@@ -154,12 +207,28 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       <nav className="header-nav">
         <div className="nav-inner">
           <div
-            className="nav-item rubriques"
+            className={`nav-item rubriques ${dropdownVisible ? 'active' : ''}`}
             ref={rubriquesRef}
             onMouseEnter={handleTriggerMouseEnter}
             onMouseLeave={handleTriggerMouseLeave}
+            onClick={handleTriggerClick}
           >
-            <span>Rubriques ▾</span>
+            <span>Rubriques</span>
+            <svg 
+              className="dropdown-caret" 
+              width="10" 
+              height="6" 
+              viewBox="0 0 10 6" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              style={{
+                marginLeft: '4px',
+                transition: 'transform 0.2s ease',
+                transform: dropdownVisible ? 'rotate(180deg)' : 'rotate(0deg)'
+              }}
+            >
+              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
           
           {/* Dynamically render header nav items based on categoryConfigMap */}
@@ -188,6 +257,13 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       </nav>
       {dropdownPortal}
       <style jsx>{`
+        /* Add global styles for transitions */
+        :global(*) {
+          box-sizing: border-box;
+        }
+        :global(.dropdown-portal) {
+          will-change: transform, opacity;
+        }
         :global(.header a),
         :global(.header a:visited),
         :global(.header a:hover),
@@ -242,9 +318,24 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         .nav-item {
           font-size: 14px;
           font-weight: 500;
-          padding: 8px 4px;
+          padding: 8px 12px;
           cursor: pointer;
           position: relative;
+          display: flex;
+          align-items: center;
+          border-radius: 4px;
+          transition: background-color 0.2s ease;
+        }
+        .nav-item:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+        .nav-item.active, .nav-item.rubriques:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+        .nav-item.rubriques {
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
         .search-button {
           display: flex;
@@ -256,25 +347,48 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           width: 18px;
           height: 18px;
         }
-        /* Simplified dropdown container: use display block */
+        /* Improved dropdown styling for a traditional vertical dropdown menu */
         .rubriques-dropdown {
-          display: block;
-          background: #cce2d0;
+          display: flex;
+          flex-direction: column;
+          min-width: 180px;
+          background: #ffffff;
           border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           padding: 8px 0;
+          border: 1px solid #e0e0e0;
+          overflow: hidden; /* Ensures content respects border radius */
         }
         .dropdown-item {
           display: block;
-          padding: 8px 16px;
+          padding: 10px 16px;
           font-size: 14px;
           cursor: pointer;
           text-decoration: none;
-          color: #000;
+          transition: all 0.25s ease;
+          border-left: 3px solid transparent;
           width: 100%;
+          position: relative;
+          overflow: hidden;
         }
         .dropdown-item:hover {
-          background: #b6d4b9;
+          background: #f5f5f5;
+          border-left-color: currentColor; /* Uses the text color for the left border */
+        }
+        .dropdown-item:active {
+          background: #e8e8e8;
+        }
+        .dropdown-item::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 1px;
+          background: #f0f0f0;
+        }
+        .dropdown-item:last-child::after {
+          display: none; /* No divider after last item */
         }
       `}</style>
     </header>
