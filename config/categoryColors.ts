@@ -119,3 +119,30 @@ export const getCategoryLink = (category: string): string => {
   // Otherwise use the default category path with slug
   return `/categories/${categoryToSlug(category)}`;
 };
+
+// Helper to get all categories that should show in header
+export const getHeaderCategories = (): string[] => {
+  return Object.keys(categoryConfigMap).filter(
+    category => categoryConfigMap[category].showInHeader
+  );
+};
+
+// Helper to get all categories that should show in dropdown
+export const getDropdownCategories = (): string[] => {
+  return Object.keys(categoryConfigMap).filter(
+    category => categoryConfigMap[category].showInDropdown
+  );
+};
+
+// Helper to get category objects with name and color
+export const getCategoryObjects = (categoryNames: string[] = []): Array<{name: string, color: string}> => {
+  if (categoryNames.length === 0) {
+    // Return all categories if none specified
+    categoryNames = Object.keys(categoryConfigMap);
+  }
+  
+  return categoryNames.map(name => ({
+    name,
+    color: categoryConfigMap[name]?.color || defaultCategoryColor
+  }));
+};

@@ -20,6 +20,22 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 
   const rubriquesRef = useRef<HTMLDivElement>(null);
 
+  // Get all available categories from the config map
+  const allConfiguredCategories = Object.keys(categoryConfigMap).map(name => ({
+    name,
+    color: categoryConfigMap[name].color
+  }));
+
+  // Combine configured categories with those passed via props to ensure all categories are available
+  const mergedCategories = [...allConfiguredCategories];
+  
+  // Add any categories from props that might not be in the config (fallback)
+  categories.forEach(cat => {
+    if (!mergedCategories.some(c => c.name === cat.name)) {
+      mergedCategories.push(cat);
+    }
+  });
+
   // Set up portal container on client side only
   useEffect(() => {
     setPortalContainer(document.body);
@@ -65,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   // Create the dropdown content with a simple block layout.
   const dropdownContent = (
     <div className="rubriques-dropdown">
-      {categories
+      {mergedCategories
         .filter((cat) => categoryConfigMap[cat.name]?.showInDropdown)
         .map((cat) => {
           const config = categoryConfigMap[cat.name];
@@ -87,7 +103,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   );
 
   // Get header nav items
-  const headerNavItems = categories
+  const headerNavItems = mergedCategories
     .filter((cat) => categoryConfigMap[cat.name]?.showInHeader)
     .map((cat) => {
       const categoryLink = getCategoryLink(cat.name);
