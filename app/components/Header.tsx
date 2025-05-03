@@ -136,6 +136,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
                 className="dropdown-item" 
                 style={{ 
                   color: config.color,
+                  backgroundColor: '#ffffff',
                   // Staggered animation for items (slightly delayed appearance)
                   transitionDelay: `${index * 30}ms`,
                   opacity: dropdownVisible ? 1 : 0,
@@ -270,6 +271,27 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         :global(.header a:active) {
           text-decoration: none !important;
           color: #000 !important;
+        }
+        /* Fix for dropdown items: ensure they display as block elements to stack vertically */
+        :global(.rubriques-dropdown) {
+          display: flex;
+          flex-direction: column !important;
+          min-width: 180px;
+          background: #ffffff;
+          border-radius: 4px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          padding: 8px 0;
+          border: 1px solid #e0e0e0;
+          overflow: hidden;
+        }
+        :global(.dropdown-item) {
+          display: block !important;
+          width: 100% !important;
+          padding: 10px 16px !important;
+          font-size: 14px;
+          text-align: left;
+          white-space: nowrap;
+          background-color: #ffffff !important;
         }
         .header {
           width: 100%;
