@@ -52,7 +52,7 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
       <ul>
         {articles.map((a) => (
           <li key={a.slug}>
-            <strong>{a.title}</strong> -- {a.date} by {a.author}
+            <strong>{a.title}</strong> -99- {a.date} by {a.author}
             <p>{a.preview}</p>
           </li>
         ))}
