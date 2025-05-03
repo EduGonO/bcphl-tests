@@ -103,7 +103,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
 
         .title {
           margin: 0 0 5px;
-          font-size: 18px;
+          font-size: 20px;
           font-family: ${titleFont};
           font-weight: normal;
           color: #000;

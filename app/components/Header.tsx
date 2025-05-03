@@ -360,7 +360,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           height: 60px;
         }
         .brand-title {
-          font-size: 36px;
+          font-size: 42px;
           margin: 0;
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           color: #000;
