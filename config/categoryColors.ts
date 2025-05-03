@@ -13,13 +13,13 @@ export type CategoryConfig = {
 export const categoryConfigMap: Record<string, CategoryConfig> = {
   'Love Letters': {
     color: '#f44336',
-    showInHeader: true,
+    showInHeader: false,
     showInDropdown: true,
     media: [],
     dataFolder: 'texts/Love-Letter',
   },
   'Image-Critique': {
-    color: '#aa51b5',
+    color: '#3f51b5',
     showInHeader: false,
     showInDropdown: true,
     media: ['/media/image-header.jpg'],
@@ -29,7 +29,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
   'Bascule': {
     color: '#4caf50',
     showInHeader: false,
-    showInDropdown: false,
+    showInDropdown: true,
     media: [],
     dataFolder: 'texts/Bascule',
   },
@@ -78,7 +78,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     linkTo: '/categories/cartographie',
     dataFolder: 'texts/Cartographie des lieux',
   },
-  'Evenements': {
+  'Événements': {
     color: '#607d8b',
     showInHeader: true,
     showInDropdown: false,
