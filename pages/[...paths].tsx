@@ -257,6 +257,7 @@ const ArticlePage: React.FC<{
         .hero-text h1 {
           margin: 0 0 8px;
           font-family: ${titleFont};
+          font-weight: normal;
           font-size: 32px;
           line-height: 1.2;
         }

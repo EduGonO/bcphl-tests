@@ -86,9 +86,9 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         }
         .card-title {
           margin: 0 0 5px;
-          font-size: 16px;
+          font-size: 18px;
           font-family: ${titleFont};
-          font-weight: 400;
+          font-weight: 500;
           line-height: 1.3;
           color: #000;
         }
