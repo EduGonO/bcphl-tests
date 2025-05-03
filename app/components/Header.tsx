@@ -65,21 +65,12 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
       const rect = rubriquesRef.current.getBoundingClientRect();
       const isMobile = window.innerWidth < 768;
       
-      if (isMobile) {
-        // For mobile: position the dropdown with the trigger item
-        // Use fixed position for mobile to avoid scrolling issues
-        setDropdownPos({
-          top: rect.bottom,
-          // Use the actual left position of the trigger rather than centering
-          left: rect.left
-        });
-      } else {
-        // Desktop positioning - align with trigger
-        setDropdownPos({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
-        });
-      }
+      // For all screen sizes: position the dropdown with the trigger item
+      // Use fixed position for mobile to avoid scrolling issues
+      setDropdownPos({
+        top: rect.bottom,
+        left: rect.left + (isMobile ? 0 : window.scrollX)
+      });
     }
     setDropdownVisible(true);
   };
@@ -384,8 +375,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           margin: 0 auto;
           display: flex;
           align-items: center;
-          /* Start items from the left on mobile */
-          justify-content: flex-start;
+          justify-content: center; /* Keep centered on all screen sizes */
           gap: 24px;
           padding: 12px 16px;
           white-space: nowrap;
@@ -412,6 +402,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           display: flex;
           align-items: center;
           gap: 4px;
+          font-size: inherit; /* Match font size of other nav items */
         }
         .search-button {
           display: flex;
@@ -427,14 +418,19 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         @media (max-width: 767px) {
           .header-nav {
             padding: 0;
+            width: 100%;
+            overflow-x: scroll;
           }
           .nav-inner {
             padding: 10px 16px; /* Increased horizontal padding */
             gap: 16px;
+            width: max-content; /* Ensure all items are visible */
+            min-width: 100%; /* At minimum fill the container */
           }
           .nav-item {
             padding: 6px 8px;
             font-size: 13px;
+            flex-shrink: 0; /* Prevent items from shrinking */
           }
           .brand-title {
             font-size: 28px;
@@ -448,13 +444,25 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         @media (max-width: 767px) {
           .nav-inner::before {
             content: '';
-            min-width: 8px;
+            min-width: 16px;
             flex: 0 0 auto;
           }
           .nav-inner::after {
             content: '';
             min-width: 16px;
             flex: 0 0 auto;
+          }
+          /* Force header to full width and prevent cropping */
+          .header {
+            width: 100vw;
+            max-width: 100%;
+            overflow-x: hidden;
+          }
+          .header-nav {
+            /* Ensure scrolling works properly */
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            scroll-snap-type: x proximity;
           }
         }
         
@@ -490,12 +498,18 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         .dropdown-item:active {
           background: rgba(235, 235, 235, 0.9);
         }
-        /* Remove the underline effect from dropdown items */
-        .dropdown-item::after {
-          display: none;
+        /* Remove all underlines from dropdown items */
+        .dropdown-item::after,
+        :global(.dropdown-item::after) {
+          display: none !important;
+          content: none !important;
+          border-bottom: none !important;
+          text-decoration: none !important;
         }
+        
         /* Optional divider between items (without underline) */
-        .dropdown-item:not(:last-child) {
+        .dropdown-item:not(:last-child),
+        :global(.dropdown-item:not(:last-child)) {
           border-bottom: 1px solid rgba(240, 240, 240, 0.5);
         }
       `}</style>
