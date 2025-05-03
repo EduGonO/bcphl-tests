@@ -138,6 +138,7 @@ const ArticlePage: React.FC<{
           backgroundColor: '#fff',
           fontSize: `${bodyFontSize}px`,
           fontFamily: bodyFont,
+          
         }}
       >
         <Header categories={categories} />

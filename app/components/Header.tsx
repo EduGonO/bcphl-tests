@@ -364,6 +364,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           margin: 0;
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           color: #000;
+          font-weight: 200;
         }
         .header-nav {
           width: 100%;

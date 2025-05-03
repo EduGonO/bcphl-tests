@@ -105,6 +105,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
           margin: 0 0 5px;
           font-size: 18px;
           font-family: ${titleFont};
+          font-weight: normal;
           color: #000;
           line-height: 1.3;
         }
@@ -118,7 +119,6 @@ const ArticleList: React.FC<ArticleListProps> = ({
         .category-label {
           display: inline-block;
           font-size: 12px;
-          font-weight: bold;
           padding: 3px 8px;
           border: 1px solid #f0f0f0;
           border-radius: 4px;

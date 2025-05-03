@@ -99,7 +99,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         .card-category {
           display: inline-block;
           font-size: 12px;
-          font-weight: bold;
           padding: 3px 8px;
           border-radius: 4px;
           margin-bottom: 6px;
