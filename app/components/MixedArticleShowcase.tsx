@@ -76,9 +76,9 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
 
         @media(min-width:768px) {
           .mas { flex-direction: row; }
-          .left   { order: 0; flex: 1; }
+          .left   { order: 0; flex: 1; max-width: 300px; }
           .center { order: 1; flex: 2; }
-          .right  { order: 2; flex: 1; }
+          .left   { order: 0; flex: 1; max-width: 300px; }
         }
 
         .col {
@@ -96,7 +96,8 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           gap: 8px;
         }
         .small-card .thumb {
-          aspect-ratio: 4 / 3;
+          /*aspect-ratio: 4 / 3;*/
+          height: 120px;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
