@@ -34,7 +34,7 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
                 style={{
                   backgroundColor: isActive
                     ? `${c.color}20`
-                    : `${c.color}10`,
+                    : 'transparent',
                   color: c.color,
                 }}
               >
@@ -80,6 +80,7 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
           .cats {
             flex: 0 0 280px;
             margin-right: 16px;
+            margin-bottom: 0;
           }
           .list {
             flex: 1;
@@ -88,6 +89,10 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
         .cats {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
+          border: 1px solid #eaeaea;
+          border-radius: 6px;
+          overflow: hidden;
+          margin-bottom: 16px;
         }
         .cat {
           padding: 20px;
@@ -95,8 +100,9 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
           font-weight: 500;
           text-align: center;
           border: none;
-          border-bottom: 1px solid #eaeaea;
           border-right: 1px solid #eaeaea;
+          border-bottom: 1px solid #eaeaea;
+          background: transparent;
           transition: background 0.2s, transform 0.2s;
         }
         .cat:nth-child(2n) {
@@ -108,6 +114,9 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
         .cat:hover {
           background: rgba(0, 0, 0, 0.03);
         }
+        .cat.active {
+          font-weight: 600;
+        }
         .list :global(.article-list) {
           max-width: none;
           margin: 0;
@@ -117,13 +126,13 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
           font-family: ${titleFont}, Georgia, serif;
           font-weight: 300;
           font-size: 24px;
-          text-align: center;
+          text-align: left;
           margin: 0 0 16px;
           color: #333;
         }
         .see-more {
           display: block;
-          text-align: center;
+          text-align: left;
           margin-top: 8px;
           font-size: 14px;
           font-weight: 500;
