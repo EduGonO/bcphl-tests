@@ -135,19 +135,6 @@ const Indices: React.FC<Props> = ({ indices }) => {
     await signOut({ callbackUrl: '/auth/signin' });
   };
 
-  // If loading session, show loading state
-  if (status === "loading") {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-  
-  // If not authenticated, don't render anything (useEffect will handle redirect)
-  if (status === "unauthenticated") {
-    return null;
-  }
 
   // --------------------------------------------------------
   return (
@@ -354,7 +341,6 @@ const Indices: React.FC<Props> = ({ indices }) => {
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
   // Check authentication
-  const session = await getServerSession(context.req, context.res, authOptions);
 
 
   // If authenticated, proceed with data fetching
