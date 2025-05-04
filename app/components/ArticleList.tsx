@@ -19,7 +19,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
       const color = cat?.color || '#ccc'
       const thumbStyle = article.headerImage
         ? { backgroundImage: `url(${article.headerImage})` }
-        : { backgroundColor: color }
+        : { backgroundColor: `${color}20` }
 
       return (
         <a
@@ -89,6 +89,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
         font-size: 20px;
         line-height: 1.3;
         margin: 4px 0 8px;
+        font-weight: 300;
       }
       .label {
         display: inline-block;
