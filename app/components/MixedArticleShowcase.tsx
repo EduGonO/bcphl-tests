@@ -68,6 +68,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           padding: 24px 16px;
           font-family: Inter, sans-serif;
           align-items: stretch;
+          box-sizing: border-box;
         }
         /* mobile ordering */
         .left   { order: 1 }
