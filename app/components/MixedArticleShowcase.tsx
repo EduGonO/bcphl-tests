@@ -76,9 +76,9 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
 
         @media(min-width:768px) {
           .mas { flex-direction: row; }
-          .left   { order: 0; flex: 1 1 20%; }
-          .center { order: 1; flex: 1 1 60%; }
-          .right  { order: 2; flex: 1 1 20%; }
+          .left   { order: 0; flex: 1 1 10%; }
+          .center { order: 1; flex: 1 1 80%; }
+          .right  { order: 2; flex: 1 1 10%; }
         }
 
         .col {
