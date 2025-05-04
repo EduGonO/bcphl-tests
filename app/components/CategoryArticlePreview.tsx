@@ -44,6 +44,7 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
           })}
         </div>
         <div className="list">
+          {/* reset padding/margins of ArticleList */}
           <ArticleList
             articles={recent}
             categories={categories}
@@ -56,12 +57,12 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
       </div>
       <style jsx>{`
         .cap {
-          padding: 32px 16px;
+          padding: 40px 16px;
         }
         .heading {
           font-family: ${titleFont}, Georgia, serif;
           font-weight: 300;
-          font-size: 28px;
+          font-size: 32px;
           margin: 0 0 24px;
           color: #111;
         }
@@ -75,7 +76,7 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
             align-items: flex-start;
           }
           .cats {
-            flex: 0 0 220px;
+            flex: 0 0 280px;
             margin-right: 16px;
           }
           .list {
@@ -89,8 +90,8 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
           margin-bottom: 16px;
         }
         .cat {
-          padding: 16px;
-          font-size: 16px;
+          padding: 20px;
+          font-size: 18px;
           font-weight: 500;
           text-align: center;
           border: none;
@@ -105,12 +106,22 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
         .cat.active {
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+        /* override ArticleList padding/margins */
+        .list :global(.article-list) {
+          max-width: none;
+          margin: 0;
+          padding: 0;
+        }
+        .list :global(.row) {
+          padding: 16px 0; /* keep item padding */
+          border-bottom-color: #eaeaea;
+        }
         .see-more {
-          display: inline-block;
-          margin: 12px 0 0;
+          display: block;
+          margin-top: 8px;
           font-size: 14px;
           font-weight: 500;
-          color: #0070f3;
+          color: #333;
           text-decoration: none;
           transition: opacity 0.2s;
         }
