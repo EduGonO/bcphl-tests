@@ -44,21 +44,8 @@ const saveFile = async (
 
 // ---------- ui ----------
 const Indices: React.FC<Props> = ({ indices }) => {
-  const { data: session, status } = useSession() as {
-  data: Session | null;
-  status: "loading" | "authenticated" | "unauthenticated";
-};
-
+  const { data: session } = useSession();
   
-  // while NextAuth re-validates the token, show a spinner
-  if (status === "loading") {
-    return (
-      <div style={{ display:"flex",justifyContent:"center",alignItems:"center",height:"100vh" }}>
-        <p>Loading…</p>
-      </div>
-    );
-  }
-
   
   // ui state ------------------------------------------------
   const [open, setOpen] = useState<Record<string, boolean>>({});
