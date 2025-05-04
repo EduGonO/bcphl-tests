@@ -59,7 +59,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
       .row {
         display: flex;
         gap: 16px;
-        padding: 16px 0;
+        padding: 16px 10px;
         border-bottom: 1px solid #eaeaea;
         text-decoration: none;
         color: #333;
