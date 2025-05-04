@@ -4,229 +4,207 @@ import React, {
   useEffect,
   KeyboardEvent,
   useRef,
-} from "react";
-import Head from "next/head";
-import fs from "fs";
-import path from "path";
-import { GetServerSideProps } from "next";
-import Header from "../app/components/Header";
-import { signOut, useSession } from "next-auth/react";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "./api/auth/[...nextauth]";
-import { useRouter } from "next/router";
+} from "react"
+import Head from "next/head"
+import fs from "fs"
+import path from "path"
+import { GetServerSideProps } from "next"
+import Header from "../app/components/Header"
+import { signOut, useSession } from "next-auth/react"
 
-// ---------- types ----------
-export type TextEntry = { title: string; slug: string };
-export type Category = { name: string; texts: TextEntry[] };
-type Props = { indices: Category[] };
+// types
+export type TextEntry = { title: string; slug: string }
+export type Category = { name: string; texts: TextEntry[] }
+interface Props { indices: Category[] }
 
-// ---------- helpers ----------
-const fetchFile = async (cat: string, slug: string): Promise<string> => {
-  const res = await fetch(
-    `/api/file?cat=${encodeURIComponent(cat)}&slug=${encodeURIComponent(slug)}`
-  );
-  if (!res.ok) throw new Error("Cannot load file");
-  return res.text();
-};
-
-const saveFile = async (
-  cat: string,
-  slug: string,
-  body: string
-): Promise<void> => {
+// fetch helpers (they’ll 401 automatically if no session)
+const fetchFile = async (cat: string, slug: string) => {
+  const res = await fetch(`/api/file?cat=${encodeURIComponent(cat)}&slug=${encodeURIComponent(slug)}`)
+  if (!res.ok) throw new Error("Cannot load file")
+  return res.text()
+}
+const saveFile = async (cat: string, slug: string, body: string) => {
   const res = await fetch(`/api/save-file`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ cat, slug, body }),
-  });
-  if (!res.ok) throw new Error("Cannot save file");
-};
+  })
+  if (!res.ok) throw new Error("Cannot save file")
+}
 
-// ---------- ui ----------
+// page
 const Indices: React.FC<Props> = ({ indices }) => {
-  const { data: session } = useSession();
-  
-  
-  // ui state ------------------------------------------------
-  const [open, setOpen] = useState<Record<string, boolean>>({});
-  const [selCat, setSelCat] = useState<string | null>(null);
-  const [selSlug, setSelSlug] = useState<string | null>(null);
-  const [content, setContent] = useState<string>("");
-  const [dirty, setDirty] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "loading" | "saving" | "saved" | "error">("idle");
-  const txtRef = useRef<HTMLTextAreaElement | null>(null);
-  const [meta, setMeta] = useState({ title: "", author: "", date: "", "header-image": "" });
+  const { data: session } = useSession()
 
-  // toggle folder
-  const toggle = (name: string) =>
-    setOpen((o) => ({ ...o, [name]: !o[name] }));
+  // UI state
+  const [open, setOpen] = useState<Record<string, boolean>>({})
+  const [selCat, setSelCat] = useState<string | null>(null)
+  const [selSlug, setSelSlug] = useState<string | null>(null)
+  const [content, setContent] = useState("")
+  const [dirty, setDirty] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<"idle" | "loading" | "saving" | "saved" | "error">("idle")
+  const txtRef = useRef<HTMLTextAreaElement>(null)
+  const [meta, setMeta] = useState({ title: "", author: "", date: "", "header-image": "" })
 
-  // load file when selected --------------------------------
-  const load = useCallback(
-    async (cat: string, slug: string) => {
-      try {
-        setSaveStatus("loading");
-        const body = await fetchFile(cat, slug);
-        setSelCat(cat);
-        setSelSlug(slug);
-        const match = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body);
-        if (match) {
-          const yaml = match[1];
-          const text = match[2];
-          const obj: any = {};
-          yaml.split("\n").forEach(line => {
-            const [k, ...v] = line.split(":");
-            if (k && v.length) obj[k.trim()] = v.join(":").trim();
-          });
-          setMeta({ title: "", author: "", date: "", "header-image": "", ...obj });
-          setContent(text.trim());
-        } else {
-          setMeta({ title: "", author: "", date: "", "header-image": "" });
-          setContent(body);
-        }
+  const toggle = (name: string) => setOpen(o => ({ ...o, [name]: !o[name] }))
 
-        setDirty(false);
-        setSaveStatus("idle");
-        // focus editor
-        setTimeout(() => txtRef.current?.focus(), 50);
-      } catch {
-        setSaveStatus("error");
-      }
-    },
-    []
-  );
-
-  // save handler -------------------------------------------
-  const handleSave = useCallback(async () => {
-    if (!selCat || !selSlug || !dirty) return;
+  const load = useCallback(async (cat: string, slug: string) => {
     try {
-      setSaveStatus("saving");
+      setSaveStatus("loading")
+      const body = await fetchFile(cat, slug)
+      setSelCat(cat)
+      setSelSlug(slug)
+
+      const match = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body)
+      if (match) {
+        const [, yaml, text] = match
+        const obj: any = {}
+        yaml.split("\n").forEach(line => {
+          const [k, ...v] = line.split(":")
+          if (k && v.length) obj[k.trim()] = v.join(":").trim()
+        })
+        setMeta({ title: "", author: "", date: "", "header-image": "", ...obj })
+        setContent(text.trim())
+      } else {
+        setMeta({ title: "", author: "", date: "", "header-image": "" })
+        setContent(body)
+      }
+
+      setDirty(false)
+      setSaveStatus("idle")
+      setTimeout(() => txtRef.current?.focus(), 50)
+    } catch {
+      setSaveStatus("error")
+    }
+  }, [])
+
+  const handleSave = useCallback(async () => {
+    if (!selCat || !selSlug || !dirty) return
+    try {
+      setSaveStatus("saving")
       const yaml =
         `---\n` +
         Object.entries(meta)
-          .filter(([_, v]) => v)
+          .filter(([, v]) => v)
           .map(([k, v]) => `${k}: ${v}`)
           .join("\n") +
-        `\n---\n\n`;
-      await saveFile(selCat, selSlug, yaml + content);
+        `\n---\n\n`
+      await saveFile(selCat, selSlug, yaml + content)
 
-      setDirty(false);
-      setSaveStatus("saved");
-      setTimeout(() => setSaveStatus("idle"), 1200);
+      setDirty(false)
+      setSaveStatus("saved")
+      setTimeout(() => setSaveStatus("idle"), 1200)
     } catch {
-      setSaveStatus("error");
+      setSaveStatus("error")
     }
-  }, [selCat, selSlug, content, dirty, meta]);
+  }, [selCat, selSlug, content, dirty, meta])
 
-  // cmd/ctrl-S shortcut ------------------------------------
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-        e.preventDefault();
-        handleSave();
+        e.preventDefault()
+        handleSave()
       }
-    };
-    window.addEventListener("keydown", onKey as any);
-    return () => window.removeEventListener("keydown", onKey as any);
-  }, [handleSave]);
+    }
+    window.addEventListener("keydown", onKey as any)
+    return () => window.removeEventListener("keydown", onKey as any)
+  }, [handleSave])
 
-  // Handle logout
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: '/auth/signin' });
-  };
+  const handleLogout = () => signOut({ callbackUrl: "/auth/signin" })
 
-
-  // --------------------------------------------------------
   return (
     <>
-      <Head><title>Files – BICÉPHALE</title></Head>
-      <Header categories={indices.map(c => ({ name: c.name, color: '#607d8b' }))} />
+      <Head>
+        <title>Files – BICÉPHALE</title>
+      </Head>
+      <Header categories={indices.map(c => ({ name: c.name, color: "#607d8b" }))} />
 
       <div className="layout">
-        {/* ── sidebar ───────────────────────────── */}
         <aside className="nav">
           <div className="summary">
-            <div>{indices.length} categories • {indices.reduce((n,c)=>n+c.texts.length,0)} articles</div>
+            <div>
+              {indices.length} categories •{" "}
+              {indices.reduce((sum, c) => sum + c.texts.length, 0)} articles
+            </div>
             <div className="user-info">
               <span>{session?.user?.email}</span>
-              <button 
-                onClick={handleLogout} 
-                className="logout-btn"
-              >
+              <button onClick={handleLogout} className="logout-btn">
                 Log out
               </button>
             </div>
           </div>
 
-          {indices.map(cat => {
-            const opened = open[cat.name];
-            return (
-              <div key={cat.name}>
-                <button onClick={() => toggle(cat.name)} className={`row folder${opened?' on':''}`}>
-                  <span className="ellip">{cat.name}</span>
-                  <span className="meta">
-                    <span className="count">{cat.texts.length}</span>
-                    <span className={`arrow ${opened?'open':''}`} />
-                  </span>
-                </button>
-
-                {opened && (
-                  <ul className="file-ul">
-                    {cat.texts.map(t =>{
-                      const act = selCat===cat.name && selSlug===t.slug;
-                      return (
-                        <li key={t.slug}>
-                          <button
-                            onClick={()=>load(cat.name,t.slug)}
-                            className={`row file${act?' act':''}`}
-                          >
-                            {t.title}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
+          {indices.map(cat => (
+            <div key={cat.name}>
+              <button
+                onClick={() => toggle(cat.name)}
+                className={`row folder${open[cat.name] ? " on" : ""}`}
+              >
+                <span className="ellip">{cat.name}</span>
+                <span className="meta">
+                  <span className="count">{cat.texts.length}</span>
+                  <span className={`arrow${open[cat.name] ? " open" : ""}`} />
+                </span>
+              </button>
+              {open[cat.name] && (
+                <ul className="file-ul">
+                  {cat.texts.map(t => {
+                    const active = selCat === cat.name && selSlug === t.slug
+                    return (
+                      <li key={t.slug}>
+                        <button
+                          onClick={() => load(cat.name, t.slug)}
+                          className={`row file${active ? " act" : ""}`}
+                        >
+                          {t.title}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          ))}
         </aside>
 
-        {/* ── editor ────────────────────────────── */}
         <section className="stage">
           {saveStatus === "error" && (
             <div className="error-banner">
               An error occurred. Please try again.
-              <button onClick={() => setSaveStatus("idle")} className="close-error">×</button>
+              <button onClick={() => setSaveStatus("idle")} className="close-error">
+                ×
+              </button>
             </div>
           )}
-          
+
           {selCat && selSlug ? (
             <div className="doc">
               <header className="bar">
-                <span className="path ellip">{selCat}/{selSlug}.md</span>
+                <span className="path ellip">
+                  {selCat}/{selSlug}.md
+                </span>
                 <div className="actions">
                   {saveStatus === "saved" && <span className="saved-indicator">Saved!</span>}
                   <button
                     onClick={handleSave}
-                    disabled={!dirty || saveStatus==='saving'}
+                    disabled={!dirty || saveStatus === "saving"}
                     className="save"
                   >
-                    {saveStatus==='saving' ? 'Saving…' : 'Save'}
+                    {saveStatus === "saving" ? "Saving…" : "Save"}
                   </button>
                 </div>
               </header>
 
               <div className="fields">
-                {["title", "author", "date", "header-image"].map((key) => (
+                {["title", "author", "date", "header-image"].map(key => (
                   <input
                     key={key}
-                    className="meta-input"
                     placeholder={key}
+                    className="meta-input"
                     value={meta[key as keyof typeof meta] || ""}
-                    onChange={(e) => {
-                      setMeta({ ...meta, [key as keyof typeof meta]: e.target.value });
-                      setDirty(true);
+                    onChange={e => {
+                      setMeta(prev => ({ ...prev, [key]: e.target.value }))
+                      setDirty(true)
                     }}
                   />
                 ))}
@@ -234,9 +212,12 @@ const Indices: React.FC<Props> = ({ indices }) => {
 
               <textarea
                 ref={txtRef}
-                value={content}
-                onChange={e => {setContent(e.target.value); setDirty(true);}}
                 className="editor"
+                value={content}
+                onChange={e => {
+                  setContent(e.target.value)
+                  setDirty(true)
+                }}
               />
             </div>
           ) : (
@@ -336,37 +317,30 @@ const Indices: React.FC<Props> = ({ indices }) => {
           background:rgba(0,0,0,.22);border-radius:4px;}
       `}</style>
     </>
-  );
-};
+  )
+}
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  // Check authentication
-
-
-  // If authenticated, proceed with data fetching
-  const textsDir = path.join(process.cwd(), "texts");
+  const textsDir = path.join(process.cwd(), "texts")
   const categoryFolders = fs
     .readdirSync(textsDir, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name);
+    .filter(d => d.isDirectory())
+    .map(d => d.name)
 
-  const indices: Category[] = categoryFolders.map((cat) => {
-    const catPath = path.join(textsDir, cat);
-    const files = fs.readdirSync(catPath).filter((f) => f.endsWith(".md"));
-    const texts: TextEntry[] = files.map((file) => {
-      const filePath = path.join(catPath, file);
-      const raw = fs.readFileSync(filePath, "utf8").trim();
-      const first = raw.split("\n")[0].trim();
-      const slug = file.replace(/\.md$/, "");
-      const title = first.startsWith("#")
-        ? first.replace(/^#+\s*/, "")
-        : slug;
-      return { title, slug };
-    });
-    return { name: cat, texts };
-  });
+  const indices = categoryFolders.map(cat => {
+    const catPath = path.join(textsDir, cat)
+    const files = fs.readdirSync(catPath).filter(f => f.endsWith(".md"))
+    const texts: TextEntry[] = files.map(file => {
+      const raw = fs.readFileSync(path.join(catPath, file), "utf8").trim()
+      const first = raw.split("\n")[0].trim()
+      const slug = file.replace(/\.md$/, "")
+      const title = first.startsWith("#") ? first.replace(/^#+\s*/, "") : slug
+      return { title, slug }
+    })
+    return { name: cat, texts }
+  })
 
-  return { props: { indices } };
-};
+  return { props: { indices } }
+}
 
-export default Indices;
+export default Indices
