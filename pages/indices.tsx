@@ -352,20 +352,10 @@ const Indices: React.FC<Props> = ({ indices }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   // Check authentication
   const session = await getServerSession(context.req, context.res, authOptions);
 
-  
-  // Redirect to login if not authenticated
-  if (!session) {
-    return { 
-      redirect: { 
-        destination: `/auth/signin?callbackUrl=${encodeURIComponent(context.resolvedUrl)}`, 
-        permanent: false 
-      } 
-    };
-  }
 
   // If authenticated, proceed with data fetching
   const textsDir = path.join(process.cwd(), "texts");

@@ -1,3 +1,21 @@
+// middleware.ts
+import { withAuth } from "next-auth/middleware"
+
+export default withAuth({
+  pages: { signIn: "/auth/signin" }
+})
+
+export const config = {
+  matcher: [
+    "/indices",
+    "/api/file",
+    "/api/save-file",
+  ],
+}
+
+
+
+/*
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
@@ -37,3 +55,4 @@ export const config = {
     '/auth/signin',
   ],
 };
+*/
