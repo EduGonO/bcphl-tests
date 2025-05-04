@@ -10,6 +10,7 @@ import { getArticleData } from '../lib/articleService';
 import ArticleGrid from '../app/components/ArticleGrid';
 import ArticleBlock from '../app/components/ArticleBlock';
 import CategoryBanner from '../app/components/CategoryBanner';
+import CategoryArticlePreview from '@/app/components/CategoryArticlePreview'
 
 interface HomeProps {
   articles: Article[];
@@ -70,6 +71,11 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
               titleFont="RecoletaMedium"
             />
           </div>
+          <CategoryArticlePreview
+  articles={filteredArticles}
+  categories={categories}
+  titleFont="GayaRegular"
+  />
           <ArticleList articles={filteredArticles} categories={categories} titleFont={titleFont} />
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
