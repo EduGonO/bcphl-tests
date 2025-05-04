@@ -76,7 +76,8 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
               titleFont="RecoletaMedium"
             />
           </div>
-          /*
+
+          {/*
           <MixedArticleShowcase
             articles={articles}
             categories={categories}
@@ -88,13 +89,13 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
             categories={categories}
             titleFont={titleFont}
           />
-
           <CategoryArticlePreview
             articles={filteredArticles}
             categories={categories}
             titleFont="GayaRegular"
           />
-          */
+          */}
+          
           <ArticleList
             articles={filteredArticles}
             categories={categories}
