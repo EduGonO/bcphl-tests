@@ -15,7 +15,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
 }) => {
   const leftItems  = articles.slice(0, 2)
   const mainItem   = articles[2]
-  const rightItems = articles.slice(3)
+  const rightItems = articles.slice(3, 7)
 
   const thumbStyle = (a: Article) => {
     const cat = categories.find(c => c.name === a.category)
@@ -47,17 +47,15 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
       )}
 
       <div className="col right">
-        <div className="list-wrapper">
-          {rightItems.map(a => (
-            <a key={a.slug} href={`/${a.category}/${a.slug}`} className="list-item">
-              <div className="thumb" style={thumbStyle(a)} />
-              <div className="text">
-                <h4 className="title">{a.title}</h4>
-                <p className="meta">{a.author} • {a.date}</p>
-              </div>
-            </a>
-          ))}
-        </div>
+        {rightItems.map(a => (
+          <a key={a.slug} href={`/${a.category}/${a.slug}`} className="list-item">
+            <div className="thumb" style={thumbStyle(a)} />
+            <div className="text">
+              <h4 className="title">{a.title}</h4>
+              <p className="meta">{a.author} • {a.date}</p>
+            </div>
+          </a>
+        ))}
       </div>
 
       <style jsx>{`
@@ -69,45 +67,46 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           margin: 0 auto;
           padding: 24px 16px;
           font-family: Inter, sans-serif;
+          align-items: stretch;
         }
-        /* mobile order */
+        /* mobile ordering */
         .left   { order: 1 }
         .center { order: 0 }
         .right  { order: 2 }
 
         @media(min-width:768px) {
           .mas { flex-direction: row; }
-          .left   { order: 0; }
-          .center { order: 1; }
-          .right  { order: 2; }
+          .left   { order: 0 }
+          .center { order: 1 }
+          .right  { order: 2 }
         }
 
         .col {
-          flex: 1;
           display: flex;
           flex-direction: column;
           gap: 16px;
+          flex: 1;
         }
 
-        /* left: two equal cards */
+        /* small cards split evenly */
         .left .small-card {
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 8px;
         }
-        .left .small-card .thumb {
-          flex: 1;
+        .small-card .thumb {
+          aspect-ratio: 4 / 3;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
 
-        /* center */
+        /* main image larger */
         .main-thumb {
-          width: 100%;
-          max-height: 300px;
+          aspect-ratio: 16 / 9;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
+          width: 100%;
         }
 
         /* titles in Gaya */
@@ -115,7 +114,8 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           font-family: ${titleFont}, Georgia, serif;
           margin: 0;
         }
-        .small-card .title {
+        .small-card .title,
+        .list-item .title {
           font-size: 16px;
           font-weight: 500;
         }
@@ -125,7 +125,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           font-weight: 300;
         }
 
-        /* other text in Inter */
+        /* meta in Inter */
         .author, .meta, .main-meta {
           font-size: 14px;
           color: #666;
@@ -137,14 +137,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           margin: 0 0 12px;
         }
 
-        /* right list fills height */
-        .list-wrapper {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          overflow-y: auto;
-        }
+        /* right list */
         .list-item {
           display: flex;
           gap: 12px;
@@ -158,13 +151,12 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         }
         .list-item .thumb {
           flex: 0 0 80px;
-          height: 56px;
+          aspect-ratio: 1 / 1;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
         .text .title {
-          font-size: 16px;
-          font-weight: 500;
+          margin: 0;
         }
         .text .meta {
           margin-top: 4px;
