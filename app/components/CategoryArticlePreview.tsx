@@ -17,16 +17,14 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
   titleFont = 'GayaRegular',
 }) => {
   const [selected, setSelected] = useState(categories[0]?.name || '')
-  const recent = articles
-    .filter((a) => a.category === selected)
-    .slice(0, 3)
+  const recent = articles.filter((a) => a.category === selected).slice(0, 3)
 
   return (
     <section className="cap">
       <h2 className="heading">À lire également</h2>
       <div className="wrapper">
         <div className="cats">
-          {categories.map((c) => {
+          {categories.map((c, i) => {
             const isActive = c.name === selected
             return (
               <button
@@ -34,7 +32,9 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
                 onClick={() => setSelected(c.name)}
                 className={isActive ? 'cat active' : 'cat'}
                 style={{
-                  backgroundColor: `${c.color}20`,
+                  backgroundColor: isActive
+                    ? `${c.color}20`
+                    : `${c.color}10`,
                   color: c.color,
                 }}
               >
@@ -44,7 +44,7 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
           })}
         </div>
         <div className="list">
-          {/* reset padding/margins of ArticleList */}
+          <div className="current-cat-name">{selected}</div>
           <ArticleList
             articles={recent}
             categories={categories}
@@ -57,13 +57,15 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
       </div>
       <style jsx>{`
         .cap {
+          max-width: 1000px;
+          margin: 0 auto;
           padding: 40px 16px;
         }
         .heading {
           font-family: ${titleFont}, Georgia, serif;
           font-weight: 300;
           font-size: 32px;
-          margin: 0 0 24px;
+          margin-bottom: 24px;
           color: #111;
         }
         .wrapper {
@@ -86,8 +88,6 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
         .cats {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 16px;
-          margin-bottom: 16px;
         }
         .cat {
           padding: 20px;
@@ -95,29 +95,35 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
           font-weight: 500;
           text-align: center;
           border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s;
+          border-bottom: 1px solid #eaeaea;
+          border-right: 1px solid #eaeaea;
+          transition: background 0.2s, transform 0.2s;
+        }
+        .cat:nth-child(2n) {
+          border-right: none;
+        }
+        .cat:nth-last-child(-n + 2) {
+          border-bottom: none;
         }
         .cat:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          background: rgba(0, 0, 0, 0.03);
         }
-        .cat.active {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        /* override ArticleList padding/margins */
         .list :global(.article-list) {
           max-width: none;
           margin: 0;
           padding: 0;
         }
-        .list :global(.row) {
-          padding: 16px 0; /* keep item padding */
-          border-bottom-color: #eaeaea;
+        .current-cat-name {
+          font-family: ${titleFont}, Georgia, serif;
+          font-weight: 300;
+          font-size: 24px;
+          text-align: center;
+          margin: 0 0 16px;
+          color: #333;
         }
         .see-more {
           display: block;
+          text-align: center;
           margin-top: 8px;
           font-size: 14px;
           font-weight: 500;
