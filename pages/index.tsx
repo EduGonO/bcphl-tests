@@ -12,7 +12,7 @@ import ArticleBlock from '../app/components/ArticleBlock';
 import CategoryBanner from '../app/components/CategoryBanner';
 import CategoryArticlePreview from '../app/components/CategoryArticlePreview'
 import CategoryArticleCompact from '../app/components/CategoryArticleCompact'
-import MixedArticleShowcase from '../app/components/CategoryArticleCompact'
+import MixedArticleShowcase from '../app/components/MixedArticleShowcase'
 
 interface HomeProps {
   articles: Article[];
@@ -73,7 +73,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
               titleFont="RecoletaMedium"
             />
           </div>
-          <CombinedArticleShowcase
+          <MixedArticleShowcase
   articles={articles}
   categories={categories}
   titleFont="GayaRegular"
