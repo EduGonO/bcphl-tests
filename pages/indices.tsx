@@ -366,12 +366,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
     return { name: cat, texts };
   });
 
-  return {
-    props: {
-      indices,
-      session
-    },
-  };
+  return { props: { indices } };
 };
 
 export default Indices;
