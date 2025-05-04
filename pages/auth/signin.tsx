@@ -40,29 +40,18 @@ export default function SignInPage() {
     setDebugInfo(`Attempting login with email: ${email}`);
     
     try {
-      const res = await signIn("credentials", {
-        redirect: false,
+      // Let NextAuth handle the redirect
+      await signIn("credentials", {
+        redirect: true,
         email,
         password,
         callbackUrl
       });
-      
-      setDebugInfo(`Login response: ${JSON.stringify(res)}`);
-      
-      if (res?.error) {
-        setError("Invalid credentials. Please try again.");
-      } else if (res?.url) {
-        // Successful login with a redirect URL
-        router.push(res.url);
-      } else if (res?.ok) {
-        // If ok but no URL (shouldn't happen with our config)
-        router.push(callbackUrl);
-      }
+      // (no further code--NextAuth will redirect you straight to callbackUrl)
     } catch (err) {
       setError("An error occurred during login. Please try again.");
       console.error(err);
       setDebugInfo(`Error during login: ${err instanceof Error ? err.message : String(err)}`);
-    } finally {
       setIsLoading(false);
     }
   };
