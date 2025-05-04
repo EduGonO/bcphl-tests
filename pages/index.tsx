@@ -89,7 +89,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
               titleFont="GayaRegular"
             />
             <CategoryArticleCompact
-  articles={allArticles}
+  articles={articles}
   categories={allCategories}
   titleFont="GayaRegular"
 />
