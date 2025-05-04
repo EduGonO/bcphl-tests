@@ -79,7 +79,13 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
   categories={categories}
   titleFont="GayaRegular"
 />
-  
+  <NewsletterCategoryLayout
+  articles={articles}
+  filteredArticles={filteredArticles}
+  categories={categories}
+  titleFont={titleFont}
+/>
+
           <CategoryArticlePreview
   articles={filteredArticles}
   categories={categories}
