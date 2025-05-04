@@ -1,11 +1,11 @@
 // /app/components/ArticleList.tsx
-import React from 'react';
-import { Article, Category } from '../../types';
+import React from 'react'
+import { Article, Category } from '../../types'
 
 interface ArticleListProps {
-  articles: Article[];
-  categories: Category[];
-  titleFont?: string;
+  articles: Article[]
+  categories: Category[]
+  titleFont?: string
 }
 
 const ArticleList: React.FC<ArticleListProps> = ({
@@ -15,12 +15,11 @@ const ArticleList: React.FC<ArticleListProps> = ({
 }) => (
   <section className="article-list">
     {articles.map((article, i) => {
-      const color =
-        categories.find((c) => c.name === article.category)?.color ||
-        '#ccc';
-      const imgStyle = article.imageUrl
-        ? { backgroundImage: `url(${article.imageUrl})` }
-        : undefined;
+      const cat = categories.find((c) => c.name === article.category)
+      const color = cat?.color || '#ccc'
+      const thumbStyle = article.headerImage
+        ? { backgroundImage: `url(${article.headerImage})` }
+        : { backgroundColor: color }
 
       return (
         <a
@@ -28,7 +27,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
           key={article.slug || i}
           className="row"
         >
-          <div className="thumb" style={imgStyle} />
+          <div className="thumb" style={thumbStyle} />
           <div className="content">
             <span className="pre">{article.category.toUpperCase()}</span>
             <h2 className="title">{article.title}</h2>
@@ -48,15 +47,10 @@ const ArticleList: React.FC<ArticleListProps> = ({
             </div>
           </div>
         </a>
-      );
+      )
     })}
 
     <style jsx>{`
-      :root {
-        --txt: #333;
-        --sub: #666;
-        --hover-bg: rgba(0, 0, 0, 0.03);
-      }
       .article-list {
         max-width: 800px;
         margin: 0 auto;
@@ -68,16 +62,16 @@ const ArticleList: React.FC<ArticleListProps> = ({
         padding: 16px 0;
         border-bottom: 1px solid #eaeaea;
         text-decoration: none;
-        color: var(--txt);
+        color: #333;
         transition: background 0.2s;
       }
       .row:hover {
-        background: var(--hover-bg);
+        background: rgba(0, 0, 0, 0.03);
       }
       .thumb {
         flex: 0 0 120px;
         height: 80px;
-        background: #f5f5f5 center/cover no-repeat;
+        background: center/cover no-repeat #f5f5f5;
         border-radius: 4px;
       }
       .content {
@@ -87,7 +81,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
         display: block;
         font: 12px/1 sans-serif;
         letter-spacing: 0.1em;
-        color: var(--sub);
+        color: #666;
         margin-bottom: 4px;
       }
       .title {
@@ -109,14 +103,14 @@ const ArticleList: React.FC<ArticleListProps> = ({
         margin: 0 0 12px;
         font-size: 14px;
         line-height: 1.5;
-        color: var(--txt);
+        color: #333;
       }
       .meta {
         font-size: 13px;
-        color: var(--sub);
+        color: #666;
       }
     `}</style>
   </section>
-);
+)
 
-export default ArticleList;
+export default ArticleList
