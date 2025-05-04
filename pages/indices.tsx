@@ -11,7 +11,7 @@ import path from "path";
 import { GetServerSideProps } from "next";
 import Header from "../app/components/Header";
 import { signOut, useSession } from "next-auth/react";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { useRouter } from "next/router";
 
@@ -45,15 +45,16 @@ const saveFile = async (
 // ---------- ui ----------
 const Indices: React.FC<Props> = ({ indices }) => {
   const { data: session, status } = useSession();
-  const router = useRouter();
   
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      console.log("Indices: Not authenticated, redirecting to login");
-      router.replace("/auth/signin?callbackUrl=/indices");
-    }
-  }, [status, router]);
+  // while NextAuth re-validates the token, show a spinner
+  if (status === "loading") {
+    return (
+      <div style={{ display:"flex",justifyContent:"center",alignItems:"center",height:"100vh" }}>
+        <p>Loading…</p>
+      </div>
+    );
+  }
+
   
   // ui state ------------------------------------------------
   const [open, setOpen] = useState<Record<string, boolean>>({});
