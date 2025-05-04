@@ -1,18 +1,19 @@
 // /app/components/ArticleGrid.tsx
 import React from 'react';
 import { Article, Category } from '../../types';
-import Image from 'next/image';
 
 interface ArticleGridProps {
   articles: Article[];
   categories: Category[];
   titleFont?: string;
+  headerImages?: Record<string, string>; // Optional map of article slugs to image URLs
 }
 
 const ArticleGrid: React.FC<ArticleGridProps> = ({
   articles,
   categories,
   titleFont = 'GayaRegular',
+  headerImages = {},
 }) => {
   return (
     <section className="article-grid">
@@ -28,14 +29,24 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
               className="card-link"
             >
               <div className="card">
-                <div className="card-image">
-                  {article.imageUrl && (
+                <div 
+                  className="card-image"
+                  style={{
+                    backgroundColor: headerImages[article.slug] ? undefined : catColor + '30',
+                  }}
+                >
+                  {headerImages[article.slug] && (
                     <div className="image-wrapper">
                       <img 
-                        src={article.imageUrl} 
+                        src={headerImages[article.slug]} 
                         alt={article.title}
                         className="article-image"
                       />
+                    </div>
+                  )}
+                  {!headerImages[article.slug] && (
+                    <div className="category-icon">
+                      {article.category.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -117,6 +128,9 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
           padding-bottom: 56.25%; /* 16:9 aspect ratio */
           overflow: hidden;
           background: #f7f7f7;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .image-wrapper {
           position: absolute;
@@ -133,6 +147,22 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         }
         .card:hover .article-image {
           transform: scale(1.05);
+        }
+        .category-icon {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 36px;
+          font-weight: 700;
+          color: rgba(0, 0, 0, 0.5);
+          width: 64px;
+          height: 64px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background-color: rgba(255, 255, 255, 0.2);
         }
         .card-content {
           padding: 20px 0;
