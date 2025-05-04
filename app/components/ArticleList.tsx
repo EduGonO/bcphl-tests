@@ -12,127 +12,111 @@ const ArticleList: React.FC<ArticleListProps> = ({
   articles,
   categories,
   titleFont = 'GayaRegular',
-}) => {
-  return (
-    <section className="article-list">
-      {articles.map((article, index) => {
-        const catColor =
-          categories.find((c) => c.name === article.category)?.color || '#f0f0f0';
+}) => (
+  <section className="article-list">
+    {articles.map((article, i) => {
+      const color =
+        categories.find((c) => c.name === article.category)?.color ||
+        '#ccc';
+      const imgStyle = article.imageUrl
+        ? { backgroundImage: `url(${article.imageUrl})` }
+        : undefined;
 
-        return (
-          /* Entire row is now clickable */
-          <a 
-            href={`/${article.category}/${article.slug}`} 
-            key={index} 
-            className="list-row"
-          >
-            {/* Image/Thumbnail placeholder */}
-            <div className="thumb" />
-            
-            {/* Text Content */}
-            <div className="content">
-              {/* Category as a headline or "LOVE LETTER" style text */}
-              {/* If you'd prefer the actual category name instead, just replace it with article.category */}
-              <h4 className="pre-title">{article.category.toUpperCase()}</h4>
-
-              <h3 className="title">{article.title}</h3>
-
-              <div
-                className="category-label"
-                style={{
-                  color: catColor,
-                  borderColor: catColor,
-                  backgroundColor: `${catColor}20`,
-                }}
-              >
-                {article.category}
-              </div>
-
-              <p className="preview">{article.preview}</p>
-              
-              <p className="meta">
-                {article.date} • {article.author}
-              </p>
+      return (
+        <a
+          href={`/${article.category}/${article.slug}`}
+          key={article.slug || i}
+          className="row"
+        >
+          <div className="thumb" style={imgStyle} />
+          <div className="content">
+            <span className="pre">{article.category.toUpperCase()}</span>
+            <h2 className="title">{article.title}</h2>
+            <span
+              className="label"
+              style={{
+                borderColor: color,
+                color,
+                backgroundColor: `${color}20`,
+              }}
+            >
+              {article.category}
+            </span>
+            <p className="preview">{article.preview}</p>
+            <div className="meta">
+              {article.date} • {article.author}
             </div>
-          </a>
-        );
-      })}
+          </div>
+        </a>
+      );
+    })}
 
-      <style jsx>{`
-        .article-list {
-          max-width: 800px;
-          margin: 0 auto;
-          width: 100%;
-        }
-
-        .list-row {
-          display: flex;
-          align-items: flex-start;
-          text-decoration: none;
-          color: inherit;
-          margin-bottom: 20px;
-          padding: 8px;
-          border-radius: 6px;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .list-row:hover {
-          transform: scale(1.01);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .thumb {
-          width: 100px;
-          height: 80px;
-          background-color: #e0e0e0;
-          border-radius: 4px;
-          margin-right: 15px;
-          flex-shrink: 0;
-        }
-
-        .content {
-          flex: 1;
-        }
-
-        .pre-title {
-          font-size: 14px;
-          font-weight: normal;
-          margin: 0 0 4px;
-          color: #999;
-          letter-spacing: 0.05em;
-        }
-
-        .title {
-          margin: 0 0 5px;
-          font-size: 20px;
-          font-family: ${titleFont};
-          font-weight: normal;
-          color: #000;
-          line-height: 1.3;
-        }
-
-        .meta {
-          margin: 0 0 5px;
-          font-size: 14px;
-          color: #666;
-        }
-
-        .category-label {
-          display: inline-block;
-          font-size: 12px;
-          padding: 3px 8px;
-          border: 1px solid #f0f0f0;
-          border-radius: 4px;
-          margin-bottom: 10px;
-        }
-
-        .preview {
-          margin: 0;
-          font-size: 14px;
-          color: #444;
-        }
-      `}</style>
-    </section>
-  );
-};
+    <style jsx>{`
+      :root {
+        --txt: #333;
+        --sub: #666;
+        --hover-bg: rgba(0, 0, 0, 0.03);
+      }
+      .article-list {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 16px;
+      }
+      .row {
+        display: flex;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid #eaeaea;
+        text-decoration: none;
+        color: var(--txt);
+        transition: background 0.2s;
+      }
+      .row:hover {
+        background: var(--hover-bg);
+      }
+      .thumb {
+        flex: 0 0 120px;
+        height: 80px;
+        background: #f5f5f5 center/cover no-repeat;
+        border-radius: 4px;
+      }
+      .content {
+        flex: 1;
+      }
+      .pre {
+        display: block;
+        font: 12px/1 sans-serif;
+        letter-spacing: 0.1em;
+        color: var(--sub);
+        margin-bottom: 4px;
+      }
+      .title {
+        font-family: ${titleFont}, Georgia, serif;
+        font-size: 20px;
+        line-height: 1.3;
+        margin: 4px 0 8px;
+      }
+      .label {
+        display: inline-block;
+        font-size: 11px;
+        text-transform: uppercase;
+        padding: 2px 6px;
+        border: 1px solid;
+        border-radius: 2px;
+        margin-bottom: 8px;
+      }
+      .preview {
+        margin: 0 0 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--txt);
+      }
+      .meta {
+        font-size: 13px;
+        color: var(--sub);
+      }
+    `}</style>
+  </section>
+);
 
 export default ArticleList;
