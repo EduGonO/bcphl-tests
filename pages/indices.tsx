@@ -1,3 +1,4 @@
+// pages/indices.tsx
 import React, {
   useState,
   useCallback,
@@ -10,20 +11,29 @@ import fs from "fs"
 import path from "path"
 import { GetServerSideProps } from "next"
 import Header from "../app/components/Header"
-import { signOut, useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 
-// types
+// ─── Types ─────────────────────────────────────────────────────────────────────
+
 export type TextEntry = { title: string; slug: string }
 export type Category = { name: string; texts: TextEntry[] }
 interface Props { indices: Category[] }
 
-// fetch helpers (they’ll 401 automatically if no session)
-const fetchFile = async (cat: string, slug: string) => {
-  const res = await fetch(`/api/file?cat=${encodeURIComponent(cat)}&slug=${encodeURIComponent(slug)}`)
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+const fetchFile = async (cat: string, slug: string): Promise<string> => {
+  const res = await fetch(
+    `/api/file?cat=${encodeURIComponent(cat)}&slug=${encodeURIComponent(slug)}`
+  )
   if (!res.ok) throw new Error("Cannot load file")
   return res.text()
 }
-const saveFile = async (cat: string, slug: string, body: string) => {
+
+const saveFile = async (
+  cat: string,
+  slug: string,
+  body: string
+): Promise<void> => {
   const res = await fetch(`/api/save-file`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -32,7 +42,8 @@ const saveFile = async (cat: string, slug: string, body: string) => {
   if (!res.ok) throw new Error("Cannot save file")
 }
 
-// page
+// ─── Component ────────────────────────────────────────────────────────────────
+
 const Indices: React.FC<Props> = ({ indices }) => {
   const { data: session } = useSession()
 
@@ -40,14 +51,23 @@ const Indices: React.FC<Props> = ({ indices }) => {
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [selCat, setSelCat] = useState<string | null>(null)
   const [selSlug, setSelSlug] = useState<string | null>(null)
-  const [content, setContent] = useState("")
+  const [content, setContent] = useState<string>("")
   const [dirty, setDirty] = useState(false)
-  const [saveStatus, setSaveStatus] = useState<"idle" | "loading" | "saving" | "saved" | "error">("idle")
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "loading" | "saving" | "saved" | "error"
+  >("idle")
   const txtRef = useRef<HTMLTextAreaElement>(null)
-  const [meta, setMeta] = useState({ title: "", author: "", date: "", "header-image": "" })
+  const [meta, setMeta] = useState({
+    title: "",
+    author: "",
+    date: "",
+    "header-image": "",
+  })
 
-  const toggle = (name: string) => setOpen(o => ({ ...o, [name]: !o[name] }))
+  const toggle = (name: string) =>
+    setOpen((o) => ({ ...o, [name]: !o[name] }))
 
+  // Load a file’s content + YAML front-matter
   const load = useCallback(async (cat: string, slug: string) => {
     try {
       setSaveStatus("loading")
@@ -55,16 +75,16 @@ const Indices: React.FC<Props> = ({ indices }) => {
       setSelCat(cat)
       setSelSlug(slug)
 
-      const match = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body)
-      if (match) {
-        const [, yaml, text] = match
+      const m = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body)
+      if (m) {
+        const [, yaml, txt] = m
         const obj: any = {}
-        yaml.split("\n").forEach(line => {
+        yaml.split("\n").forEach((line) => {
           const [k, ...v] = line.split(":")
           if (k && v.length) obj[k.trim()] = v.join(":").trim()
         })
         setMeta({ title: "", author: "", date: "", "header-image": "", ...obj })
-        setContent(text.trim())
+        setContent(txt.trim())
       } else {
         setMeta({ title: "", author: "", date: "", "header-image": "" })
         setContent(body)
@@ -78,6 +98,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
     }
   }, [])
 
+  // Save back to disk
   const handleSave = useCallback(async () => {
     if (!selCat || !selSlug || !dirty) return
     try {
@@ -99,6 +120,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
     }
   }, [selCat, selSlug, content, dirty, meta])
 
+  // Cmd/Ctrl+S
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
@@ -110,6 +132,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
     return () => window.removeEventListener("keydown", onKey as any)
   }, [handleSave])
 
+  // Log out
   const handleLogout = () => signOut({ callbackUrl: "/auth/signin" })
 
   return (
@@ -117,7 +140,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
       <Head>
         <title>Files – BICÉPHALE</title>
       </Head>
-      <Header categories={indices.map(c => ({ name: c.name, color: "#607d8b" }))} />
+      <Header categories={indices.map((c) => ({ name: c.name, color: "#607d8b" }))} />
 
       <div className="layout">
         <aside className="nav">
@@ -134,7 +157,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
             </div>
           </div>
 
-          {indices.map(cat => (
+          {indices.map((cat) => (
             <div key={cat.name}>
               <button
                 onClick={() => toggle(cat.name)}
@@ -146,9 +169,10 @@ const Indices: React.FC<Props> = ({ indices }) => {
                   <span className={`arrow${open[cat.name] ? " open" : ""}`} />
                 </span>
               </button>
+
               {open[cat.name] && (
                 <ul className="file-ul">
-                  {cat.texts.map(t => {
+                  {cat.texts.map((t) => {
                     const active = selCat === cat.name && selSlug === t.slug
                     return (
                       <li key={t.slug}>
@@ -171,7 +195,10 @@ const Indices: React.FC<Props> = ({ indices }) => {
           {saveStatus === "error" && (
             <div className="error-banner">
               An error occurred. Please try again.
-              <button onClick={() => setSaveStatus("idle")} className="close-error">
+              <button
+                onClick={() => setSaveStatus("idle")}
+                className="close-error"
+              >
                 ×
               </button>
             </div>
@@ -184,7 +211,9 @@ const Indices: React.FC<Props> = ({ indices }) => {
                   {selCat}/{selSlug}.md
                 </span>
                 <div className="actions">
-                  {saveStatus === "saved" && <span className="saved-indicator">Saved!</span>}
+                  {saveStatus === "saved" && (
+                    <span className="saved-indicator">Saved!</span>
+                  )}
                   <button
                     onClick={handleSave}
                     disabled={!dirty || saveStatus === "saving"}
@@ -196,14 +225,14 @@ const Indices: React.FC<Props> = ({ indices }) => {
               </header>
 
               <div className="fields">
-                {["title", "author", "date", "header-image"].map(key => (
+                {["title", "author", "date", "header-image"].map((key) => (
                   <input
                     key={key}
-                    placeholder={key}
                     className="meta-input"
+                    placeholder={key}
                     value={meta[key as keyof typeof meta] || ""}
-                    onChange={e => {
-                      setMeta(prev => ({ ...prev, [key]: e.target.value }))
+                    onChange={(e) => {
+                      setMeta((m) => ({ ...m, [key]: e.target.value }))
                       setDirty(true)
                     }}
                   />
@@ -214,7 +243,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
                 ref={txtRef}
                 className="editor"
                 value={content}
-                onChange={e => {
+                onChange={(e) => {
                   setContent(e.target.value)
                   setDirty(true)
                 }}
@@ -324,13 +353,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const textsDir = path.join(process.cwd(), "texts")
   const categoryFolders = fs
     .readdirSync(textsDir, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => d.name)
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
 
-  const indices = categoryFolders.map(cat => {
+  const indices: Category[] = categoryFolders.map((cat) => {
     const catPath = path.join(textsDir, cat)
-    const files = fs.readdirSync(catPath).filter(f => f.endsWith(".md"))
-    const texts: TextEntry[] = files.map(file => {
+    const files = fs.readdirSync(catPath).filter((f) => f.endsWith(".md"))
+    const texts: TextEntry[] = files.map((file) => {
       const raw = fs.readFileSync(path.join(catPath, file), "utf8").trim()
       const first = raw.split("\n")[0].trim()
       const slug = file.replace(/\.md$/, "")
