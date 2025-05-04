@@ -76,9 +76,9 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
           <CombinedArticleShowcase
   articles={articles}
   categories={categories}
-  headerImages={headerImages}
   titleFont="GayaRegular"
 />
+
           <CategoryArticlePreview
   articles={filteredArticles}
   categories={categories}
