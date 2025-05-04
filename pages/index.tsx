@@ -13,6 +13,7 @@ import CategoryBanner from '../app/components/CategoryBanner';
 import CategoryArticlePreview from '../app/components/CategoryArticlePreview'
 import CategoryArticleCompact from '../app/components/CategoryArticleCompact'
 import MixedArticleShowcase from '../app/components/MixedArticleShowcase'
+import NewsletterCategoryLayout from '../app/components/NewsletterCategoryLayout'
 
 interface HomeProps {
   articles: Article[];
@@ -78,7 +79,11 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
   categories={categories}
   titleFont="GayaRegular"
 />
-
+        <NewsletterCategoryLayout
+  articles={articles}
+  categories={categories}
+  titleFont="GayaRegular"
+/>
           <CategoryArticlePreview
   articles={filteredArticles}
   categories={categories}
