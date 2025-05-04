@@ -26,15 +26,16 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
 
         return (
           <a
-            href={`/${article.category}/${article.slug}`}
             key={article.slug || idx}
+            href={`/${article.category}/${article.slug}`}
             className="card-link"
           >
             <div className="card">
               <div className="card-image" style={imgStyle} />
+
               <div className="card-content">
                 <span
-                  className="card-category"
+                  className="label"
                   style={{
                     borderColor: color,
                     color,
@@ -43,9 +44,12 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
                 >
                   {article.category}
                 </span>
-                <h3 className="card-title">{article.title}</h3>
-                <p className="card-preview">{article.preview}</p>
-                <div className="card-meta">
+
+                <h3 className="title">{article.title}</h3>
+
+                <p className="preview">{article.preview}</p>
+
+                <div className="meta">
                   {article.author} • {article.date}
                 </div>
               </div>
@@ -56,12 +60,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
     </div>
 
     <style jsx>{`
-      :root {
-        --txt: #333;
-        --sub: #666;
-        --shadow: rgba(0, 0, 0, 0.05);
-        --hover-shadow: rgba(0, 0, 0, 0.1);
-      }
       .article-grid {
         margin: 2rem 0;
       }
@@ -83,22 +81,24 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         color: inherit;
       }
       .card {
-        display: flex;
-        flex-direction: column;
         background: #fff;
         border-radius: 8px;
-        box-shadow: 0 1px 4px var(--shadow);
-        transition: transform 0.3s, box-shadow 0.3s;
         overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s, box-shadow 0.3s;
       }
       .card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 4px 12px var(--hover-shadow);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
       .card-image {
         width: 100%;
         padding-bottom: 56.25%;
         background: center/cover no-repeat #f5f5f5;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
       }
       .card-content {
         padding: 16px;
@@ -106,35 +106,32 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         flex-direction: column;
         flex: 1;
       }
-      .card-category {
+      .label {
         display: inline-block;
         font-size: 11px;
         text-transform: uppercase;
-        padding: 4px 8px;
+        padding: 2px 6px;
         border: 1px solid;
-        border-radius: 3px;
-        font-weight: 600;
+        border-radius: 2px;
         margin-bottom: 8px;
       }
-      .card-title {
+      .title {
         font-family: ${titleFont}, Georgia, serif;
-        font-weight: 300;
-        font-size: 18px;
+        font-size: 20px;
         line-height: 1.3;
-        color: var(--txt);
+        font-weight: 300;
         margin: 4px 0 8px;
+        color: #333;
       }
-      .card-preview {
-        font-family: 'Inter', sans-serif;
+      .preview {
+        margin: 0 0 12px;
         font-size: 14px;
         line-height: 1.5;
-        color: var(--txt);
-        margin: 0 0 12px;
-        flex: 1;
+        color: #333;
       }
-      .card-meta {
+      .meta {
         font-size: 13px;
-        color: var(--sub);
+        color: #666;
       }
     `}</style>
   </section>
