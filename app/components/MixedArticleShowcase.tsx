@@ -13,10 +13,9 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
   categories,
   titleFont = 'GayaRegular',
 }) => {
-  const recent = articles
-  const leftItems = recent.slice(0, 2)
-  const mainItem = recent[2]
-  const rightItems = recent.slice(3, 10)
+  const leftItems  = articles.slice(0, 2)
+  const mainItem   = articles[2]
+  const rightItems = articles.slice(3)
 
   const thumbStyle = (a: Article) => {
     const cat = categories.find(c => c.name === a.category)
@@ -65,18 +64,18 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         .mas {
           display: flex;
           flex-direction: column;
-          align-items: stretch;
           gap: 24px;
           max-width: 1200px;
           margin: 0 auto;
           padding: 24px 16px;
           font-family: Inter, sans-serif;
         }
+        /* mobile order */
         .left   { order: 1 }
         .center { order: 0 }
         .right  { order: 2 }
 
-        @media(min-width: 768px) {
+        @media(min-width:768px) {
           .mas { flex-direction: row; }
           .left   { order: 0; }
           .center { order: 1; }
@@ -84,24 +83,29 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         }
 
         .col {
+          flex: 1;
           display: flex;
           flex-direction: column;
           gap: 16px;
-          flex: 1;
         }
 
-        /* left two cards split height */
+        /* left: two equal cards */
         .left .small-card {
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 8px;
         }
+        .left .small-card .thumb {
+          flex: 1;
+          background: center/cover no-repeat #f5f5f5;
+          border-radius: 4px;
+        }
 
-        /* thumbs */
-        .thumb, .main-thumb {
+        /* center */
+        .main-thumb {
           width: 100%;
-          padding-bottom: 56.25%;
+          max-height: 300px;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
@@ -111,11 +115,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           font-family: ${titleFont}, Georgia, serif;
           margin: 0;
         }
-        .left .title {
-          font-size: 16px;
-          font-weight: 500;
-        }
-        .right .title {
+        .small-card .title {
           font-size: 16px;
           font-weight: 500;
         }
@@ -125,36 +125,33 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           font-weight: 300;
         }
 
-        /* authors/meta in Inter */
+        /* other text in Inter */
         .author, .meta, .main-meta {
-          font-family: Inter, sans-serif;
           font-size: 14px;
           color: #666;
           margin: 4px 0 0;
         }
-
         .main-preview {
-          font-family: Inter, sans-serif;
           font-size: 16px;
           color: #333;
           margin: 0 0 12px;
         }
 
-        /* right list fills remaining height */
-        .right .list-wrapper {
+        /* right list fills height */
+        .list-wrapper {
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 12px;
-          overflow: hidden;
+          overflow-y: auto;
         }
         .list-item {
           display: flex;
           gap: 12px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #eaeaea;
           text-decoration: none;
           color: inherit;
-          border-bottom: 1px solid #eaeaea;
-          padding-bottom: 12px;
         }
         .list-item:last-child {
           border-bottom: none;
@@ -162,9 +159,15 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         .list-item .thumb {
           flex: 0 0 80px;
           height: 56px;
+          background: center/cover no-repeat #f5f5f5;
+          border-radius: 4px;
         }
-        .list-item .text {
-          flex: 1;
+        .text .title {
+          font-size: 16px;
+          font-weight: 500;
+        }
+        .text .meta {
+          margin-top: 4px;
         }
         a:hover .title {
           text-decoration: underline;
