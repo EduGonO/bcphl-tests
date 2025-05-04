@@ -11,6 +11,7 @@ import ArticleGrid from '../app/components/ArticleGrid';
 import ArticleBlock from '../app/components/ArticleBlock';
 import CategoryBanner from '../app/components/CategoryBanner';
 import CategoryArticlePreview from '../app/components/CategoryArticlePreview'
+import CategoryArticleCompact from './components/CategoryArticleCompact'
 
 interface HomeProps {
   articles: Article[];
@@ -87,6 +88,11 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
               categories={categories} 
               titleFont="GayaRegular"
             />
+            <CategoryArticleCompact
+  articles={allArticles}
+  categories={allCategories}
+  titleFont="GayaRegular"
+/>
           </div>
           <Footer />
         </main>
