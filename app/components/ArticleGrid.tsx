@@ -1,5 +1,5 @@
 // /app/components/ArticleGrid.tsx
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Article, Category } from '../../types';
 
 interface ArticleGridProps {
@@ -15,6 +15,21 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   titleFont = 'GayaRegular',
   headerImages = {},
 }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Function to handle scroll buttons
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+    
+    const container = scrollContainerRef.current;
+    const scrollAmount = 350; // Adjust this value based on your card width + gap
+    
+    if (direction === 'left') {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
   return (
     <section className="article-grid">
       <div className="grid-container">
@@ -42,11 +57,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
                         alt={article.title}
                         className="article-image"
                       />
-                    </div>
-                  )}
-                  {!headerImages[article.slug] && (
-                    <div className="category-icon">
-                      {article.category.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -78,35 +88,56 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         .article-grid {
           margin: 2rem 0;
           width: 100%;
+          position: relative;
         }
         .grid-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 32px;
-          padding: 0 20px;
-          
-          @media (min-width: 768px) {
-            grid-auto-flow: initial;
-            grid-auto-columns: initial;
-            overflow-x: visible;
-          }
-          
-          @media (max-width: 767px) {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            padding-bottom: 1.5rem;
-          }
+          display: flex;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          gap: 24px;
+          padding: 10px 0;
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+        .grid-container::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Opera */
         }
         .card-link {
+          flex: 0 0 300px;
+          scroll-snap-align: start;
           text-decoration: none;
           color: inherit;
           display: block;
-          
-          @media (max-width: 767px) {
-            flex: 0 0 300px;
-            scroll-snap-align: start;
-          }
+        }
+        .scroll-controls {
+          display: flex;
+          justify-content: space-between;
+          position: absolute;
+          width: 100%;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          padding: 0 10px;
+        }
+        .scroll-button {
+          background-color: white;
+          border: 1px solid #e0e0e0;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 18px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          pointer-events: auto;
+          transition: all 0.2s ease;
+          opacity: 0.8;
+        }
+        .scroll-button:hover {
+          opacity: 1;
+          transform: scale(1.05);
         }
         .card {
           width: 100%;
@@ -163,6 +194,8 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
           justify-content: center;
           border-radius: 50%;
           background-color: rgba(255, 255, 255, 0.2);
+          /* Removed, as we don't want to show this anymore */
+          display: none;
         }
         .card-content {
           padding: 20px 0;
