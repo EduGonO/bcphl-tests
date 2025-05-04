@@ -11,7 +11,7 @@ import ArticleGrid from '../app/components/ArticleGrid';
 import ArticleBlock from '../app/components/ArticleBlock';
 import CategoryBanner from '../app/components/CategoryBanner';
 import CategoryArticlePreview from '../app/components/CategoryArticlePreview'
-import CategoryArticleCompact from './components/CategoryArticleCompact'
+import CategoryArticleCompact from '../app/components/CategoryArticleCompact'
 
 interface HomeProps {
   articles: Article[];
