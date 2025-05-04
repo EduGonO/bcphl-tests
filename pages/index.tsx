@@ -12,7 +12,7 @@ import ArticleBlock from '../app/components/ArticleBlock';
 import CategoryBanner from '../app/components/CategoryBanner';
 import CategoryArticlePreview from '../app/components/CategoryArticlePreview'
 import CategoryArticleCompact from '../app/components/CategoryArticleCompact'
-import CombinedArticleShowcase from '../app/components/CategoryArticleCompact'
+import MixedArticleShowcase from '../app/components/CategoryArticleCompact'
 
 interface HomeProps {
   articles: Article[];
