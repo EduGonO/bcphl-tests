@@ -3,39 +3,38 @@ import React, { useState } from 'react'
 import { Article, Category } from '../../types'
 import ArticleList from './ArticleList'
 
-interface CategoryArticlePreviewProps {
+interface Props {
   articles: Article[]
   categories: Category[]
   headerImages?: Record<string, string>
   titleFont?: string
 }
 
-const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
+const CategoryArticlePreview: React.FC<Props> = ({
   articles,
   categories,
   headerImages = {},
   titleFont = 'GayaRegular',
 }) => {
-  const [selected, setSelected] = useState(categories[0]?.name || '')
-  const recent = articles.filter((a) => a.category === selected).slice(0, 3)
+  const [sel, setSel] = useState(categories[0]?.name || '')
+  const recent = articles.filter((a) => a.category === sel).slice(0, 3)
 
   return (
     <section className="cap">
-      <h2 className="heading">À lire également</h2>
-      <div className="wrapper">
+      <div className="header">
+        <h2 className="heading">À lire également</h2>
         <div className="cats">
-          {categories.map((c, i) => {
-            const isActive = c.name === selected
+          {categories.map((c) => {
+            const active = c.name === sel
             return (
               <button
                 key={c.name}
-                onClick={() => setSelected(c.name)}
-                className={isActive ? 'cat active' : 'cat'}
+                onClick={() => setSel(c.name)}
+                className="cat"
                 style={{
-                  backgroundColor: isActive
-                    ? `${c.color}20`
-                    : 'transparent',
                   color: c.color,
+                  backgroundColor: active ? `${c.color}20` : 'transparent',
+                  borderRadius: '9999px',
                 }}
               >
                 {c.name}
@@ -43,96 +42,74 @@ const CategoryArticlePreview: React.FC<CategoryArticlePreviewProps> = ({
             )
           })}
         </div>
-        <div className="list">
-          <div className="current-cat-name">{selected}</div>
-          <ArticleList
-            articles={recent}
-            categories={categories}
-            titleFont={titleFont}
-          />
-          <a href={`/${selected}`} className="see-more">
-            see more →
-          </a>
-        </div>
       </div>
+
+      <hr className="divider" />
+
+      <div className="list">
+        <div className="current">{sel}</div>
+        <ArticleList
+          articles={recent}
+          categories={categories}
+          titleFont={titleFont}
+        />
+        <a href={`/${sel}`} className="see-more">
+          see more →
+        </a>
+      </div>
+
       <style jsx>{`
         .cap {
           max-width: 1000px;
           margin: 0 auto;
           padding: 40px 16px;
         }
-        .heading {
-          font-family: ${titleFont}, Georgia, serif;
-          font-weight: 300;
-          font-size: 32px;
-          margin-bottom: 24px;
-          color: #111;
-        }
-        .wrapper {
+        .header {
           display: flex;
           flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
         }
         @media (min-width: 768px) {
-          .wrapper {
+          .header {
             flex-direction: row;
-            align-items: flex-start;
+            justify-content: space-between;
+            align-items: center;
           }
-          .cats {
-            flex: 0 0 280px;
-            margin-right: 16px;
-            margin-bottom: 0;
-          }
-          .list {
-            flex: 1;
-          }
+        }
+        .heading {
+          font-family: ${titleFont}, serif;
+          font-size: 28px;
+          margin: 0;
         }
         .cats {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          border: 1px solid #eaeaea;
-          border-radius: 6px;
-          overflow: hidden;
-          margin-bottom: 16px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
         }
         .cat {
-          padding: 20px;
-          font-size: 18px;
-          font-weight: 500;
-          text-align: center;
+          padding: 6px 12px;
+          font-family: ${titleFont}, serif;
+          font-size: 16px;
+          font-weight: 400;
           border: none;
-          border-right: 1px solid #eaeaea;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .divider {
+          border: none;
           border-bottom: 1px solid #eaeaea;
-          background: transparent;
-          transition: background 0.2s, transform 0.2s;
+          margin: 16px 0;
         }
-        .cat:nth-child(2n) {
-          border-right: none;
-        }
-        .cat:nth-last-child(-n + 2) {
-          border-bottom: none;
-        }
-        .cat:hover {
-          background: rgba(0, 0, 0, 0.03);
-        }
-        .cat.active {
-          font-weight: 600;
-        }
-        .list :global(.article-list) {
-          max-width: none;
-          margin: 0;
-          padding: 0;
-        }
-        .current-cat-name {
-          font-family: ${titleFont}, Georgia, serif;
-          font-weight: 300;
+        .list .current {
+          font-family: ${titleFont}, serif;
           font-size: 24px;
-          text-align: left;
-          margin: 0 0 16px;
+          font-weight: 300;
+          margin-bottom: 16px;
           color: #333;
         }
         .see-more {
           display: block;
-          text-align: left;
           margin-top: 8px;
           font-size: 14px;
           font-weight: 500;
