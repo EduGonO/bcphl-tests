@@ -10,6 +10,7 @@ import DebugOverlay from "../app/components/DebugOverlay";
 import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
 import { getArticleData } from "../lib/articleService";
+import { Article } from "../types";
 
 /* ── helper utils ─────────────────────────────────────────────────── */
 
@@ -136,14 +137,7 @@ interface ArtProps {
   media: string[];
   category: string;
   content: string;
-  gridArticles: {
-    title: string;
-    slug: string;
-    category: string;
-    date: string;
-    author: string;
-    preview: string;
-  }[];
+  gridArticles: Article[];
   categories: Category[];
 }
 
