@@ -200,7 +200,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         }
       `}</style>
     </header>
-  `)
+  )
 }
 
 export default Header

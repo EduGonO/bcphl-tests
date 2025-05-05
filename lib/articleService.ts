@@ -34,7 +34,7 @@ export function getArticleData(): { articles: Article[]; categories: { name: str
         const title = lines[0].startsWith('#') ? lines[0].replace(/^#+\s*/, '') : slug;
         const date = lines[1] || 'Unknown Date';
         const author = lines[2] || 'Unknown Author';
-        const preview = lines.slice(3).join(' ').slice(0, 80) + '...';
+        const preview = lines.slice(3).join(' ').slice(0, 180) + '...';
         articles.push({ title, slug, category: cat, date, author, preview });
       }
     });
