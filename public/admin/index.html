@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <title>Magazine CMS</title>
 
-  <!-- Prevent auto-init (no config.yml) -->
+  <!-- Prevent auto-init -->
   <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 <body>
   <!-- Mount point -->
   <div id="nc-root"></div>
 
-  <!-- Load the all-in-one Netlify-CMS bundle -->
+  <!-- Netlify-CMS bundle -->
   <script src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"></script>
 
-  <!-- Inline config -->
+  <!-- Inline CMS config -->
   <script>
     CMS.init({
       config: {
@@ -24,6 +24,7 @@
           branch: "main",
           open_authoring: true
         },
+        publish_mode: "editorial_workflow",    // ← required for open_authoring
         site_url: "https://bcphl-test.vercel.app",
         logo_url: "/favicon.ico",
 
@@ -51,7 +52,6 @@
                 label: "Gallery",
                 widget: "list",
                 required: false,
-                // MUST include a name on the field itself:
                 field: {
                   name:  "media",
                   label: "Image",
