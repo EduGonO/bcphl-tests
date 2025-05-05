@@ -81,9 +81,14 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         @media(min-width:768px) {
           .ncl { flex-direction: row; }
           .left { flex: 0 0 30%; }
-          .right { flex: 1; }
+          .right { flex: 1; min-width: 0; }
         }
-        .col { display: flex; flex-direction: column; gap: 16px; }
+        .col {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          min-width: 0;
+          }
         .heading {
           font-family: ${titleFont}, Georgia, serif;
           font-size: 24px;
