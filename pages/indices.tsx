@@ -40,35 +40,19 @@ const saveFile = async (
   if (!res.ok) throw new Error("Cannot save file");
 };
 
-// New: uploadMedia helper
-const uploadMedia = async (cat: string, slug: string, file: File): Promise<string> => {
-  // read file as base64
-  const data = await new Promise<string>((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => {
-      if (typeof fr.result === 'string') {
-        const b64 = fr.result.split(",")[1];
-        resolve(b64);
-      } else reject(new Error("Invalid file read"));
-    };
-    fr.onerror = () => reject(fr.error);
-    fr.readAsDataURL(file);
-  });
 
-  const res = await fetch("/api/upload-media", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      cat,
-      slug,
-      filename: file.name,
-      data,
-    }),
+const uploadMedia = async (cat: string, slug: string, file: File) => {
+  const b64 = await file.arrayBuffer().then(buf => Buffer.from(buf).toString('base64'));
+  const r = await fetch('/api/upload-media', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cat, slug, filename: file.name, data: b64 }),
+    credentials: 'include',             // <<< ensure cookies for session
   });
-  if (!res.ok) throw new Error("Upload failed");
-  const json = await res.json();
-  return json.path as string; // e.g. '/media/Category/slug/foo.jpg'
+  if (!r.ok) throw new Error(`Upload HTTP ${r.status}`);
+  return (await r.json()).path as string;
 };
+
 
 // Component
 const Indices: React.FC<Props> = ({ indices }) => {
@@ -272,24 +256,23 @@ const Indices: React.FC<Props> = ({ indices }) => {
                     }}
                   />
                   <input
-  type="file"
-  accept="image/*"
-  onChange={async e => {
-    const file = e.target.files?.[0];
-    if (!file || !selCat || !selSlug) return;
-    setSaveStatus('saving');
-    try {
-      const p = await uploadMedia(selCat, selSlug, file);
-      setMeta(m => ({ ...m, 'header-image': p }));
-      setDirty(true);          // enables Save
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 1200);
-    } catch (err) {
-      console.error(err);
-      setSaveStatus('error');
-    }
-  }}
-/>
+                  onChange={async e => {
+                  const f = e.target.files?.[0];
+                  if (!f || !selCat || !selSlug) return;
+                  setSaveStatus('saving');
+                  try {
+                    const p = await uploadMedia(selCat, selSlug, f);
+                    setMeta(m => ({ ...m, 'header-image': p }));
+                    setDirty(true);
+                    setSaveStatus('saved');
+                    setTimeout(() => setSaveStatus('idle'), 1200);
+                  } catch (err) {
+                    console.error(err);
+                    setSaveStatus('error');
+                    setTimeout(() => setSaveStatus('idle'), 2000);
+                  }
+                }}
+                />
                 </div>
               </div>
 
