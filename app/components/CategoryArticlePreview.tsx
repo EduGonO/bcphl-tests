@@ -47,6 +47,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
       <hr className="divider" />
 
       <div className="list">
+        <div className="current">{sel}</div>
         <ArticleList
           articles={recent}
           categories={categories}
@@ -61,33 +62,31 @@ const CategoryArticlePreview: React.FC<Props> = ({
         .cap {
           max-width: 1000px;
           margin: 0 auto;
-          padding: 0px 0px;
+          padding: 0 16px;
+          overflow-x: hidden;
         }
         .header {
           display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
-        }
-        @media (min-width: 768px) {
-          .header {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-          }
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: nowrap;
         }
         .heading {
           font-family: ${titleFont}, serif;
           font-size: 28px;
           margin: 0;
+          white-space: nowrap;
+          flex-shrink: 0;
         }
         .cats {
           display: flex;
           gap: 12px;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
-          white-space: nowrap;
           padding-bottom: 4px;
+          flex: 1 1 auto;
+          min-width: 0;
         }
         .cats::-webkit-scrollbar {
           height: 6px;
@@ -124,11 +123,13 @@ const CategoryArticlePreview: React.FC<Props> = ({
           font-size: 14px;
           font-weight: 500;
           color: #333;
+          padding-left: 10px;
+          opacity: 0.69;
           text-decoration: none;
           transition: opacity 0.2s;
         }
         .see-more:hover {
-          opacity: 0.7;
+          opacity: 0.9;
         }
       `}</style>
     </section>
