@@ -29,16 +29,23 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
     <section className="mas">
       <div className="col left">
         {leftItems.map(a => (
-          <div key={a.slug} className="small-card">
+          <a
+            key={a.slug}
+            href={`/${a.category}/${a.slug}`}
+            className="small-card"
+          >
             <div className="thumb" style={thumbStyle(a)} />
             <h4 className="title">{a.title}</h4>
             <p className="author">{a.author}</p>
-          </div>
+          </a>
         ))}
       </div>
 
       {mainItem && (
-        <a href={`/${mainItem.category}/${mainItem.slug}`} className="col center">
+        <a
+          href={`/${mainItem.category}/${mainItem.slug}`}
+          className="col center"
+        >
           <div className="main-thumb" style={thumbStyle(mainItem)} />
           <h2 className="main-title">{mainItem.title}</h2>
           <p className="main-preview">{mainItem.preview}</p>
@@ -48,7 +55,11 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
 
       <div className="col right">
         {rightItems.map(a => (
-          <a key={a.slug} href={`/${a.category}/${a.slug}`} className="list-item">
+          <a
+            key={a.slug}
+            href={`/${a.category}/${a.slug}`}
+            className="list-item"
+          >
             <div className="thumb" style={thumbStyle(a)} />
             <div className="text">
               <h4 className="title">{a.title}</h4>
@@ -68,85 +79,75 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           padding: 24px 16px;
           font-family: Inter, sans-serif;
           box-sizing: border-box;
-          /* allow its children to shrink */
           min-width: 0;
         }
         .col {
           display: flex;
           flex-direction: column;
           gap: 16px;
-          /* clamp overflow */
           min-width: 0;
         }
 
-        /* mobile ordering */
+        /* mobile: center first */
         .center { order: 0; }
         .left   { order: 1; }
         .right  { order: 2; }
 
         @media (min-width: 768px) {
           .mas { flex-direction: row; }
-          .left, .right {
-            flex: 0 0 240px;
-            min-width: 240px;
-          }
-          .center {
-            flex: 1 1 auto;
-            min-width: 0;
-          }
+          .left  { order: 0; flex: 0 0 240px; min-width: 240px; }
+          .center{ order: 1; flex: 1 1 auto; min-width: 0; }
+          .right { order: 2; flex: 0 0 240px; min-width: 240px; }
         }
 
         /* left cards */
-        .left .small-card {
-          flex: 1;
+        .small-card {
           display: flex;
           flex-direction: column;
           gap: 8px;
+          text-decoration: none;
+          color: inherit;
         }
         .small-card .thumb {
           height: 120px;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
-
-        /* main image */
-        .main-thumb {
-          aspect-ratio: 16 / 9;
-          background: center/cover no-repeat #f5f5f5;
-          border-radius: 4px;
-          width: 100%;
-          margin-bottom: 16px;
-        }
-
-        /* titles */
-        .title,
-        .main-title {
+        .small-card .title {
           font-family: ${titleFont}, Georgia, serif;
-          margin: 0;
-        }
-        .small-card .title,
-        .list-item .title {
           font-size: 16px;
           font-weight: 500;
+          margin: 0;
         }
-        .main-title {
-          font-size: 24px;
-          font-weight: 300;
-          margin: 8px 0;
-        }
-
-        /* text */
-        .author,
-        .meta,
-        .main-meta {
+        .small-card .author {
           font-size: 14px;
           color: #666;
           margin: 4px 0 0;
+        }
+
+        /* main */
+        .main-thumb {
+          width: 100%;
+          aspect-ratio: 16/9;
+          background: center/cover no-repeat #f5f5f5;
+          border-radius: 4px;
+          margin-bottom: 16px;
+        }
+        .main-title {
+          font-family: ${titleFont}, Georgia, serif;
+          font-size: 24px;
+          font-weight: 300;
+          margin: 8px 0;
         }
         .main-preview {
           font-size: 16px;
           color: #333;
           margin: 0 0 8px;
+        }
+        .main-meta {
+          font-size: 14px;
+          color: #666;
+          margin: 4px 0 0;
         }
 
         /* right list */
@@ -164,18 +165,30 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         }
         .list-item .thumb {
           flex: 0 0 80px;
-          aspect-ratio: 1 / 1;
+          aspect-ratio: 1/1;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
         .text {
           min-width: 0;
         }
-        .text .meta {
-          margin-top: 4px;
+        .text .title {
+          font-family: ${titleFont}, Georgia, serif;
+          font-size: 16px;
+          font-weight: 500;
+          margin: 0;
         }
-        a:hover .title {
-          text-decoration: underline;
+        .text .meta {
+          font-size: 14px;
+          color: #666;
+          margin: 4px 0 0;
+        }
+          a {
+          text-decoration: none;
+        }
+        /* remove default underline on hover */
+        a:hover {
+          text-decoration: none;
         }
       `}</style>
     </section>
