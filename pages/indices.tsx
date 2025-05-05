@@ -272,28 +272,24 @@ const Indices: React.FC<Props> = ({ indices }) => {
                     }}
                   />
                   <input
-                    type="file"
-                    accept="image/*"
-                    // inside pages/indices.tsx, in the <input type="file" … onChange={…}>
-onChange={async (e) => {
-  const file = e.target.files?.[0];
-  if (!file || !selCat || !selSlug) return;
-  setSaveStatus("saving");
-  try {
-    const p = await uploadMedia(selCat, selSlug, file);
-    setMeta(m => ({ ...m, "header-image": p }));
-    setDirty(true);
-    // show "Saved!"
-    setSaveStatus("saved");
-    setTimeout(() => setSaveStatus("idle"), 1200);
-  } catch (err) {
-    console.error("Upload error:", err);
-    setSaveStatus("error");
-    setTimeout(() => setSaveStatus("idle"), 1200);
-  }
-}}
-
-                  />
+  type="file"
+  accept="image/*"
+  onChange={async e => {
+    const file = e.target.files?.[0];
+    if (!file || !selCat || !selSlug) return;
+    setSaveStatus('saving');
+    try {
+      const p = await uploadMedia(selCat, selSlug, file);
+      setMeta(m => ({ ...m, 'header-image': p }));
+      setDirty(true);          // enables Save
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 1200);
+    } catch (err) {
+      console.error(err);
+      setSaveStatus('error');
+    }
+  }}
+/>
                 </div>
               </div>
 

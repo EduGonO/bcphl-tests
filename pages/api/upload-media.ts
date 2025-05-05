@@ -1,37 +1,43 @@
-// pages/api/upload-media.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
-// ← correct import:
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth/[...nextauth]';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession(req, res, authOptions);
-  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+// 1. bump body-parser limit to 10 MB
+export const config = {
+  api: { bodyParser: { sizeLimit: '10mb' } },
+};
 
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') return res.status(405).end();
+
+  // 2. auth
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) return res.status(401).end();
 
   try {
     const { cat, slug, filename, data } = req.body as {
       cat: string; slug: string; filename: string; data: string;
     };
 
-    // sanitize…
-    const safeCat = cat.replace(/\.\./g, '');
+    // 3. quick validation
+    if (![cat, slug, filename, data].every(v => typeof v === 'string'))
+      return res.status(400).end();
+
+    const safeCat  = cat.replace(/\.\./g, '');
     const safeSlug = slug.replace(/\.\./g, '');
     const safeName = filename.replace(/[/\\]/g, '_');
 
-    const uploadDir = path.join(process.cwd(), 'public', 'media', safeCat, safeSlug);
-    fs.mkdirSync(uploadDir, { recursive: true });
+    const dir = path.join(process.cwd(), 'public', 'media', safeCat, safeSlug);
+    fs.mkdirSync(dir, { recursive: true });
 
     const buffer = Buffer.from(data, 'base64');
-    const dest = path.join(uploadDir, safeName);
-    fs.writeFileSync(dest, buffer);
+    fs.writeFileSync(path.join(dir, safeName), buffer);
 
-    return res.status(200).json({ path: `/media/${safeCat}/${safeSlug}/${safeName}` });
-  } catch (error) {
-    console.error('upload-media error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(200).json({ path: `/media/${safeCat}/${safeSlug}/${safeName}` });
+  } catch (err) {
+    console.error('upload-media error:', err);
+    res.status(500).end();
   }
 }
