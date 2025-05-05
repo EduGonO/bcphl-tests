@@ -47,7 +47,6 @@ const CategoryArticlePreview: React.FC<Props> = ({
       <hr className="divider" />
 
       <div className="list">
-        {/*<div className="current">{sel}</div>*/}
         <ArticleList
           articles={recent}
           categories={categories}
@@ -60,9 +59,11 @@ const CategoryArticlePreview: React.FC<Props> = ({
 
       <style jsx>{`
         .cap {
+          width: 100%;
           max-width: 1000px;
           margin: 0 auto;
           padding: 0 16px;
+          box-sizing: border-box;
           overflow-x: hidden;
         }
         .header {
@@ -71,6 +72,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           align-items: center;
           gap: 12px;
           flex-wrap: nowrap;
+          overflow-x: hidden;
         }
         .heading {
           font-family: ${titleFont}, serif;
@@ -85,7 +87,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           gap: 10px;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
-          padding-bottom: 0px;
+          padding-bottom: 0;
           flex: 1 1 auto;
           min-width: 0;
         }
@@ -110,13 +112,6 @@ const CategoryArticlePreview: React.FC<Props> = ({
           border: none;
           border-bottom: 1px solid #eaeaea;
           margin: 16px 0;
-        }
-        .list .current {
-          font-family: ${titleFont}, serif;
-          font-size: 24px;
-          font-weight: 300;
-          margin-bottom: 16px;
-          color: #333;
         }
         .see-more {
           display: block;

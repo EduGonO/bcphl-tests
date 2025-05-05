@@ -1,33 +1,47 @@
 // /app/components/NewsletterCategoryLayout.tsx
-import React from 'react'
+import React, { useState } from 'react'
 import CategoryArticlePreview from './CategoryArticlePreview'
 import { Article, Category } from '../../types'
 
-interface NewsletterCategoryLayoutProps {
+interface Props {
   articles: Article[]
   filteredArticles: Article[]
   categories: Category[]
   titleFont?: string
 }
 
-const NewsletterCategoryLayout: React.FC<NewsletterCategoryLayoutProps> = ({
+const NewsletterCategoryLayout: React.FC<Props> = ({
   articles,
   filteredArticles,
   categories,
   titleFont = 'GayaRegular',
 }) => {
-  // pick one sample newsletter article
+  const [email, setEmail] = useState('')
   const sample = articles[0]
+
   return (
     <section className="ncl">
       <div className="col left">
         <h2 className="heading">Newsletter</h2>
         <hr />
         <p className="desc">
-          Example description Newsletter
-          Abonnement description texte example Newsletter
+          Abonnez-vous pour recevoir nos meilleures sélections d'articles directement dans votre boîte mail.
         </p>
-        <button className="subscribe">S'inscrire</button>
+
+        <form className="form" onSubmit={(e) => e.preventDefault()}>
+          <input
+            type="email"
+            className="email"
+            placeholder="Votre email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <button type="submit" className="subscribe">
+            S'inscrire
+          </button>
+        </form>
+
         {sample && (
           <div className="small-card">
             <div
@@ -40,8 +54,8 @@ const NewsletterCategoryLayout: React.FC<NewsletterCategoryLayoutProps> = ({
                     }20` }
               }
             />
-            <h4 className="title">{sample.title}</h4>
-            <p className="author">{sample.author}</p>
+            <h4 className="card-title">{sample.title}</h4>
+            <p className="card-author">{sample.author}</p>
           </div>
         )}
       </div>
@@ -65,9 +79,7 @@ const NewsletterCategoryLayout: React.FC<NewsletterCategoryLayoutProps> = ({
           font-family: Inter, sans-serif;
         }
         @media(min-width:768px) {
-          .ncl {
-            flex-direction: row;
-          }
+          .ncl { flex-direction: row; }
           .left { flex: 0 0 30%; }
           .right { flex: 1; }
         }
@@ -84,21 +96,50 @@ const NewsletterCategoryLayout: React.FC<NewsletterCategoryLayoutProps> = ({
         }
         .desc {
           font-size: 16px;
+          line-height: 1.5;
           color: #333;
+          margin: 0;
+        }
+        .form {
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          margin-top: 8px;
+        }
+        .email {
+          flex: 1;
+          padding: 10px 12px;
+          font-size: 14px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-family: Inter, sans-serif;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+        .email:focus {
+          border-color: #111;
         }
         .subscribe {
-          padding: 12px 16px;
-          font-size: 16px;
+          padding: 10px 16px;
+          font-size: 14px;
           background: #111;
           color: #fff;
           border: none;
           border-radius: 4px;
           cursor: pointer;
+          transition: background 0.2s;
+        }
+        .subscribe:hover {
+          background: #333;
         }
         .small-card {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 12px;
+          background: #fff;
+          padding: 16px;
+          border-radius: 6px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .thumb {
           width: 100%;
@@ -106,16 +147,19 @@ const NewsletterCategoryLayout: React.FC<NewsletterCategoryLayoutProps> = ({
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
-        .title {
+        .card-title {
           font-family: ${titleFont}, Georgia, serif;
           font-size: 16px;
           font-weight: 500;
           margin: 0;
+          line-height: 1.4;
+          color: #111;
         }
-        .author {
+        .card-author {
           font-size: 14px;
           color: #666;
-          margin: 4px 0 0;
+          margin: 0;
+          line-height: 1.4;
         }
       `}</style>
     </section>
