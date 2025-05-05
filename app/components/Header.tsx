@@ -482,7 +482,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         }
         .dropdown-item {
           display: block;
-          padding: 12px 16px;
+          padding: 10px 14px;
           font-size: 14px;
           cursor: pointer;
           text-decoration: none;
@@ -491,6 +491,22 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           position: relative;
           overflow: hidden;
           color: #333;
+        }
+        /* drop-down links */
+        .rubriques-dropdown a,
+        .rubriques-dropdown a:hover,
+        .rubriques-dropdown a:focus,
+        .rubriques-dropdown a:visited {
+          text-decoration: none !important;
+          color: inherit !important;
+        }
+        /* remove underline on all dropdown links */
+        :global(a.dropdown-item),
+        :global(a.dropdown-item:hover),
+        :global(a.dropdown-item:focus),
+        :global(a.dropdown-item:visited) {
+          text-decoration: none !important;
+          color: inherit !important;
         }
         .dropdown-item:hover {
           background: rgba(245, 245, 245, 0.8);
