@@ -70,10 +70,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
         .filter((d) => d.isDirectory())
         .forEach((d) => {
           const slug = d.name;
-          const mdPath = path.join(catDir, slug, `${slug}.md`);
-          if (fs.existsSync(mdPath)) {
-            pathsArr.push({ params: { paths: [cat, slug] } });
-          }
+          const hasMd =
+            fs
+              .readdirSync(path.join(catDir, slug))
+              .some((f) => f.endsWith(".md")); // ❗any .md, not only <slug>.md
+          if (hasMd) pathsArr.push({ params: { paths: [cat, slug] } });
         });
     });
   }
@@ -81,11 +82,21 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return { paths: pathsArr, fallback: false };
 };
 
-/* ── static props ─────────────────────────────────────────────────── */
+/* ----- getStaticProps ------------------------------------------ */
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const [category, slug] = (params?.paths as string[]) || [];
-  const mdPath = path.join(TEXTS_DIR, category, slug, `${slug}.md`);
+  const artDir = path.join(TEXTS_DIR, category, slug);
+
+  /* pick markdown file: prefer <slug>.md else first .md in folder */
+  let mdFile = `${slug}.md`;
+  if (!fs.existsSync(path.join(artDir, mdFile))) {
+    const mdFiles = fs.readdirSync(artDir).filter((f) => f.endsWith(".md"));
+    if (mdFiles.length === 0) return { notFound: true };
+    mdFile = mdFiles[0];
+  }
+  const mdPath = path.join(artDir, mdFile);
+
   const { yaml, body } = loadMd(mdPath);
 
   const title =

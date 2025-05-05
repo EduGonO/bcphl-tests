@@ -173,25 +173,29 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         .nav-item:hover,
         .nav-trigger:hover { background: rgba(0,0,0,0.05) }
 
-        .dropdown {
-          list-style: none;
-          margin: 0;
-          padding: 4px 0;
-          display: flex;
-          flex-direction: column;
-          background: rgba(255,255,255,0.95);
-          backdrop-filter: blur(10px);
-          border: 1px solid #e6e6e6;
-          border-radius: 6px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .dropdown-item {
-          display: block;
-          padding: 8px 16px;
-          font-size: 14px;
-          color: #333;
-          text-decoration: none;
-        }
+        /* dropdown background & no bullets */
+.dropdown {
+  background: #fff;
+}
+.dropdown li {
+  list-style: none;
+}
+
+/* dropdown links: no blue or underline, even when visited */
+.dropdown-item,
+.dropdown-item:visited {
+  color: #333 !important;
+  text-decoration: none !important;
+}
+
+/* nav row links/buttons: no underline */
+.nav-item,
+.nav-item:visited,
+.nav-trigger {
+  color: #000 !important;
+  text-decoration: none !important;
+}
+
         .dropdown-item:hover {
           background: rgba(240,240,240,0.8);
         }
