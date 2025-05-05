@@ -128,6 +128,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           padding-left: 10px;
           opacity: 0.69;
           text-decoration: none;
+          font-family: InterRegular, sans-serif;
           transition: opacity 0.2s;
         }
         .see-more:hover {

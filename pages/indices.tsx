@@ -27,11 +27,7 @@ const fetchFile = async (cat: string, slug: string): Promise<string> => {
   return res.text();
 };
 
-// top of component body
-const hiddenFileRef = useRef<HTMLInputElement>(null);
 
-// helper – mark document changed
-const markDirty = () => setDirty(true);
 
 const saveFile = async (
   cat: string,
@@ -79,6 +75,12 @@ const Indices: React.FC<Props> = ({ indices }) => {
     date: "",
     "header-image": "",
   });
+
+// top of component body
+const hiddenFileRef = useRef<HTMLInputElement>(null);
+
+// helper – mark document changed
+const markDirty = () => setDirty(true);
 
   const toggle = (name: string) =>
     setOpen((o) => ({ ...o, [name]: !o[name] }));
