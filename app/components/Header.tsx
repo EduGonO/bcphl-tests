@@ -506,7 +506,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         :global(a.dropdown-item:focus),
         :global(a.dropdown-item:visited) {
           text-decoration: none !important;
-          color: inherit !important;
+          color: #333 !important;
         }
         .dropdown-item:hover {
           background: rgba(245, 245, 245, 0.8);
@@ -528,6 +528,15 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         :global(.dropdown-item:not(:last-child)) {
           border-bottom: 1px solid rgba(240, 240, 240, 0.5);
         }
+        /* force dropdown links to inherit normal text-style */
+        :global(.rubriques-dropdown .dropdown-item),
+        :global(.rubriques-dropdown .dropdown-item:hover),
+        :global(.rubriques-dropdown .dropdown-item:focus),
+        :global(.rubriques-dropdown .dropdown-item:active) {
+          color: #333 !important;
+          text-decoration: none !important;
+        }
+
       `}</style>
     </header>
   );
