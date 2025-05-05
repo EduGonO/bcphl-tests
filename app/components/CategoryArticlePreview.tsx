@@ -47,13 +47,13 @@ const CategoryArticlePreview: React.FC<Props> = ({
       <hr className="divider" />
 
       <div className="list">
-        <div className="current">{sel}</div>
+        {*/<div className="current">{sel}</div>*/}
         <ArticleList
           articles={recent}
           categories={categories}
           titleFont={titleFont}
         />
-        <a href={`/${sel}`} className="see-more">
+        <a href={`/categories/${sel}`} className="see-more">
           see more →
         </a>
       </div>
@@ -62,7 +62,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
         .cap {
           max-width: 1000px;
           margin: 0 auto;
-          padding: 40px 16px;
+          padding: 0px 0px;
         }
         .header {
           display: flex;
@@ -84,10 +84,21 @@ const CategoryArticlePreview: React.FC<Props> = ({
         }
         .cats {
           display: flex;
-          flex-wrap: wrap;
           gap: 12px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          white-space: nowrap;
+          padding-bottom: 4px;
+        }
+        .cats::-webkit-scrollbar {
+          height: 6px;
+        }
+        .cats::-webkit-scrollbar-thumb {
+          background: rgba(0,0,0,0.2);
+          border-radius: 3px;
         }
         .cat {
+          flex: 0 0 auto;
           padding: 6px 12px;
           font-family: ${titleFont}, serif;
           font-size: 16px;
