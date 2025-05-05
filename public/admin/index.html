@@ -3,64 +3,52 @@
 <head>
   <meta charset="utf-8" />
   <title>Magazine CMS</title>
-
-  <!-- Prevent auto-init -->
   <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 <body>
-  <!-- Mount point -->
   <div id="nc-root"></div>
-
-  <!-- Netlify-CMS bundle -->
   <script src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"></script>
-
-  <!-- Inline CMS config -->
   <script>
     CMS.init({
       config: {
         backend: {
-          name: "github",
-          repo: "EduGonO/bcphl-tests",
-          branch: "main",
-          // open_authoring: true,
-          auth_type:"oauth",
-          app_id:   "Ov23liaJrYHiiQl814Ye"
+          name:          "github",
+          repo:          "EduGonO/bcphl-tests",
+          branch:        "main",
+          auth_endpoint: "/api/auth",
+          auth_callback: "/api/callback"
         },
-        // publish_mode: "editorial_workflow",← required for open_authoring
-        site_url: "https://bcphl-test.vercel.app",
-        logo_url: "/favicon.ico",
-
-        // Upload into the article’s own folder
-        media_folder: "texts/{{path}}",
+        site_url:      "https://bcphl-test.vercel.app",
+        logo_url:      "/favicon.ico",
+        media_folder:  "texts/{{path}}",
         public_folder: "/texts/{{path}}",
-
         collections: [
           {
-            name: "articles",
-            label: "Articles",
-            folder: "texts",
-            create: true,
-            nested: { depth: 2 },
-            slug: "{{filename}}",
+            name:      "articles",
+            label:     "Articles",
+            folder:    "texts",
+            create:    true,
+            nested:    { depth: 2 },
+            slug:      "{{filename}}",
             extension: "md",
-            format: "frontmatter",
+            format:    "frontmatter",
             fields: [
-              { name: "title",        label: "Titre",        widget: "string" },
-              { name: "author",       label: "Auteur",       widget: "string", default: "Unknown Author" },
-              { name: "date",         label: "Date",         widget: "datetime" },
-              { name: "header-image", label: "Header Image", widget: "image",  required: false },
+              { name:"title",        label:"Titre",        widget:"string" },
+              { name:"author",       label:"Auteur",       widget:"string", default:"Unknown Author" },
+              { name:"date",         label:"Date",         widget:"datetime" },
+              { name:"header-image", label:"Header Image", widget:"image", required:false },
               {
-                name: "media",
-                label: "Gallery",
-                widget: "list",
+                name:     "media",
+                label:    "Gallery",
+                widget:   "list",
                 required: false,
                 field: {
                   name:  "media",
                   label: "Image",
-                  widget: "image"
+                  widget:"image"
                 }
               },
-              { name: "body",         label: "Texte",        widget: "markdown" }
+              { name:"body",         label:"Texte",        widget:"markdown" }
             ]
           }
         ]
