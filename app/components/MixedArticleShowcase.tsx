@@ -121,7 +121,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           font-weight: 500;
         }
         .main-title {
-          margin: 16px 0 8px;
+          margin: 8px 0 8px;
           font-size: 24px;
           font-weight: 300;
         }
@@ -135,7 +135,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         .main-preview {
           font-size: 16px;
           color: #333;
-          margin: 0 0 12px;
+          margin: 0 0 8px;
         }
 
         /* right list */

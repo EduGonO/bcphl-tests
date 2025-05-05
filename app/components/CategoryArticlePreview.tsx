@@ -108,6 +108,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           border: none;
           cursor: pointer;
           transition: background 0.2s;
+          max-width: 100%;
         }
         .divider {
           border: none;

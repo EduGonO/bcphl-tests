@@ -88,6 +88,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           font-family: ${titleFont}, Georgia, serif;
           font-size: 24px;
           margin: 0;
+          font-weight: 300;
         }
         hr {
           border: none;
@@ -104,7 +105,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           display: flex;
           flex-direction: column;
           gap: 8px;
-          margin-top: 8px;
+          margin-top: 0px;
         }
         .email {
           width: 100%;
