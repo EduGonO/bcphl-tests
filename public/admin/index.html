@@ -2,62 +2,71 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Magazine CMS</title>
-  <script>window.CMS_MANUAL_INIT = true;</script>
+  <title>CMS Debug</title>
+
+  <!-- Prevent auto-init -->
+  <script>
+    console.log("▶ setting CMS_MANUAL_INIT=true");
+    window.CMS_MANUAL_INIT = true;
+  </script>
 </head>
 <body>
   <div id="nc-root"></div>
 
- <script>window.CMS_MANUAL_INIT = true;</script>
-<div id="nc-root"></div>
+  <!-- 1) Load from jsDelivr (sometimes more reliable than unpkg) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/netlify-cms@2.15.84/dist/netlify-cms.js"
+    onload="console.log('★ netlify-cms.js loaded, CMS=', typeof CMS)"
+    onerror="console.error('✖ failed to load netlify-cms.js')"
+  ></script>
 
-<!-- Peer deps for netlify-cms-app: -->
-<script src="https://unpkg.com/react@^16/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@^16/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/netlify-cms-app@^2.15.72/dist/netlify-cms-app.js"></script>
-
-<script>
-    CMS.init({
-      config: {
-        backend: {
-          name:   "github",
-          repo:   "EduGonO/bcphl-tests",
-          branch: "main",
-          open_authoring: true
-        },
-        site_url:      "https://bcphl-test.vercel.app",
-        logo_url:      "/favicon.ico",
-
-        // upload into the article’s own folder
-        media_folder:  "texts/{{collection}}/{{slug}}",
-        public_folder: "/texts/{{collection}}/{{slug}}",
-
-        collections: [{
-          name:      "articles",
-          label:     "Articles",
-          folder:    "texts",
-          create:    true,
-          nested:    { depth: 2 },
-          slug:      "{{filename}}",
-          extension: "md",
-          format:    "frontmatter",
-          fields: [
-            { name: "title",        label: "Titre",        widget: "string" },
-            { name: "author",       label: "Auteur",       widget: "string", default: "Unknown Author" },
-            { name: "date",         label: "Date",         widget: "datetime" },
-            { name: "header-image", label: "Header Image", widget: "image", required: false },
-            {
-              name:     "media",
-              label:    "Gallery",
-              widget:   "list",
-              required: false,
-              field:    { widget: "image" }
-            },
-            { name: "body",         label: "Texte",        widget: "markdown" }
-          ]
-        }]
-      }
-    });
+  <!-- 2) Immediately check for CMS and then init -->
+  <script>
+    console.log("▶ before init, CMS =", typeof CMS);
+    if (typeof CMS === "undefined") {
+      console.error("✖ CMS is still undefined--script didn’t run");
+    } else {
+      console.log("▶ calling CMS.init()");
+      CMS.init({
+        config: {
+          backend: {
+            name:   "github",
+            repo:   "EduGonO/bcphl-tests",
+            branch: "main",
+            open_authoring: true
+          },
+          site_url:      "https://bcphl-test.vercel.app",
+          logo_url:      "/favicon.ico",
+          media_folder:  "texts/{{collection}}/{{slug}}",
+          public_folder: "/texts/{{collection}}/{{slug}}",
+          collections: [{
+            name:      "articles",
+            label:     "Articles",
+            folder:    "texts",
+            create:    true,
+            nested:    { depth: 2 },
+            slug:      "{{filename}}",
+            extension: "md",
+            format:    "frontmatter",
+            fields: [
+              { name: "title",  label: "Titre", widget: "string" },
+              { name: "author", label: "Auteur", widget: "string", default:"Unknown Author" },
+              { name: "date",   label: "Date",   widget: "datetime" },
+              { name: "header-image", label: "Header Image", widget: "image", required:false },
+              {
+                name:     "media",
+                label:    "Gallery",
+                widget:   "list",
+                required: false,
+                field:    { widget: "image" }
+              },
+              { name: "body",   label: "Texte", widget: "markdown" }
+            ]
+          }]
+        }
+      });
+      console.log("✔ CMS.init() called");
+    }
   </script>
 </body>
 </html>
