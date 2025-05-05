@@ -76,7 +76,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           gap: 24px;
           max-width: 1200px;
           margin: 0 auto;
-          padding: 24px 16px 16px 34px;
+          padding: 24px 16px 36px 17px;
           font-family: Inter, sans-serif;
           box-sizing: border-box;
           min-width: 0;
@@ -122,7 +122,8 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         .small-card .author {
           font-size: 14px;
           color: #666;
-          margin: 0 0 0 8px;
+          margin: 0 0 0 0px;
+          font-family: InterRegular, sans-serif;
         }
 
         /* main */

@@ -102,14 +102,13 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
             categories={categories}
             titleFont={titleFont}
           />
-          */}
           
             <CategoryArticleCompact
               articles={articles}
               categories={categories}
               titleFont="GayaRegular"
             />
-            
+      */}
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
             <h1 style={{ fontFamily: "GayaRegular", marginLeft: "20px" }}>
