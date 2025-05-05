@@ -4,29 +4,30 @@
   <meta charset="utf-8" />
   <title>CMS Debug</title>
 
-  <!-- Prevent auto-init -->
+  <!-- 1) Prevent auto‐init -->
   <script>
-    console.log("▶ setting CMS_MANUAL_INIT=true");
+    console.log("▶ Setting CMS_MANUAL_INIT = true");
     window.CMS_MANUAL_INIT = true;
   </script>
 </head>
 <body>
+  <!-- 2) Mount point -->
   <div id="nc-root"></div>
 
-  <!-- 1) Load from jsDelivr (sometimes more reliable than unpkg) -->
+  <!-- 3) Load the known‐good Netlify CMS bundle -->
   <script
-    src="https://cdn.jsdelivr.net/npm/netlify-cms@2.15.84/dist/netlify-cms.js"
-    onload="console.log('★ netlify-cms.js loaded, CMS=', typeof CMS)"
-    onerror="console.error('✖ failed to load netlify-cms.js')"
+    src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"
+    onload="console.log('★ netlify-cms.js loaded → CMS=', typeof CMS)"
+    onerror="console.error('✖ netlify-cms.js failed to load')"
   ></script>
 
-  <!-- 2) Immediately check for CMS and then init -->
+  <!-- 4) Attempt to init -->
   <script>
-    console.log("▶ before init, CMS =", typeof CMS);
+    console.log("▶ Before init, typeof CMS =", typeof CMS);
     if (typeof CMS === "undefined") {
-      console.error("✖ CMS is still undefined--script didn’t run");
+      console.error("✖ CMS is undefined--bundle did not run");
     } else {
-      console.log("▶ calling CMS.init()");
+      console.log("▶ Calling CMS.init()");
       CMS.init({
         config: {
           backend: {
@@ -35,34 +36,36 @@
             branch: "main",
             open_authoring: true
           },
-          site_url:      "https://bcphl-test.vercel.app",
-          logo_url:      "/favicon.ico",
-          media_folder:  "texts/{{collection}}/{{slug}}",
-          public_folder: "/texts/{{collection}}/{{slug}}",
-          collections: [{
-            name:      "articles",
-            label:     "Articles",
-            folder:    "texts",
-            create:    true,
-            nested:    { depth: 2 },
-            slug:      "{{filename}}",
-            extension: "md",
-            format:    "frontmatter",
-            fields: [
-              { name: "title",  label: "Titre", widget: "string" },
-              { name: "author", label: "Auteur", widget: "string", default:"Unknown Author" },
-              { name: "date",   label: "Date",   widget: "datetime" },
-              { name: "header-image", label: "Header Image", widget: "image", required:false },
-              {
-                name:     "media",
-                label:    "Gallery",
-                widget:   "list",
-                required: false,
-                field:    { widget: "image" }
-              },
-              { name: "body",   label: "Texte", widget: "markdown" }
-            ]
-          }]
+          site_url:       "https://bcphl-test.vercel.app",
+          logo_url:       "/favicon.ico",
+          media_folder:   "texts/{{collection}}/{{slug}}",
+          public_folder:  "/texts/{{collection}}/{{slug}}",
+          collections: [
+            {
+              name:       "articles",
+              label:      "Articles",
+              folder:     "texts",
+              create:     true,
+              nested:     { depth: 2 },
+              slug:       "{{filename}}",
+              extension:  "md",
+              format:     "frontmatter",
+              fields: [
+                { name: "title",        label: "Titre",        widget: "string" },
+                { name: "author",       label: "Auteur",       widget: "string", default: "Unknown Author" },
+                { name: "date",         label: "Date",         widget: "datetime" },
+                { name: "header-image", label: "Header Image", widget: "image", required: false },
+                {
+                  name:     "media",
+                  label:    "Gallery",
+                  widget:   "list",
+                  required: false,
+                  field:    { widget: "image" }
+                },
+                { name: "body",         label: "Texte",        widget: "markdown" }
+              ]
+            }
+          ]
         }
       });
       console.log("✔ CMS.init() called");
