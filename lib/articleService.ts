@@ -1,4 +1,3 @@
-// /lib/articleService.ts
 import fs from "fs";
 import path from "path";
 import { Article } from "../types";
@@ -10,9 +9,8 @@ import {
 const TEXTS_DIR = path.join(process.cwd(), "texts");
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif)$/i;
 
-// ── helpers ──────────────────────────────────────────────────────────
+/* ── tiny YAML parser ────────────────────────────────────────────── */
 function readYaml(block: string): Record<string, any> {
-  // simple "key: value" parser, arrays like [a,b,c] → ['a','b','c']
   const obj: Record<string, any> = {};
   block
     .split("\n")
@@ -20,105 +18,109 @@ function readYaml(block: string): Record<string, any> {
     .filter(Boolean)
     .forEach((line) => {
       const [k, ...v] = line.split(":");
-      if (k && v.length) {
-        const raw = v.join(":").trim();
-        obj[k.trim()] =
-          raw.startsWith("[") && raw.endsWith("]")
-            ? raw
-                .slice(1, -1)
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean)
-            : raw;
-      }
+      if (!k || v.length === 0) return;
+      const raw = v.join(":").trim();
+      obj[k.trim()] =
+        raw.startsWith("[") && raw.endsWith("]")
+          ? raw
+              .slice(1, -1)
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : raw;
     });
   return obj;
 }
 
-function loadMd(filePath: string) {
-  const raw = fs.readFileSync(filePath, "utf8").trim();
+function loadMd(full: string) {
+  const raw = fs.readFileSync(full, "utf8").trim();
   if (raw.startsWith("---")) {
     const end = raw.indexOf("\n---", 3);
     if (end !== -1) {
-      const yaml = readYaml(raw.slice(3, end).trim());
-      const body = raw.slice(end + 4).trim();
-      return { yaml, body };
+      return {
+        yaml: readYaml(raw.slice(3, end).trim()),
+        body: raw.slice(end + 4).trim(),
+      };
     }
   }
   return { yaml: {}, body: raw };
 }
 
-// ── main ─────────────────────────────────────────────────────────────
+/* ── main ─────────────────────────────────────────────────────────── */
 export function getArticleData(): {
   articles: Article[];
   categories: { name: string; color: string }[];
 } {
   const articles: Article[] = [];
 
-  // categories = immediate folders in /texts
   const categoryFolders = fs
     .readdirSync(TEXTS_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
 
-  // collect category colour map
   const categories = categoryFolders.map((cat) => ({
     name: cat,
     color: categoryConfigMap[cat]?.color || defaultCategoryColor,
   }));
 
-  // iterate each category → each article sub-folder
   for (const cat of categoryFolders) {
     const catDir = path.join(TEXTS_DIR, cat);
-    const articleDirs = fs
-      .readdirSync(catDir, { withFileTypes: true })
+
+    /* every sub-folder is an article */
+    fs.readdirSync(catDir, { withFileTypes: true })
       .filter((d) => d.isDirectory())
-      .map((d) => d.name);
+      .forEach((d) => {
+        const slug = d.name;
+        const artDir = path.join(catDir, slug);
 
-    articleDirs.forEach((slug) => {
-      const artDir = path.join(catDir, slug);
-      const mdPath = path.join(artDir, `${slug}.md`);
-      if (!fs.existsSync(mdPath)) return; // skip if file missing
+        /* choose markdown file: prefer <slug>.md else first .md */
+        const mdFiles = fs
+          .readdirSync(artDir)
+          .filter((f) => f.endsWith(".md"));
+        if (mdFiles.length === 0) return;
 
-      const { yaml, body } = loadMd(mdPath);
+        const mdFile =
+          mdFiles.find((f) => f === `${slug}.md`) ?? mdFiles[0];
+        const mdPath = path.join(artDir, mdFile);
 
-      // fall-backs
-      const title =
-        yaml.title ||
-        (body.startsWith("#")
-          ? body.split("\n")[0].replace(/^#+\s*/, "")
-          : slug);
-      const date = yaml.date || "Unknown Date";
-      const author = yaml.author || "Unknown Author";
-      const headerImage = yaml["header-image"] || "";
+        const { yaml, body } = loadMd(mdPath);
 
-      // preview = first 180 chars of body after heading
-      const preview = body.replace(/^#.*?\n/, "").slice(0, 180) + "...";
+        const title =
+          yaml.title ||
+          (body.startsWith("#")
+            ? body.split("\n")[0].replace(/^#+\s*/, "")
+            : slug);
+        const date = yaml.date || "Unknown Date";
+        const author = yaml.author || "Unknown Author";
+        const headerImage = yaml["header-image"] || "";
 
-      // media list: YAML array union physical images in folder
-      const yamlMedia = Array.isArray(yaml.media) ? yaml.media : [];
-      const dirImages = fs
-        .readdirSync(artDir)
-        .filter((f) => IMAGE_EXT.test(f))
-        .map((f) => path.join("/texts", cat, slug, f)); // public path hint
+        const preview = body.replace(/^#.*?\n/, "").slice(0, 180) + "...";
 
-      const media = [...new Set([...yamlMedia, ...dirImages])];
+        /* media = yaml.media + every image file in folder */
+        const yamlMedia = Array.isArray(yaml.media) ? yaml.media : [];
+        const dirImages = fs
+          .readdirSync(artDir)
+          .filter((f) => IMAGE_EXT.test(f))
+          .map((f) => path.join("/texts", cat, slug, f));
 
-      articles.push({
-        title,
-        slug,
-        category: cat,
-        date,
-        author,
-        preview,
-        media,
-        headerImage,
+        const media = [...new Set([...yamlMedia, ...dirImages])];
+
+        articles.push({
+          title,
+          slug,
+          category: cat,
+          date,
+          author,
+          preview,
+          media,
+          headerImage,
+        });
       });
-    });
   }
 
   return { articles, categories };
 }
+
 
 
 /*
