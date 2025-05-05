@@ -1,44 +1,51 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="utf-8" />
   <title>Magazine CMS</title>
-  <!-- Prevent auto-init -->
+
+  <!-- 1) Manual CMS init so it doesn’t fetch config.yml -->
   <script>window.CMS_MANUAL_INIT = true;</script>
+
+  <!-- 2) Netlify Identity widget (to handle invite_token & signup) -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    if (window.netlifyIdentity) {
+      // Initialize Identity; will pick up invite_token in URL
+      window.netlifyIdentity.init();
+    }
+  </script>
 </head>
 <body>
-  <!-- Mount point -->
+  <!-- 3) Mount point for the CMS -->
   <div id="nc-root"></div>
 
-  <!-- Netlify-CMS bundle -->
+  <!-- 4) Netlify-CMS bundle -->
   <script src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"></script>
 
-  <!-- Inline CMS config -->
+  <!-- 5) Your inline CMS.init -->
   <script>
     CMS.init({
       config: {
         backend: {
-          name: "git-gateway",    // ← use Netlify’s Git Gateway
-          branch: "main"          // or your default branch
+          name: "git-gateway",    // use Netlify’s Git Gateway
+          branch: "main"
         },
-        publish_mode: "editorial_workflow",  // optional, for previews/approvals
-        site_url: "https://bicephale.org",
-        logo_url: "/favicon.ico",
-
-        media_folder:   "texts/{{path}}",
-        public_folder:  "/texts/{{path}}",
-
+        publish_mode: "editorial_workflow",  
+        site_url:      "https://bicephale.org",
+        logo_url:      "/logo.ico",
+        media_folder:  "texts/{{path}}",
+        public_folder: "/texts/{{path}}",
         collections: [
           {
-            name: "articles",
-            label: "Articles",
-            folder: "texts",
-            create: true,
-            nested: { depth: 2 },       // texts/<category>/<slug>/<slug>.md
+            name:      "articles",
+            label:     "Articles",
+            folder:    "texts",
+            create:    true,
+            nested:    { depth: 2 },
             slug:      "{{filename}}",
             extension: "md",
             format:    "frontmatter",
-
             fields: [
               { name:"title",        label:"Titre",        widget:"string" },
               { name:"author",       label:"Auteur",       widget:"string", default:"Unknown Author" },
