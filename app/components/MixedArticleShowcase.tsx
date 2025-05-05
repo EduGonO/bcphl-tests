@@ -84,7 +84,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
         .col {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 6px;
           min-width: 0;
         }
 
@@ -131,18 +131,17 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           aspect-ratio: 16/9;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
-          margin-bottom: 16px;
         }
         .main-title {
           font-family: ${titleFont}, Georgia, serif;
           font-size: 24px;
           font-weight: 300;
-          margin: 8px 0;
+          margin: 4px 0;
         }
         .main-preview {
           font-size: 16px;
           color: #333;
-          margin: 0 0 8px;
+          margin: 0 0 0px;
         }
         .main-meta {
           font-size: 14px;
@@ -186,6 +185,11 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           a {
           text-decoration: none;
         }
+        .mas a {
+            color: inherit;
+            text-decoration: none;
+          }
+
         /* remove default underline on hover */
         a:hover {
           text-decoration: none;

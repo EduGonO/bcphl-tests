@@ -62,7 +62,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           width: 100%;
           max-width: 1000px;
           margin: 0 auto;
-          padding: 0 16px;
+          padding: 0 0px;
           box-sizing: border-box;
           overflow-x: hidden;
         }

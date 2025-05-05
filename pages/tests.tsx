@@ -69,6 +69,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
         />
         <main style={mainStyle}>
           {activeCategory && <CategoryBanner category={activeCategory} />}
+{/*
           <div>
             <ArticleBlock
               articles={articles}
@@ -76,18 +77,20 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
               titleFont="RecoletaMedium"
             />
           </div>
-
+*/}
           <MixedArticleShowcase
             articles={articles}
             categories={categories}
             titleFont="GayaRegular"
           />
+          
           <NewsletterCategoryLayout
             articles={articles}
             filteredArticles={filteredArticles}
             categories={categories}
             titleFont={titleFont}
           />
+          {/*
           <CategoryArticlePreview
             articles={filteredArticles}
             categories={categories}
@@ -99,9 +102,17 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
             categories={categories}
             titleFont={titleFont}
           />
+          */}
+          
+            <CategoryArticleCompact
+              articles={articles}
+              categories={categories}
+              titleFont="GayaRegular"
+            />
+            
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
-            <h1 style={{ fontFamily: "RecoletaMedium", marginLeft: "20px" }}>
+            <h1 style={{ fontFamily: "Gaya", marginLeft: "20px" }}>
               À lire également
             </h1>
             <ArticleGrid

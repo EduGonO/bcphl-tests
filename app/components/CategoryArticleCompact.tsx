@@ -57,7 +57,7 @@ const CategoryArticleGrid: React.FC<Props> = ({
       }
       .cat {
         margin: 0 0 8px;
-        font-size: 20px;
+        font-size: 24px;
         font-weight: 400;
       }
       hr {
@@ -83,9 +83,7 @@ const CategoryArticleGrid: React.FC<Props> = ({
         font-size: 16px;
         line-height: 1.3;
         color: #333;
-        font-weight: 600;
-        font-weight: bold;
-        font-family: Inter, sans-serif;
+        font-family: InterSemiBold, sans-serif;
       }
       .author {
         display: block;
@@ -93,7 +91,7 @@ const CategoryArticleGrid: React.FC<Props> = ({
         color: #666;
         margin-top: 2px;
         font-weight: 400;
-        font-family: Inter, sans-serif;
+        font-family: InterRegular, sans-serif;
       }
       a:hover .title {
         text-decoration: underline;
