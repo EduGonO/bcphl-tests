@@ -8,10 +8,15 @@
 <body>
   <div id="nc-root"></div>
 
-  <!-- this bundle includes React + React-DOM -->
-  <script src="https://unpkg.com/netlify-cms@^2.15.84/dist/netlify-cms.js"></script>
+ <script>window.CMS_MANUAL_INIT = true;</script>
+<div id="nc-root"></div>
 
-  <script>
+<!-- Peer deps for netlify-cms-app: -->
+<script src="https://unpkg.com/react@^16/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@^16/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/netlify-cms-app@^2.15.72/dist/netlify-cms-app.js"></script>
+
+<script>
     CMS.init({
       config: {
         backend: {
