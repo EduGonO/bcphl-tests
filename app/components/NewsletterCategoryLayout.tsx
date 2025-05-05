@@ -102,12 +102,12 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         }
         .form {
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
           gap: 8px;
           margin-top: 8px;
         }
         .email {
-          flex: 1;
+          width: 100%;
           padding: 10px 12px;
           font-size: 14px;
           border: 1px solid #ccc;
@@ -120,7 +120,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           border-color: #111;
         }
         .subscribe {
-          padding: 10px 16px;
+          padding: 12px 16px;
           font-size: 14px;
           background: #111;
           color: #fff;
@@ -135,11 +135,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         .small-card {
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          background: #fff;
-          padding: 16px;
-          border-radius: 6px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          gap: 8px;
         }
         .thumb {
           width: 100%;
@@ -153,7 +149,6 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           font-weight: 500;
           margin: 0;
           line-height: 1.4;
-          color: #111;
         }
         .card-author {
           font-size: 14px;

@@ -73,6 +73,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           gap: 12px;
           flex-wrap: nowrap;
           overflow-x: hidden;
+          min-width: 0;
         }
         .heading {
           font-family: ${titleFont}, serif;
@@ -112,6 +113,10 @@ const CategoryArticlePreview: React.FC<Props> = ({
           border: none;
           border-bottom: 1px solid #eaeaea;
           margin: 16px 0;
+        }
+        .list {
+          min-width: 0;
+          overflow-x: hidden;
         }
         .see-more {
           display: block;
