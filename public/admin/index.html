@@ -1,64 +1,61 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <title>Magazine CMS</title>
+  <head>
+    <meta charset="utf-8" />
+    <title>Magazine CMS</title>
 
-  <!-- 1) Prevent the CMS from auto-initializing -->
-  <script>window.CMS_MANUAL_INIT = true;</script>
+    <!-- Tell the CMS not to auto-initialize (no config.yml) -->
+    <script>window.CMS_MANUAL_INIT = true;</script>
+  </head>
+  <body>
+    <!-- mount point -->
+    <div id="nc-root"></div>
 
-  <!-- 2) Load the CMS code -->
-  <script src="https://unpkg.com/netlify-cms-app@^2.15.77/dist/netlify-cms.js"></script>
-</head>
-<body>
-  <!-- 3) Mount point for the CMS UI -->
-  <div id="nc-root"></div>
+    <!-- load the official Netlify-CMS (Decap) bundle -->
+    <script src="https://unpkg.com/netlify-cms-app@^2.16.0/dist/netlify-cms.js"></script>
 
-  <!-- 4) Your inline config -->
-  <script>
-    CMS.init({
-      config: {
-        backend: {
-          name:  "github",
-          repo:  "EduGonO/bcphl-tests",
-          branch: "main",
-          open_authoring: true,
-          // use_graphql: false  // optional
-        },
-        site_url: "https://bcphl-test.vercel.app",
-        logo_url: "/favicon.ico",
-
-        media_folder: "texts/{{collection}}/{{slug}}",     // upload into the article’s folder
-        public_folder: "/texts/{{collection}}/{{slug}}",
-
-        collections: [
-          {
-            name: "articles",
-            label: "Articles",
-            folder: "texts",
-            create: true,
-            nested: { depth: 2 },
-            slug: "{{filename}}",
-            extension: "md",
-            format: "frontmatter",
-            fields: [
-              { name: "title",       label: "Titre",        widget: "string" },
-              { name: "author",      label: "Auteur",       widget: "string", default: "Unknown Author" },
-              { name: "date",        label: "Date",         widget: "datetime" },
-              { name: "header-image",label: "Header Image", widget: "image",  required: false },
-              {
-                name: "media",
-                label: "Gallery",
-                widget: "list",
-                required: false,
-                field: { widget: "image" }
-              },
-              { name: "body",        label: "Texte",        widget: "markdown" }
-            ]
-          }
-        ]
-      }
-    });
-  </script>
-</body>
+    <!-- then your inline config -->
+    <script>
+      CMS.init({
+        config: {
+          backend: {
+            name:   "github",
+            repo:   "EduGonO/bcphl-tests",
+            branch: "main",
+            open_authoring: true
+          },
+          site_url:    "https://bcphl-test.vercel.app",
+          logo_url:    "/favicon.ico",
+          media_folder:  "texts/{{collection}}/{{slug}}",
+          public_folder: "/texts/{{collection}}/{{slug}}",
+          collections: [
+            {
+              name: "articles",
+              label: "Articles",
+              folder: "texts",
+              create: true,
+              nested: { depth: 2 },
+              slug:      "{{filename}}",
+              extension: "md",
+              format:    "frontmatter",
+              fields: [
+                { name: "title",        label: "Titre",        widget: "string" },
+                { name: "author",       label: "Auteur",       widget: "string", default:"Unknown Author" },
+                { name: "date",         label: "Date",         widget: "datetime" },
+                { name: "header-image", label: "Header Image", widget: "image", required:false },
+                {
+                  name: "media",
+                  label: "Gallery",
+                  widget: "list",
+                  required: false,
+                  field: { widget: "image" }
+                },
+                { name: "body",         label: "Texte",        widget: "markdown" }
+              ]
+            }
+          ]
+        }
+      });
+    </script>
+  </body>
 </html>
