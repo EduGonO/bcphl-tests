@@ -227,6 +227,12 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           color: #000 !important;
           text-decoration: none !important;
         }
+        ul.dropdown a.dropdown-item,
+  ul.dropdown a.dropdown-item:visited,
+  ul.dropdown a.dropdown-item:hover {
+    color: #333 !important;
+    text-decoration: none !important;
+  }
       `}</style>
     </header>
   )
