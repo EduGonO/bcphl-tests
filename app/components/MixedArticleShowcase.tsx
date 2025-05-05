@@ -18,7 +18,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
   const rightItems = articles.slice(3, 7)
 
   const thumbStyle = (a: Article) => {
-    const cat = categories.find(c => c.name === a.category)
+    const cat   = categories.find(c => c.name === a.category)
     const color = cat?.color || '#ccc'
     return a.headerImage
       ? { backgroundImage: `url(${a.headerImage})` }
@@ -38,12 +38,12 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
       </div>
 
       {mainItem && (
-        <div className="col center">
+        <a href={`/${mainItem.category}/${mainItem.slug}`} className="col center">
           <div className="main-thumb" style={thumbStyle(mainItem)} />
           <h2 className="main-title">{mainItem.title}</h2>
           <p className="main-preview">{mainItem.preview}</p>
           <p className="main-meta">{mainItem.author} • {mainItem.date}</p>
-        </div>
+        </a>
       )}
 
       <div className="col right">
@@ -61,22 +61,30 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
       <style jsx>{`
         .mas {
           display: flex;
-          min-width: 0;
           flex-direction: column;
           gap: 24px;
           max-width: 1200px;
           margin: 0 auto;
           padding: 24px 16px;
           font-family: Inter, sans-serif;
-          align-items: stretch;
           box-sizing: border-box;
+          /* allow its children to shrink */
+          min-width: 0;
         }
-        /* mobile ordering */
-        .left   { order: 1 }
-        .center { order: 0 }
-        .right  { order: 2 }
+        .col {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          /* clamp overflow */
+          min-width: 0;
+        }
 
-        @media(min-width:768px) {
+        /* mobile ordering */
+        .center { order: 0; }
+        .left   { order: 1; }
+        .right  { order: 2; }
+
+        @media (min-width: 768px) {
           .mas { flex-direction: row; }
           .left, .right {
             flex: 0 0 240px;
@@ -88,14 +96,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           }
         }
 
-        .col {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          min-width: 0;
-        }
-
-        /* small cards split evenly */
+        /* left cards */
         .left .small-card {
           flex: 1;
           display: flex;
@@ -103,22 +104,23 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           gap: 8px;
         }
         .small-card .thumb {
-          /*aspect-ratio: 4 / 3;*/
           height: 120px;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
 
-        /* main image larger */
+        /* main image */
         .main-thumb {
           aspect-ratio: 16 / 9;
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
           width: 100%;
+          margin-bottom: 16px;
         }
 
-        /* titles in Gaya */
-        .title, .main-title {
+        /* titles */
+        .title,
+        .main-title {
           font-family: ${titleFont}, Georgia, serif;
           margin: 0;
         }
@@ -128,13 +130,15 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           font-weight: 500;
         }
         .main-title {
-          margin: 8px 0 8px;
           font-size: 24px;
           font-weight: 300;
+          margin: 8px 0;
         }
 
-        /* meta in Inter */
-        .author, .meta, .main-meta {
+        /* text */
+        .author,
+        .meta,
+        .main-meta {
           font-size: 14px;
           color: #666;
           margin: 4px 0 0;
@@ -164,8 +168,8 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           background: center/cover no-repeat #f5f5f5;
           border-radius: 4px;
         }
-        .text .title {
-          margin: 0;
+        .text {
+          min-width: 0;
         }
         .text .meta {
           margin-top: 4px;
