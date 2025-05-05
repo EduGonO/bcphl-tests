@@ -2,74 +2,68 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>CMS Debug</title>
+  <title>Magazine CMS</title>
 
-  <!-- 1) Prevent auto‐init -->
-  <script>
-    console.log("▶ Setting CMS_MANUAL_INIT = true");
-    window.CMS_MANUAL_INIT = true;
-  </script>
+  <!-- Prevent auto-init (no config.yml) -->
+  <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 <body>
-  <!-- 2) Mount point -->
+  <!-- Mount point -->
   <div id="nc-root"></div>
 
-  <!-- 3) Load the known‐good Netlify CMS bundle -->
-  <script
-    src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"
-    onload="console.log('★ netlify-cms.js loaded → CMS=', typeof CMS)"
-    onerror="console.error('✖ netlify-cms.js failed to load')"
-  ></script>
+  <!-- Load the all-in-one Netlify-CMS bundle -->
+  <script src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"></script>
 
-  <!-- 4) Attempt to init -->
+  <!-- Inline config -->
   <script>
-    console.log("▶ Before init, typeof CMS =", typeof CMS);
-    if (typeof CMS === "undefined") {
-      console.error("✖ CMS is undefined--bundle did not run");
-    } else {
-      console.log("▶ Calling CMS.init()");
-      CMS.init({
-        config: {
-          backend: {
-            name:   "github",
-            repo:   "EduGonO/bcphl-tests",
-            branch: "main",
-            open_authoring: true
-          },
-          site_url:       "https://bcphl-test.vercel.app",
-          logo_url:       "/favicon.ico",
-          media_folder:   "texts/{{collection}}/{{slug}}",
-          public_folder:  "/texts/{{collection}}/{{slug}}",
-          collections: [
-            {
-              name:       "articles",
-              label:      "Articles",
-              folder:     "texts",
-              create:     true,
-              nested:     { depth: 2 },
-              slug:       "{{filename}}",
-              extension:  "md",
-              format:     "frontmatter",
-              fields: [
-                { name: "title",        label: "Titre",        widget: "string" },
-                { name: "author",       label: "Auteur",       widget: "string", default: "Unknown Author" },
-                { name: "date",         label: "Date",         widget: "datetime" },
-                { name: "header-image", label: "Header Image", widget: "image", required: false },
-                {
-                  name:     "media",
-                  label:    "Gallery",
-                  widget:   "list",
-                  required: false,
-                  field:    { widget: "image" }
-                },
-                { name: "body",         label: "Texte",        widget: "markdown" }
-              ]
-            }
-          ]
-        }
-      });
-      console.log("✔ CMS.init() called");
-    }
+    CMS.init({
+      config: {
+        backend: {
+          name: "github",
+          repo: "EduGonO/bcphl-tests",
+          branch: "main",
+          open_authoring: true
+        },
+        site_url: "https://bcphl-test.vercel.app",
+        logo_url: "/favicon.ico",
+
+        // Upload into the article’s own folder
+        media_folder: "texts/{{path}}",
+        public_folder: "/texts/{{path}}",
+
+        collections: [
+          {
+            name: "articles",
+            label: "Articles",
+            folder: "texts",
+            create: true,
+            nested: { depth: 2 },
+            slug: "{{filename}}",
+            extension: "md",
+            format: "frontmatter",
+            fields: [
+              { name: "title",        label: "Titre",        widget: "string" },
+              { name: "author",       label: "Auteur",       widget: "string", default: "Unknown Author" },
+              { name: "date",         label: "Date",         widget: "datetime" },
+              { name: "header-image", label: "Header Image", widget: "image",  required: false },
+              {
+                name: "media",
+                label: "Gallery",
+                widget: "list",
+                required: false,
+                // MUST include a name on the field itself:
+                field: {
+                  name:  "media",
+                  label: "Image",
+                  widget: "image"
+                }
+              },
+              { name: "body",         label: "Texte",        widget: "markdown" }
+            ]
+          }
+        ]
+      }
+    });
   </script>
 </body>
 </html>
