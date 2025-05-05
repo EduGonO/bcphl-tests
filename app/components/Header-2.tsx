@@ -200,6 +200,34 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           background: rgba(240,240,240,0.8);
         }
       `}</style>
+      <style jsx global>{`
+        /* solid white background, no bullets */
+        .dropdown {
+          background: #fff !important;
+          list-style: none !important;
+          margin: 0 !important;
+          padding: 4px 0 !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+          border-radius: 6px !important;
+        }
+        .dropdown li {
+          list-style: none !important;
+        }
+
+        /* force dropdown links to normal text */
+        .dropdown-item,
+        .dropdown-item:visited {
+          color: #333 !important;
+          text-decoration: none !important;
+        }
+
+        /* strip underlines and blue color from header row */
+        .nav-list a,
+        .nav-list button {
+          color: #000 !important;
+          text-decoration: none !important;
+        }
+      `}</style>
     </header>
   )
 }

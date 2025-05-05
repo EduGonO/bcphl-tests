@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Bicephale Data</title>
+  <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+</head>
+<body>
+  <script>
+    /* ----  EDIT THESE THREE VALUES  -------------------------------- */
+    const REPO   = "EduGonO/bcphl-tests";   // GitHub "owner/name"
+    const BRANCH = "main";                 // or "master"
+    const SITE   = "https://bcphl-test.vercel.app"; // where Next.js is hosted
+    /* ---------------------------------------------------------------- */
+
+    CMS.init({
+      config: {
+        backend: {
+          name:  "github",
+          repo:  REPO,
+          branch: BRANCH,
+          open_authoring: true,        // lets non-collaborators submit PRs
+          use_graphql: false
+        },
+
+        site_url: SITE,                // shown in preview links
+        logo_url: "/favicon.ico",
+
+        media_folder: "",              // "same folder as the document"
+        public_folder: "",
+
+        /* one collection covers all categories + article folders */
+        collections: [
+          {
+            name: "articles",
+            label: "Articles",
+            folder: "texts",           // root to scan
+            create: true,
+            nested: { depth: 2 },      // 1 = category  • 2 = article folder
+            slug: "{{filename}}",      // forces <slug>.md inside folder
+            extension: "md",
+            format: "frontmatter",
+            fields: [
+              { name: "title", label: "Titre", widget: "string" },
+              { name: "author", label: "Auteur", widget: "string", default: "Unknown Author" },
+              { name: "date", label: "Date", widget: "datetime" },
+              { name: "header-image", label: "Header Image", widget: "image", required: false },
+              {
+                name: "media",
+                label: "Gallery",
+                widget: "list",
+                required: false,
+                field: { widget: "image" }
+              },
+              { name: "body", label: "Texte", widget: "markdown" }
+            ]
+          }
+        ]
+      }
+    });
+  </script>
+</body>
+</html>
