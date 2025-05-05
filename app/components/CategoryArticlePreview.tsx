@@ -47,7 +47,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
       <hr className="divider" />
 
       <div className="list">
-        <div className="current">{sel}</div>
+        {/*<div className="current">{sel}</div>*/}
         <ArticleList
           articles={recent}
           categories={categories}
@@ -74,17 +74,18 @@ const CategoryArticlePreview: React.FC<Props> = ({
         }
         .heading {
           font-family: ${titleFont}, serif;
-          font-size: 28px;
+          font-size: 24px;
           margin: 0;
+          font-weight: 300;
           white-space: nowrap;
           flex-shrink: 0;
         }
         .cats {
           display: flex;
-          gap: 12px;
+          gap: 10px;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
-          padding-bottom: 4px;
+          padding-bottom: 0px;
           flex: 1 1 auto;
           min-width: 0;
         }
@@ -99,8 +100,8 @@ const CategoryArticlePreview: React.FC<Props> = ({
           flex: 0 0 auto;
           padding: 6px 12px;
           font-family: ${titleFont}, serif;
-          font-size: 16px;
-          font-weight: 400;
+          font-size: 18px;
+          font-weight: 300;
           border: none;
           cursor: pointer;
           transition: background 0.2s;
