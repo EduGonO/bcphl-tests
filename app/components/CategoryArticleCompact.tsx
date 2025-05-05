@@ -83,7 +83,8 @@ const CategoryArticleGrid: React.FC<Props> = ({
         font-size: 16px;
         line-height: 1.3;
         color: #333;
-        font-weight: 500;
+        font-weight: 700;
+        font-weight: bold;
         font-family: Inter, sans-serif;
       }
       .author {
@@ -92,7 +93,7 @@ const CategoryArticleGrid: React.FC<Props> = ({
         color: #666;
         margin-top: 2px;
         font-weight: 400;
-        font-family: Inter, sans-serif;
+        font-family: Inter;
       }
       a:hover .title {
         text-decoration: underline;

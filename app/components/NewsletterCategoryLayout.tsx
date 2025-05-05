@@ -72,7 +72,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         .ncl {
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 18px;
           max-width: 1200px;
           margin: 0 auto;
           padding: 24px 16px;
@@ -80,7 +80,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         }
         @media(min-width:768px) {
           .ncl { flex-direction: row; }
-          .left { flex: 0 0 30%; }
+          .left { flex: 0 0 20%; }
           .right { flex: 1; min-width: 0; }
         }
         .col {

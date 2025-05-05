@@ -61,6 +61,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
       <style jsx>{`
         .mas {
           display: flex;
+          min-width: 0;
           flex-direction: column;
           gap: 24px;
           max-width: 1200px;
@@ -77,15 +78,21 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
 
         @media(min-width:768px) {
           .mas { flex-direction: row; }
-          .left   { order: 0; flex: 1 1 20%; }
-          .center { order: 1; flex: 1 1 60%; }
-          .right  { order: 2; flex: 1 1 20%; }
+          .left, .right {
+            flex: 0 0 240px;
+            min-width: 240px;
+          }
+          .center {
+            flex: 1 1 auto;
+            min-width: 0;
+          }
         }
 
         .col {
           display: flex;
           flex-direction: column;
           gap: 16px;
+          min-width: 0;
         }
 
         /* small cards split evenly */
@@ -146,6 +153,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
           border-bottom: 1px solid #eaeaea;
           text-decoration: none;
           color: inherit;
+          min-width: 0;
         }
         .list-item:last-child {
           border-bottom: none;
