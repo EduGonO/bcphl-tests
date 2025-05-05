@@ -47,7 +47,6 @@ const CategoryArticlePreview: React.FC<Props> = ({
       <hr className="divider" />
 
       <div className="list">
-        {*/<div className="current">{sel}</div>*/}
         <ArticleList
           articles={recent}
           categories={categories}
