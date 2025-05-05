@@ -1,7 +1,7 @@
 // /pages/index.tsx
 import React, { useState } from "react";
 import Head from "next/head";
-import Header, { Category } from "../app/components/Header";
+import Header, { Category } from "../app/components/Header-2";
 import DebugOverlay from "../app/components/DebugOverlay";
 import Footer from "../app/components/Footer";
 import ArticleList from "../app/components/ArticleList";
