@@ -53,7 +53,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           titleFont={titleFont}
         />
         <a href={`/categories/${sel}`} className="see-more">
-          voir plus →
+          Explorer rubrique {sel} →
         </a>
       </div>
 

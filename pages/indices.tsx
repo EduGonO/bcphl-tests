@@ -5,29 +5,27 @@ import React, {
   useEffect,
   KeyboardEvent,
   useRef,
-} from "react"
-import Head from "next/head"
-import fs from "fs"
-import path from "path"
-import { GetServerSideProps } from "next"
-import Header from "../app/components/Header"
-import { useSession, signOut } from "next-auth/react"
+} from "react";
+import Head from "next/head";
+import fs from "fs";
+import path from "path";
+import { GetServerSideProps } from "next";
+import Header from "../app/components/Header";
+import { useSession, signOut } from "next-auth/react";
 
-// ─── Types ─────────────────────────────────────────────────────────────────────
-
-export type TextEntry = { title: string; slug: string }
-export type Category = { name: string; texts: TextEntry[] }
+// Types
+export type TextEntry = { title: string; slug: string };
+export type Category = { name: string; texts: TextEntry[] };
 interface Props { indices: Category[] }
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
+// Helpers
 const fetchFile = async (cat: string, slug: string): Promise<string> => {
   const res = await fetch(
     `/api/file?cat=${encodeURIComponent(cat)}&slug=${encodeURIComponent(slug)}`
-  )
-  if (!res.ok) throw new Error("Cannot load file")
-  return res.text()
-}
+  );
+  if (!res.ok) throw new Error("Cannot load file");
+  return res.text();
+};
 
 const saveFile = async (
   cat: string,
@@ -38,102 +36,125 @@ const saveFile = async (
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ cat, slug, body }),
-  })
-  if (!res.ok) throw new Error("Cannot save file")
-}
+  });
+  if (!res.ok) throw new Error("Cannot save file");
+};
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// New: uploadMedia helper
+const uploadMedia = async (cat: string, slug: string, file: File): Promise<string> => {
+  // read file as base64
+  const data = await new Promise<string>((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      if (typeof fr.result === 'string') {
+        const b64 = fr.result.split(",")[1];
+        resolve(b64);
+      } else reject(new Error("Invalid file read"));
+    };
+    fr.onerror = () => reject(fr.error);
+    fr.readAsDataURL(file);
+  });
 
+  const res = await fetch("/api/upload-media", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      cat,
+      slug,
+      filename: file.name,
+      data,
+    }),
+  });
+  if (!res.ok) throw new Error("Upload failed");
+  const json = await res.json();
+  return json.path as string; // e.g. '/media/Category/slug/foo.jpg'
+};
+
+// Component
 const Indices: React.FC<Props> = ({ indices }) => {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
 
-  // UI state
-  const [open, setOpen] = useState<Record<string, boolean>>({})
-  const [selCat, setSelCat] = useState<string | null>(null)
-  const [selSlug, setSelSlug] = useState<string | null>(null)
-  const [content, setContent] = useState<string>("")
-  const [dirty, setDirty] = useState(false)
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [selCat, setSelCat] = useState<string | null>(null);
+  const [selSlug, setSelSlug] = useState<string | null>(null);
+  const [content, setContent] = useState<string>("");
+  const [dirty, setDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "loading" | "saving" | "saved" | "error"
-  >("idle")
-  const txtRef = useRef<HTMLTextAreaElement>(null)
+  >("idle");
+  const txtRef = useRef<HTMLTextAreaElement>(null);
   const [meta, setMeta] = useState({
     title: "",
     author: "",
     date: "",
     "header-image": "",
-  })
+  });
 
   const toggle = (name: string) =>
-    setOpen((o) => ({ ...o, [name]: !o[name] }))
+    setOpen((o) => ({ ...o, [name]: !o[name] }));
 
-  // Load a file’s content + YAML front-matter
   const load = useCallback(async (cat: string, slug: string) => {
     try {
-      setSaveStatus("loading")
-      const body = await fetchFile(cat, slug)
-      setSelCat(cat)
-      setSelSlug(slug)
+      setSaveStatus("loading");
+      const body = await fetchFile(cat, slug);
+      setSelCat(cat);
+      setSelSlug(slug);
 
-      const m = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body)
+      const m = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body);
       if (m) {
-        const [, yaml, txt] = m
-        const obj: any = {}
+        const [, yaml, txt] = m;
+        const obj: any = {};
         yaml.split("\n").forEach((line) => {
-          const [k, ...v] = line.split(":")
-          if (k && v.length) obj[k.trim()] = v.join(":").trim()
-        })
-        setMeta({ title: "", author: "", date: "", "header-image": "", ...obj })
-        setContent(txt.trim())
+          const [k, ...v] = line.split(":");
+          if (k && v.length) obj[k.trim()] = v.join(":").trim();
+        });
+        setMeta({ title: "", author: "", date: "", "header-image": "", ...obj });
+        setContent(txt.trim());
       } else {
-        setMeta({ title: "", author: "", date: "", "header-image": "" })
-        setContent(body)
+        setMeta({ title: "", author: "", date: "", "header-image": "" });
+        setContent(body);
       }
 
-      setDirty(false)
-      setSaveStatus("idle")
-      setTimeout(() => txtRef.current?.focus(), 50)
+      setDirty(false);
+      setSaveStatus("idle");
+      setTimeout(() => txtRef.current?.focus(), 50);
     } catch {
-      setSaveStatus("error")
+      setSaveStatus("error");
     }
-  }, [])
+  }, []);
 
-  // Save back to disk
   const handleSave = useCallback(async () => {
-    if (!selCat || !selSlug || !dirty) return
+    if (!selCat || !selSlug || !dirty) return;
     try {
-      setSaveStatus("saving")
+      setSaveStatus("saving");
       const yaml =
         `---\n` +
         Object.entries(meta)
           .filter(([, v]) => v)
           .map(([k, v]) => `${k}: ${v}`)
           .join("\n") +
-        `\n---\n\n`
-      await saveFile(selCat, selSlug, yaml + content)
-
-      setDirty(false)
-      setSaveStatus("saved")
-      setTimeout(() => setSaveStatus("idle"), 1200)
+        `\n---\n\n`;
+      await saveFile(selCat, selSlug, yaml + content);
+      setDirty(false);
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 1200);
     } catch {
-      setSaveStatus("error")
+      setSaveStatus("error");
     }
-  }, [selCat, selSlug, content, dirty, meta])
+  }, [selCat, selSlug, content, dirty, meta]);
 
-  // Cmd/Ctrl+S
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-        e.preventDefault()
-        handleSave()
+        e.preventDefault();
+        handleSave();
       }
-    }
-    window.addEventListener("keydown", onKey as any)
-    return () => window.removeEventListener("keydown", onKey as any)
-  }, [handleSave])
+    };
+    window.addEventListener("keydown", onKey as any);
+    return () => window.removeEventListener("keydown", onKey as any);
+  }, [handleSave]);
 
-  // Log out
-  const handleLogout = () => signOut({ callbackUrl: "/auth/signin" })
+  const handleLogout = () => signOut({ callbackUrl: "/auth/signin" });
 
   return (
     <>
@@ -173,7 +194,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
               {open[cat.name] && (
                 <ul className="file-ul">
                   {cat.texts.map((t) => {
-                    const active = selCat === cat.name && selSlug === t.slug
+                    const active = selCat === cat.name && selSlug === t.slug;
                     return (
                       <li key={t.slug}>
                         <button
@@ -183,7 +204,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
                           {t.title}
                         </button>
                       </li>
-                    )
+                    );
                   })}
                 </ul>
               )}
@@ -225,18 +246,50 @@ const Indices: React.FC<Props> = ({ indices }) => {
               </header>
 
               <div className="fields">
-                {["title", "author", "date", "header-image"].map((key) => (
+                {/* title, author, date stay the same */}
+                {["title", "author", "date"].map((key) => (
                   <input
                     key={key}
                     className="meta-input"
                     placeholder={key}
-                    value={meta[key as keyof typeof meta] || ""}
+                    value={(meta as any)[key] || ""}
                     onChange={(e) => {
-                      setMeta((m) => ({ ...m, [key]: e.target.value }))
-                      setDirty(true)
+                      setMeta((m) => ({ ...m, [key]: e.target.value }));
+                      setDirty(true);
                     }}
                   />
                 ))}
+
+                {/* header-image: URL input + file upload */}
+                <div className="media-field">
+                  <input
+                    className="meta-input"
+                    placeholder="header-image URL or path"
+                    value={meta["header-image"] || ""}
+                    onChange={(e) => {
+                      setMeta((m) => ({ ...m, "header-image": e.target.value }));
+                      setDirty(true);
+                    }}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file || !selCat || !selSlug) return;
+                      setSaveStatus("saving");
+                      try {
+                        const p = await uploadMedia(selCat, selSlug, file);
+                        setMeta((m) => ({ ...m, "header-image": p }));
+                        setDirty(true);
+                      } catch {
+                        setSaveStatus("error");
+                      } finally {
+                        setTimeout(() => setSaveStatus("idle"), 1200);
+                      }
+                    }}
+                  />
+                </div>
               </div>
 
               <textarea
@@ -244,8 +297,8 @@ const Indices: React.FC<Props> = ({ indices }) => {
                 className="editor"
                 value={content}
                 onChange={(e) => {
-                  setContent(e.target.value)
-                  setDirty(true)
+                  setContent(e.target.value);
+                  setDirty(true);
                 }}
               />
             </div>
@@ -339,37 +392,44 @@ const Indices: React.FC<Props> = ({ indices }) => {
           font-size:20px;
           cursor:pointer;
         }
-
+        .media-field {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+        .media-field .meta-input {
+          flex: 1;
+        }
         /* scrollbars */
         .nav::-webkit-scrollbar,.editor::-webkit-scrollbar{width:8px;}
         .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{
           background:rgba(0,0,0,.22);border-radius:4px;}
       `}</style>
     </>
-  )
-}
+  );
+};
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const textsDir = path.join(process.cwd(), "texts")
+  const textsDir = path.join(process.cwd(), "texts");
   const categoryFolders = fs
     .readdirSync(textsDir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
-    .map((d) => d.name)
+    .map((d) => d.name);
 
   const indices: Category[] = categoryFolders.map((cat) => {
-    const catPath = path.join(textsDir, cat)
-    const files = fs.readdirSync(catPath).filter((f) => f.endsWith(".md"))
+    const catPath = path.join(textsDir, cat);
+    const files = fs.readdirSync(catPath).filter((f) => f.endsWith(".md"));
     const texts: TextEntry[] = files.map((file) => {
-      const raw = fs.readFileSync(path.join(catPath, file), "utf8").trim()
-      const first = raw.split("\n")[0].trim()
-      const slug = file.replace(/\.md$/, "")
-      const title = first.startsWith("#") ? first.replace(/^#+\s*/, "") : slug
-      return { title, slug }
-    })
-    return { name: cat, texts }
-  })
+      const raw = fs.readFileSync(path.join(catPath, file), "utf8").trim();
+      const first = raw.split("\n")[0].trim();
+      const slug = file.replace(/\.md$/, "");
+      const title = first.startsWith("#") ? first.replace(/^#+\s*/, "") : slug;
+      return { title, slug };
+    });
+    return { name: cat, texts };
+  });
 
-  return { props: { indices } }
-}
+  return { props: { indices } };
+};
 
-export default Indices
+export default Indices;
