@@ -1,63 +1,114 @@
-import React, { useState } from 'react';
-import Script from 'next/script';
-import Head from 'next/head';
-import fs from 'fs';
-import path from 'path';
-import { GetStaticProps, GetStaticPaths } from 'next';
-import Header, { Category } from '../app/components/Header';
-import DebugOverlay from '../app/components/DebugOverlay';
-import Footer from '../app/components/Footer';
-import ArticleGrid from '../app/components/ArticleGrid';
-import { getArticleData } from '../lib/articleService';
+// pages/[...paths].tsx
+import React, { useState } from "react";
+import Script from "next/script";
+import Head from "next/head";
+import fs from "fs";
+import path from "path";
+import type { GetStaticPaths, GetStaticProps } from "next";
+import Header, { Category } from "../app/components/Header";
+import DebugOverlay from "../app/components/DebugOverlay";
+import Footer from "../app/components/Footer";
+import ArticleGrid from "../app/components/ArticleGrid";
+import { getArticleData } from "../lib/articleService";
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const textsDir = path.join(process.cwd(), 'texts');
-  const pathsArr: { params: { paths: string[] } }[] = [];
+/* ── helper utils ─────────────────────────────────────────────────── */
 
-  if (fs.existsSync(textsDir)) {
-    fs.readdirSync(textsDir).forEach((cat) => {
-      const catPath = path.join(textsDir, cat);
-      if (fs.lstatSync(catPath).isDirectory()) {
-        fs.readdirSync(catPath).forEach((file) => {
-          if (file.endsWith('.md')) {
-            pathsArr.push({ params: { paths: [cat, file.replace('.md', '')] } });
-          }
-        });
+const TEXTS_DIR = path.join(process.cwd(), "texts");
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif)$/i;
+
+function readYaml(block: string): Record<string, any> {
+  const obj: Record<string, any> = {};
+  block
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .forEach((line) => {
+      const [k, ...v] = line.split(":");
+      if (k && v.length) {
+        const raw = v.join(":").trim();
+        obj[k.trim()] =
+          raw.startsWith("[") && raw.endsWith("]")
+            ? raw
+                .slice(1, -1)
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : raw;
       }
     });
+  return obj;
+}
+
+function loadMd(filePath: string) {
+  const raw = fs.readFileSync(filePath, "utf8").trim();
+  if (raw.startsWith("---")) {
+    const end = raw.indexOf("\n---", 3);
+    if (end !== -1) {
+      const yaml = readYaml(raw.slice(3, end).trim());
+      const body = raw.slice(end + 4).trim();
+      return { yaml, body };
+    }
   }
+  return { yaml: {}, body: raw };
+}
+
+/* ── static paths ─────────────────────────────────────────────────── */
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const pathsArr: { params: { paths: string[] } }[] = [];
+
+  if (fs.existsSync(TEXTS_DIR)) {
+    const categoryFolders = fs
+      .readdirSync(TEXTS_DIR, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    categoryFolders.forEach((cat) => {
+      const catDir = path.join(TEXTS_DIR, cat);
+      fs.readdirSync(catDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .forEach((d) => {
+          const slug = d.name;
+          const mdPath = path.join(catDir, slug, `${slug}.md`);
+          if (fs.existsSync(mdPath)) {
+            pathsArr.push({ params: { paths: [cat, slug] } });
+          }
+        });
+    });
+  }
+
   return { paths: pathsArr, fallback: false };
 };
 
+/* ── static props ─────────────────────────────────────────────────── */
+
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const [category, slug] = (params?.paths as string[]) || [];
-  const filePath = path.join(process.cwd(), 'texts', category, `${slug}.md`);
-  const fileContents = fs.readFileSync(filePath, 'utf-8');
+  const mdPath = path.join(TEXTS_DIR, category, slug, `${slug}.md`);
+  const { yaml, body } = loadMd(mdPath);
 
-  let metadata: Record<string, string> = {};
-  let content = '';
+  const title =
+    yaml.title ||
+    (body.startsWith("#")
+      ? body.split("\n")[0].replace(/^#+\s*/, "")
+      : slug);
+  const author = yaml.author || "Unknown Author";
+  const date = yaml.date || "Unknown Date";
+  const headerImage = yaml["header-image"] || "";
 
-  const match = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(fileContents);
-  if (match) {
-    const yaml = match[1];
-    content = match[2].trim();
+  /* media list = yaml.media[]  ∪  images physically present */
+  const dirImages = fs
+    .readdirSync(path.join(TEXTS_DIR, category, slug))
+    .filter((f) => IMAGE_EXT.test(f))
+    .map((f) => path.join("/texts", category, slug, f)); // hint path
+  const yamlMedia = Array.isArray(yaml.media) ? yaml.media : [];
+  const media: string[] = [...new Set([...yamlMedia, ...dirImages])];
 
-    yaml.split('\n').forEach(line => {
-      const [key, ...rest] = line.split(':');
-      if (key && rest.length) {
-        metadata[key.trim()] = rest.join(':').trim();
-      }
-    });
-  }
-
-  const title = metadata.title || content.split('\n')[0]?.replace(/^#+\s*/, '') || 'Untitled';
-  const author = metadata.author || 'Unknown Author';
-  const date = metadata.date || 'Unknown Date';
-  const headerImage = metadata['header-image'] || ''; // e.g. 'images/foo.jpg' or URL
-
+  /* Other articles for grid */
   const { articles, categories } = getArticleData();
   const gridArticles = articles.filter(
-    (a) => a.category.toLowerCase() === category.toLowerCase() && a.slug !== slug
+    (a) =>
+      a.category.toLowerCase() === category.toLowerCase() && a.slug !== slug
   );
 
   return {
@@ -66,40 +117,69 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       date,
       author,
       headerImage,
+      media,
       category,
-      content,
+      content: body,
       gridArticles,
-      categories
-    }
+      categories,
+    },
   };
 };
 
+/* ── React page ───────────────────────────────────────────────────── */
 
-const ArticlePage: React.FC<{
+interface ArtProps {
   title: string;
   date: string;
   author: string;
   headerImage: string;
+  media: string[];
   category: string;
   content: string;
-  gridArticles: { title: string; slug: string; category: string; date: string; author: string; preview: string }[];
+  gridArticles: {
+    title: string;
+    slug: string;
+    category: string;
+    date: string;
+    author: string;
+    preview: string;
+  }[];
   categories: Category[];
-}> = ({ title, date, author, headerImage, category, content, gridArticles, categories }) => {
-  const [layout, setLayout] = useState<'vertical' | 'horizontal'>('horizontal'); 
-  const [bodyFontSize, setBodyFontSize] = useState<number>(16);
-  const [bodyFont, setBodyFont] = useState<'InterRegular' | 'AvenirNextCondensed'>('InterRegular');
-  const [titleFont, setTitleFont] = useState<'RecoletaMedium' | 'GayaRegular'>('GayaRegular');
-  const [imagePreview, setImagePreview] = useState<boolean>(true);
-  const [showArticleSidebar, setShowArticleSidebar] = useState<boolean>(true);
+}
 
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
+const ArticlePage: React.FC<ArtProps> = ({
+  title,
+  date,
+  author,
+  headerImage,
+  media,
+  category,
+  content,
+  gridArticles,
+  categories,
+}) => {
+  const [layout, setLayout] = useState<"vertical" | "horizontal">("horizontal");
+  const [bodyFontSize, setBodyFontSize] = useState<number>(16);
+  const [bodyFont, setBodyFont] = useState<
+    "InterRegular" | "AvenirNextCondensed"
+  >("InterRegular");
+  const [titleFont, setTitleFont] = useState<
+    "RecoletaMedium" | "GayaRegular"
+  >("GayaRegular");
+  const [imagePreview, setImagePreview] = useState<boolean>(true);
+  const [showArticleSidebar, setShowArticleSidebar] =
+    useState<boolean>(true);
+
+  const formattedDate = new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
   });
 
   const hexToRgba = (hex: string, alpha: number): string => {
-    let r = 0, g = 0, b = 0;
+    let r = 0,
+      g = 0,
+      b = 0;
     if (hex.length === 7) {
       r = parseInt(hex.slice(1, 3), 16);
       g = parseInt(hex.slice(3, 5), 16);
@@ -109,7 +189,9 @@ const ArticlePage: React.FC<{
   };
 
   const articleColor =
-    categories.find((c) => c.name.toLowerCase() === category.toLowerCase())?.color || '#f0f0f0';
+    categories.find(
+      (c) => c.name.toLowerCase() === category.toLowerCase()
+    )?.color || "#f0f0f0";
   const backdropColor = hexToRgba(articleColor, 0.5);
 
   return (
