@@ -12,22 +12,20 @@ export type HeaderProps = {
 }
 
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
-  const [visible, setVisible] = useState(false)
+  const [open, setOpen] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
-  const [hoverIn, setHoverIn] = useState(false)
-  const [hoverDrop, setHoverDrop] = useState(false)
+  const [inHover, setInHover] = useState(false)
+  const [dropHover, setDropHover] = useState(false)
   const [portal, setPortal] = useState<HTMLElement | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
 
-  // merge configured + passed-in categories
+  // merge config + props
   const merged = [
     ...Object.entries(categoryConfigMap).map(([n, c]) => ({ name: n, color: c.color })),
     ...categories.filter(c => !categoryConfigMap[c.name])
   ]
-
-  // dropdown items vs header items
-  const dropCats = merged.filter(c => categoryConfigMap[c.name]?.showInDropdown)
   const navCats  = merged.filter(c => categoryConfigMap[c.name]?.showInHeader)
+  const dropCats = merged.filter(c => categoryConfigMap[c.name]?.showInDropdown)
 
   useEffect(() => {
     setPortal(document.body)
@@ -50,46 +48,42 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         left: r.left + (window.innerWidth < 768 ? 0 : window.scrollX)
       })
     }
-    setVisible(true)
+    setOpen(true)
   }
-  const hide = () => setVisible(false)
-  const hideWithDelay = () => setTimeout(() => !(hoverIn||hoverDrop) && hide(), 150)
-  const toggle = () => (visible ? hide() : show())
+  const hide = () => setOpen(false)
+  const hideDelay = () => setTimeout(() => !(inHover||dropHover) && hide(), 150)
+  const toggle = () => (open ? hide() : show())
 
-  // dropdown JSX
   const dropdown = portal && ReactDOM.createPortal(
-    <div
-      className={`dropdown ${visible ? 'visible' : ''}`}
+    <ul
+      className={`dropdown ${open ? 'visible' : ''}`}
       style={{
         position: 'fixed',
         top: pos.top,
         left: pos.left,
-        maxWidth: '300px',
-        pointerEvents: visible ? 'auto' : 'none',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(-10px)',
-        transition: 'opacity .2s, transform .2s'
+        opacity: open ? 1 : 0,
+        transform: open ? 'translateY(0)' : 'translateY(-5px)',
+        transition: 'opacity .2s, transform .2s',
+        pointerEvents: open ? 'auto' : 'none'
       }}
-      onMouseEnter={() => setHoverDrop(true)}
-      onMouseLeave={() => { setHoverDrop(false); hideWithDelay() }}
+      onMouseEnter={() => setDropHover(true)}
+      onMouseLeave={() => { setDropHover(false); hideDelay() }}
     >
       {dropCats.map((c, i) => (
-        <Link key={c.name} href={getCategoryLink(c.name)}>
-          <a
-            className="dropdown-item"
-            data-color={c.color}
-            onClick={() => onCategoryChange?.(c.name)}
-            style={{
-              transitionDelay: `${i*30}ms`,
-              opacity: visible ? 1 : 0,
-              transform: visible ? 'translateY(0)' : 'translateY(-5px)'
-            }}
-          >
-            {c.name}
-          </a>
-        </Link>
+        <li key={c.name}>
+          <Link href={getCategoryLink(c.name)}>
+            <a
+              className="dropdown-item"
+              data-color={c.color}
+              style={{ transitionDelay: `${i*30}ms` }}
+              onClick={() => onCategoryChange?.(c.name)}
+            >
+              {c.name}
+            </a>
+          </Link>
+        </li>
       ))}
-    </div>,
+    </ul>,
     portal
   )
 
@@ -111,8 +105,8 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
               ref={triggerRef}
               className="nav-trigger"
               onClick={toggle}
-              onMouseEnter={() => { setHoverIn(true); setTimeout(show,50) }}
-              onMouseLeave={() => { setHoverIn(false); hideWithDelay() }}
+              onMouseEnter={() => { setInHover(true); setTimeout(show,50) }}
+              onMouseLeave={() => { setInHover(false); hideDelay() }}
             >
               Rubriques
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
@@ -120,7 +114,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
               </svg>
             </button>
           </li>
-
           {navCats.map(c => (
             <li key={c.name}>
               <Link href={getCategoryLink(c.name)}>
@@ -130,7 +123,6 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
               </Link>
             </li>
           ))}
-
           <li>
             <Link href="/indices">
               <a className="nav-item search" aria-label="Search">
@@ -148,10 +140,12 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 
       <style jsx>{`
         .header { position: relative; font-family: sans-serif; }
-        .header-top { text-align: center; padding: 10px 0; background: #fff; }
+        .header-top { text-align: center; padding: 12px 0; background: #fff }
         .brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #000 }
+        .brand h1 { font-family: "GayaRegular", Georgia, serif; font-weight: 200; margin: 0 }
         .logo { height: 48px }
-        nav { background: #f5f5f5; overflow-x: auto; }
+
+        nav { background: #f5f5f5; overflow-x: auto }
         .nav-list {
           display: flex;
           align-items: center;
@@ -162,6 +156,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           white-space: nowrap;
         }
         .nav-list li { margin: 0 }
+
         .nav-item,
         .nav-trigger {
           display: flex;
@@ -177,23 +172,25 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         }
         .nav-item:hover,
         .nav-trigger:hover { background: rgba(0,0,0,0.05) }
-        .search svg { width: 18px; height: 18px }
+
         .dropdown {
+          list-style: none;
+          margin: 0;
+          padding: 4px 0;
+          display: flex;
+          flex-direction: column;
           background: rgba(255,255,255,0.95);
           backdrop-filter: blur(10px);
           border: 1px solid #e6e6e6;
           border-radius: 6px;
           box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
         }
         .dropdown-item {
-          padding: 10px 16px;
+          display: block;
+          padding: 8px 16px;
           font-size: 14px;
           color: #333;
           text-decoration: none;
-          background: none;
         }
         .dropdown-item:hover {
           background: rgba(240,240,240,0.8);

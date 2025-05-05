@@ -27,6 +27,12 @@ const fetchFile = async (cat: string, slug: string): Promise<string> => {
   return res.text();
 };
 
+// top of component body
+const hiddenFileRef = useRef<HTMLInputElement>(null);
+
+// helper – mark document changed
+const markDirty = () => setDirty(true);
+
 const saveFile = async (
   cat: string,
   slug: string,
@@ -240,6 +246,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
                     onChange={(e) => {
                       setMeta((m) => ({ ...m, [key]: e.target.value }));
                       setDirty(true);
+                      markDirty();
                     }}
                   />
                 ))}
@@ -253,26 +260,38 @@ const Indices: React.FC<Props> = ({ indices }) => {
                     onChange={(e) => {
                       setMeta((m) => ({ ...m, "header-image": e.target.value }));
                       setDirty(true);
+                      markDirty();
                     }}
                   />
-                  <input
-                  onChange={async e => {
-                  const f = e.target.files?.[0];
-                  if (!f || !selCat || !selSlug) return;
-                  setSaveStatus('saving');
-                  try {
-                    const p = await uploadMedia(selCat, selSlug, f);
-                    setMeta(m => ({ ...m, 'header-image': p }));
-                    setDirty(true);
-                    setSaveStatus('saved');
-                    setTimeout(() => setSaveStatus('idle'), 1200);
-                  } catch (err) {
-                    console.error(err);
-                    setSaveStatus('error');
-                    setTimeout(() => setSaveStatus('idle'), 2000);
-                  }
-                }}
+               <input
+    type="file"
+    accept="image/*"
+    ref={hiddenFileRef}
+    style={{ display: "none" }}
+    onChange={async e => {
+      const file = e.target.files?.[0];
+      if (!file || !selCat || !selSlug) return;
+      setSaveStatus("saving");
+      try {
+        const path = await uploadMedia(selCat, selSlug, file);
+        setMeta(m => ({ ...m, "header-image": path }));
+        markDirty();             // enable Save
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 1200);
+      } catch (err) {
+        console.error(err);
+        setSaveStatus("error");
+        setTimeout(() => setSaveStatus("idle"), 2000);
+      }
+    }}
                 />
+                <button
+    type="button"
+    className="upload-btn"
+    onClick={() => hiddenFileRef.current?.click()}
+  >
+    Upload
+  </button>
                 </div>
               </div>
 
@@ -283,6 +302,7 @@ const Indices: React.FC<Props> = ({ indices }) => {
                 onChange={(e) => {
                   setContent(e.target.value);
                   setDirty(true);
+                  markDirty();
                 }}
               />
             </div>
@@ -376,14 +396,14 @@ const Indices: React.FC<Props> = ({ indices }) => {
           font-size:20px;
           cursor:pointer;
         }
-        .media-field {
-          display: flex;
-          gap: 8px;
-          align-items: center;
-        }
-        .media-field .meta-input {
-          flex: 1;
-        }
+        .media-field { display:flex; gap:8px; align-items:center; }
+.upload-btn {
+  font:500 12px Helvetica,Arial,sans-serif;
+  padding:6px 14px; border:0; border-radius:6px;
+  background:var(--accent); color:#fff; cursor:pointer;
+}
+.upload-btn:hover { opacity:.85; }
+
         /* scrollbars */
         .nav::-webkit-scrollbar,.editor::-webkit-scrollbar{width:8px;}
         .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{
