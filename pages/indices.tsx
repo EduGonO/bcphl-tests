@@ -1,441 +1,237 @@
-// pages/indices.tsx
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  KeyboardEvent,
-  useRef,
-} from "react";
-import Head from "next/head";
 import fs from "fs";
 import path from "path";
-import { GetServerSideProps } from "next";
-import Header from "../app/components/Header";
+import Head from "next/head";
+import type { GetServerSideProps } from "next";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import Header from "../app/components/Header";
 
-// Types
-export type TextEntry = { title: string; slug: string };
-export type Category = { name: string; texts: TextEntry[] };
-interface Props { indices: Category[] }
+/* ---- types ------------------------------------------------------ */
+export type Entry = { title: string; slug: string };
+export type Cat   = { name: string; entries: Entry[] };
+interface Props   { cats: Cat[] }
 
-// Helpers
-const fetchFile = async (cat: string, slug: string): Promise<string> => {
-  const res = await fetch(
-    `/api/file?cat=${encodeURIComponent(cat)}&slug=${encodeURIComponent(slug)}`
-  );
-  if (!res.ok) throw new Error("Cannot load file");
-  return res.text();
-};
+/* ---- helpers ---------------------------------------------------- */
+const fetchText = (c: string, s: string) =>
+  fetch(`/api/file?cat=${c}&slug=${s}`).then(r => r.text());
 
+const fetchMedia = (c: string, s: string) =>
+  fetch(`/api/media?cat=${c}&slug=${s}`).then(r => r.json() as Promise<string[]>);
 
-
-const saveFile = async (
-  cat: string,
-  slug: string,
-  body: string
-): Promise<void> => {
-  const res = await fetch(`/api/save-file`, {
+const saveText = (c: string, s: string, body: string) =>
+  fetch("/api/save-file", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cat, slug, body }),
+    body: JSON.stringify({ cat: c, slug: s, body }),
   });
-  if (!res.ok) throw new Error("Cannot save file");
-};
 
-
-const uploadMedia = async (cat: string, slug: string, file: File) => {
-  const b64 = await file.arrayBuffer().then(buf => Buffer.from(buf).toString('base64'));
-  const r = await fetch('/api/upload-media', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cat, slug, filename: file.name, data: b64 }),
-    credentials: 'include',             // <<< ensure cookies for session
+const upload = async (cat: string, slug: string, file: File) => {
+  const data = Buffer.from(await file.arrayBuffer()).toString("base64");
+  const r = await fetch("/api/upload-media", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body : JSON.stringify({ cat, slug, filename: file.name, data }),
   });
-  if (!r.ok) throw new Error(`Upload HTTP ${r.status}`);
   return (await r.json()).path as string;
 };
 
-
-// Component
-const Indices: React.FC<Props> = ({ indices }) => {
+/* ---- component -------------------------------------------------- */
+const Editor: React.FC<Props> = ({ cats }) => {
   const { data: session } = useSession();
 
-  const [open, setOpen] = useState<Record<string, boolean>>({});
-  const [selCat, setSelCat] = useState<string | null>(null);
-  const [selSlug, setSelSlug] = useState<string | null>(null);
-  const [content, setContent] = useState<string>("");
-  const [dirty, setDirty] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<
-    "idle" | "loading" | "saving" | "saved" | "error"
-  >("idle");
+  /* selection */
+  const [cat, setCat]   = useState<string | null>(null);
+  const [slug, setSlug] = useState<string | null>(null);
+
+  /* doc state */
+  const [yaml, setYaml]     = useState<Record<string,string>>({});
+  const [body, setBody]     = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [status, setStat]   = useState<"idle"|"saving"|"saved"|"err">("idle");
   const txtRef = useRef<HTMLTextAreaElement>(null);
-  const [meta, setMeta] = useState({
-    title: "",
-    author: "",
-    date: "",
-    "header-image": "",
-  });
+  const fileRef= useRef<HTMLInputElement>(null);
 
-// top of component body
-const hiddenFileRef = useRef<HTMLInputElement>(null);
+  const dirty = useRef(false);
+  const mark  = () => (dirty.current = true);
 
-// helper – mark document changed
-const markDirty = () => setDirty(true);
+  /* load article -------------------------------------------------- */
+  const load = useCallback(async (c: string, s: string) => {
+    setStat("idle"); dirty.current = false;
+    const raw  = await fetchText(c, s);
+    const img  = await fetchMedia(c, s);
+    setImages(img);
 
-  const toggle = (name: string) =>
-    setOpen((o) => ({ ...o, [name]: !o[name] }));
-
-  const load = useCallback(async (cat: string, slug: string) => {
-    try {
-      setSaveStatus("loading");
-      const body = await fetchFile(cat, slug);
-      setSelCat(cat);
-      setSelSlug(slug);
-
-      const m = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(body);
-      if (m) {
-        const [, yaml, txt] = m;
-        const obj: any = {};
-        yaml.split("\n").forEach((line) => {
-          const [k, ...v] = line.split(":");
-          if (k && v.length) obj[k.trim()] = v.join(":").trim();
-        });
-        setMeta({ title: "", author: "", date: "", "header-image": "", ...obj });
-        setContent(txt.trim());
-      } else {
-        setMeta({ title: "", author: "", date: "", "header-image": "" });
-        setContent(body);
-      }
-
-      setDirty(false);
-      setSaveStatus("idle");
-      setTimeout(() => txtRef.current?.focus(), 50);
-    } catch {
-      setSaveStatus("error");
+    const m = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/m.exec(raw);
+    if (m) {
+      const meta: Record<string,string> = {};
+      m[1].split("\n").forEach(l => {
+        const [k, ...v] = l.split(":");
+        if (k && v.length) meta[k.trim()] = v.join(":").trim();
+      });
+      setYaml(meta);
+      setBody(m[2].trim());
+    } else {
+      setYaml({});
+      setBody(raw);
     }
-  }, []);
+    setCat(c); setSlug(s);
+    setTimeout(()=>txtRef.current?.focus(),50);
+  },[]);
 
-  const handleSave = useCallback(async () => {
-    if (!selCat || !selSlug || !dirty) return;
-    try {
-      setSaveStatus("saving");
-      const yaml =
-        `---\n` +
-        Object.entries(meta)
-          .filter(([, v]) => v)
-          .map(([k, v]) => `${k}: ${v}`)
-          .join("\n") +
-        `\n---\n\n`;
-      await saveFile(selCat, selSlug, yaml + content);
-      setDirty(false);
-      setSaveStatus("saved");
-      setTimeout(() => setSaveStatus("idle"), 1200);
-    } catch {
-      setSaveStatus("error");
-    }
-  }, [selCat, selSlug, content, dirty, meta]);
+  /* save ---------------------------------------------------------- */
+  const save = useCallback(async () => {
+    if (!cat || !slug || !dirty.current) return;
+    setStat("saving");
+    const front =
+      "---\n" +
+      Object.entries(yaml).map(([k,v])=>`${k}: ${v}`).join("\n") +
+      "\n---\n\n";
+    await saveText(cat, slug, front + body);
+    dirty.current = false;
+    setStat("saved"); setTimeout(()=>setStat("idle"),1200);
+  },[cat,slug,yaml,body]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-        e.preventDefault();
-        handleSave();
-      }
+  /* keyboard shortcut */
+  useEffect(()=>{
+    const f = (e:KeyboardEvent)=>{
+      if((e.metaKey||e.ctrlKey)&&e.key==="s"){ e.preventDefault(); save(); }
     };
-    window.addEventListener("keydown", onKey as any);
-    return () => window.removeEventListener("keydown", onKey as any);
-  }, [handleSave]);
+    window.addEventListener("keydown",f); return ()=>window.removeEventListener("keydown",f);
+  },[save]);
 
-  const handleLogout = () => signOut({ callbackUrl: "/auth/signin" });
-
+  /* UI ------------------------------------------------------------ */
   return (
     <>
-      <Head>
-        <title>Files – BICÉPHALE</title>
-      </Head>
-      <Header categories={indices.map((c) => ({ name: c.name, color: "#607d8b" }))} />
-
+      <Head><title>Editor</title></Head>
+      <Header categories={cats.map(c=>({name:c.name,color:"#607d8b"}))}/>
       <div className="layout">
+
+        {/* ---------- sidebar -------------------------------------- */}
         <aside className="nav">
-          <div className="summary">
-            <div>
-              {indices.length} categories •{" "}
-              {indices.reduce((sum, c) => sum + c.texts.length, 0)} articles
-            </div>
-            <div className="user-info">
-              <span>{session?.user?.email}</span>
-              <button onClick={handleLogout} className="logout-btn">
-                Log out
-              </button>
-            </div>
+          <div className="user">
+            {session?.user?.email}
+            <button onClick={()=>signOut()} className="lo">logout</button>
           </div>
-
-          {indices.map((cat) => (
-            <div key={cat.name}>
-              <button
-                onClick={() => toggle(cat.name)}
-                className={`row folder${open[cat.name] ? " on" : ""}`}
-              >
-                <span className="ellip">{cat.name}</span>
-                <span className="meta">
-                  <span className="count">{cat.texts.length}</span>
-                  <span className={`arrow${open[cat.name] ? " open" : ""}`} />
-                </span>
-              </button>
-
-              {open[cat.name] && (
-                <ul className="file-ul">
-                  {cat.texts.map((t) => {
-                    const active = selCat === cat.name && selSlug === t.slug;
-                    return (
-                      <li key={t.slug}>
-                        <button
-                          onClick={() => load(cat.name, t.slug)}
-                          className={`row file${active ? " act" : ""}`}
-                        >
-                          {t.title}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+          {cats.map(c=>(
+            <div key={c.name}>
+              <div className="cat">{c.name}</div>
+              <ul>
+                {c.entries.map(e=>(
+                  <li key={e.slug}>
+                    <button
+                      className={cat===c.name&&slug===e.slug ? "on":""}
+                      onClick={()=>load(c.name,e.slug)}
+                    >{e.title}</button>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </aside>
 
+        {/* ---------- editor --------------------------------------- */}
         <section className="stage">
-          {saveStatus === "error" && (
-            <div className="error-banner">
-              An error occurred. Please try again.
-              <button
-                onClick={() => setSaveStatus("idle")}
-                className="close-error"
-              >
-                ×
-              </button>
-            </div>
-          )}
-
-          {selCat && selSlug ? (
-            <div className="doc">
-              <header className="bar">
-                <span className="path ellip">
-                  {selCat}/{selSlug}.md
-                </span>
-                <div className="actions">
-                  {saveStatus === "saved" && (
-                    <span className="saved-indicator">Saved!</span>
-                  )}
-                  <button
-                    onClick={handleSave}
-                    disabled={!dirty || saveStatus === "saving"}
-                    className="save"
-                  >
-                    {saveStatus === "saving" ? "Saving…" : "Save"}
-                  </button>
-                </div>
-              </header>
-
-              <div className="fields">
-                {/* title, author, date stay the same */}
-                {["title", "author", "date"].map((key) => (
-                  <input
-                    key={key}
-                    className="meta-input"
-                    placeholder={key}
-                    value={(meta as any)[key] || ""}
-                    onChange={(e) => {
-                      setMeta((m) => ({ ...m, [key]: e.target.value }));
-                      setDirty(true);
-                      markDirty();
-                    }}
+          {cat && slug ? (
+            <>
+              {/* meta */}
+              <div className="meta">
+                {["title","author","date"].map(k=>(
+                  <input key={k} placeholder={k}
+                    value={yaml[k]||""}
+                    onChange={e=>{ setYaml({...yaml,[k]:e.target.value}); mark(); }}
                   />
                 ))}
-
-                {/* header-image: URL input + file upload */}
-                <div className="media-field">
-                  <input
-                    className="meta-input"
-                    placeholder="header-image URL or path"
-                    value={meta["header-image"] || ""}
-                    onChange={(e) => {
-                      setMeta((m) => ({ ...m, "header-image": e.target.value }));
-                      setDirty(true);
-                      markDirty();
-                    }}
-                  />
-               <input
-    type="file"
-    accept="image/*"
-    ref={hiddenFileRef}
-    style={{ display: "none" }}
-    onChange={async e => {
-      const file = e.target.files?.[0];
-      if (!file || !selCat || !selSlug) return;
-      setSaveStatus("saving");
-      try {
-        const path = await uploadMedia(selCat, selSlug, file);
-        setMeta(m => ({ ...m, "header-image": path }));
-        markDirty();             // enable Save
-        setSaveStatus("saved");
-        setTimeout(() => setSaveStatus("idle"), 1200);
-      } catch (err) {
-        console.error(err);
-        setSaveStatus("error");
-        setTimeout(() => setSaveStatus("idle"), 2000);
-      }
-    }}
+                {/* header-image selector */}
+                <select
+                  value={yaml["header-image"]||""}
+                  onChange={e=>{ setYaml({...yaml,"header-image":e.target.value}); mark(); }}
+                >
+                  <option value="">– header image –</option>
+                  {images.map(p=>(
+                    <option key={p} value={p}>{p.split("/").pop()}</option>
+                  ))}
+                </select>
+                <button onClick={()=>fileRef.current?.click()}>Upload</button>
+                <input type="file" ref={fileRef} style={{display:"none"}}
+                  accept="image/*"
+                  onChange={async e=>{
+                    const f = e.target.files?.[0]; if(!f||!cat||!slug)return;
+                    const p = await upload(cat,slug,f);
+                    setImages(x=>[...x,p]); setYaml({...yaml,"header-image":p}); mark();
+                  }}
                 />
-                <button
-    type="button"
-    className="upload-btn"
-    onClick={() => hiddenFileRef.current?.click()}
-  >
-    Upload
-  </button>
-                </div>
               </div>
 
-              <textarea
-                ref={txtRef}
-                className="editor"
-                value={content}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  setDirty(true);
-                  markDirty();
-                }}
+              {/* thumbnails */}
+              <div className="thumbs">
+                {images.map(p=>(
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={p} src={p} alt="" title={p.split("/").pop()}
+                    onClick={()=>{ setYaml({...yaml,"header-image":p}); mark(); }}
+                  />
+                ))}
+              </div>
+
+              {/* body */}
+              <textarea ref={txtRef} value={body}
+                onChange={e=>{ setBody(e.target.value); mark(); }}
               />
-            </div>
-          ) : (
-            <div className="hint">Choisir Article</div>
-          )}
+
+              {/* save */}
+              <button className="save"
+                disabled={status==="saving"}
+                onClick={save}
+              >{status==="saving"?"Saving…":"Save"}</button>
+              {status==="saved" && <span className="ok">✔</span>}
+            </>
+          ) : <p className="hint">Choose an article</p>}
         </section>
       </div>
 
       <style jsx>{`
-        :root{
-          --bg:#f5f6f7; --nav-bg:#fbfbfb; --nav-border:#e1e3e7;
-          --row-hov:#f1f4ff; --row-act:#d6e1ff;
-          --txt:#202325; --accent:#0069ff; --shadow:0 3px 8px rgba(0,0,0,.09);
-        }
-        .layout{display:flex;height:calc(100vh - 64px);background:var(--bg);}
-
-        /* ── nav */
-        .nav{width:260px;padding:20px 16px 32px;overflow-y:auto;
-             background:var(--nav-bg);border-right:1px solid var(--nav-border);}
-        .summary{font:500 13px Helvetica,Arial,sans-serif;color:#666;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;}
-        .user-info {display:flex;align-items:center;justify-content:space-between;margin-top:5px;}
-        .logout-btn {font-size:11px;color:#666;background:none;border:none;cursor:pointer;padding:2px 5px;margin-left:5px;}
-        .logout-btn:hover {text-decoration:underline;color:#333;}
-        .row{width:100%;display:flex;justify-content:space-between;align-items:center;
-             border:0;background:none;padding:6px 10px;margin:1px 0;border-radius:6px;
-             cursor:pointer;transition:background .12s,opacity .12s;opacity:.55;}
-        .row:hover{background:var(--row-hov);opacity:1;}
-        .folder{font:500 14px Helvetica,Arial,sans-serif;}
-        .folder.on{opacity:1;}
-        .file{font:400 13px Helvetica,Arial,sans-serif;padding-left:18px;}
-        .file.act{opacity:1;background:var(--row-act);}
-        .file-ul{list-style:none;margin:2px 0 6px;padding:0;}
-        .meta{display:flex;align-items:center;gap:8px;}
-        .count{font:400 11px Helvetica,Arial,sans-serif;color:#777;}
-        .arrow{width:0;height:0;border:5px solid transparent;border-left-color:#666;
-               transition:transform .15s;}
-        .arrow.open{transform:rotate(90deg);}
-
-        /* ── stage / editor */
-        .stage{flex:1 1 0;display:flex;flex-direction:column;padding:24px 40px 32px;min-width:0;position:relative;}
-        .doc{flex:1 1 0;display:flex;flex-direction:column;min-height:0;
-             background:#fff;border-radius:12px;box-shadow:var(--shadow);}
-        .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;
-             border-bottom:1px solid #e7e7e7;border-top-left-radius:12px;border-top-right-radius:12px;}
-        .path{font:500 13px Helvetica,Arial,sans-serif;color:#555;}
-        .actions{display:flex;align-items:center;gap:10px;}
-        .saved-indicator{font:500 13px Helvetica,Arial,sans-serif;color:#4caf50;}
-        .save{padding:5px 18px;border:0;border-radius:6px;font:500 13px Helvetica,Arial,sans-serif;
-              color:#fff;background:var(--accent);cursor:pointer;transition:opacity .12s;}
-        .save:disabled{opacity:.46;cursor:default;}
-        .editor{flex:1 1 0;width:100%;border:0;outline:none;resize:none;
-                padding:26px 22px;font:14px/1.6 "SFMono-Regular",Consolas,"Liberation Mono",monospace;
-                border-bottom-left-radius:12px;border-bottom-right-radius:12px;background:#fcfcfc;}
-        .hint{margin:auto;color:#888;font:14px Helvetica,Arial,sans-serif;}
-        .fields {
-          display:grid;
-          grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
-          gap:12px;
-          padding:18px;
-          border-bottom:1px solid #e7e7e7;
-          background:#fefefe;
-        }
-        .meta-input {
-          font:13px Helvetica, Arial, sans-serif;
-          padding:6px 10px;
-          border:1px solid #ddd;
-          border-radius:6px;
-          background:#fff;
-        }
-        .error-banner {
-          position:absolute;
-          top:0;
-          left:0;
-          right:0;
-          background:#ffebee;
-          color:#c62828;
-          padding:10px 20px;
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          margin:0 40px;
-          border-radius:0 0 8px 8px;
-          font:14px Helvetica, Arial, sans-serif;
-          z-index:10;
-        }
-        .close-error {
-          background:none;
-          border:none;
-          color:#c62828;
-          font-size:20px;
-          cursor:pointer;
-        }
-        .media-field { display:flex; gap:8px; align-items:center; }
-.upload-btn {
-  font:500 12px Helvetica,Arial,sans-serif;
-  padding:6px 14px; border:0; border-radius:6px;
-  background:var(--accent); color:#fff; cursor:pointer;
-}
-.upload-btn:hover { opacity:.85; }
-
-        /* scrollbars */
-        .nav::-webkit-scrollbar,.editor::-webkit-scrollbar{width:8px;}
-        .nav::-webkit-scrollbar-thumb,.editor::-webkit-scrollbar-thumb{
-          background:rgba(0,0,0,.22);border-radius:4px;}
+        .layout{display:flex;height:calc(100vh - 64px);}
+        .nav{width:240px;overflow:auto;background:#fbfbfb;border-right:1px solid #e1e3e7;padding:16px;}
+        .user{font:12px;margin-bottom:12px;display:flex;justify-content:space-between;}
+        .lo{background:none;border:none;color:#06f;cursor:pointer;font-size:11px;}
+        .cat{font-weight:600;margin:8px 0 4px;}
+        ul{list-style:none;padding:0;margin:0;}
+        li button{display:block;width:100%;padding:4px 6px;text-align:left;border:0;background:none;font:13px sans-serif;cursor:pointer;}
+        li button.on{background:#e6edff;font-weight:600;}
+        .stage{flex:1;display:flex;flex-direction:column;padding:20px;gap:12px;}
+        .meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;}
+        .meta input,.meta select{padding:6px;border:1px solid #ccc;border-radius:4px;font:13px sans-serif;}
+        .thumbs{display:flex;gap:8px;overflow-x:auto;padding:4px 0;}
+        .thumbs img{width:80px;height:60px;object-fit:cover;cursor:pointer;border:2px solid transparent;}
+        textarea{flex:1;border:1px solid #ccc;border-radius:6px;padding:12px;font:14px/1.6 monospace;resize:none;}
+        .save{align-self:flex-start;padding:8px 22px;background:#06f;color:#fff;border:0;border-radius:6px;cursor:pointer;}
+        .ok{margin-left:6px;color:#090;}
+        .hint{margin:auto;color:#888;}
       `}</style>
     </>
   );
 };
 
+/* ---- server side list ------------------------------------------ */
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const textsDir = path.join(process.cwd(), "texts");
-  const categoryFolders = fs
-    .readdirSync(textsDir, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name);
-
-  const indices: Category[] = categoryFolders.map((cat) => {
-    const catPath = path.join(textsDir, cat);
-    const files = fs.readdirSync(catPath).filter((f) => f.endsWith(".md"));
-    const texts: TextEntry[] = files.map((file) => {
-      const raw = fs.readFileSync(path.join(catPath, file), "utf8").trim();
-      const first = raw.split("\n")[0].trim();
-      const slug = file.replace(/\.md$/, "");
-      const title = first.startsWith("#") ? first.replace(/^#+\s*/, "") : slug;
-      return { title, slug };
+  const root = path.join(process.cwd(), "texts");
+  const cats = fs.readdirSync(root,{withFileTypes:true})
+    .filter(d=>d.isDirectory())
+    .map(d=>{
+      const catDir = path.join(root,d.name);
+      const entries = fs.readdirSync(catDir,{withFileTypes:true})
+        .filter(f=>f.isDirectory())
+        .map(f=>{
+          const artDir = path.join(catDir,f.name);
+          // pick markdown file
+          const md = fs.readdirSync(artDir).find(x=>x.endsWith(".md"))!;
+          const first = fs.readFileSync(path.join(artDir,md),"utf8").split("\n")[0];
+          const title = first.startsWith("#") ? first.replace(/^#+\s*/,"") : f.name;
+          return { title, slug:f.name };
+        });
+      return { name:d.name, entries };
     });
-    return { name: cat, texts };
-  });
 
-  return { props: { indices } };
+  return { props:{ cats } };
 };
 
-export default Indices;
+export default Editor;

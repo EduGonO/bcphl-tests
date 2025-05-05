@@ -4,6 +4,8 @@ import path from "path";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif)$/i;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) return res.status(401).end();
@@ -14,11 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const dir = path.join(process.cwd(), "texts", cat, slug);
   if (!fs.existsSync(dir)) return res.status(404).end();
 
-  let md = path.join(dir, `${slug}.md`);
-  if (!fs.existsSync(md)) {
-    const files = fs.readdirSync(dir).filter(f => f.endsWith(".md"));
-    if (files.length === 0) return res.status(404).end();
-    md = path.join(dir, files[0]);
-  }
-  res.status(200).send(fs.readFileSync(md, "utf8"));
+  const files = fs.readdirSync(dir).filter(f => IMAGE_EXT.test(f));
+  const paths = files.map(f => `/texts/${cat}/${slug}/${f}`); // public URL
+  res.status(200).json(paths);
 }
