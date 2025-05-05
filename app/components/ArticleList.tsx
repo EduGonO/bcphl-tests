@@ -53,8 +53,8 @@ const ArticleList: React.FC<ArticleListProps> = ({
     <style jsx>{`
       .article-list {
         max-width: 800px;
-        margin: 0 auto;
-        padding: 0 16px;
+        margin: 0 0;
+        padding: 0 0px;
       }
       .row {
         display: flex;
