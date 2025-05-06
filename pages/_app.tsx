@@ -32,6 +32,7 @@ export default function MyApp({ Component, pageProps }: MyAppProps) {
 
         {/* Favicon from earlier */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/favicon.ico" />
       </Head>
 
       <SessionProvider

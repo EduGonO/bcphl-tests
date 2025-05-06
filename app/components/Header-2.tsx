@@ -1,8 +1,11 @@
 // /app/components/Header.tsx
-import React, { useState, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import Link from 'next/link';
-import { categoryConfigMap, getCategoryLink } from '../../config/categoryColors';
+import React, { useState, useRef, useEffect } from "react";
+import ReactDOM from "react-dom";
+import Link from "next/link";
+import {
+  categoryConfigMap,
+  getCategoryLink,
+} from "../../config/categoryColors";
 
 export type Category = { name: string; color: string };
 
@@ -14,7 +17,9 @@ export type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   // States for dropdown functionality
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>(
+    { top: 0, left: 0 }
+  );
   const [triggerHovered, setTriggerHovered] = useState(false);
   const [dropdownHovered, setDropdownHovered] = useState(false);
   const [portalContainer, setPortalContainer] = useState<Element | null>(null);
@@ -25,91 +30,92 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   const headerRef = useRef<HTMLElement>(null);
 
   // Get all available categories - combine configured ones with props
-  const allConfiguredCategories = Object.keys(categoryConfigMap).map(name => ({
-    name,
-    color: categoryConfigMap[name].color
-  }));
+  const allConfiguredCategories = Object.keys(categoryConfigMap).map(
+    (name) => ({
+      name,
+      color: categoryConfigMap[name].color,
+    })
+  );
 
   const mergedCategories = [...allConfiguredCategories];
-  
+
   // Add any categories from props that might not be in the config
-  categories.forEach(cat => {
-    if (!mergedCategories.some(c => c.name === cat.name)) {
+  categories.forEach((cat) => {
+    if (!mergedCategories.some((c) => c.name === cat.name)) {
       mergedCategories.push(cat);
     }
   });
 
+
+
+  
   // top of file, after other state
-/* ---------- Header.tsx ---------- */
-/* add just below the state hooks */
-const MAX_SCROLL = 100;
-useEffect(() => {
-  document.documentElement.style.setProperty('--header-progress', '0');
-}, []);
+  /* ---------- Header.tsx ---------- */
+  /* add just below the state hooks */
+  const MAX_SCROLL = 60;
+  useEffect(() => {
+    document.documentElement.style.setProperty("--header-progress", "0");
+  }, []);
 
-/* inside the big useEffect (where scroll / resize listeners are set) 
+  /* inside the big useEffect (where scroll / resize listeners are set) 
    replace the existing `handleScroll` with: */
-const handleScroll = () => {
-  const y = window.scrollY;
-  const p = Math.min(y / MAX_SCROLL, 1);
-  document.documentElement.style.setProperty('--header-progress', p.toString());
-  setIsScrolled(p === 1);
+  const handleScroll = () => {
+    const y = window.scrollY;
+    const p = Math.min(y / MAX_SCROLL, 1);
+    document.documentElement.style.setProperty(
+      "--header-progress",
+      p.toString()
+    );
+    setIsScrolled(p === 1);
 
-  if (dropdownVisible && rubriquesRef.current) {
-    const rect = rubriquesRef.current.getBoundingClientRect();
-    setDropdownPos({
-      top: rect.bottom + (isMobile ? 2 : 6),
-      left: isMobile ? rect.left : rect.left + window.scrollX,
-    });
-  }
-};
+    if (dropdownVisible && rubriquesRef.current) {
+      const rect = rubriquesRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + (isMobile ? 2 : 6),
+        left: isMobile ? rect.left : rect.left + window.scrollX,
+      });
+    }
+  };
 
   // Set up portal container and responsive behavior
   useEffect(() => {
     // Set portal container
     setPortalContainer(document.body);
-    
+
     // Add CSS variables for category colors
-    document.documentElement.style.setProperty('--default-category-color', '#333');
-    
+    document.documentElement.style.setProperty(
+      "--default-category-color",
+      "#333"
+    );
+
     // Check if mobile on load and when window resizes
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
+    window.addEventListener("resize", checkMobile);
+
     // Setup event delegation for hover effects
     const handleMouseOver = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (target.classList.contains('dropdown-item')) {
-        const color = target.getAttribute('data-category-color') || '#333';
-        document.documentElement.style.setProperty('--category-color', color);
+      if (target.classList.contains("dropdown-item")) {
+        const color = target.getAttribute("data-category-color") || "#333";
+        document.documentElement.style.setProperty("--category-color", color);
       }
     };
     
-    // Handle scroll events for sticky header
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-      
-      // Update dropdown position if it's visible
-      if (dropdownVisible && rubriquesRef.current) {
-        const rect = rubriquesRef.current.getBoundingClientRect();
-        setDropdownPos({
-          top: rect.bottom + (isMobile ? 2 : 6),
-          left: isMobile ? rect.left : rect.left + window.scrollX
-        });
-      }
-    };
-    
-    document.addEventListener('mouseover', handleMouseOver);
-    window.addEventListener('scroll', handleScroll);
-    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+
+
+    document.addEventListener("mouseover", handleMouseOver);
+    window.addEventListener("scroll", handleScroll);
+
     return () => {
-      document.removeEventListener('mouseover', handleMouseOver);
-      window.removeEventListener('resize', checkMobile);
-      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener("mouseover", handleMouseOver);
+      window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [dropdownVisible, isMobile]);
 
@@ -117,11 +123,11 @@ const handleScroll = () => {
   const showDropdown = () => {
     if (rubriquesRef.current) {
       const rect = rubriquesRef.current.getBoundingClientRect();
-      
+
       // Precise positioning based on device type
       setDropdownPos({
         top: rect.bottom + (isMobile ? 2 : 6), // Add slight offset for visual separation
-        left: isMobile ? rect.left : rect.left + window.scrollX
+        left: isMobile ? rect.left : rect.left + window.scrollX,
       });
     }
     setDropdownVisible(true);
@@ -155,16 +161,16 @@ const handleScroll = () => {
       }
     }, 40); // Faster hover response
   };
-  
+
   const handleTriggerMouseLeave = () => {
     setTriggerHovered(false);
     hideDropdownWithDelay();
   };
-  
+
   const handleDropdownMouseEnter = () => {
     setDropdownHovered(true);
   };
-  
+
   const handleDropdownMouseLeave = () => {
     setDropdownHovered(false);
     hideDropdownWithDelay();
@@ -178,15 +184,17 @@ const handleScroll = () => {
         .map((cat, index) => {
           const config = categoryConfigMap[cat.name];
           const categoryLink = getCategoryLink(cat.name);
-          
+
           return (
             <Link key={cat.name} href={categoryLink}>
-              <a 
-                className="dropdown-item" 
-                style={{ 
+              <a
+                className="dropdown-item"
+                style={{
                   transitionDelay: `${index * 25}ms`, // Slightly faster stagger for smoother effect
                   opacity: dropdownVisible ? 1 : 0,
-                  transform: dropdownVisible ? 'translateY(0)' : 'translateY(-5px)'
+                  transform: dropdownVisible
+                    ? "translateY(0)"
+                    : "translateY(-5px)",
                 }}
                 data-category-color={config.color}
                 onClick={() => onCategoryChange && onCategoryChange(cat.name)}
@@ -206,7 +214,7 @@ const handleScroll = () => {
       const categoryLink = getCategoryLink(cat.name);
       return (
         <Link key={cat.name} href={categoryLink}>
-          <a 
+          <a
             className="nav-item"
             onClick={() => onCategoryChange && onCategoryChange(cat.name)}
           >
@@ -220,17 +228,17 @@ const handleScroll = () => {
   const dropdownPortal = portalContainer
     ? ReactDOM.createPortal(
         <div
-          className={`dropdown-portal ${dropdownVisible ? 'visible' : ''}`}
+          className={`dropdown-portal ${dropdownVisible ? "visible" : ""}`}
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: dropdownPos.top,
             left: dropdownPos.left,
             zIndex: 10000,
-            maxWidth: isMobile ? '90vw' : '300px',
+            maxWidth: isMobile ? "90vw" : "300px",
             opacity: dropdownVisible ? 1 : 0,
-            transform: dropdownVisible ? 'translateY(0)' : 'translateY(-10px)',
-            pointerEvents: dropdownVisible ? 'auto' : 'none',
-            transition: 'opacity 0.2s ease, transform 0.2s ease',
+            transform: dropdownVisible ? "translateY(0)" : "translateY(-10px)",
+            pointerEvents: dropdownVisible ? "auto" : "none",
+            transition: "opacity 0.2s ease, transform 0.2s ease",
           }}
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
@@ -242,7 +250,10 @@ const handleScroll = () => {
     : null;
 
   return (
-    <header className={`header ${isScrolled ? 'scrolled' : ''}`} ref={headerRef}>
+    <header
+      className={`header ${isScrolled ? "scrolled" : ""}`}
+      ref={headerRef}
+    >
       <div className="header-container">
         <div className="header-content">
           <Link href="/">
@@ -251,55 +262,46 @@ const handleScroll = () => {
               <h1 className="brand-title">BICÉPHALE</h1>
             </a>
           </Link>
-          
+
           <nav className="header-nav">
             <div className="nav-inner">
               <div
-                className={`nav-item rubriques ${dropdownVisible ? 'active' : ''}`}
+                className={`nav-item rubriques ${
+                  dropdownVisible ? "active" : ""
+                }`}
                 ref={rubriquesRef}
                 onMouseEnter={handleTriggerMouseEnter}
                 onMouseLeave={handleTriggerMouseLeave}
                 onClick={handleTriggerClick}
               >
                 <span>Rubriques</span>
-                <svg 
-                  className="dropdown-caret" 
-                  width="10" 
-                  height="6" 
-                  viewBox="0 0 10 6" 
-                  fill="none" 
+                <svg
+                  className="dropdown-caret"
+                  width="10"
+                  height="6"
+                  viewBox="0 0 10 6"
+                  fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   style={{
-                    marginLeft: '4px',
-                    transition: 'transform 0.2s ease',
-                    transform: dropdownVisible ? 'rotate(180deg)' : 'rotate(0deg)'
+                    marginLeft: "4px",
+                    transition: "transform 0.2s ease",
+                    transform: dropdownVisible
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
                   }}
                 >
-                  <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path
+                    d="M1 1L5 5L9 1"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </div>
-              
+
               {headerNavItems}
-              
-              <div className="nav-item search-item">
-                <Link href="/indices">
-                  <a className="search-button" aria-label="Search">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                  </a>
-                </Link>
-              </div>
+
             </div>
           </nav>
         </div>
@@ -351,14 +353,14 @@ const handleScroll = () => {
 .header{
   width:100%;background:transparent;position:fixed;top:0;left:0;right:0;z-index:1000;
   font-family:-apple-system,InterRegular,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif;
-  transition:all .3s ease
+  transition:all .2s ease
 }
 .header.scrolled{
-  background:rgba(255,255,255,.84);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+  background:rgba(255,255,255,.69);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
   box-shadow:0 2px 10px rgba(0,0,0,.05)
 }
 .header-container{width:100%;max-width:1440px;gap:4px;margin:0 auto;padding:0 16px}
-.header-content{display:flex;flex-direction:column;align-items:center;transition:all .3s ease}
+.header-content{display:flex;flex-direction:column;align-items:center;transition:all .2s ease}
 .header.scrolled .header-content{flex-direction:row;justify-content:space-between;align-items:center}
 
 /* ── brand block (interpolated) ───────────────────────── */
@@ -391,68 +393,64 @@ const handleScroll = () => {
 .header.scrolled .header-nav{
   background:transparent!important;        /* unified blurred sheet */
   width:auto;position:relative;
-  overflow-x:auto;overflow-y:hidden;       /* ▲ stop vertical scroll */
-  transition:all .3s ease;margin-left:0!important
+  overflow-x:auto;overflow-y:auto;       /* ▲ stop vertical scroll */
+  transition:all .2s ease;margin-left:0!important
 }
 .header-nav::-webkit-scrollbar{display:none}
 
 .nav-inner{
   max-width:1200px;margin:0 auto;display:flex;align-items:center;white-space:nowrap;position:relative;
-  gap:calc(14px - 8px*var(--header-progress));
-  padding:calc(1px - 4px*var(--header-progress)) 1.1px 4px 1.1px;
-  transform:translateY(calc((1 - var(--header-progress))*14px)); /* ▲ smaller shift */
-  will-change:transform;transition:all .3s ease
+  gap: calc(20px - 6px*var(--header-progress));
+  padding:4px 1.1px 4px 1.1px;
+  transform:translateY(calc((1 - var(--header-progress))*2px)); /* ▲ smaller shift */
+  will-change:transform;transition:all .2s ease
 }
 .header:not(.scrolled) .nav-inner{justify-content:center}
 .header.scrolled      .nav-inner{justify-content:flex-start}
 
 .nav-item{
-  font-size:14px;border-radius:6px;cursor:pointer;
-  display:flex;align-items:center;padding:calc(7px - 2px*var(--header-progress)) 14px;transition:all .2s ease
+  font-size: inherit;border-radius:6px;cursor:pointer;
+  display:flex;align-items:center;padding:4px 6px;transition:all .2s ease
 }
 .nav-item:hover{background:rgba(0,0,0,.04)}
 .nav-item.active,.nav-item.rubriques:hover{background:rgba(0,0,0,.06)}
-.nav-item.rubriques{display:flex;gap:4px}
+.nav-item.rubriques{display:flex;gap:2px}
 /* ---------- inside the existing <style jsx> block ---------- */
 /* 1 — uniform typography for every nav label */
 .nav-item span { font: inherit; font-size: inherit; font-weight: inherit; }
 
 /* 2 — mobile: nav-bar always scrollable */
 @media (max-width:767px){
+
+// doing, justify on mobile, kinda
+
+  .header:not(.scrolled) .nav-inner{justify-content:flex-start}
+  .header.scrolled      .nav-inner{justify-content:flex-start}
+
   .header-nav,
   .header.scrolled .header-nav{
     width:100%;
     -webkit-overflow-scrolling:touch;
   }
 }
-.search-button{display:flex;align-items:center;justify-content:center;padding:4px;border-radius:50%;transition:all .2s ease}
-.search-button:hover{background:rgba(0,0,0,.05)}
-.search-button svg{width:18px;height:18px}
+.search-button{display:none;align-items:center;justify-content:center;padding:4px;border-radius:50%;transition:all .2s ease}
+.search-button:hover{display:none;background:rgba(0,0,0,.05)}
+.search-button svg{display:none;width:18px;height:18px}
 
 /* page spacer that shrinks with header */
 body{margin-top:calc(140px - 60px*var(--header-progress));transition:margin-top .3s ease}
 
 /* ── mobile tweaks ─────────────────────────────────────── */
-@media (max-width:767px){
-  .header:not(.scrolled) .header-content{flex-direction:column}
-  .header-nav,
-  .header.scrolled .header-nav{background:transparent!important}   /* ▲ remove grey on mobile */
-  .nav-inner{
-    gap:16px;padding:0px 6px 4px 10px;min-width:100%;width:max-content;
-    justify-content:flex-start;transform:none                      /* no vertical offset on mobile */
+  @media (min-width: 768px) {
+    .header         {transition: background .2s ease, box-shadow .2s ease;}
+    .header-content,
+    .brand-link,
+    .brand-logo,
+    .brand-title,
+    .nav-inner      {transition: none !important;}
   }
-  .nav-item{padding:7px 10px;font-size:13px;flex-shrink:0}
-  .brand-title{font-size:28px}
-  .brand-logo{height:44px}
-  .header.scrolled .brand-logo{height:30px}
-  .header.scrolled .brand-title{font-size:24px}
-  /* fade on right edge */
-  .header-nav::after,.header.scrolled .header-nav::after{
-    content:'';position:absolute;top:0;right:0;height:100%;width:24px;
-    background:linear-gradient(to left,rgba(255,255,255,.9),rgba(255,255,255,0));pointer-events:none
   }
-}
-
+    
 /* misc */
 .dropdown-caret{transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
 :global(.nav-item:focus-visible),
@@ -460,15 +458,19 @@ body{margin-top:calc(140px - 60px*var(--header-progress));transition:margin-top 
       `}</style>
       <style jsx global>{`
         /* Add margin to body when header becomes scrolled */
-        ${isScrolled ? `
+        ${
+          isScrolled
+            ? `
         body {
-          margin-top: ${isMobile ? '100px' : '80px'};
+          margin-top: ${isMobile ? "100px" : "80px"};
         }
-        ` : `
+        `
+            : `
         body {
-          margin-top: ${isMobile ? '120px' : '140px'};
+          margin-top: ${isMobile ? "120px" : "120px"};
         }
-        `}
+        `
+        }
       `}</style>
     </header>
   );
