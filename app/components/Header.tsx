@@ -281,6 +281,15 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
         :global(.dropdown-item:active) {
           text-decoration: none !important;
         }
+        /* Target any anchor tag within dropdown portal */
+        :global(.dropdown-portal a),
+        :global(.dropdown-portal a:hover),
+        :global(.dropdown-portal a:visited),
+        :global(.dropdown-portal a:active),
+        :global(.dropdown-portal a.dropdown-item) {
+          text-decoration: none !important;
+          color: #333 !important;
+        }
         /* Elegant dropdown styles with blur effect and better mobile support */
         :global(.rubriques-dropdown) {
           display: flex;
@@ -480,12 +489,15 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           border: 1px solid rgba(230, 230, 230, 0.8);
           overflow: hidden;
         }
+        .rubriques-dropdown a {
+          text-decoration: none !important;
+        }
         .dropdown-item {
           display: block;
           padding: 10px 14px;
           font-size: 14px;
           cursor: pointer;
-          text-decoration: none;
+          text-decoration: none !important;
           transition: all 0.2s ease;
           width: 100%;
           position: relative;
@@ -536,7 +548,11 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           color: #333 !important;
           text-decoration: none !important;
         }
-
+        /* Important override for Next.js Link styling */
+        :global(.rubriques-dropdown a),
+        :global(.rubriques-dropdown a *) {
+          text-decoration: none !important;
+        }
       `}</style>
     </header>
   );

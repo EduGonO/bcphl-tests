@@ -25,7 +25,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         <h2 className="heading">Newsletter</h2>
         <hr />
         <p className="desc">
-          Abonnez-vous pour recevoir nos meilleures sélections d'articles directement dans votre boîte mail.
+          Abonnez-vous pour recevoir nos meilleures sélections d'articles directement dans votre boîte mail, quelque fois par mois.
         </p>
 
         <form className="form" onSubmit={(e) => e.preventDefault()}>
@@ -76,11 +76,12 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           max-width: 1200px;
           margin: 0 auto;
           padding: 24px 16px 34px 26px;
+          box-sizing: border-box;
           font-family: Inter, sans-serif;
         }
         @media(min-width:768px) {
-          .ncl { flex-direction: row; }
-          .left { flex: 0 0 25%; }
+          .ncl { flex-direction: row; min-width:0; }
+          .left { flex: 0 0 25%; min-width: 0; }
           .right { flex: 1; min-width: 0; }
         }
         .col {
@@ -111,6 +112,9 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           flex-direction: column;
           gap: 8px;
           margin-top: 0px;
+          min-width: 0;
+          width: 100%;
+          max-width: 100%;
         }
         .email {
           width: 100%;
@@ -121,6 +125,9 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           font-family: Inter, sans-serif;
           outline: none;
           transition: border-color 0.2s;
+          min-width: 0;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         .email:focus {
           border-color: #111;
@@ -134,6 +141,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           border-radius: 4px;
           cursor: pointer;
           transition: background 0.2s;
+          box-sizing: border-box;
         }
         .subscribe:hover {
           background: #333;

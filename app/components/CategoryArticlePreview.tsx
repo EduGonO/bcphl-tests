@@ -22,7 +22,6 @@ const CategoryArticlePreview: React.FC<Props> = ({
   return (
     <section className="cap">
       <div className="header">
-        <h2 className="heading"></h2>
         <div className="cats">
           {categories.map((c) => {
             const active = c.name === sel
