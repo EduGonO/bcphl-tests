@@ -29,12 +29,8 @@ const CategoryArticlePreview: React.FC<Props> = ({
               <button
                 key={c.name}
                 onClick={() => setSel(c.name)}
-                className="cat"
-                style={{
-                  color: c.color,
-                  backgroundColor: active ? `${c.color}20` : 'transparent',
-                  borderRadius: '9999px',
-                }}
+                className={`cat${active ? ' active' : ''}`}
+                style={{ '--border-color': c.color } as React.CSSProperties}
               >
                 {c.name}
               </button>
@@ -61,7 +57,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           width: 100%;
           max-width: 1000px;
           margin: 0 auto;
-          padding: 0 0px;
+          padding: 0;
           box-sizing: border-box;
           overflow-x: hidden;
         }
@@ -69,50 +65,57 @@ const CategoryArticlePreview: React.FC<Props> = ({
           display: flex;
           justify-content: space-between;
           align-items: center;
-          gap: 12px;
+          gap: 1px;
           flex-wrap: nowrap;
           overflow-x: hidden;
           min-width: 0;
-        }
-        .heading {
-          font-family: ${titleFont}, serif;
-          font-size: 24px;
-          margin: 0;
-          font-weight: 300;
-          white-space: nowrap;
-          flex-shrink: 0;
+          padding-bottom: 0;
         }
         .cats {
           display: flex;
-          gap: 10px;
+          gap: 0;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
-          padding-bottom: 0;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
           flex: 1 1 auto;
           min-width: 0;
         }
         .cats::-webkit-scrollbar {
-          height: 6px;
-        }
-        .cats::-webkit-scrollbar-thumb {
-          background: rgba(0,0,0,0.2);
-          border-radius: 3px;
+          display: none;
         }
         .cat {
           flex: 0 0 auto;
+          position: relative;
           padding: 6px 12px;
+          margin-boottom: -2px;
           font-family: ${titleFont}, serif;
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 300;
+          color: rgba(0, 0, 0, 0.42);
+          background: none;
           border: none;
           cursor: pointer;
-          transition: background 0.2s;
-          max-width: 100%;
+          transition: color 0.2s;
+        }
+        .cat.active {
+          padding-bottom: 6px;
+          color: rgba(0, 0, 0, 0.87);
+        }
+        .cat.active::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0
+          ;
+          height: 2px;
+          background: var(--border-color);
         }
         .divider {
           border: none;
-          border-bottom: 1px solid #eaeaea;
-          margin: 16px 0;
+          border-bottom: 1px solid rgb(199, 199, 199);
+          margin: 0;
         }
         .list {
           min-width: 0;
@@ -122,16 +125,25 @@ const CategoryArticlePreview: React.FC<Props> = ({
           display: block;
           margin-top: 8px;
           font-size: 14px;
-          font-weight: 500;
+          font-weight: 400;
           color: #333;
           padding-left: 10px;
           opacity: 0.69;
           text-decoration: none;
-          font-family: InterRegular, sans-serif;
+          font-family: -apple-system, InterRegular, sans-serif;
           transition: opacity 0.2s;
         }
         .see-more:hover {
+          display: block;
+          margin-top: 8px;
+          font-size: 14px;
+          font-weight: 400;
+          color: #333;
+          padding-left: 10px;
           opacity: 0.9;
+          text-decoration: underline;
+          font-family: -apple-system, InterRegular, sans-serif;
+          transition: opacity 0.2s;
         }
       `}</style>
     </section>

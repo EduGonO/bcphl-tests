@@ -111,9 +111,6 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
       */}
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
-            <h1 style={{ fontFamily: "GayaRegular", marginLeft: "20px" }}>
-              À lire également
-            </h1>
             <ArticleGrid
               articles={filteredArticles}
               categories={categories}

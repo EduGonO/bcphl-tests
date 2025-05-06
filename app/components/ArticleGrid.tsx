@@ -30,10 +30,20 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
             href={`/${article.category}/${article.slug}`}
             className="card-link"
           >
+            <h2 className="heading">À lire également</h2>
             <div className="card">
               <div className="card-image" style={imgStyle} />
 
               <div className="card-content">
+                
+                <h3 className="title">{article.title}</h3>
+
+                <p className="preview">{article.preview}</p>
+
+                <div className="meta">
+                  {article.author} • {article.date}
+                </div>
+
                 <span
                   className="label"
                   style={{
@@ -44,14 +54,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
                 >
                   {article.category}
                 </span>
-
-                <h3 className="title">{article.title}</h3>
-
-                <p className="preview">{article.preview}</p>
-
-                <div className="meta">
-                  {article.author} • {article.date}
-                </div>
               </div>
             </div>
           </a>
@@ -79,6 +81,9 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         scroll-snap-align: start;
         text-decoration: none;
         color: inherit;
+      }
+      .card-link:first-of-type {
+        margin-left: 16px;
       }
       .card {
         background: #fff;
@@ -108,30 +113,41 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
       }
       .label {
         display: inline-block;
-        font-size: 11px;
+        font-size: 12px;
         text-transform: uppercase;
         padding: 2px 6px;
         border: 1px solid;
         border-radius: 2px;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
+        font-weight: 400;
+        font-family: -apple-system, InterRegular, sans-serif;
+      }
+      .heading {
+        font-family: ${titleFont}, Georgia, serif;
+        font-size: 32px;
+        margin-bottom: 16px;
+        font-weight: 300;
       }
       .title {
         font-family: ${titleFont}, Georgia, serif;
-        font-size: 20px;
+        font-size: 24px;
         line-height: 1.3;
-        font-weight: 300;
-        margin: 4px 0 8px;
+        font-weight: 400;
+        margin: 4px 0 6px;
         color: #333;
       }
       .preview {
-        margin: 0 0 12px;
+        margin: 0 0 8px;
         font-size: 14px;
-        line-height: 1.5;
+        line-height: 1.2;
         color: #333;
+        font-family: -apple-system, InterRegular, sans-serif;
       }
       .meta {
-        font-size: 13px;
+        font-size: 14px;
+        margin: 0 0 8px;
         color: #666;
+        font-family: -apple-system, InterRegular, sans-serif;
       }
     `}</style>
   </section>

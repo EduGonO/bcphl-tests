@@ -29,9 +29,14 @@ const ArticleList: React.FC<ArticleListProps> = ({
         >
           <div className="thumb" style={thumbStyle} />
           <div className="content">
-            <span className="pre">{article.category.toUpperCase()}</span>
+            
             <h2 className="title">{article.title}</h2>
-            <span
+
+            <div className="meta">
+              {article.date} • {article.author}
+            </div>
+
+            {/*<span
               className="label"
               style={{
                 borderColor: color,
@@ -40,11 +45,11 @@ const ArticleList: React.FC<ArticleListProps> = ({
               }}
             >
               {article.category}
-            </span>
+            </span>*/}
+
             <p className="preview">{article.preview}</p>
-            <div className="meta">
-              {article.date} • {article.author}
-            </div>
+            
+            <span className="pre">{article.category.toUpperCase()}</span>
           </div>
         </a>
       )
@@ -87,7 +92,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
         font-family: ${titleFont}, Georgia, serif;
         font-size: 20px;
         line-height: 1.3;
-        margin: 4px 0 8px;
+        margin: 0px 0 4px;
         font-weight: 300;
       }
       .label {
@@ -100,14 +105,16 @@ const ArticleList: React.FC<ArticleListProps> = ({
         margin-bottom: 8px;
       }
       .preview {
-        margin: 0 0 12px;
+        margin: 4px 0 12px;
         font-size: 14px;
-        line-height: 1.5;
+        line-height: 1.2;
         color: #333;
+        font-family: -apple-system, InterRegular, sans-serif;
       }
       .meta {
-        font-size: 13px;
+        font-size: 14px;
         color: #666;
+        font-family: -apple-system, InterRegular, sans-serif;
       }
     `}</style>
   </section>

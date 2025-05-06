@@ -323,7 +323,7 @@ const handleScroll = () => {
 /* ── dropdown panel ───────────────────────────────────── */
 :global(.rubriques-dropdown){
   display:flex;flex-direction:column!important;min-width:180px;
-  background:rgba(255,255,255,.9);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+  background:rgba(255,255,255,.64);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
   border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.06);
   padding:6px 0;border:1px solid rgba(230,230,230,.6);overflow:hidden;transform-origin:top center
 }
@@ -344,7 +344,7 @@ const handleScroll = () => {
   transition:all .3s ease
 }
 .header.scrolled{
-  background:rgba(255,255,255,.68);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.84);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
   box-shadow:0 2px 10px rgba(0,0,0,.05)
 }
 .header-container{width:100%;max-width:1440px;margin:0 auto;padding:0 16px}

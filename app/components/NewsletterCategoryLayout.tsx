@@ -42,7 +42,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           </button>
         </form>
 
-        {sample && (
+        {/*sample && (
           <div className="small-card">
             <div
               className="thumb"
@@ -57,7 +57,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
             <h4 className="card-title">{sample.title}</h4>
             <p className="card-author">{sample.author}</p>
           </div>
-        )}
+        )*/}
       </div>
 
       <div className="col right">
@@ -92,7 +92,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           }
         .heading {
           font-family: ${titleFont}, Georgia, serif;
-          font-size: 24px;
+          font-size: 28px;
           margin: 0;
           font-weight: 300;
         }
@@ -135,8 +135,8 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         .subscribe {
           padding: 12px 16px;
           font-size: 14px;
-          background: #111;
-          color: #fff;
+          background: #333;
+          color: #eee;
           border: none;
           border-radius: 4px;
           cursor: pointer;
@@ -149,7 +149,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         .small-card {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 4px;
         }
         .thumb {
           width: 100%;
@@ -160,15 +160,15 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         .card-title {
           font-family: ${titleFont}, Georgia, serif;
           font-size: 16px;
-          font-weight: 500;
+          font-weight: 300;
           margin: 0;
-          line-height: 1.4;
+          line-height: 1.2;
         }
         .card-author {
           font-size: 14px;
           color: #666;
           margin: 0;
-          line-height: 1.4;
+          line-height: 1.2;
         }
       `}</style>
     </section>

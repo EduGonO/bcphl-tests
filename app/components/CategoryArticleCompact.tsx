@@ -57,7 +57,7 @@ const CategoryArticleGrid: React.FC<Props> = ({
       }
       .cat {
         margin: 0 0 8px;
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 400;
       }
       hr {
