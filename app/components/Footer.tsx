@@ -102,10 +102,18 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
         }
         .footer-sections {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          grid-template-columns: 1fr;
           gap: 24px;
-          align-items: center;
         }
+          @media (min-width: 468px) {
+  .footer-sections {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
         .footer-col a {
           color: ${footerColor};
           text-decoration: none;
@@ -113,7 +121,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
         .footer-heading {
           font-size: 18px;
           margin-bottom: 8px;
-          font-weight: bold;
+          font-weight: 300;
           color: ${footerColor};
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
         }

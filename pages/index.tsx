@@ -1,7 +1,7 @@
 // /pages/index.tsx
 import React, { useState } from "react";
 import Head from "next/head";
-import Header, { Category } from "../app/components/Header";
+import Header, { Category } from "../app/components/Header-2";
 import DebugOverlay from "../app/components/DebugOverlay";
 import Footer from "../app/components/Footer";
 import ArticleList from "../app/components/ArticleList";
@@ -69,6 +69,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
         />
         <main style={mainStyle}>
           {activeCategory && <CategoryBanner category={activeCategory} />}
+{/*
           <div>
             <ArticleBlock
               articles={articles}
@@ -76,36 +77,40 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
               titleFont="RecoletaMedium"
             />
           </div>
-
-          {/*
+*/}
           <MixedArticleShowcase
             articles={articles}
             categories={categories}
             titleFont="GayaRegular"
           />
+          
           <NewsletterCategoryLayout
             articles={articles}
             filteredArticles={filteredArticles}
             categories={categories}
             titleFont={titleFont}
           />
+          {/*
           <CategoryArticlePreview
             articles={filteredArticles}
             categories={categories}
             titleFont="GayaRegular"
           />
-          */}
           
           <ArticleList
             articles={filteredArticles}
             categories={categories}
             titleFont={titleFont}
           />
+          
+            <CategoryArticleCompact
+              articles={articles}
+              categories={categories}
+              titleFont="GayaRegular"
+            />
+      */}
           <div>
             {/* Some logic to decide if you want to show the grid vs. list */}
-            <h1 style={{ fontFamily: "RecoletaMedium", marginLeft: "20px" }}>
-              À lire également
-            </h1>
             <ArticleGrid
               articles={filteredArticles}
               categories={categories}
