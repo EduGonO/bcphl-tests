@@ -11,7 +11,7 @@ export type CategoryConfig = {
 };
 
 export const categoryConfigMap: Record<string, CategoryConfig> = {
-  'Love Letters': {
+  'Love-Letter': {
     color: '#f44336',
     showInHeader: false,
     showInDropdown: true,

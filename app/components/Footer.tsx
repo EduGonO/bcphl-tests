@@ -51,7 +51,14 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
             <div className="footer-col">
               <h4 className="footer-heading">Rester en lien(s)</h4>
               <p className="footer-text">Abonnez-vous à la lettre d’information des Bicéphale</p>
-              <button style={btn} onClick={() => setNewsletterOpen(true)}>S’abonner</button>
+              <a
+                href="https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF"
+                target="_blank"
+                rel="noopener"
+                style={btn}
+              >
+                S’abonner
+              </a>
               <p className="footer-text" style={{ marginTop: '12px' }}>Suivez-nous</p>
               <div className="social-row">
                 {/* SVG icons here */}
@@ -62,10 +69,10 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
             <div className="footer-col">
               <h4 className="footer-heading">Contribuer</h4>
               <ul className="footer-list">
-                <li><a>Contacter la rédaction</a></li>
-                <li><a>Nous soutenir</a></li>
-                <li><a>Commenter avec Hypothesis</a></li>
-                <li><Link href="/indices"><a>Plan du site</a></Link></li>
+                <li><a href="mailto:revue@bicephale.org">Nous contacter</a></li>
+                <li><a href="https://www.helloasso.com/associations/brigade-d-interventions-contributives/formulaires/1" target="_blank" rel="noopener">Nous soutenir</a></li>
+                <li><a href="https://web.hypothes.is/" target="_blank" rel="noopener">Commenter avec Hypothesis</a></li>
+                {/*<li><Link href="/indices"><a>Plan du site</a></Link></li>*/}
                 <li><a>Mentions légales</a></li>
               </ul>
             </div>
@@ -74,7 +81,14 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
             <div className="footer-col">
               <h4 className="footer-heading">Brigade d’Interventions Contributives</h4>
               <p className="footer-text">La revue Bicéphale est propulsée par la Brigade d’Interventions Contributives.</p>
-              <button style={btn}>Nous soutenir</button>
+              <a
+                href="https://www.helloasso.com/associations/brigade-d-interventions-contributives/formulaires/1"
+                target="_blank"
+                rel="noopener"
+                style={btn}
+              >
+                Nous soutenir
+              </a>
             </div>
 
             {/* 4. Logo + droits */}

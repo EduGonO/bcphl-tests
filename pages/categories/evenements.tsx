@@ -20,7 +20,7 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
 
   if (!config) return <div>Catégorie intreuvable.</div>;
 
-  const usesSharedPage = ['Love Letters', 'Bascule', 'Sensure', 'Banque des rêves', 'Cartographie'].includes(category);
+  const usesSharedPage = ['Love-Letter', 'Bascule', 'Sensure', 'Banque des rêves', 'Cartographie'].includes(category);
 
   if (usesSharedPage) {
     return <SharedCategoryPage category={category} articles={articles} />;
