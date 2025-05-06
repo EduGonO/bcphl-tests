@@ -5,7 +5,7 @@ import { getArticleData } from '../lib/articleService';
 import { categoryConfigMap } from '../config/categoryColors';
 import SharedCategoryPage from '../app/components/shared';
 import { Article } from '../types'; // Ensure you import your Article type
-import Header, { Category } from '../app/components/Header';
+import Header, { Category } from '../app/components/Header-2';
 
 
 
@@ -18,7 +18,7 @@ interface CategoryEntryProps {
 export default function CategoryEntry({ category, articles }: CategoryEntryProps) {
   const config = categoryConfigMap[category];
 
-  if (!config) return <div>Catégorie introuvable.</div>;
+  if (!config) return <div>Evenements.</div>;
 
   const usesSharedPage = ['Love Letters', 'Bascule', 'Sensure', 'Banque des rêves', 'Cartographie'].includes(category);
 

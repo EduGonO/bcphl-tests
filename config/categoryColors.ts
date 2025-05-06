@@ -68,7 +68,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     showInDropdown: false,
     media: [],
     linkTo: '/categories/banque-des-reves',
-    dataFolder: 'texts/Love-Letter',
+    dataFolder: 'texts/Banque des rêves',
   },
   'Cartographie': {
     color: '#607d8b',

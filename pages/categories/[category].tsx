@@ -5,8 +5,9 @@ import { useRouter } from 'next/router';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap, categoryToSlug } from '../../config/categoryColors';
 import SharedCategoryPage from '../../app/components/shared';
+import Header, { Category } from '../../app/components/Header-2';
+import Footer from '../../app/components/Footer';
 import { Article } from '../../types';
-import Header, { Category } from '../../app/components/Header';
 
 interface CategoryEntryProps {
   category: string;
@@ -17,32 +18,31 @@ interface CategoryEntryProps {
 export default function CategoryEntry({ category, articles, categories }: CategoryEntryProps) {
   const router = useRouter();
   const slug = router.query.category as string;
-  
-  // Find the actual category name from the slug
-  const categoryName = Object.keys(categoryConfigMap).find(
-    catName => categoryToSlug(catName) === slug
-  ) || category;
-  
-  const config = categoryConfigMap[categoryName];
 
+  const categoryName =
+    Object.keys(categoryConfigMap).find((c) => categoryToSlug(c) === slug) || category;
+
+  const config = categoryConfigMap[categoryName];
   if (!config) return <div>Catégorie introuvable.</div>;
 
-  // Check if this category should be handled by a specific page
-  // If it has a linkTo property and it's not the current path, redirect to that page
   if (config.linkTo && typeof window !== 'undefined') {
-    const currentPath = router.asPath;
-    const targetPath = config.linkTo;
-    
-    // Only redirect if we're not already on the target page
-    if (!currentPath.includes(targetPath)) {
-      router.push(targetPath);
-      return <div>Redirection...</div>;
+    const target = config.linkTo;
+    if (!router.asPath.includes(target)) {
+      router.push(target);
+      return <div>Redirection…</div>;
     }
   }
 
-  // Otherwise use the shared page component
-  return <SharedCategoryPage category={categoryName} articles={articles} />;
+  return (
+    <>
+      <Header categories={categories} />
+      <SharedCategoryPage category={categoryName} articles={articles} />
+      <Footer />
+    </>
+  );
 }
+
+// getStaticPaths and getStaticProps stay unchanged
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // Generate paths for categories that should use the shared component

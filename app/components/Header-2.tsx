@@ -40,21 +40,27 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   });
 
   // top of file, after other state
-const MAX_SCROLL = 100;          // px to reach full “compact”
+/* ---------- Header.tsx ---------- */
+/* add just below the state hooks */
+const MAX_SCROLL = 100;
 useEffect(() => {
   document.documentElement.style.setProperty('--header-progress', '0');
 }, []);
 
-// inside existing useEffect, replace handleScroll body
+/* inside the big useEffect (where scroll / resize listeners are set) 
+   replace the existing `handleScroll` with: */
 const handleScroll = () => {
   const y = window.scrollY;
-  const p = Math.min(y / MAX_SCROLL, 1);              // 0 → 1
+  const p = Math.min(y / MAX_SCROLL, 1);
   document.documentElement.style.setProperty('--header-progress', p.toString());
-  setIsScrolled(p === 1);                             // keep boolean for margins etc.
+  setIsScrolled(p === 1);
 
   if (dropdownVisible && rubriquesRef.current) {
-    const r = rubriquesRef.current.getBoundingClientRect();
-    setDropdownPos({ top: r.bottom + (isMobile ? 2 : 6), left: isMobile ? r.left : r.left + window.scrollX });
+    const rect = rubriquesRef.current.getBoundingClientRect();
+    setDropdownPos({
+      top: rect.bottom + (isMobile ? 2 : 6),
+      left: isMobile ? rect.left : rect.left + window.scrollX,
+    });
   }
 };
 
@@ -305,7 +311,11 @@ const handleScroll = () => {
 :global(*){box-sizing:border-box}
 :root{--header-progress:0}
 :global(.dropdown-portal){will-change:transform,opacity;backface-visibility:hidden}
-
+:global(.dropdown-portal){
+  background:rgba(255,255,255,.14);
+  backdrop-filter:blur(15px);
+  -webkit-backdrop-filter:blur(15px);
+}
 /* links */
 :global(.header a),
 :global(.header a:visited),
@@ -374,8 +384,8 @@ const handleScroll = () => {
 
 .nav-inner{
   max-width:1200px;margin:0 auto;display:flex;align-items:center;white-space:nowrap;position:relative;
-  gap:calc(24px - 8px*var(--header-progress));
-  padding:calc(8px - 4px*var(--header-progress)) 12px;
+  gap:calc(14px - 8px*var(--header-progress));
+  padding:calc(1px - 4px*var(--header-progress)) 1.1px 4px 1.1px;
   transform:translateY(calc((1 - var(--header-progress))*14px)); /* ▲ smaller shift */
   will-change:transform;transition:all .3s ease
 }
@@ -383,13 +393,24 @@ const handleScroll = () => {
 .header.scrolled      .nav-inner{justify-content:flex-start}
 
 .nav-item{
-  font-size:14px;font-weight:500;letter-spacing:.015em;border-radius:6px;cursor:pointer;
+  font-size:14px;border-radius:6px;cursor:pointer;
   display:flex;align-items:center;padding:calc(7px - 2px*var(--header-progress)) 14px;transition:all .2s ease
 }
 .nav-item:hover{background:rgba(0,0,0,.04)}
 .nav-item.active,.nav-item.rubriques:hover{background:rgba(0,0,0,.06)}
 .nav-item.rubriques{display:flex;gap:4px}
+/* ---------- inside the existing <style jsx> block ---------- */
+/* 1 — uniform typography for every nav label */
+.nav-item span { font: inherit; font-size: inherit; font-weight: inherit; }
 
+/* 2 — mobile: nav-bar always scrollable */
+@media (max-width:767px){
+  .header-nav,
+  .header.scrolled .header-nav{
+    width:100%;
+    -webkit-overflow-scrolling:touch;
+  }
+}
 .search-button{display:flex;align-items:center;justify-content:center;padding:4px;border-radius:50%;transition:all .2s ease}
 .search-button:hover{background:rgba(0,0,0,.05)}
 .search-button svg{width:18px;height:18px}
@@ -403,7 +424,7 @@ body{margin-top:calc(140px - 60px*var(--header-progress));transition:margin-top 
   .header-nav,
   .header.scrolled .header-nav{background:transparent!important}   /* ▲ remove grey on mobile */
   .nav-inner{
-    gap:16px;padding:12px 16px;min-width:100%;width:max-content;
+    gap:16px;padding:0px 6px 4px 10px;min-width:100%;width:max-content;
     justify-content:flex-start;transform:none                      /* no vertical offset on mobile */
   }
   .nav-item{padding:7px 10px;font-size:13px;flex-shrink:0}

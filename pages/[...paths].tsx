@@ -5,8 +5,7 @@ import Head from "next/head";
 import fs from "fs";
 import path from "path";
 import type { GetStaticPaths, GetStaticProps } from "next";
-import Header, { Category } from "../app/components/Header";
-import DebugOverlay from "../app/components/DebugOverlay";
+import Header, { Category } from "../app/components/Header-2";
 import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
 import { getArticleData } from "../lib/articleService";
@@ -163,23 +162,22 @@ const ArticlePage: React.FC<ArtProps> = ({
   gridArticles,
   categories,
 }) => {
-  const [layout, setLayout] = useState<"vertical" | "horizontal">("horizontal");
-  const [bodyFontSize, setBodyFontSize] = useState<number>(16);
+  const [bodyFontSize, setBodyFontSize] = useState<number>(18);
   const [bodyFont, setBodyFont] = useState<
     "InterRegular" | "AvenirNextCondensed"
   >("InterRegular");
   const [titleFont, setTitleFont] = useState<
     "RecoletaMedium" | "GayaRegular"
   >("GayaRegular");
-  const [imagePreview, setImagePreview] = useState<boolean>(true);
-  const [showArticleSidebar, setShowArticleSidebar] =
-    useState<boolean>(true);
 
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
+  // Parse date properly
+  const formattedDate = date !== "Unknown Date" 
+    ? new Date(date).toLocaleDateString("en-US", {
+        month: "long", 
+        day: "numeric",
+        year: "numeric",
+      })
+    : "Unknown Date";
 
   const hexToRgba = (hex: string, alpha: number): string => {
     let r = 0,
@@ -197,20 +195,21 @@ const ArticlePage: React.FC<ArtProps> = ({
     categories.find(
       (c) => c.name.toLowerCase() === category.toLowerCase()
     )?.color || "#f0f0f0";
-  const backdropColor = hexToRgba(articleColor, 0.5);
+  const backdropColor = hexToRgba(articleColor, 0.1);
+  const accentColor = hexToRgba(articleColor, 0.9);
 
   return (
     <>
       <Head>
         <title>{title}</title>
         {/* Hypothesis config (optional) */}
-          <script
-            type="application/json"
-            className="js-hypothesis-config"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({ openSidebar: false }),
-              }}
-            />
+        <script
+          type="application/json"
+          className="js-hypothesis-config"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({ openSidebar: false }),
+          }}
+        />
       </Head>
       <Script
         src="https://hypothes.is/embed.js"
@@ -225,86 +224,41 @@ const ArticlePage: React.FC<ArtProps> = ({
           backgroundColor: '#fff',
           fontSize: `${bodyFontSize}px`,
           fontFamily: bodyFont,
-          
         }}
       >
         <Header categories={categories} />
 
-        {/* Backdrop using article's category color at 50% opacity */}
-        <div
-          style={{
-            height: '240px',
-            backgroundColor: backdropColor,
+        {/* Hero section with header image - now full width */}
+        <div 
+          className="article-hero" 
+          style={{ 
+            backgroundImage: headerImage ? `url(${headerImage})` : undefined,
+            backgroundColor: backdropColor
           }}
-        />
-
-        {/* Common container wraps hero, main content, and article grid for consistent widths */}
-        <div className="common-container">
-          {/* HERO SECTION */}
-          <div className="hero-card">
-            <div className="hero-text">
-              <p>{category}</p>
-              <h1>{title}</h1>
-              <p>{author} &nbsp;•&nbsp; {formattedDate}</p>
+        >
+          <div className="article-hero-overlay" />
+          <div className="article-hero-content">
+            <div className="article-category" style={{ color: accentColor }}>
+              {category}
             </div>
-            <div className="hero-image" />
+            <h1 className="article-title">{title}</h1>
+            <div className="article-meta">
+              <span className="article-author">{author}</span>
+              <span className="article-date">{formattedDate}</span>
+            </div>
           </div>
+        </div>
 
-          {/* MAIN CONTENT */}
-          <main className="main-content">
-            <div className="content-wrapper">
-              <div className="article-text">
-                {content}
-              </div>
-              {showArticleSidebar && (
-                <aside className="sidebar">
-                  <div className="sidebar-header">
-                    <span className="sidebar-category">{category}</span>
-                    <span className="sidebar-date">{formattedDate}</span>
-                  </div>
-                  <div className="sidebar-author">
-                    <div className="author-avatar" />
-                    <h4>{author}</h4>
-                  </div>
-                  <p className="sidebar-bio">
-                    Ceci est une courte biographie de l'auteur qui est une courte biographie de l'auteur.
-                  </p>
-                  <div className="sidebar-links">
-                    <a href="#">Portfolio</a>
-                    <a href="#">Twitter</a>
-                    <a href="#">LinkedIn</a>
-                  </div>
-                  <h4 className="sidebar-heading">References</h4>
-                  <ul className="sidebar-list">
-                    <li>
-                      <a href="#">Example Reference 1</a>
-                    </li>
-                    <li>
-                      <a href="#">Example Reference 2</a>
-                    </li>
-                    <li>
-                      <a href="#">Example Reference 3</a>
-                    </li>
-                  </ul>
-                  <h4 className="sidebar-heading">Commentaires</h4>
-                  <ul className="sidebar-list">
-                    <li>
-                      <strong>User1:</strong> Example de commentaire
-                    </li>
-                    <li>
-                      <strong>User2:</strong> Un autre exemple de commentaire.
-                    </li>
-                  </ul>
-                </aside>
-              )}
-            </div>
-          </main>
+        {/* Main content - narrower container */}
+        <div className="article-body-container">
+          <div className="article-body">
+            {content}
+          </div>
+        </div>
 
-          {/* ARTICLE GRID */}
-          <div className="article-grid-container">
-            <h1 style={{ fontFamily: 'RecoletaMedium', marginLeft: '20px' }}>
-              À lire également
-            </h1>
+        {/* Related articles - container for proper alignment */}
+        <div className="container">
+          <div className="related-articles">
             <ArticleGrid articles={gridArticles} categories={categories} titleFont="GayaRegular" />
           </div>
         </div>
@@ -313,96 +267,200 @@ const ArticlePage: React.FC<ArtProps> = ({
       </div>
 
       <style jsx>{`
-        /* Common container ensures unified width and padding */
-        .common-container {
+        .container {
+          width: 100%;
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 20px;
+          padding: 0 24px;
         }
-        /* HERO CARD STYLES */
-        .hero-card {
-          display: flex;
-          gap: 30px;
-          align-items: center;
-          background-color: #fff;
-          padding: 0 0px 0px 60px;
-          border-top-left-radius: 142px;
-          border-top-right-radius: 8px;
-          border-bottom-right-radius: 8px;
-          border-bottom-left-radius: 8px;
-          transform: translateY(-140px);
+
+        .article-hero {
+          position: relative;
+          height: 500px;
+          background-size: cover;
+          background-position: center;
+          width: 100%;
+          margin-top: 20px;
+          overflow: hidden;
         }
-        .hero-text {
-          flex: 1;
-          text-align: left;
+
+        .article-hero-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 90%);
         }
-        .hero-text p {
-          margin: 0 0 8px;
+
+        .article-hero-content {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 60px 24px;
+          color: white;
+          text-align: center;
+        }
+
+        .article-category {
+          display: inline-block;
           font-size: 14px;
+          font-weight: 600;
           text-transform: uppercase;
+          letter-spacing: 1.5px;
+          background-color: white;
+          padding: 8px 16px;
+          border-radius: 4px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .hero-text h1 {
-          margin: 0 0 8px;
+
+        .article-title {
           font-family: ${titleFont};
-          font-weight: normal;
-          font-size: 32px;
+          font-size: 46px;
           line-height: 1.2;
+          margin: 0 0 24px;
+          font-weight: normal;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        .hero-text p:last-of-type {
-          font-size: 14px;
-          font-style: italic;
-        }
-        .hero-image {
-          width: 400px;
-          height: 250px;
-          background-color: #ccc;
-          flex-shrink: 0;
-        }
-        /* MAIN CONTENT STYLES */
-        .main-content {
-          padding: 20px 0;
-        }
-        .content-wrapper {
+
+        .article-meta {
+          font-size: 16px;
+          opacity: 0.9;
           display: flex;
-          gap: 20px;
+          justify-content: center;
+          gap: 16px;
         }
-        /* Sidebar styling */
-        .sidebar {
-          width: 20%;
-          min-width: 200px;
-          border-left: 1px solid #ddd;
-          padding: 24px;
+
+        .article-author {
+          font-weight: 500;
         }
-        /* Mobile adjustments */
+
+        .article-author:after {
+          content: "•";
+          margin-left: 16px;
+          opacity: 0.7;
+        }
+
+        .article-body-container {
+          margin: 60px auto;
+          max-width: 690px;
+          padding: 0 24px;
+        }
+
+        .article-body {
+          font-size: ${bodyFontSize}px;
+          line-height: 1.5;
+          color: #333;
+        }
+
+        .article-body p {
+          margin-bottom: 1.8em;
+        }
+
+        .article-body h2 {
+          font-family: ${titleFont};
+          font-size: 32px;
+          margin: 2em 0 1em;
+          font-weight: normal;
+          color: #222;
+        }
+
+        .article-body h3 {
+          font-family: ${titleFont};
+          font-size: 26px;
+          margin: 1.8em 0 0.8em;
+          font-weight: normal;
+          color: #333;
+        }
+
+        .article-body a {
+          color: ${accentColor};
+          text-decoration: none;
+          border-bottom: 1px solid rgba(0,0,0,0.1);
+          transition: border-color 0.2s ease;
+        }
+
+        .article-body a:hover {
+          border-color: ${accentColor};
+        }
+
+        .article-body img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          margin: 2em 0;
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .article-body blockquote {
+          margin: 2em 0;
+          padding: 16px 24px 16px 32px;
+          border-left: 4px solid ${accentColor};
+          background-color: ${backdropColor};
+          font-style: italic;
+          border-radius: 4px;
+        }
+
+        .related-articles {
+          margin: 80px 0 60px;
+        }
+
+        .related-articles h2 {
+          font-family: ${titleFont};
+          font-size: 36px;
+          margin-bottom: 40px;
+          font-weight: normal;
+          text-align: center;
+          color: #222;
+        }
+
         @media (max-width: 768px) {
-          .hero-card {
+          .article-hero {
+            height: 400px;
+          }
+
+          .article-hero-content {
+            padding: 40px 20px;
+          }
+
+          .article-title {
+            font-size: 36px;
+          }
+
+          .article-meta {
             flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            transform: translateY(-142px);
+            gap: 8px;
           }
-          .hero-text {
-            text-align: center;
-            padding-top: 20px;
+
+          .article-author:after {
+            display: none;
           }
-          .hero-image {
-            width: 100%;
-            height: auto;
-            margin-top: 20px;
+
+          .article-body-container {
+            margin: 40px auto;
           }
-          .content-wrapper {
-            flex-direction: column;
-          }
-          .sidebar {
-            width: 100%;
-            border-left: none;
-            padding: 20px;
-            margin-top: 20px;
+
+          .article-body {
+            font-size: 17px;
           }
         }
-        /* ARTICLE GRID container uses common-container */
-        .article-grid-container {
-          margin: 20px 0;
+
+        @media (max-width: 480px) {
+          .article-hero {
+            height: 300px;
+          }
+
+          .article-title {
+            font-size: 32px;
+          }
+
+          .article-body-container {
+            padding: 0 16px;
+          }
         }
       `}</style>
     </>

@@ -18,7 +18,7 @@ interface CategoryEntryProps {
 export default function CategoryEntry({ category, articles }: CategoryEntryProps) {
   const config = categoryConfigMap[category];
 
-  if (!config) return <div>Info.</div>;
+  if (!config) return <div>Catégorie intreuvable.</div>;
 
   const usesSharedPage = ['Love Letters', 'Bascule', 'Sensure', 'Banque des rêves', 'Cartographie'].includes(category);
 
@@ -51,7 +51,7 @@ export default function CategoryEntry({ category, articles }: CategoryEntryProps
       <ul>
         {articles.map((a) => (
           <li key={a.slug}>
-            <strong>{a.title}</strong> -Info- {a.date} by {a.author}
+            <strong>{a.title}</strong> -Evenements- {a.date} by {a.author}
             <p>{a.preview}</p>
           </li>
         ))}

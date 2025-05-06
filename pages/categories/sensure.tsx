@@ -4,7 +4,7 @@ import { GetStaticProps } from 'next';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types';
-import Header, { Category } from '../../app/components/Header';
+import Header, { Category } from '../../app/components/Header-2';
 import Footer from '../../app/components/Footer';
 
 interface SensurePageProps {
