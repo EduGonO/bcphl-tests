@@ -357,7 +357,7 @@ const handleScroll = () => {
   background:rgba(255,255,255,.84);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
   box-shadow:0 2px 10px rgba(0,0,0,.05)
 }
-.header-container{width:100%;max-width:1440px;margin:0 auto;padding:0 16px}
+.header-container{width:100%;max-width:1440px;gap:4px;margin:0 auto;padding:0 16px}
 .header-content{display:flex;flex-direction:column;align-items:center;transition:all .3s ease}
 .header.scrolled .header-content{flex-direction:row;justify-content:space-between;align-items:center}
 
@@ -370,6 +370,20 @@ const handleScroll = () => {
 .brand-title{
   font-size:calc(42px - 12px*var(--header-progress));margin:0;font-weight:200;
   font-family:"GayaRegular","RecoletaMedium",sans-serif;letter-spacing:.02em;transition:font-size .3s ease
+}
+
+.nav-item search-item {
+  display: none;
+}
+.search-item {
+  display: none;
+}
+
+.nav-item search-button {
+  display: none;
+}
+.search-button {
+  display: none;
 }
 
 /* ── navigation strip ─────────────────────────────────── */

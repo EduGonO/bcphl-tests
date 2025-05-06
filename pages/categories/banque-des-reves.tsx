@@ -231,7 +231,7 @@ export default function ImageCritiquePage({ articles, categories }: BanqueDesRev
             <p>La Banque des rêves est une collection d'articles explorant l'imaginaire visuel et la critique d'images contemporaines.</p>
           </div>
           <div className="category-cta">
-            <a href="#" className="contact-button" style={{ backgroundColor: config.color }}>
+            <a href="mailto:revue@bicephale.org" className="contact-button" style={{ backgroundColor: config.color }}>
               Contacter l'équipe
             </a>
           </div>

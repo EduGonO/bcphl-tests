@@ -10,6 +10,8 @@ interface Props {
   titleFont?: string
 }
 
+const btn = { background: '#222', color: '#fff', border: 'none', borderRadius: '4px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' };
+
 const NewsletterCategoryLayout: React.FC<Props> = ({
   articles,
   filteredArticles,
@@ -37,9 +39,15 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <button type="submit" className="subscribe">
-            S'inscrire
-          </button>
+              <a
+                href="https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF"
+                target="_blank"
+                rel="noopener"
+                style={btn}
+                className='subscribe'
+              >
+                S’abonner
+              </a>
         </form>
 
         {/*sample && (
@@ -145,6 +153,18 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
         }
         .subscribe:hover {
           background: #333;
+        }
+        .subscribe a {
+          text-decoration: none;
+        }
+        .subscribe.a {
+          text-decoration: none;
+        }
+        .a {
+          text-decoration: none;
+        }
+        a {
+          text-decoration: none;
         }
         .small-card {
           display: flex;
