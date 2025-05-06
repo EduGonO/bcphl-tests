@@ -52,8 +52,26 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
   return (
     <>
       <Head>
-        <title>Bicéphale</title>
+        <title>Bicéphale · Acceuil</title>
         {/* Additional meta tags, scripts, etc. */}
+        <meta
+          name="description"
+          content="Revue Bicéphale, 2025"
+        />
+
+        {/* Open Graph (Facebook, LinkedIn, Slack, etc.) */}
+        <meta property="og:type"        content="website" />
+        <meta property="og:site_name"   content="Bicéphale" />
+        <meta property="og:title"       content="Bicéphale" />
+        <meta property="og:description" content="Revue Bicéphale, 2025" />
+        <meta property="og:url"         content="https://bicephale.org" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:title"       content="Bicéphale" />
+        <meta name="twitter:description" content="Revue Bicéphale, 2025" />
+
+        {/* Favicon from earlier */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </Head>
       <div
         style={{
