@@ -16,6 +16,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   headerImages = {},
 }) => (
   <section className="article-grid">
+    <h2 className="heading">À lire également</h2>
     <div className="grid-container">
       {articles.map((article, idx) => {
         const cat = categories.find((c) => c.name === article.category)
@@ -30,7 +31,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
             href={`/${article.category}/${article.slug}`}
             className="card-link"
           >
-            <h2 className="heading">À lire également</h2>
             <div className="card">
               <div className="card-image" style={imgStyle} />
 
@@ -127,6 +127,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         font-size: 32px;
         margin-bottom: 16px;
         font-weight: 300;
+        padding-left: 16px
       }
       .title {
         font-family: ${titleFont}, Georgia, serif;
