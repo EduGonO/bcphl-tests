@@ -80,15 +80,23 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
   },
   'Événements': {
     color: '#607d8b',
-    showInHeader: true,
+    showInHeader: false,
     showInDropdown: false,
     media: [],
     linkTo: '/evenements',
     dataFolder: 'texts/Événements',
   },
-  'À propos': {
+  'Evenements/À propos': {
     color: '#607d8b',
     showInHeader: true,
+    showInDropdown: false,
+    media: [],
+    linkTo: '/categories/info',
+    dataFolder: 'texts/À propos',
+  },
+  'À propos': {
+    color: '#607d8b',
+    showInHeader: false,
     showInDropdown: false,
     media: [],
     linkTo: '/categories/info',
