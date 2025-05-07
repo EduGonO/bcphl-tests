@@ -3,6 +3,7 @@ import Head from 'next/head';
 import '../styles/global.css';
 import { SessionProvider } from 'next-auth/react';
 import { Session } from 'next-auth';
+import { Analytics } from "@vercel/analytics/react"
 
 interface MyAppProps extends AppProps {
   pageProps: { session?: Session };
