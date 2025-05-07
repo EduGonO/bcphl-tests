@@ -46,7 +46,7 @@ C’est donc là que j’ai reçu pour la première fois entre les mains la piè
 
 **Juliette R.**: Oui, d’autant que « texte » et « tissu » « délicatesse » ou « tissage » ont la même étymologie… Il était hors de question pour moi de faire intervenir un qr code brut, comme si on allait commander quelque chose au restaurant… mais vraiment, puisque nous cherchions la légèreté du dispositif (sans casques, câbles ou matériel audio laissés sur place) de traverser l’élément technique (le qr code) avec un savoir-faire typiquement féminin et aussi largement méprisé pour cela : le point de croix. Juliette S. m’a transmis son savoir-faire en la matière, il est donc aussi question de transmission mais en ce cas elle est positive, consciente et en vue de créer un objet, lui-même vecteur pour l’écoute d’une voix, celle de Juliette S. portant mes mots. Tout cela a lieu sans aucun geste spécifique demandé au public, seulement un brin d’esprit d’enquête et de curiosité, partant du prérequis que tout le monde est équipé d’un téléphone avec appareil photo et connexion internet. Le texte (re)devient tissu et forme permettant d’accéder à sa lecture. On peut l’emporter avec soi pour l’écouter ou prolonger son écoute plus tard…  
 
-###### DISTRIBUTION
+### DISTRIBUTION
 **Texte** Juliette Riedler, édité aux Éditions Tango Girafe
 **Mise en scène** Floriane Comméléran
 **Décors** Cecilia Galli Avec Anthony Audoux, India de Almeida, Juliette Séjourné & la voix d’Edith Proust
