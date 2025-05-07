@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   // top of file, after other state
   /* ---------- Header.tsx ---------- */
   /* add just below the state hooks */
-  const MAX_SCROLL = 60;
+  const MAX_SCROLL = 50;
   useEffect(() => {
     document.documentElement.style.setProperty("--header-progress", "0");
   }, []);
@@ -359,7 +359,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   background:rgba(255,255,255,.69);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
   box-shadow:0 2px 10px rgba(0,0,0,.05)
 }
-.header-container{width:100%;max-width:1440px;gap:4px;margin:0 auto;padding:0 16px}
+.header-container{width:100%;max-width:1440px;gap:4px;margin:0 auto;padding:4px 16px}
 .header-content{display:flex;flex-direction:column;align-items:center;transition:all .2s ease}
 .header.scrolled .header-content{flex-direction:row;justify-content:space-between;align-items:center}
 
@@ -401,8 +401,8 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 .nav-inner{
   max-width:1200px;margin:0 auto;display:flex;align-items:center;white-space:nowrap;position:relative;
   gap: calc(20px - 6px*var(--header-progress));
-  padding:4px 1.1px 4px 1.1px;
-  transform:translateY(calc((1 - var(--header-progress))*2px)); /* ▲ smaller shift */
+  padding:4px 1.1px 40x 1.1px;
+  transform:translateY(calc((1 - var(--header-progress))*1px)); /* ▲ smaller shift */
   will-change:transform;transition:all .2s ease
 }
 .header:not(.scrolled) .nav-inner{justify-content:center}
@@ -458,19 +458,12 @@ body{margin-top:calc(140px - 60px*var(--header-progress));transition:margin-top 
       `}</style>
       <style jsx global>{`
         /* Add margin to body when header becomes scrolled */
-        ${
-          isScrolled
-            ? `
-        body {
-          margin-top: ${isMobile ? "100px" : "80px"};
-        }
-        `
-            : `
+
         body {
           margin-top: ${isMobile ? "120px" : "120px"};
         }
-        `
-        }
+        
+        
       `}</style>
     </header>
   );
