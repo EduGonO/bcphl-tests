@@ -43,6 +43,7 @@ export default function MyApp({ Component, pageProps }: MyAppProps) {
       >
         <Component {...pageProps} />
       </SessionProvider>
+      <Analytics />
     </>
   );
 }
