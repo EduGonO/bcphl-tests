@@ -42,14 +42,14 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     dataFolder: 'texts/Sensure',
   },
   'Automaton': {
-    color: '#9c27b0',
+    color: '#93bcc9',
     showInHeader: false,
     showInDropdown: true,
     media: [],
     dataFolder: 'texts/Automaton',
   },
   'Hypothèses': {
-    color: '#009688',
+    color: '#9880a6',
     showInHeader: false,
     showInDropdown: true,
     media: [],
@@ -72,7 +72,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
   },
   'Cartographie': {
     color: '#607d8b',
-    showInHeader: true,
+    showInHeader: false,
     showInDropdown: false,
     media: [],
     linkTo: '/categories/cartographie',

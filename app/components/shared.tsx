@@ -111,7 +111,7 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
       
       <style jsx>{`
         .category-container {
-          background-color: #fafafa;
+          background-color: #fff;
           min-height: 100vh;
         }
         
@@ -168,10 +168,10 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
         
         .category-title {
           font-size: 2.8rem;
-          font-weight: 800;
+          font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           margin: 0;
+          font-weight: 400;
           text-transform: uppercase;
-          letter-spacing: -1px;
         }
         
         .title-underline {
@@ -217,7 +217,7 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
         
         /* Source information */
         .category-info {
-          display: flex;
+          display: none;
           align-items: center;
           margin-bottom: 2rem;
         }
@@ -264,6 +264,7 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
         }
         
         .article-image {
+          display: none;
           height: 120px;
           position: relative;
         }
@@ -289,7 +290,8 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
         .article-title {
           margin: 0 0 6px;
           font-size: 1.2rem;
-          font-weight: 700;
+          font-weight: 400;
+          font-family: "GayaRegular", "RecoletaMedium", sans-serif;
           line-height: 1.3;
         }
         
@@ -305,6 +307,7 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
           align-items: center;
           margin-bottom: 12px;
           font-size: 0.85rem;
+          font-family: monospace;
           color: #666;
         }
         
