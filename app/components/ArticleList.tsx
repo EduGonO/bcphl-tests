@@ -1,6 +1,8 @@
 // /app/components/ArticleList.tsx
 import React from 'react'
 import { Article, Category } from '../../types'
+import { mdToHtml } from "../../lib/markdown";
+import ReactMarkdown from 'react-markdown';
 
 interface ArticleListProps {
   articles: Article[]
@@ -21,6 +23,20 @@ const ArticleList: React.FC<ArticleListProps> = ({
         ? { backgroundImage: `url(${article.headerImage})` }
         : { backgroundColor: `${color}20` }
 
+      
+  // Parse date properly
+  const formattedDate = article.date !== "Unknown Date" 
+  ? new Date(article.date).toLocaleDateString("fr-FR", {
+      month: "long", 
+      day: "numeric",
+      year: "numeric",
+    })
+  : "";
+  const previewHtml = mdToHtml(
+    article.preview,
+    `/texts/${article.category}/${article.slug}`
+  )
+
       return (
         <a
           href={`/${article.category}/${article.slug}`}
@@ -33,7 +49,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
             <h2 className="title">{article.title}</h2>
 
             <div className="meta">
-              {article.date} • {article.author}
+              {article.author} • {formattedDate}
             </div>
 
             {/*<span
@@ -47,7 +63,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
               {article.category}
             </span>*/}
 
-            <p className="preview">{article.preview}</p>
+            <p className="preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
             
             <span className="pre">{article.category.toUpperCase()}</span>
           </div>
@@ -73,6 +89,7 @@ const ArticleList: React.FC<ArticleListProps> = ({
         background: rgba(0, 0, 0, 0.03);
       }
       .thumb {
+      display: none;
         flex: 0 0 120px;
         height: 80px;
         background: center/cover no-repeat #f5f5f5;

@@ -6,6 +6,7 @@ import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types';
 import Header, { Category } from '../../app/components/Header-2';
 import Footer from '../../app/components/Footer';
+import ReactMarkdown from 'react-markdown';
 
 interface SensurePageProps {
   articles: Article[];
@@ -155,7 +156,7 @@ export default function SensurePage({ articles, categories }: SensurePageProps) 
                     <span className="article-author">{article.author}</span>
                     <span className="article-date">{article.date}</span>
                   </div>
-                  <p className="article-preview">{extractPoemPreview(article.preview)}</p>
+                  <p className="article-preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
                   <a 
                     href={`/${categoryName}/${article.slug}`} 
                     className="read-more"

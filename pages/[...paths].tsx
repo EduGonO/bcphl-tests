@@ -10,6 +10,7 @@ import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
 import { getArticleData } from "../lib/articleService";
 import { Article } from "../types";
+import { mdToHtml } from "../lib/markdown";
 
 /* ── helper utils ─────────────────────────────────────────────────── */
 
@@ -97,6 +98,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const mdPath = path.join(artDir, mdFile);
 
   const { yaml, body } = loadMd(mdPath);
+  const base = `/texts/${category}/${slug}`;         // for <img src>
+  const contentHtml = mdToHtml(body, base);
 
   const title =
     yaml.title ||
@@ -130,7 +133,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       headerImage,
       media,
       category,
-      content: body,
+      content: contentHtml, 
       gridArticles,
       categories,
     },
@@ -172,12 +175,12 @@ const ArticlePage: React.FC<ArtProps> = ({
 
   // Parse date properly
   const formattedDate = date !== "Unknown Date" 
-    ? new Date(date).toLocaleDateString("en-US", {
+    ? new Date(date).toLocaleDateString("fr-FR", {
         month: "long", 
         day: "numeric",
         year: "numeric",
       })
-    : "Unknown Date";
+    : "";
 
   const hexToRgba = (hex: string, alpha: number): string => {
     let r = 0,
@@ -238,9 +241,11 @@ const ArticlePage: React.FC<ArtProps> = ({
         >
           <div className="article-hero-overlay" />
           <div className="article-hero-content">
+          <a href={`/categories/${category}`} className="see-more">
             <div className="article-category" style={{ color: accentColor }}>
               {category}
             </div>
+            </a>
             <h1 className="article-title">{title}</h1>
             <div className="article-meta">
               <span className="article-author">{author}</span>
@@ -252,7 +257,11 @@ const ArticlePage: React.FC<ArtProps> = ({
         {/* Main content - narrower container */}
         <div className="article-body-container">
           <div className="article-body">
-            {content}
+          <div
+  className="article-body"
+  dangerouslySetInnerHTML={{ __html: content }}
+/>
+
           </div>
         </div>
 
@@ -276,7 +285,7 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-hero {
           position: relative;
-          height: 500px;
+          height: 420px;
           background-size: cover;
           background-position: center;
           width: 100%;
@@ -311,7 +320,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 1.5px;
-          background-color: white;
+          background-color: rgba(255, 255, 255, 0.84);
           padding: 8px 16px;
           border-radius: 4px;
           margin-bottom: 20px;
@@ -388,8 +397,14 @@ const ArticlePage: React.FC<ArtProps> = ({
           border-color: ${accentColor};
         }
 
+.article-body img {
+    max-width: 50%;   /* never overflow column */
+    height: auto;      /* keep aspect ratio */
+    display: block;    /* remove inline-gap */
+    margin: 1rem auto; /* optional centering */
+  }
         .article-body img {
-          max-width: 100%;
+          max-width: 50%;
           height: auto;
           border-radius: 8px;
           margin: 2em 0;
@@ -462,6 +477,13 @@ const ArticlePage: React.FC<ArtProps> = ({
             padding: 0 16px;
           }
         }
+
+  .article-body img {
+    max-width: 100%;   /* never overflow column */
+    height: auto;      /* keep aspect ratio */
+    display: block;    /* remove inline-gap */
+    margin: 1rem 0;    /* optional spacing */
+  }
       `}</style>
     </>
   );

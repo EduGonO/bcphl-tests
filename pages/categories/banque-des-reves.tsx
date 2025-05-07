@@ -6,6 +6,7 @@ import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types';
 import Header, { Category } from '../../app/components/Header-2';
 import Footer from '../../app/components/Footer';
+import ReactMarkdown from 'react-markdown';
 
 interface ImageCritiquePageProps {
   articles: Article[];
@@ -105,7 +106,7 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
                     <span className="article-separator" style={{ backgroundColor: color }}></span>
                     <span className="article-author">{article.author}</span>
                   </div>
-                  <p className="article-preview">{article.preview}</p>
+                  <p className="article-preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
                   <a 
                     href={`/${categoryName}/${article.slug}`} 
                     className="read-more"

@@ -1,6 +1,8 @@
 // /app/components/ArticleGrid.tsx
 import React from 'react'
 import { Article, Category } from '../../types'
+import { mdToHtml } from "../../lib/markdown";
+import ReactMarkdown from 'react-markdown';
 
 interface ArticleGridProps {
   articles: Article[]
@@ -25,6 +27,21 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
           ? { backgroundImage: `url(${headerImages[article.slug]})` }
           : { backgroundColor: `${color}20` }
 
+        
+  // Parse date properly
+  const formattedDate = article.date !== "Unknown Date" 
+  ? new Date(article.date).toLocaleDateString("fr-FR", {
+      month: "long", 
+      day: "numeric",
+      year: "numeric",
+    })
+  : "";
+
+  const previewHtml = mdToHtml(
+    article.preview,
+    `/texts/${article.category}/${article.slug}`
+  )
+
         return (
           <a
             key={article.slug || idx}
@@ -38,10 +55,10 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
                 
                 <h3 className="title">{article.title}</h3>
 
-                <p className="preview">{article.preview}</p>
+                <p className="preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
 
                 <div className="meta">
-                  {article.author} • {article.date}
+                  {article.author} • {formattedDate}
                 </div>
 
                 <span
@@ -100,7 +117,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
       }
       .card-image {
         width: 100%;
-        padding-bottom: 56.25%;
+        padding-bottom: 6.25%;
         background: center/cover no-repeat #f5f5f5;
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;

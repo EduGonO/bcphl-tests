@@ -1,11 +1,11 @@
 ---
-title: Example de Texte
-date: 2025-05-02
-author: Nom Auteur
-header-image: images/example.jpg
+title: submersion
+date: 2025-05-07
+author: ---
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, Example article categorie "design". Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, ac ullamcorper libero pellentesque.
+fait de submerger, inondation, sinistre
 
-Example article categorie "design". Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, ac ullamcorper libero pellentesque.
-Example article categorie "design". Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, ac ullamcorper libero pellentesque. ac ullamcorper libero pellentesque.
+fait d’être envahi par des discours faux qui veulent saturer des images pour espérer une puissance performative à la puissance mortifère d’une parole
+
+saturation massive, visuelle et auditive, d’énergies sinistres

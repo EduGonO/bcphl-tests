@@ -94,7 +94,7 @@ export function getArticleData(): {
         const author = yaml.author || "Unknown Author";
         const headerImage = yaml["header-image"] || "";
 
-        const preview = body.replace(/^#.*?\n/, "").slice(0, 180) + "...";
+        const preview = body.replace(/^#.*?\n/, "").slice(0, 90) + "...";
 
         /* media = yaml.media + every image file in folder */
         const yamlMedia = Array.isArray(yaml.media) ? yaml.media : [];

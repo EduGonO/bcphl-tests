@@ -4,6 +4,7 @@ import Header, { Category } from './Header';
 import Footer from './Footer';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types';
+import ReactMarkdown from 'react-markdown';
 
 interface SharedCategoryPageProps {
   category: string;
@@ -86,11 +87,11 @@ export default function SharedCategoryPage({ category, articles }: SharedCategor
                   <div className="article-content">
                     <h3 className="article-title">{article.title}</h3>
                     <div className="article-meta">
-                      <span className="meta-date">{article.date}</span>
-                      <span className="meta-dot" style={{ backgroundColor: color }}></span>
                       <span className="meta-author">{article.author}</span>
+                      <span className="meta-dot" style={{ backgroundColor: color }}></span>
+                      <span className="meta-date">{article.date}</span>
                     </div>
-                    <p className="article-preview">{article.preview}</p>
+                    <p className="article-preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
                     <a 
                       href={`/${category}/${article.slug}`}
                       className="article-link"

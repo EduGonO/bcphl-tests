@@ -1,11 +1,13 @@
 ---
-title: Example de Texte
-date: 2025-05-02
-author: Nom Auteur
-header-image: images/example.jpg
+title: catharsis
+date: 2025-05-07
+author: ---
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, Example article categorie "design". Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, ac ullamcorper libero pellentesque.
+usage d’un mot savant en grec ancien évoquant pour la vox populi, un mot de passe au bien-être. utilisé le plus souvent par les coachs de vie sans souci pour Aristote. D’un passage fragmenté chez le philosophe, il ne reste aujourd'hui plus qu’un mot vide de sens. 
 
-Example article categorie "design". Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, ac ullamcorper libero pellentesque.
-Example article categorie "design". Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget dignissim ex. Phasellus ultrices nisi at diam varius, at consequat nunc volutpat. Fusce aliquet justo in nisi euismod, in cursus justo lobortis. Donec ornare placerat odio a euismod. Curabitur non massa ac dui fermentum pharetra et nec sapien. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ut erat ac urna condimentum tincidunt id quis neque. Integer ac mi non libero ornare interdum in at neque. Aenean auctor, lectus in malesuada placerat, erat erat maximus nisl, non auctor ex velit ac lacus. Nam tincidunt lectus in sem tincidunt, ac ullamcorper libero pellentesque. ac ullamcorper libero pellentesque.
+
+se sourire les yeux dans les yeux 
+
+
+une partie de jambes en l’air et parfois au sol.

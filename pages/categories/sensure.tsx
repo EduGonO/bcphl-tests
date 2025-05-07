@@ -7,6 +7,7 @@ import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types';
 import Header, { Category } from '../../app/components/Header-2';
 import Footer from '../../app/components/Footer';
+import ReactMarkdown from 'react-markdown';
 
 interface SensurePageProps {
   articles: Article[];
@@ -50,6 +51,12 @@ articles.forEach((article, index) => {
           {columns.map((columnArticles, colIndex) => (
             <div key={colIndex} className="poem-column">
               {columnArticles.map((article, index) => (
+
+<a 
+href={`/${categoryName}/${article.slug}`} 
+className="poem-link"
+aria-label={`Lire ${article.title}`}
+>
                 <article key={article.slug} className="poem-card">
                   <div className="poem-index" style={{ color }}>
                     {((colIndex * Math.ceil(articles.length / 3)) + index + 1).toString().padStart(2, '0')}
@@ -64,16 +71,11 @@ articles.forEach((article, index) => {
                       <span className="poem-author">{article.author}</span>
                     </div>
                     
-                    <div className="poem-preview">{article.preview}</div>
+                    <div className="poem-preview"><ReactMarkdown>{article.preview}</ReactMarkdown></div>
                     
-                    <a 
-                      href={`/${categoryName}/${article.slug}`} 
-                      className="poem-link"
-                      aria-label={`Lire ${article.title}`}
-                    >
                       <span className="poem-link-text">Lire</span>
                       <span className="poem-link-icon" style={{ backgroundColor: color }}></span>
-                    </a>
+                    
                   </div>
                   
                   <div 
@@ -81,6 +83,7 @@ articles.forEach((article, index) => {
                     style={{ backgroundColor: color }}
                   ></div>
                 </article>
+                </a>
               ))}
             </div>
           ))}
@@ -254,16 +257,16 @@ articles.forEach((article, index) => {
           align-items: center;
           text-decoration: none;
           color: #000;
-          font-weight: 600;
-          font-size: 0.8rem;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
           margin-top: auto;
           width: fit-content;
         }
         
         .poem-link-text {
           margin-right: 0.5rem;
+          font-weight: 600;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         
         .poem-link-icon {

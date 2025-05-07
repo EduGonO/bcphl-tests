@@ -1,5 +1,5 @@
 // /pages/categories/image-critique.tsx
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { GetStaticProps } from 'next';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
@@ -16,32 +16,33 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
   const categoryName = 'Image-Critique';
   const config = categoryConfigMap[categoryName];
   const color = config?.color || '#000000';
+  const textContainerRef = useRef<HTMLDivElement>(null);
   
-  // Create header images mapping (this would normally come from props or a service)
-  const headerImages: Record<string, string> = {};
-  // Populate with any available header images for articles
-  articles.forEach(article => {
-    if (article.headerImage) {
-      headerImages[article.slug] = article.headerImage;
-    }
-  });
+  // Effect for the text animation
+  useEffect(() => {
+    if (!textContainerRef.current) return;
+    
+    const paragraphs = textContainerRef.current.querySelectorAll('.text-fragment');
+    
+    // Randomize positions of text fragments
+    paragraphs.forEach((p, i) => {
+      const element = p as HTMLElement;
+      const delay = i * 200;
+      element.style.transitionDelay = `${delay}ms`;
+      setTimeout(() => {
+        element.classList.add('visible');
+      }, 100 + delay);
+    });
+  }, []);
 
   if (!config) {
     return <div>Catégorie introuvable.</div>;
   }
 
-  // Generate a randomized grid layout for each article
-  const getGridArea = (index: number) => {
-    const patterns = [
-      "1 / 1 / 2 / 3", // wide top
-      "1 / 3 / 3 / 4", // tall right
-      "2 / 1 / 3 / 2", // small bottom left
-      "2 / 2 / 3 / 3", // small bottom middle
-      "3 / 1 / 5 / 3", // wide bottom
-      "3 / 3 / 5 / 4", // tall bottom right
-    ];
-    return patterns[index % patterns.length];
-  };
+  // Split text into fragments for animation
+  const mainText = "Dans la même urgence qu'Acéphale et portée par un désir de la contribution propre à Bernard Stiegler, la revue bicéphale défend une démarche critique tant littéraire qu'artistique et se veut radicalement hypersubjective, affectionnée et expérientielle. Elle embrasse nos multiplicités et questionne nos technicités contemporaines au risque de se faire vectrice de mouvement, de critique et de pensée.";
+  
+  const textFragments = mainText.split('. ').map(sentence => sentence.trim()).filter(Boolean);
 
   return (
     <div className="page-container" style={{ '--c': color } as React.CSSProperties}>
@@ -56,13 +57,66 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
         </div>
 
 
+          <div className="brutalist-divider">
+            <div className="divider-line" style={{ backgroundColor: color }}></div>
+            <div className="divider-square" style={{ borderColor: color }}></div>
+            <div className="divider-circle" style={{ backgroundColor: `${color}60` }}></div>
+            <div className="divider-line" style={{ backgroundColor: color }}></div>
+          </div>
 
+        <div className="about-content">
+          <div className="brutalist-grid">
+            <div className="grid-item grid-item-1">
+              <div className="shape shape-1" style={{ backgroundColor: color }}></div>
+            </div>
+            <div className="grid-item grid-item-2">
+              <div className="shape shape-2" style={{ borderColor: color }}></div>
+            </div>
+            <div className="grid-item grid-item-3">
+              <div className="shape shape-3" style={{ backgroundColor: `${color}30` }}></div>
+            </div>
+            <div className="grid-item grid-item-4">
+              <div className="shape shape-4" style={{ borderColor: color }}></div>
+            </div>
+          </div>
+
+          <div className="text-container" ref={textContainerRef}>
+            <h1 className="about-subtitle">À propos:</h1>
+            {textFragments.map((fragment, index) => (
+              <p key={index} className="text-fragment" style={{ 
+                borderLeft: index % 2 === 0 ? `2px solid ${color}` : 'none',
+                borderRight: index % 2 !== 0 ? `2px solid ${color}` : 'none'
+              }}>
+                {fragment}{index < textFragments.length - 1 ? '.' : ''}
+              </p>
+            ))}
+          </div>
+
+          <div className="glitch-container">
+            <div className="glitch-text" data-text="BICÉPHALE">BICÉPHALE</div>
+          </div>
+
+          <div className="abstract-grid">
+            {Array.from({ length: 9 }).map((_, index) => (
+              <div 
+                key={index} 
+                className={`abstract-cell cell-${index}`}
+                style={{ 
+                  backgroundColor: index % 3 === 0 ? `${color}20` : 'transparent',
+                  borderColor: index % 2 === 1 ? color : 'transparent'
+                }}
+              ></div>
+            ))}
+          </div>
+
+
+        </div>
       </main>
       <Footer />
 
       <style jsx>{`
         .page-container {
-          background-color: #f9f9f9;
+          background-color: #fff;
         }
         
         .image-critique-page {
@@ -72,7 +126,7 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
         }
         
         .header-banner {
-          display: grid;
+          display: none;
           grid-template-columns: 1fr 3fr 1fr;
           margin: 0 0 3rem;
           border: 2px solid;
@@ -104,46 +158,112 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
           font-family: GayaRegular, -apple-system, InterRegular, sans-serif;
         }
         
-        .category-description {
-          font-size: 1.2rem;
-          margin: 0.5rem 0 0;
-          font-weight: 300;
-        }
-        
-        .media-showcase {
-          display: none;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-          margin-bottom: 3rem;
-        }
-        
-        .media-item {
-          height: 200px;
-          background-size: cover;
-          background-position: center;
+        /* About Page Specific Styles */
+        .about-content {
+          display: flex;
+          flex-direction: column;
+          gap: 4rem;
           position: relative;
-          border: 2px solid;
+          padding: 2rem 0;
         }
         
-        .media-item-0 {
-          grid-column: span 2;
+        .brutalist-grid {
+          display: none;
+          grid-template-columns: repeat(4, 1fr);
+          grid-template-rows: repeat(2, 120px);
+          gap: 2rem;
         }
         
-        .media-item-1 {
-          height: 300px;
+        .grid-item {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
         
-        .media-item-2 {
-          grid-column: span 2;
+        .grid-item-1 {
+          grid-column: 1 / 3;
+          grid-row: 1 / 2;
         }
         
-        .media-overlay {
+        .grid-item-2 {
+          grid-column: 3 / 5;
+          grid-row: 1 / 2;
+        }
+        
+        .grid-item-3 {
+          grid-column: 1 / 2;
+          grid-row: 2 / 3;
+        }
+        
+        .grid-item-4 {
+          grid-column: 2 / 5;
+          grid-row: 2 / 3;
+        }
+        
+        .shape {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          mix-blend-mode: color-burn;
+        }
+        
+        .shape-1 {
+          width: 70%;
+          height: 4px;
+          bottom: 20%;
+          left: 10%;
+        }
+        
+        .shape-2 {
+          width: 80px;
+          height: 80px;
+          border: 2px solid;
+          border-radius: 50%;
+          right: 20%;
+          top: 10%;
+        }
+        
+        .shape-3 {
+          width: 100%;
+          height: 100%;
+          clip-path: polygon(0 0, 100% 0, 60% 100%, 0 70%);
+        }
+        
+        .shape-4 {
+          width: 60%;
+          height: 2px;
+          border-top: 2px solid;
+          right: 10%;
+        }
+        
+        .text-container {
+          position: relative;
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 0 1rem;
+        }
+        
+        .about-subtitle {
+          font-size: 2.4rem;
+          margin: 0 0 2rem;
+          font-weight: 500;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          font-family: GayaRegular, -apple-system, InterRegular, sans-serif;
+        }
+        
+        .text-fragment {
+          font-size: 1.25rem;
+          line-height: 1.6;
+          margin-bottom: 2rem;
+          padding: 0.5rem 1rem;
+          position: relative;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .text-fragment.visible {
+          opacity: 1;
+          transform: translateY(0);
         }
         
         .brutalist-divider {
@@ -171,6 +291,112 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
           border-radius: 50%;
         }
         
+        .glitch-container {
+          text-align: center;
+          margin: 4rem 0;
+        }
+        
+        .glitch-text {
+          font-size: 4rem;
+          font-weight: 400;
+          font-family: GayaRegular, InterRegular;
+          text-transform: uppercase;
+          letter-spacing: 0.5rem;
+          position: relative;
+          display: inline-block;
+          color: transparent;
+          -webkit-text-stroke: 1px var(--c);
+          user-select: none;
+        }
+        
+        .glitch-text::before,
+        .glitch-text::after {
+          content: attr(data-text);
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          -webkit-text-stroke: 1px var(--c);
+        }
+        
+        .glitch-text::before {
+          left: 2px;
+          text-shadow: -1px 0 var(--c);
+          animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+        
+        .glitch-text::after {
+          left: -2px;
+          text-shadow: -1px 0 var(--c);
+          animation: glitch-anim2 3s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+          0% { clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%); }
+          50% { clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%); }
+          100% { clip-path: polygon(0 85%, 100% 85%, 100% 40%, 0 40%); }
+        }
+        
+        @keyframes glitch-anim2 {
+          0% { clip-path: polygon(0 40%, 100% 40%, 100% 60%, 0 60%); }
+          50% { clip-path: polygon(0 15%, 100% 15%, 100% 30%, 0 30%); }
+          100% { clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); }
+        }
+        
+        .abstract-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          grid-template-rows: repeat(3, 80px);
+          gap: 1rem;
+          margin: 4rem 0;
+        }
+        
+        .abstract-cell {
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+        }
+        
+        .abstract-cell:hover {
+          background-color: var(--c) !important;
+          opacity: 0.2;
+          transform: skew(-5deg);
+        }
+        
+        @media (max-width: 768px) {
+          .brutalist-grid {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 100px);
+          }
+          
+          .grid-item-1 {
+            grid-column: 1 / 3;
+            grid-row: 1 / 2;
+          }
+          
+          .grid-item-2 {
+            grid-column: 1 / 3;
+            grid-row: 2 / 3;
+          }
+          
+          .grid-item-3 {
+            grid-column: 1 / 2;
+            grid-row: 3 / 4;
+          }
+          
+          .grid-item-4 {
+            grid-column: 1 / 3;
+            grid-row: 4 / 5;
+          }
+          
+          .text-container {
+            padding: 0;
+          }
+          
+          .glitch-text {
+            font-size: 2.5rem;
+          }
+        }
       `}</style>
     </div>
   );
