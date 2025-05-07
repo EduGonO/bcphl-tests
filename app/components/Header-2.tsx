@@ -436,9 +436,14 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
     .header-content,
     .nav-inner       { transition: none !important; }
     body             { margin-top: 120px !important; }
+ .header-content,
+  .header.scrolled .header-content {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
 
-  .header:not(.scrolled) .nav-inner{justify-content:flex-start}
-  .header.scrolled      .nav-inner{justify-content:flex-start}
+  .header:not(.scrolled) .nav-inner{justify-content:center}
+  .header.scrolled      .nav-inner{justify-content:center}
 
   .header-nav,
   .header.scrolled .header-nav{
