@@ -379,7 +379,6 @@ export default function SensurePage({ articles, categories }: SensurePageProps) 
           font-size: 1rem;
           line-height: 1.6;
           flex-grow: 1;
-          font-style: italic;
           white-space: pre-line;
         }
         

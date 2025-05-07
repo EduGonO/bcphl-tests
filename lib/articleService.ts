@@ -94,7 +94,29 @@ export function getArticleData(): {
         const author = yaml.author || "Unknown Author";
         const headerImage = yaml["header-image"] || "";
 
-        const preview = body.replace(/^#.*?\n/, "").slice(0, 90) + "...";
+        /*const preview = body.replace(/^#.*?\n/, "").slice(0, 142) + "";*/
+        // clean first heading, squash blank lines, keep whole words
+// keep full sentence close to 200 chars, preserve single line-breaks
+// full sentence near 200 chars; add "..." if we had to truncate mid-sentence
+// full sentence near 200 chars, drop markdown images, add "…" if truncated
+const preview = (() => {
+  const cleaned = body
+    .replace(/^#{1,6}\s.*?\n+/, "")                 // drop leading title
+    .replace(/^\s*!\[[^\]]*]\([^)]+\)\s*$/gm, "")   // remove image-only lines
+    .replace(/!\[[^\]]*]\([^)]+\)/g, "")            // remove inline images
+    .replace(/\n{2,}/g, "\n")                       // collapse blank lines
+    .trim();
+
+  const min = 180, max = 260;
+  const slice  = cleaned.slice(min, max);
+  const relEnd = slice.search(/[.!?](?:\s|\n)/);    // sentence break
+  const cut    = relEnd !== -1 ? min + relEnd + 1   // to sentence end
+                               : 200;               // fallback
+
+  let txt = cleaned.slice(0, cut).trim();
+  if (relEnd === -1 && cut < cleaned.length) txt += "…";
+  return txt;
+})();
 
         /* media = yaml.media + every image file in folder */
         const yamlMedia = Array.isArray(yaml.media) ? yaml.media : [];

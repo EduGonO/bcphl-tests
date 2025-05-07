@@ -60,6 +60,11 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
   /* inside the big useEffect (where scroll / resize listeners are set) 
    replace the existing `handleScroll` with: */
   const handleScroll = () => {
+    if (window.innerWidth < 768) {
+      setIsScrolled(window.scrollY > 0);
+      return;
+    }
+  
     const y = window.scrollY;
     const p = Math.min(y / MAX_SCROLL, 1);
     document.documentElement.style.setProperty(
@@ -423,6 +428,14 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 @media (max-width:767px){
 
 // doing, justify on mobile, kinda
+
+  :root            { --header-progress: 0 !important; }
+    .brand-link,
+    .brand-logo,
+    .brand-title,
+    .header-content,
+    .nav-inner       { transition: none !important; }
+    body             { margin-top: 120px !important; }
 
   .header:not(.scrolled) .nav-inner{justify-content:flex-start}
   .header.scrolled      .nav-inner{justify-content:flex-start}
