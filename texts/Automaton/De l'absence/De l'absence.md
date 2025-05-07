@@ -66,5 +66,5 @@ La présence. La lenteur. L’opacité.
 > *« Après un siècle de progrès scientifiques et techniques, les masses populaires n’ont pas à leur disposition d’armes comparables à celles que possède la minorité gouvernante. Par conséquent, si les plus nombreux veulent lui opposer quelque résistance, il faut que ce soit sur un terrain où la supériorité technique ne compte pas »*
 > – Aldous Huxley, La science, la liberté, la paix. 1945
 
-![je-veux-pas-taffer](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/je-ne-veux-pas-taffer.jpeg)
+![je-veux-pas-taffer](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/je-veux-pas-taffer.jpeg)
 
