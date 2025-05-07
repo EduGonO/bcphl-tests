@@ -11,4 +11,4 @@ Image-critique, Rodolphe Perez, 2025
 à propos de *Vieille petite fille*, précédé de Lettres à Jean-Loup Rivière, Juliette Riedler, paru en 2024 aux éditions Tango Girafe. 
 
 
-![vielle-petite-fille](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Image-Critique/vielle-petite-fille.jpeg)
+![vieille-petite-fille](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Image-Critique/vieille-petite-fille.jpeg)
