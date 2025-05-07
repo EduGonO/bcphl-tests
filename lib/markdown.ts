@@ -13,7 +13,7 @@ export function mdToHtml(md: string, basePath = ""): string {
       if (!href) return "";
       const src = /^https?:\/\//i.test(href) ? href : `${basePath}/${href}`;
       const t = title ? ` title="${title}"` : "";
-      return `<img src="${src}" alt="${text ?? ""}"${t} style="max-width:100%;height:auto;display:block;margin:1rem 0;" />`;
+      return `<img src="${src}" alt="${text ?? ""}"${t} style="max-width:80%;height:auto;display:block;margin:1rem auto;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.1);" />`;
     },
   };
 

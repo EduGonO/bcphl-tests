@@ -241,11 +241,11 @@ const ArticlePage: React.FC<ArtProps> = ({
         >
           <div className="article-hero-overlay" />
           <div className="article-hero-content">
-          <a href={`/categories/${category}`} className="see-more">
+
             <div className="article-category" style={{ color: accentColor }}>
               {category}
             </div>
-            </a>
+
             <h1 className="article-title">{title}</h1>
             <div className="article-meta">
               <span className="article-author">{author}</span>
