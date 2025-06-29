@@ -4,13 +4,10 @@ date: 2025-06-06
 author: Alma Sammel
 ---
 
-*Prendre soin comme stratégie. Réflexions situées sur les pratiques du care dansl'art contemporain*
+Prendre soin comme stratégie. Réflexions situées sur les pratiques du care dans l'art contemporain
 
 
 ⠀
-
-
-
 
 Dans un contexte de crises systémiques -- sociales, écologiques et institutionnelles -- le mot "care" résonne avec une intensité renouvelée. Issu d'un champ sémantique vasteet mouvant, ce terme est devenu une notion centrale pour penser des modesd'engagement alternatifs dans l'art et la curation. Mais de quoi parle-t-on vraimentquand on parle de "care" ? Est-ce un mot refuge ? Un outil critique ? Un impératifmoral ? Une méthode ?
 
@@ -38,14 +35,12 @@ Le premier geste que je souhaite partager est celui d'Adrien Julliard et de ses"
 
 ![img-1](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do/img1.jpg)
 ![img-2](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do/img2.jpg)
-##### Images de la performance de diplôme d'Adrien Julliard, 2022 © Adrien Julliard
-
-⠀
+###### Images de la performance de diplôme d'Adrien Julliard, 2022 © Adrien Julliard
 
 Deuxième expérimentation : le projet *Fort Réconfort* de Lorette Moreau. Cetteperformance immersive, à laquelle j'ai participé, propose de faire collectif autourde nos vulnérabilités liées à l'éco-anxiété. À travers des cabanes de couvertures, des exercices d'écriture et de récit, elle invente un espace pour déposer le trouble, écouter les récits de solastalgie et se réconforter sans naïveté. Ici, le care est rituel, temporaire, mais puissant dans sa capacité à régénérer une énergie d'agir.
 
-![img-3](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do/img3.jpg)
-Lorette Moreau pendant l'installation d'une des cabanes du projet © Noémie Touly
+![img-3](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do/img3.png)
+###### Lorette Moreau pendant l'installation d'une des cabanes du projet © Noémie Touly
 
 Enfin, le jeu de worldbuilding *echo°o°o*, conçu par Magdalena Emmering, explore les futurs imaginés en commun. Avant même l'exposition EchoingFutures à la galerie ACUD (Berlin), elle a invité un groupe à incarner des corpsimaginaires et à négocier collectivement des formes de coexistence. Le care devient ici méthodologie : une manière de bâtir des mondes où chacun·e a voix, où les écologies de relation sont au cœur.
 
