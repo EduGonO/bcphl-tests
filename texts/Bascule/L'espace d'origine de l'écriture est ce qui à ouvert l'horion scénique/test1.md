@@ -1,5 +1,5 @@
 ---
-title: L’espace d’origine de l’écriture est ce qui a ouvert l’horizon scénique.
+title: L’espace d’origine de l’écriture est ce qui à ouvert l’horizon scénique.
 date: 2025-05-07
 author: Dialogue entre Rodolphe Perez, Juliette Riedler, Floriane Comméléran & Juliette Séjourné
 ---
