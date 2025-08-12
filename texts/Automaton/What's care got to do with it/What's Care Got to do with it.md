@@ -35,7 +35,7 @@ Le premier geste que je souhaite partager est celui d'Adrien Julliard et de ses"
 
 ![img-1](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do-with-it/img1.jpg)
 ![img-2](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do-with-it/img2.jpg)
-![img-3](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do-with-it/img3.jpeg)
+![img-3](https://raw.githubusercontent.com/EduGonO/bcphl-tests/main/public/media/articles/Automaton/whats-care-got-to-do-with-it/img3.jpg)
 ###### Images de la performance de diplôme d'Adrien Julliard, 2022 © Adrien Julliard
 
 Deuxième expérimentation : le projet *Fort Réconfort* de Lorette Moreau. Cetteperformance immersive, à laquelle j'ai participé, propose de faire collectif autourde nos vulnérabilités liées à l'éco-anxiété. À travers des cabanes de couvertures, des exercices d'écriture et de récit, elle invente un espace pour déposer le trouble, écouter les récits de solastalgie et se réconforter sans naïveté. Ici, le care est rituel, temporaire, mais puissant dans sa capacité à régénérer une énergie d'agir.
