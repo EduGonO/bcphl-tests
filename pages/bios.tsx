@@ -34,42 +34,45 @@ const BiosPage = () => {
           content="Rencontrez les personnes qui composent Bicéphale et découvrez leurs rôles au sein du magazine."
         />
       </Head>
-      <main className="bios-page">
-        <header className="intro">
-          <p className="eyebrow">Bicéphale</p>
-          <h1>Celles et ceux qui tiennent la revue debout</h1>
+      <main className="bios">
+        <header className="masthead">
+          <p className="overline">Bicéphale</p>
+          <h1>Équipe éditoriale</h1>
           <p>
-            Chaque portrait est présenté dans un cadre façon Polaroid. Survolez ou touchez
-            les images pour révéler un second cliché, capturé dans les coulisses du magazine.
+            Des personnes qui font vivre la revue, à travers le papier, le son et les rencontres.
+            Survolez les portraits pour découvrir une seconde prise.
           </p>
         </header>
-        <section className="team-grid" aria-label="Membres de l&apos;équipe Bicéphale">
+        <section className="team" aria-label="Membres de l&apos;équipe Bicéphale">
           {teamMembers.map((member) => (
-            <article className="team-card" key={member.slug}>
-              <div className="polaroid" tabIndex={0} aria-label={`Portrait de ${member.name}`}>
-                <div className="photo">
-                  <Image
-                    src={member.portraits.primary}
-                    alt={`Portrait de ${member.name}`}
-                    fill
-                    className="photo-image primary"
-                    sizes="(max-width: 600px) 80vw, (max-width: 1200px) 320px, 360px"
-                    priority={member.slug === "adrien" || member.slug === "anapa"}
-                  />
-                  <Image
-                    src={member.portraits.secondary}
-                    alt=""
-                    fill
-                    aria-hidden
-                    className="photo-image secondary"
-                    sizes="(max-width: 600px) 80vw, (max-width: 1200px) 320px, 360px"
-                  />
-                </div>
-                <span className="frame-label">{member.name}</span>
+            <article className="member" key={member.slug}>
+              <div
+                className="portrait"
+                tabIndex={0}
+                aria-label={`Portrait de ${member.name}`}
+              >
+                <Image
+                  src={member.portraits.primary}
+                  alt={`Portrait de ${member.name}`}
+                  fill
+                  className="portrait-img primary"
+                  sizes="(max-width: 600px) 90vw, (max-width: 1200px) 320px, 360px"
+                  priority={member.slug === "adrien" || member.slug === "anapa"}
+                />
+                <Image
+                  src={member.portraits.secondary}
+                  alt=""
+                  fill
+                  aria-hidden
+                  className="portrait-img secondary"
+                  sizes="(max-width: 600px) 90vw, (max-width: 1200px) 320px, 360px"
+                />
               </div>
-              <div className="bio">
-                <h2>{member.name}</h2>
-                {member.role && <p className="role">{member.role}</p>}
+              <div className="member-text">
+                <div className="member-heading">
+                  <h2>{member.name}</h2>
+                  {member.role && <p className="role">{member.role}</p>}
+                </div>
                 {member.bio.map((paragraph, index) => (
                   <p key={`${member.slug}-bio-${index}`}>{paragraph}</p>
                 ))}
@@ -79,163 +82,146 @@ const BiosPage = () => {
         </section>
       </main>
       <style jsx>{`
-        .bios-page {
-          padding: 6rem 1.5rem 4rem;
-          background: radial-gradient(circle at 10% 10%, rgba(255, 214, 228, 0.35), transparent 50%),
-            radial-gradient(circle at 90% 15%, rgba(209, 233, 255, 0.35), transparent 55%),
-            #f7f3ef;
+        .bios {
           min-height: 100vh;
-          color: #261e1e;
+          padding: clamp(4rem, 6vw, 6.5rem) 1.75rem clamp(4rem, 8vw, 7rem);
+          background: #f6f2e9;
+          color: #111;
           display: grid;
-          gap: 3rem;
+          gap: clamp(3rem, 7vw, 5.5rem);
         }
 
-        .intro {
-          max-width: 720px;
+        .masthead {
+          max-width: 960px;
           margin: 0 auto;
-          text-align: center;
           display: grid;
-          gap: 1.25rem;
+          gap: 1.5rem;
+          text-align: left;
         }
 
-        .intro h1 {
-          font-family: "GayaRegular", serif;
-          font-size: clamp(2rem, 5vw, 3.2rem);
-          letter-spacing: 0.01em;
-        }
-
-        .intro p {
-          font-size: 1rem;
-          line-height: 1.7;
-          color: rgba(38, 30, 30, 0.78);
-        }
-
-        .intro .eyebrow {
+        .overline {
+          font-size: 0.9rem;
+          letter-spacing: 0.32em;
           text-transform: uppercase;
-          letter-spacing: 0.22em;
-          font-size: 0.75rem;
           font-weight: 600;
-          color: rgba(38, 30, 30, 0.6);
         }
 
-        .team-grid {
+        .masthead h1 {
+          font-size: clamp(2.5rem, 7vw, 4.5rem);
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+          margin: 0;
+          line-height: 1.02;
+          padding-bottom: 1.1rem;
+          border-bottom: 3px solid #111;
+          max-width: 18ch;
+        }
+
+        .masthead p {
+          font-size: clamp(1rem, 2.2vw, 1.35rem);
+          line-height: 1.6;
+          max-width: 52ch;
+        }
+
+        .team {
           display: grid;
-          gap: 2.5rem;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          align-items: start;
+          gap: clamp(2.5rem, 5vw, 3.75rem);
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         }
 
-        .team-card {
+        .member {
+          background: #faf9f5;
+          border: 2px solid #111;
+          padding: 1.5rem;
           display: grid;
-          gap: 1.4rem;
-          background: rgba(255, 255, 255, 0.7);
-          border-radius: 18px;
-          padding: 1.6rem 1.6rem 1.8rem;
-          box-shadow: 0 18px 40px rgba(14, 8, 6, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          transition: transform 0.4s ease, box-shadow 0.4s ease;
+          gap: 1.5rem;
+          box-shadow: 10px 10px 0 #111;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .team-card:focus-within,
-        .team-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 26px 60px rgba(14, 8, 6, 0.16);
+        .member:focus-within,
+        .member:hover {
+          transform: translate(-6px, -6px);
+          box-shadow: 16px 16px 0 #111;
         }
 
-        .polaroid {
+        .portrait {
           position: relative;
-          background: #fff;
-          border-radius: 14px;
-          padding: 1.1rem 1.1rem 2.9rem;
-          box-shadow: 0 18px 28px rgba(22, 13, 9, 0.18);
-          display: grid;
-          gap: 0.75rem;
-          outline: none;
-          cursor: pointer;
-        }
-
-        .polaroid:focus-visible {
-          box-shadow: 0 0 0 4px rgba(77, 130, 255, 0.4), 0 18px 28px rgba(22, 13, 9, 0.18);
-        }
-
-        .photo {
-          position: relative;
-          width: 100%;
           aspect-ratio: 3 / 4;
+          border: 2px solid #111;
           overflow: hidden;
-          border-radius: 8px;
-          background: #f2f2f2;
+          background: #dcd8cf;
+          cursor: pointer;
+          outline: none;
         }
 
-        .photo-image {
+        .portrait:focus-visible {
+          box-shadow: 0 0 0 3px #111;
+        }
+
+        .portrait-img {
           object-fit: cover;
-          transition: opacity 0.45s ease;
+          transition: opacity 0.25s ease;
         }
 
-        .photo-image.secondary {
+        .portrait-img.secondary {
           opacity: 0;
         }
 
-        .team-card:hover .photo-image.secondary,
-        .team-card:focus-within .photo-image.secondary,
-        .polaroid:focus-visible .photo-image.secondary,
-        .polaroid:hover .photo-image.secondary {
+        .portrait:hover .portrait-img.secondary,
+        .portrait:focus-visible .portrait-img.secondary,
+        .member:focus-within .portrait-img.secondary {
           opacity: 1;
         }
 
-        .team-card:hover .photo-image.primary,
-        .team-card:focus-within .photo-image.primary,
-        .polaroid:focus-visible .photo-image.primary,
-        .polaroid:hover .photo-image.primary {
+        .portrait:hover .portrait-img.primary,
+        .portrait:focus-visible .portrait-img.primary,
+        .member:focus-within .portrait-img.primary {
           opacity: 0;
         }
 
-        .frame-label {
-          position: absolute;
-          bottom: 1rem;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 0.78rem;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: rgba(38, 30, 30, 0.55);
-        }
-
-        .bio {
+        .member-text {
           display: grid;
-          gap: 0.75rem;
-          font-size: 0.95rem;
-          line-height: 1.7;
-          color: rgba(38, 30, 30, 0.82);
+          gap: 1rem;
+          font-size: 1rem;
+          line-height: 1.65;
         }
 
-        .bio h2 {
-          font-family: "GayaRegular", serif;
-          font-size: 1.4rem;
+        .member-heading {
+          display: grid;
+          gap: 0.3rem;
+        }
+
+        .member-text h2 {
           margin: 0;
+          font-size: clamp(1.8rem, 3vw, 2.2rem);
+          line-height: 1.05;
+          text-transform: uppercase;
         }
 
         .role {
-          font-size: 0.82rem;
+          font-size: 0.95rem;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
-          letter-spacing: 0.18em;
-          color: rgba(38, 30, 30, 0.6);
+        }
+
+        @media (max-width: 600px) {
+          .member {
+            padding: 1.25rem;
+            box-shadow: 6px 6px 0 #111;
+          }
+
+          .member:hover,
+          .member:focus-within {
+            transform: none;
+            box-shadow: 6px 6px 0 #111;
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .team-card,
-          .photo-image {
+          .member,
+          .portrait-img {
             transition-duration: 0.01ms !important;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .bios-page {
-            padding-top: 4.5rem;
-          }
-
-          .team-card {
-            padding: 1.2rem 1.2rem 1.5rem;
           }
         }
       `}</style>
