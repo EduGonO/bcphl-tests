@@ -1,0 +1,119 @@
+[
+  {
+    "slug": "adrien",
+    "name": "Adrien",
+    "role": "Co-fondateur, direction éditoriale",
+    "bio": [
+      "Adrien coordonne les partis pris éditoriaux de Bicéphale et veille à ce que chaque numéro garde sa liberté de ton.",
+      "Il anime les conférences de rédaction et accompagne les auteur·rices dans la construction de récits sensibles et politiques."
+    ]
+  },
+  {
+    "slug": "anapa",
+    "name": "Anapa",
+    "role": "Co-fondatrice, direction artistique",
+    "bio": [
+      "Anapa imagine les identités visuelles successives du magazine et orchestre le dialogue entre textes et images.",
+      "Elle collabore avec les contributrices visuelles pour faire émerger des univers graphiques singuliers et inclusifs."
+    ]
+  },
+  {
+    "slug": "eduardo",
+    "name": "Eduardo",
+    "role": "Photographie & recherches visuelles",
+    "bio": [
+      "Eduardo nourrit les dossiers iconographiques et capture les coulisses des reportages.",
+      "Il développe également les protocoles d'archivage qui permettent de constituer notre mémoire commune."
+    ]
+  },
+  {
+    "slug": "francois",
+    "name": "François",
+    "role": "Rédacteur & enquêtes",
+    "bio": [
+      "François signe des enquêtes au long cours et explore les frictions entre luttes sociales et imaginaires populaires.",
+      "Son écriture attentive met en lumière les voix invisibilisées et documente les pratiques collectives."
+    ]
+  },
+  {
+    "slug": "irina",
+    "name": "Irina",
+    "role": "Édition & traduction",
+    "bio": [
+      "Irina assure le suivi éditorial des textes internationaux et pilote les traductions.",
+      "Elle aime faire se rencontrer les langues et veille à ce que le rythme de chaque texte reste intact."
+    ]
+  },
+  {
+    "slug": "kenzy",
+    "name": "Kenzy",
+    "role": "Programmation numérique",
+    "bio": [
+      "Kenzy conçoit nos expériences interactives et développe les formats qui prolongent la revue en ligne.",
+      "Il maintient l'infrastructure technique et imagine des outils accessibles pour nos lecteurs et contributrices."
+    ]
+  },
+  {
+    "slug": "lucie",
+    "name": "Lucie",
+    "role": "Cheffe de fabrication",
+    "bio": [
+      "Lucie supervise la chaîne d'impression, du choix des papiers à la maîtrise des couleurs.",
+      "Elle expérimente avec des ateliers indépendants pour donner à chaque volume une matérialité singulière."
+    ]
+  },
+  {
+    "slug": "marie",
+    "name": "Marie",
+    "role": "Médiation & partenariats",
+    "bio": [
+      "Marie construit des ponts entre Bicéphale et les réseaux associatifs, universitaires et militants.",
+      "Elle développe des formats d'ateliers et des rencontres publiques pour prolonger les dossiers de la revue."
+    ]
+  },
+  {
+    "slug": "oona",
+    "name": "Oona",
+    "role": "Rédactrice & podcasts",
+    "bio": [
+      "Oona explore la voix comme terrain journalistique et développe nos séries audio.",
+      "Elle accompagne les auteur·rices dans la mise en onde de leurs histoires et compose les paysages sonores." 
+    ]
+  },
+  {
+    "slug": "pauline",
+    "name": "Pauline",
+    "role": "Coordination des contributrices",
+    "bio": [
+      "Pauline tisse des liens avec notre réseau d'artistes, chercheuses et activistes.",
+      "Elle organise les temps collectifs de réflexion et garantit que chaque collaboration soit bien accompagnée."
+    ]
+  },
+  {
+    "slug": "pierre",
+    "name": "Pierre",
+    "role": "Développement & partenariats",
+    "bio": [
+      "Pierre imagine les modèles économiques qui permettent à Bicéphale de rester indépendante.",
+      "Il pilote les campagnes de financement participatif et accompagne nos mécènes solidaires."
+    ]
+  },
+  {
+    "slug": "steeve",
+    "name": "Steeve",
+    "role": "Production vidéo",
+    "bio": [
+      "Steeve documente les événements de Bicéphale et crée des formats vidéos courts pour les réseaux.",
+      "Il encadre les tournages collectifs et forme les membres de l'équipe aux outils de prise de vue."
+    ]
+  },
+  {
+    "slug": "wilfried",
+    "name": "Wilfried",
+    "role": "Administration & diffusion",
+    "bio": [
+      "Wilfried coordonne l'administration de la revue et suit les relations avec les libraires.",
+      "Il s'assure que chaque numéro trouve sa place dans les circuits de diffusion indépendants."
+    ]
+  }
+]
