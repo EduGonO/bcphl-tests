@@ -42,8 +42,6 @@ const Portrait = ({
 }: PortraitProps) => {
   const [isAltVisible, setIsAltVisible] = useState(false);
 
-  const showAlt = useCallback(() => setIsAltVisible(true), []);
-  const showPrimary = useCallback(() => setIsAltVisible(false), []);
   const toggleAlt = useCallback(() => {
     setIsAltVisible((current) => !current);
   }, []);
@@ -55,11 +53,8 @@ const Portrait = ({
       type="button"
       className={`portrait ${className ?? ""}`.trim()}
       aria-label={`Portrait de ${name}`}
+      aria-pressed={isAltVisible}
       data-alt-visible={isAltVisible || undefined}
-      onMouseEnter={showAlt}
-      onMouseLeave={showPrimary}
-      onFocus={showAlt}
-      onBlur={showPrimary}
       onClick={toggleAlt}
     >
       <span className="portrait-inner">
@@ -226,24 +221,22 @@ const BiosPage = () => {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: opacity 180ms ease;
+          transition: opacity 220ms ease, transform 320ms ease;
           pointer-events: none;
           opacity: 0;
+          transform: scale(1.03);
         }
 
         .portrait-img.is-visible {
           opacity: 1;
+          transform: scale(1);
         }
 
-        .portrait[data-alt-visible] .portrait-img.secondary,
-        .portrait:hover .portrait-img.secondary,
-        .portrait:focus-visible .portrait-img.secondary {
+        .portrait[data-alt-visible] .portrait-img.secondary {
           opacity: 1;
         }
 
-        .portrait[data-alt-visible] .portrait-img.primary,
-        .portrait:hover .portrait-img.primary,
-        .portrait:focus-visible .portrait-img.primary {
+        .portrait[data-alt-visible] .portrait-img.primary {
           opacity: 0;
         }
 
