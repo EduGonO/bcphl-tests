@@ -65,7 +65,7 @@ const Portrait = ({
         <img
           src={primarySrc}
           alt={`Portrait de ${name}`}
-          className="portrait-img primary"
+          className={`portrait-img primary${isAltVisible ? "" : " is-visible"}`}
           aria-hidden={isAltVisible}
           draggable={false}
           loading={loading}
@@ -74,7 +74,7 @@ const Portrait = ({
         <img
           src={secondarySrc}
           alt=""
-          className="portrait-img secondary"
+          className={`portrait-img secondary${isAltVisible ? " is-visible" : ""}`}
           aria-hidden={!isAltVisible}
           draggable={false}
           loading={loading}
@@ -97,11 +97,13 @@ const BiosPage = () => {
       </Head>
       <main className="bios">
         <header className="masthead">
-          <p className="overline">Bicéphale</p>
-          <h1>Équipe éditoriale</h1>
+          <p className="overline">Membres et Contributeurs - Bicéphale</p>
+          <h1>Association BIC - Brigade d’Interventions Contributives</h1>
           <p>
-            Des personnes qui font vivre la revue, à travers le papier, le son et les rencontres.
-            Survolez les portraits pour découvrir une seconde prise.
+            L’association Brigade d'Interventions Contributives (B.I.C) développe des actions culturelles visant à créer des espaces d'expression artistique transdisciplinaire et de réflexions partagées. Ses interventions incluent l'organisation d'expositions, d'ateliers de médiation culturelle (ateliers d'écriture, collages, etc.), et surtout celle des soirées Bicéphale, un dispositif de cabaret hybride entre performances poétiques, danses, vidéos et musique contemporaine.
+          </p>
+          <p>
+            Toutes ces activités reposent sur l'engagement actif et infaillible de ses adhérents.
           </p>
         </header>
         <section className="team" aria-label="Membres de l&apos;équipe Bicéphale">
@@ -185,6 +187,7 @@ const BiosPage = () => {
           position: relative;
           display: block;
           width: 100%;
+          aspect-ratio: 3 / 4;
           border: 2px solid currentColor;
           background: #eae5d9;
           overflow: hidden;
@@ -194,15 +197,11 @@ const BiosPage = () => {
           color: inherit;
         }
 
-        .portrait::before {
-          content: "";
-          display: block;
-          padding-top: 133.333%;
-        }
-
         .portrait-inner {
-          position: absolute;
-          inset: 0;
+          position: relative;
+          display: block;
+          width: 100%;
+          height: 100%;
         }
 
         .portrait:focus-visible {
@@ -213,20 +212,17 @@ const BiosPage = () => {
         .portrait-img {
           position: absolute;
           inset: 0;
+          display: block;
           width: 100%;
           height: 100%;
           object-fit: cover;
           transition: opacity 180ms ease;
-        }
-
-        .portrait-img.primary {
-          opacity: 1;
           pointer-events: none;
-        }
-
-        .portrait-img.secondary {
           opacity: 0;
-          pointer-events: none;
+        }
+
+        .portrait-img.is-visible {
+          opacity: 1;
         }
 
         .portrait[data-alt-visible] .portrait-img.secondary,
