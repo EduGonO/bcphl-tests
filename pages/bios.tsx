@@ -16,7 +16,7 @@ const teamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[])
 .map((member) => {
 const base = (member.portraitBase ?? member.slug).toLowerCase();
 return {
-…member,
+...member,
 portraits: {
 primary: `/bios/${base}-1.jpg`,
 secondary: `/bios/${base}-2.jpg`,
@@ -125,8 +125,8 @@ priority={index < 2}
 <ReactMarkdown
 key={`${member.slug}-bio-${bioIndex}`}
 components={{
-p: ({ node, …props }) => (
-<p className="bio-paragraph" {…props} />
+p: ({ node, ...props }) => (
+<p className="bio-paragraph" {...props} />
 ),
 }}
 >
