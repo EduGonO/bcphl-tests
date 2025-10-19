@@ -201,18 +201,10 @@ const BiosPage = () => {
           color: inherit;
         }
 
-        .portrait::before {
-          content: "";
-          display: block;
-          padding-bottom: calc(100% * 4 / 3);
-        }
-
         .portrait-inner {
-          position: absolute;
-          inset: 0;
+          position: relative;
           display: block;
           width: 100%;
-          height: 100%;
         }
 
         .portrait:focus-visible {
@@ -221,25 +213,26 @@ const BiosPage = () => {
         }
 
         .portrait-img {
-          position: absolute;
-          inset: 0;
           display: block;
           width: 100%;
-          height: 100%;
-          object-fit: cover;
+          height: auto;
+          object-fit: contain;
           transition: opacity 220ms ease, transform 320ms ease;
           pointer-events: none;
           opacity: 0;
           transform: scale(1.03);
         }
 
+        .portrait-img.secondary {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+        }
+
         .portrait-img.is-visible {
           opacity: 1;
           transform: scale(1);
-        }
-
-        .portrait[data-alt-visible] .portrait-img.secondary {
-          opacity: 1;
         }
 
         .portrait[data-alt-visible] .portrait-img.primary {
