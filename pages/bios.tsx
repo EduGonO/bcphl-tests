@@ -99,7 +99,7 @@ content="Rencontrez les personnes qui composent Bicéphale et découvrez leurs r
 <p className="overline">Membres et Contributeurs - Bicéphale</p>
 <h1>Association BIC - Brigade d’Interventions Contributives</h1>
 <p>
-L’association Brigade d’Interventions Contributives (B.I.C) développe des actions culturelles visant à créer des espaces d’expression artistique transdisciplinaire et de réflexions partagées. Ses interventions incluent l’organisation d’expositions, d’ateliers de médiation culturelle (ateliers d’écriture, collages, etc.), et surtout celle des soirées Bicéphale, un dispositif de cabaret hybride entre performances poétiques, danses, vidéos et musique contemporaine.
+L'association Brigade d'Interventions Contributives1 (B.I.C) développe des actions culturelles visant à créer des espaces d’expression artistique transdisciplinaire et de réflexions partagées. Ses interventions incluent l’organisation d’expositions, d’ateliers de médiation culturelle (ateliers d’écriture, collages, etc.), et surtout celle des soirées Bicéphale, un dispositif de cabaret hybride entre performances poétiques, danses, vidéos et musique contemporaine.
 </p>
 <p>
 Toutes ces activités reposent sur l’engagement actif et infaillible de ses adhérents.
