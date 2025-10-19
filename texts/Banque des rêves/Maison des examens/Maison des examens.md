@@ -1,7 +1,7 @@
 ---
 title: Maison des examens
 date: 2025-05-07
-author: Irina Breitenstein
+author: Irina Zimmerman
 ---
 
 Fait rare, cette année, les Pâques catholique et orthodoxe tombent presque en même temps que la fête juive de Pessah. Le lundi de Pâques, après la fin de Pessah, le Pape François est mort.
