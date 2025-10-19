@@ -3,5 +3,6 @@ export type TeamMember = {
   name: string;
   role?: string;
   bio: string[];
+  rank: number;
   portraitBase?: string;
 };

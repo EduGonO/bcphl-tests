@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { useCallback, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 import teamMembersData from "../data/team.json";
 import type { TeamMember } from "../types/bios";
@@ -11,8 +12,8 @@ type TeamMemberWithPortraits = TeamMember & {
   };
 };
 
-const teamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[]).map(
-  (member) => {
+const teamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[])
+  .map((member) => {
     const base = (member.portraitBase ?? member.slug).toLowerCase();
     return {
       ...member,
@@ -21,8 +22,8 @@ const teamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[])
         secondary: `/bios/${base}-2.jpg`,
       },
     };
-  }
-);
+  })
+  .sort((a, b) => a.rank - b.rank);
 
 type PortraitProps = {
   name: string;
@@ -123,7 +124,16 @@ const BiosPage = () => {
                   {member.role && <p className="role">{member.role}</p>}
                 </header>
                 {member.bio.map((paragraph, bioIndex) => (
-                  <p key={`${member.slug}-bio-${bioIndex}`}>{paragraph}</p>
+                  <ReactMarkdown
+                    key={`${member.slug}-bio-${bioIndex}`}
+                    components={{
+                      p: ({ node, ...props }) => (
+                        <p className="bio-paragraph" {...props} />
+                      ),
+                    }}
+                  >
+                    {paragraph}
+                  </ReactMarkdown>
                 ))}
               </div>
             </article>
@@ -243,6 +253,14 @@ const BiosPage = () => {
           gap: 0.85rem;
           font-size: 1rem;
           line-height: 1.6;
+        }
+
+        .member-text :global(.bio-paragraph) {
+          margin: 0;
+        }
+
+        .member-text :global(.bio-paragraph + .bio-paragraph) {
+          margin-top: 0.85rem;
         }
 
         .member-heading {
