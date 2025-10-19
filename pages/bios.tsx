@@ -148,7 +148,6 @@ display: grid;
 gap: clamp(2.5rem, 7vw, 4.5rem);
 }
 
-
     .masthead {
       display: grid;
       gap: 1rem;
@@ -207,8 +206,9 @@ gap: clamp(2.5rem, 7vw, 4.5rem);
     }
 
     .portrait-inner {
-      position: relative;
-      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
     }
