@@ -146,7 +146,6 @@ display: grid;
 gap: clamp(2.5rem, 7vw, 4.5rem);
 }
 
-
     .masthead {
       display: grid;
       gap: 1rem;
@@ -192,14 +191,15 @@ gap: clamp(2.5rem, 7vw, 4.5rem);
 
     .portrait {
       position: relative;
-      display: block;
       width: 100%;
-      height: 0;
-      padding-bottom: 133.333%;
+      height: auto;
+      aspect-ratio: 3 / 4;
       border: 2px solid currentColor;
       background: #eae5d9;
       overflow: hidden;
       cursor: pointer;
+      padding: 0;
+      margin: 0;
     }
 
     .portrait:focus-visible {
@@ -211,6 +211,8 @@ gap: clamp(2.5rem, 7vw, 4.5rem);
       position: absolute;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
