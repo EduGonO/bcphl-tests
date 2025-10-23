@@ -164,10 +164,37 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 </p>
                 <div className="intro-actions">
                   <Link href="/categories/info" className="primary-action">
-                    Lire la revue
+                    en lire +
                   </Link>
                   <Link href="/evenements" className="secondary-action">
-                    Voir nos événements
+                    <span aria-hidden="true" className="instagram-icon">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          x="3"
+                          y="3"
+                          width="18"
+                          height="18"
+                          rx="5"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                        />
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="4.5"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                        />
+                        <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
+                      </svg>
+                    </span>
+                    <span className="instagram-label">insta</span>
                   </Link>
                 </div>
               </div>
@@ -459,29 +486,50 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-decoration: none;
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
-          padding: 12px 30px;
-          border-radius: 30px;
-          border: 1px solid #1b1b1b;
-          text-transform: uppercase;
-          letter-spacing: 0.16em;
-          transition: background 0.2s ease, color 0.2s ease;
-          color: #101010;
+          padding: 12px 26px;
+          border-radius: 999px;
+          border: 1px solid #151515;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+          color: #141414;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          line-height: 1;
+          letter-spacing: 0.04em;
         }
         .intro-actions a:visited {
-          color: #101010;
+          color: #141414;
         }
         .primary-action {
-          background: #54c86d;
-          border-color: #1f3a25;
-          color: #0d2112;
+          background: #d9cff9;
+          border-color: #3f3273;
+          color: #231b46;
         }
         .secondary-action {
-          background: #f5f1ea;
+          background: #d6f3c5;
+          border-color: #2d5932;
+          color: #14321a;
+        }
+        .instagram-icon {
+          display: flex;
+          align-items: center;
+        }
+        .instagram-icon svg {
+          display: block;
+          fill: currentColor;
+        }
+        .instagram-label {
+          letter-spacing: 0.02em;
         }
         .intro-actions a:hover,
         .intro-actions a:focus-visible {
-          background: #101010;
+          background: #141414;
           color: #f7f4eb;
+          border-color: #141414;
+        }
+        .intro-actions a:hover .instagram-icon svg,
+        .intro-actions a:focus-visible .instagram-icon svg {
+          fill: currentColor;
         }
         .intro-visual {
           display: flex;
@@ -713,6 +761,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           .search-drawer {
             padding: 0 20px;
           }
+        }
+      `}</style>
+      <style jsx global>{`
+        .page-wrapper a {
+          color: inherit;
+          text-decoration: none;
+        }
+        .page-wrapper a:visited {
+          color: inherit;
         }
       `}</style>
     </>
