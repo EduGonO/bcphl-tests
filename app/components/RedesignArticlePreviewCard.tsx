@@ -46,7 +46,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview {
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 24px;
           padding: 22px 24px 26px;
           border-radius: 20px;
           background: rgba(255, 255, 255, 0.68);
@@ -132,11 +132,11 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           border-radius: 999px;
           transition: transform 0.2s ease;
         }
-        .article-preview.featured .article-preview-cta {
+        .article-preview-cta.featured {
           background: #c1c1f0;
           color: #111111;
         }
-        .article-preview.event .article-preview-cta {
+        .article-preview-cta.event {
           background: #f4f0ae;
           color: #111111;
         }
