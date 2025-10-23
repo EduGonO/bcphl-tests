@@ -287,13 +287,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
       <style jsx>{`
         :global(body) {
-          background: #f4f2ec;
+          background: #ffffff;
         }
         .page-wrapper {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #e2ded6;
+          background: #ffffff;
         }
         .top-nav {
           display: flex;
@@ -301,7 +301,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           justify-content: space-between;
           padding: 26px 48px 18px;
           border-bottom: 1px solid #b9b0a3;
-          background: #e6e1d8;
+          background: #ffffff;
           position: sticky;
           top: 0;
           z-index: 50;
@@ -345,9 +345,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .content {
           flex: 1;
           display: flex;
-          gap: 40px;
-          padding: 40px 48px 64px;
-          background: #e2ded6;
+          gap: 0;
+          padding: 0;
+          background: #ffffff;
         }
         .search-drawer {
           position: relative;
@@ -441,12 +441,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           flex-direction: column;
           gap: 52px;
+          background: #e4e4e4;
         }
         .intro {
           display: grid;
           grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
           gap: 32px;
           align-items: stretch;
+          padding: 48px 48px 0;
         }
         .intro-text {
           background: transparent;
@@ -541,6 +543,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .columns-area {
           display: block;
+          padding: 0 48px 64px;
         }
         .columns {
           display: grid;
@@ -720,15 +723,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           color: #f7f2e6;
         }
         @media (max-width: 960px) {
-          .content {
-            padding: 32px 36px 48px;
+          .intro {
+            padding: 40px 36px 0;
+          }
+          .columns-area {
+            padding: 0 36px 48px;
           }
         }
         @media (max-width: 700px) {
           .content {
             flex-direction: column;
-            gap: 32px;
-            padding: 28px 24px 40px;
+            gap: 0;
+            padding: 0;
           }
           .search-drawer {
             width: 100%;
@@ -760,12 +766,16 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           }
           .intro {
             grid-template-columns: 1fr;
+            padding: 32px 24px 0;
           }
           .intro-visual {
             order: -1;
           }
           .columns {
             grid-template-columns: 1fr;
+          }
+          .columns-area {
+            padding: 0 24px 32px;
           }
           .column-content {
             max-height: none;
