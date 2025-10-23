@@ -518,7 +518,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           box-sizing: border-box;
         }
         .column-featured {
-          background: #a8a8a8;
+          background: #d8d8d8;
           color: #111111;
         }
         .column-featured .column-header {
@@ -530,7 +530,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           color: #111111;
         }
         .column-events {
-          background: #c7c7c7;
+          background: #f2f2f2;
           color: #111111;
         }
         .column-events .column-header {

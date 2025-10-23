@@ -77,7 +77,6 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview-body {
           display: flex;
           flex-direction: column;
-          gap: 16px;
           font-family: "InterRegular", sans-serif;
           color: #191919;
         }
@@ -85,7 +84,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           display: flex;
           flex-direction: column;
           gap: 10px;
-          margin-top: 6px;
+          margin: 10px 0 12px;
         }
         .article-preview-title {
           margin: 0;
@@ -109,11 +108,13 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: rgba(17, 17, 17, 0.72);
+          margin: 0 0 6px;
         }
         .article-preview-text {
           font-size: 15px;
           line-height: 1.5;
           color: rgba(17, 17, 17, 0.9);
+          margin-bottom: 8px;
         }
         .article-preview-text :global(p) {
           margin: 0;
@@ -132,6 +133,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           padding: 6px 16px;
           border-radius: 999px;
           transition: transform 0.2s ease;
+          margin-top: 0;
         }
         .article-preview-cta.featured {
           background: #c1c1f0;
