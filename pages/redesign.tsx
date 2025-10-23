@@ -164,10 +164,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 </p>
                 <div className="intro-actions">
                   <Link href="/categories/info" className="intro-action primary-action">
-                    <span className="intro-action-label">manifeste</span>
+                    manifeste
                   </Link>
                   <Link href="/evenements" className="intro-action secondary-action">
-                    <span className="intro-action-label">nous suivre</span>
+                    nous suivre
                   </Link>
                 </div>
               </div>
@@ -426,16 +426,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action {
           display: inline-flex;
-          text-decoration: none;
-        }
-        .intro-action:visited {
-          color: inherit;
-        }
-        .intro-action:focus-visible {
-          outline: none;
-        }
-        .intro-action-label {
-          display: inline-flex;
           align-items: center;
           justify-content: center;
           font-family: "InterRegular", sans-serif;
@@ -445,20 +435,27 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           border-radius: 999px;
           line-height: 1.1;
           color: #111111;
+          text-decoration: none;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .intro-action.primary-action .intro-action-label {
+        .intro-action:visited {
+          color: inherit;
+        }
+        .intro-action:focus-visible {
+          outline: none;
+        }
+        .intro-action.primary-action {
           background: #c1c1f0;
         }
-        .intro-action.secondary-action .intro-action-label {
+        .intro-action.secondary-action {
           background: #f4f0ae;
         }
-        .intro-action:hover .intro-action-label,
-        .intro-action:focus-visible .intro-action-label {
+        .intro-action:hover,
+        .intro-action:focus-visible {
           transform: translateY(-1px);
           box-shadow: 0 6px 14px rgba(17, 17, 17, 0.12);
         }
-        .intro-action:focus-visible .intro-action-label {
+        .intro-action:focus-visible {
           outline: 2px solid rgba(17, 17, 17, 0.4);
           outline-offset: 2px;
         }
