@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 import { Article } from "../../types";
 import { getArticleMediaStyle } from "../../lib/articleMedia";
 
@@ -18,12 +19,9 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   const formattedDate = formatDate(article.date);
   const linkHref = `/${article.category}/${article.slug}`;
   const linkLabel = variant === "featured" ? "en lire" : "+ d'infos";
-  const linkClassName = `article-preview-link ${
-    variant === "featured" ? "featured" : "event"
-  }`;
 
   return (
-    <article className={`article-preview ${variant}`}>
+    <Link href={linkHref} className={`article-preview ${variant}`} role="article">
       <div className="article-preview-media" style={mediaStyle} aria-hidden="true" />
       <div className="article-preview-body">
         <div className="article-preview-header">
@@ -38,11 +36,11 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           </time>
         )}
         {article.preview && (
-          <p className="article-preview-text">{article.preview}</p>
+          <div className="article-preview-text">
+            <ReactMarkdown>{article.preview}</ReactMarkdown>
+          </div>
         )}
-        <Link href={linkHref} className={linkClassName}>
-          {linkLabel}
-        </Link>
+        <span className={`article-preview-cta ${variant}`}>{linkLabel}</span>
       </div>
       <style jsx>{`
         .article-preview {
@@ -54,19 +52,21 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           background: rgba(255, 255, 255, 0.68);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
+          text-decoration: none;
+          color: inherit;
         }
         .article-preview.event {
           background: rgba(255, 255, 255, 0.74);
         }
         .article-preview:hover,
-        .article-preview:focus-within {
+        .article-preview:focus-visible {
           transform: translateY(-2px);
           box-shadow: 0 8px 18px rgba(17, 17, 17, 0.12);
         }
         .article-preview-media {
           width: 100%;
           aspect-ratio: 3 / 2;
-          max-height: 220px;
+          max-height: 200px;
           border-radius: 16px;
           background-color: rgba(255, 255, 255, 0.28);
           background-position: center;
@@ -100,40 +100,49 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           line-height: 1.2;
           text-align: right;
           color: rgba(17, 17, 17, 0.8);
-          letter-spacing: 0.02em;
+          letter-spacing: 0.01em;
         }
         .article-preview-date {
           font-family: "InterRegular", sans-serif;
           font-size: 12px;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
           color: rgba(17, 17, 17, 0.72);
         }
         .article-preview-text {
-          margin: 0;
           font-size: 15px;
-          line-height: 1.66;
+          line-height: 1.5;
           color: rgba(17, 17, 17, 0.9);
         }
-        .article-preview-link {
+        .article-preview-text :global(p) {
+          margin: 0;
+        }
+        .article-preview-text :global(p + p) {
+          margin-top: 10px;
+        }
+        .article-preview-cta {
+          display: inline-flex;
           align-self: flex-start;
-          text-decoration: none;
+          align-items: center;
+          justify-content: center;
           font-family: "InterRegular", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
           padding: 10px 20px;
           border-radius: 999px;
-          color: #111111;
-          transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+          transition: transform 0.2s ease;
+        }
+        .article-preview.featured .article-preview-cta {
           background: #c1c1f0;
+          color: #111111;
         }
-        .article-preview-link.event {
+        .article-preview.event .article-preview-cta {
           background: #f4f0ae;
+          color: #111111;
         }
-        .article-preview-link:hover,
-        .article-preview-link:focus-visible {
+        .article-preview:hover .article-preview-cta,
+        .article-preview:focus-visible .article-preview-cta {
           transform: translateY(-1px);
-          color: #050505;
         }
         @media (max-width: 720px) {
           .article-preview {
@@ -144,7 +153,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           }
         }
       `}</style>
-    </article>
+    </Link>
   );
 };
 

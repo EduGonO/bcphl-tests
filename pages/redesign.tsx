@@ -572,25 +572,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           gap: 24px;
           max-height: clamp(420px, 60vh, 640px);
         }
-        .column-featured :global(.article-preview) {
-          color: #111111;
-          margin: 0 32px;
-        }
-        .column-featured :global(.article-preview:last-child) {
-          margin-bottom: 32px;
-        }
-        .column-featured :global(.article-preview-link.featured) {
-          background: #c1c1f0;
-        }
+        .column-featured :global(.article-preview),
         .column-events :global(.article-preview) {
           color: #111111;
           margin: 0 32px;
         }
+        .column-featured :global(.article-preview:last-child),
         .column-events :global(.article-preview:last-child) {
           margin-bottom: 32px;
-        }
-        .column-events :global(.article-preview-link.event) {
-          background: #f4f0ae;
         }
         @media (max-width: 960px) {
           .intro {
@@ -690,6 +679,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .page-wrapper a:visited {
           color: inherit;
+        }
+        .page-wrapper .footer {
+          margin-top: 0;
         }
       `}</style>
     </>
