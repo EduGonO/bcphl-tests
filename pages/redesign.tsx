@@ -105,153 +105,163 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         </header>
 
         <main className="content">
-          <section className="intro">
-            <div className="intro-text">
-              <p>
-                Dans la même urgence que la revue <em>Acéphale</em> publiée par Georges
-                Bataille en 1936 et portée par un désir de la contribution propre à
-                Bernard Stiegler, la revue <strong>BICÉPHALE</strong> conjugue la créativité
-                contemporaine à travers des textes inédits lors des soirées bicéphales
-                et une démarche réflexive analysant les arts, les techniques et la
-                société.
-              </p>
-              <p>
-                Cette revue embrasse nos multiplicités et questionne les techniques
-                contemporaines afin de se faire vectrice de suggestion, de mouvement,
-                de critique et de pensée.
-              </p>
-              <div className="intro-actions">
-                <Link href="/categories/info" className="primary-action">
-                  Lire la revue
-                </Link>
-                <Link href="/evenements" className="secondary-action">
-                  Voir nos événements
-                </Link>
-              </div>
+          <aside className={`search-drawer ${searchOpen ? "open" : ""}`}>
+            <button
+              type="button"
+              className="drawer-toggle"
+              onClick={() => setSearchOpen((open) => !open)}
+              aria-expanded={searchOpen}
+              aria-controls="search-panel"
+            >
+              <span>Recherche</span>
+            </button>
+            <div
+              className="drawer-body"
+              id="search-panel"
+              aria-hidden={!searchOpen}
+            >
+              <h3>Recherche</h3>
+              <label className="drawer-label" htmlFor="search-input">
+                Recherchez un article
+              </label>
+              <input
+                id="search-input"
+                className="drawer-input"
+                type="text"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Titre, auteur, mot-clé..."
+                tabIndex={searchOpen ? 0 : -1}
+              />
+              {normalizedQuery && (
+                <button
+                  type="button"
+                  className="clear-button"
+                  onClick={() => setQuery("")}
+                  tabIndex={searchOpen ? 0 : -1}
+                >
+                  Effacer
+                </button>
+              )}
             </div>
-            <div className="intro-visual">
-              <div className="visual-card">
-                <div className="visual-card-body">
-                  <p>
-                    « Les techniques que nous aimons sont celles qui nous font sentir
-                    plus vivants, plus attentifs à ce qui nous relie. »
-                  </p>
-                  <span>— Revue Bicéphale</span>
-                </div>
-                <img
-                  src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
-                  alt="Illustration"
-                />
-              </div>
-            </div>
-          </section>
+          </aside>
 
-          <section className="columns-area">
-            <div className={`search-drawer ${searchOpen ? "open" : ""}`}>
-              <button
-                className="drawer-toggle"
-                onClick={() => setSearchOpen((open) => !open)}
-                aria-expanded={searchOpen}
-                aria-controls="search-panel"
-              >
-                <span>Recherche</span>
-              </button>
-              <div className="drawer-body" id="search-panel">
-                <h3>Recherche</h3>
-                <label className="drawer-label" htmlFor="search-input">
-                  Recherchez un article
-                </label>
-                <input
-                  id="search-input"
-                  className="drawer-input"
-                  type="text"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Titre, auteur, mot-clé..."
-                />
-                {normalizedQuery && (
-                  <button
-                    className="clear-button"
-                    onClick={() => setQuery("")}
-                  >
-                    Effacer
-                  </button>
-                )}
+          <div className="main-sections">
+            <section className="intro">
+              <div className="intro-text">
+                <p>
+                  Dans la même urgence que la revue <em>Acéphale</em> publiée par Georges
+                  Bataille en 1936 et portée par un désir de la contribution propre à
+                  Bernard Stiegler, la revue <strong>BICÉPHALE</strong> conjugue la créativité
+                  contemporaine à travers des textes inédits lors des soirées bicéphales
+                  et une démarche réflexive analysant les arts, les techniques et la
+                  société.
+                </p>
+                <p>
+                  Cette revue embrasse nos multiplicités et questionne les techniques
+                  contemporaines afin de se faire vectrice de suggestion, de mouvement,
+                  de critique et de pensée.
+                </p>
+                <div className="intro-actions">
+                  <Link href="/categories/info" className="primary-action">
+                    Lire la revue
+                  </Link>
+                  <Link href="/evenements" className="secondary-action">
+                    Voir nos événements
+                  </Link>
+                </div>
               </div>
-            </div>
-
-            <div className="columns">
-              <section className="column">
-                <header className="column-header">
-                  <h2>à la une</h2>
-                  <span className="column-count">{featuredArticles.length}</span>
-                </header>
-                <div className="column-content">
-                  {featuredArticles.map((article) => {
-                    const media = getPrimaryMedia(article);
-                    return (
-                      <article key={article.slug} className="article-card">
-                        {media && (
-                          <div className="article-media">
-                            <img src={media} alt="" loading="lazy" />
-                          </div>
-                        )}
-                        <div className="article-body">
-                          <div className="article-meta">
-                            <time dateTime={article.date}>{formatDate(article.date)}</time>
-                            <span className="article-author">{article.author}</span>
-                          </div>
-                          <h3>{article.title}</h3>
-                          <p>{article.preview}</p>
-                          <Link
-                            href={`/${article.category}/${article.slug}`}
-                            className="article-link"
-                          >
-                            en lire
-                          </Link>
-                        </div>
-                      </article>
-                    );
-                  })}
+              <div className="intro-visual">
+                <div className="visual-card">
+                  <div className="visual-card-body">
+                    <p>
+                      « Les techniques que nous aimons sont celles qui nous font sentir
+                      plus vivants, plus attentifs à ce qui nous relie. »
+                    </p>
+                    <span>— Revue Bicéphale</span>
+                  </div>
+                  <img
+                    src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
+                    alt="Illustration"
+                  />
                 </div>
-              </section>
+              </div>
+            </section>
 
-              <section className="column">
-                <header className="column-header">
-                  <h2>nos événements</h2>
-                  <span className="column-count">{eventArticles.length}</span>
-                </header>
-                <div className="column-content">
-                  {eventArticles.map((article) => {
-                    const media = getPrimaryMedia(article);
-                    return (
-                      <article key={article.slug} className="article-card event">
-                        {media && (
-                          <div className="article-media">
-                            <img src={media} alt="" loading="lazy" />
+            <section className="columns-area">
+              <div className="columns">
+                <section className="column">
+                  <header className="column-header">
+                    <h2>à la une</h2>
+                    <span className="column-count">{featuredArticles.length}</span>
+                  </header>
+                  <div className="column-content">
+                    {featuredArticles.map((article) => {
+                      const media = getPrimaryMedia(article);
+                      return (
+                        <article key={article.slug} className="article-card">
+                          {media && (
+                            <div className="article-media">
+                              <img src={media} alt="" loading="lazy" />
+                            </div>
+                          )}
+                          <div className="article-body">
+                            <div className="article-meta">
+                              <time dateTime={article.date}>{formatDate(article.date)}</time>
+                              <span className="article-author">{article.author}</span>
+                            </div>
+                            <h3>{article.title}</h3>
+                            <p>{article.preview}</p>
+                            <Link
+                              href={`/${article.category}/${article.slug}`}
+                              className="article-link"
+                            >
+                              en lire
+                            </Link>
                           </div>
-                        )}
-                        <div className="article-body">
-                          <div className="article-meta">
-                            <time dateTime={article.date}>{formatDate(article.date)}</time>
-                            <span className="article-category">{article.category}</span>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                <section className="column">
+                  <header className="column-header">
+                    <h2>nos événements</h2>
+                    <span className="column-count">{eventArticles.length}</span>
+                  </header>
+                  <div className="column-content">
+                    {eventArticles.map((article) => {
+                      const media = getPrimaryMedia(article);
+                      return (
+                        <article key={article.slug} className="article-card event">
+                          {media && (
+                            <div className="article-media">
+                              <img src={media} alt="" loading="lazy" />
+                            </div>
+                          )}
+                          <div className="article-body">
+                            <div className="article-meta">
+                              <time dateTime={article.date}>{formatDate(article.date)}</time>
+                              <span className="article-category">{article.category}</span>
+                            </div>
+                            <h3>{article.title}</h3>
+                            <p>{article.preview}</p>
+                            <Link
+                              href={`/${article.category}/${article.slug}`}
+                              className="article-link highlight"
+                            >
+                              d’infos
+                            </Link>
                           </div>
-                          <h3>{article.title}</h3>
-                          <p>{article.preview}</p>
-                          <Link
-                            href={`/${article.category}/${article.slug}`}
-                            className="article-link highlight"
-                          >
-                            d’infos
-                          </Link>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-              </section>
-            </div>
-          </section>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              </div>
+            </section>
+          </div>
         </main>
 
         <Footer footerColor="#0c0c0c" />
@@ -259,22 +269,21 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
       <style jsx>{`
         :global(body) {
-          background: #f3f1ed;
+          background: #f4f2ec;
         }
         .page-wrapper {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: linear-gradient(180deg, #f3f1ed 0%, #dcd7d0 60%, #f3f1ed 100%);
+          background: #f4f2ec;
         }
         .top-nav {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 24px 48px 12px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-          background: #ffffffb3;
-          backdrop-filter: blur(8px);
+          padding: 28px 48px 18px;
+          border-bottom: 2px solid #1b1b1b;
+          background: #f4f2ec;
           position: sticky;
           top: 0;
           z-index: 50;
@@ -282,69 +291,140 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .brand {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
           font-family: "RecoletaMedium", "GayaRegular", serif;
-          font-size: 20px;
+          font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
         }
         .brand-logo {
-          width: 38px;
-          height: 38px;
+          width: 46px;
+          height: 46px;
           object-fit: contain;
         }
         .brand-name {
-          color: #090909;
+          color: #0d0d0d;
         }
         .nav-links {
           display: flex;
           align-items: center;
-          gap: 24px;
+          gap: 30px;
           font-family: "InterMedium", sans-serif;
-          font-size: 15px;
+          font-size: 16px;
           text-transform: uppercase;
         }
         .nav-link {
-          color: #252525;
+          color: #0d0d0d;
           text-decoration: none;
-          position: relative;
-          padding-bottom: 4px;
         }
-        .nav-link::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          bottom: 0;
-          width: 0;
-          height: 2px;
-          background: #4f4bce;
-          transition: width 0.2s ease;
-        }
-        .nav-link:hover::after,
-        .nav-link:focus-visible::after {
-          width: 100%;
+        .nav-link:hover,
+        .nav-link:focus-visible {
+          color: #3a3a3a;
         }
         .content {
           flex: 1;
-          padding: 32px 48px 48px;
+          display: flex;
+          gap: 40px;
+          padding: 40px 48px 64px;
+        }
+        .search-drawer {
+          position: relative;
+          flex: 0 0 auto;
+          width: 72px;
+          align-self: stretch;
+          background: #e9e5d8;
+          border: 2px solid #1b1b1b;
           display: flex;
           flex-direction: column;
-          gap: 48px;
+          overflow: hidden;
+          transition: width 0.3s ease, max-height 0.3s ease;
+          min-height: 100%;
+        }
+        .search-drawer.open {
+          width: 320px;
+        }
+        .drawer-toggle {
+          background: none;
+          border: none;
+          border-bottom: 2px solid #1b1b1b;
+          cursor: pointer;
+          writing-mode: vertical-rl;
+          text-transform: uppercase;
+          font-family: "InterMedium", sans-serif;
+          font-size: 15px;
+          letter-spacing: 0.28em;
+          padding: 20px 0;
+          color: #0d0d0d;
+        }
+        .drawer-toggle span {
+          transform: rotate(180deg);
+          display: inline-block;
+        }
+        .drawer-body {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          padding: 28px;
+          background: #f7f4eb;
+          border-top: 2px solid #1b1b1b;
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+          pointer-events: none;
+        }
+        .search-drawer.open .drawer-body {
+          transform: translateX(0);
+          pointer-events: auto;
+        }
+        .drawer-body h3 {
+          margin: 0;
+          text-transform: uppercase;
+          font-family: "RecoletaMedium", serif;
+          letter-spacing: 0.14em;
+          font-size: 18px;
+        }
+        .drawer-label {
+          font-size: 14px;
+          font-family: "InterRegular", sans-serif;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+        }
+        .drawer-input {
+          background: #fff;
+          border: 2px solid #1b1b1b;
+          padding: 12px;
+          font-size: 16px;
+          font-family: "InterRegular", sans-serif;
+        }
+        .clear-button {
+          align-self: flex-start;
+          background: none;
+          border: 2px solid #1b1b1b;
+          padding: 6px 18px;
+          text-transform: uppercase;
+          font-size: 13px;
+          font-family: "InterMedium", sans-serif;
+          cursor: pointer;
+        }
+        .main-sections {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 52px;
         }
         .intro {
           display: grid;
-          grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-          gap: 32px;
+          grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+          gap: 28px;
           align-items: stretch;
         }
         .intro-text {
-          background: rgba(255, 255, 255, 0.9);
+          background: #f7f4eb;
           padding: 32px;
-          border-radius: 20px;
-          box-shadow: 0 18px 36px rgba(15, 15, 15, 0.08);
+          border: 2px solid #1b1b1b;
           font-family: "InterRegular", sans-serif;
-          color: #1d1d1d;
-          line-height: 1.6;
+          color: #101010;
+          line-height: 1.58;
           font-size: 16px;
         }
         .intro-text p {
@@ -359,45 +439,39 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-actions {
           display: flex;
-          gap: 16px;
-          margin-top: 24px;
+          gap: 18px;
+          margin-top: 28px;
         }
         .intro-actions a {
           text-decoration: none;
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
-          padding: 10px 22px;
-          border-radius: 24px;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          padding: 12px 30px;
+          border-radius: 28px;
+          border: 2px solid #1b1b1b;
+          text-transform: uppercase;
+          letter-spacing: 0.16em;
         }
         .primary-action {
-          background: #4f4bce;
-          color: #fff;
-          box-shadow: 0 8px 18px rgba(79, 75, 206, 0.25);
+          background: #1b1b1b;
+          color: #f4f2ec;
         }
         .secondary-action {
-          background: #d1f27d;
-          color: #1a1a1a;
-          box-shadow: 0 8px 18px rgba(209, 242, 125, 0.4);
-        }
-        .intro-actions a:hover,
-        .intro-actions a:focus-visible {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+          background: #f4f2ec;
+          color: #1b1b1b;
         }
         .intro-visual {
           display: flex;
           align-items: stretch;
         }
         .visual-card {
-          background: linear-gradient(165deg, #f8f5ef, #d2cec7);
-          border-radius: 24px;
+          background: #f4f2ec;
+          border: 2px solid #1b1b1b;
           padding: 28px;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           gap: 24px;
-          box-shadow: 0 20px 40px rgba(12, 12, 12, 0.16);
         }
         .visual-card-body {
           font-family: "InterRegular", sans-serif;
@@ -414,114 +488,21 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .visual-card img {
           width: 100%;
-          border-radius: 16px;
           object-fit: cover;
           max-height: 220px;
         }
         .columns-area {
-          display: grid;
-          grid-template-columns: auto 1fr;
-          gap: 24px;
-          align-items: stretch;
-        }
-        .search-drawer {
-          position: relative;
-          width: 64px;
-          transition: width 0.3s ease;
-          background: rgba(109, 101, 176, 0.12);
-          border-radius: 24px;
-          overflow: hidden;
-          backdrop-filter: blur(6px);
-        }
-        .search-drawer.open {
-          width: 320px;
-        }
-        .drawer-toggle {
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 64px;
-          border: none;
-          background: linear-gradient(180deg, #f1efff, #d9d5f2);
-          color: #3b3670;
-          font-family: "InterMedium", sans-serif;
-          writing-mode: vertical-rl;
-          text-orientation: mixed;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: background 0.2s ease;
-        }
-        .search-drawer.open .drawer-toggle {
-          box-shadow: inset -1px 0 0 rgba(59, 54, 112, 0.25);
-        }
-        .drawer-toggle:focus-visible {
-          outline: 2px solid #4f4bce;
-          outline-offset: 4px;
-        }
-        .drawer-body {
-          padding: 24px 24px 24px 88px;
-          opacity: 0;
-          transform: translateX(-12px);
-          transition: opacity 0.2s ease, transform 0.2s ease;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .search-drawer.open .drawer-body {
-          opacity: 1;
-          transform: translateX(0);
-        }
-        .drawer-body h3 {
-          margin: 0;
-          font-family: "RecoletaMedium", serif;
-          font-size: 20px;
-          color: #332f63;
-        }
-        .drawer-label {
-          font-size: 13px;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: #5b5596;
-        }
-        .drawer-input {
-          border-radius: 18px;
-          border: 1px solid rgba(91, 85, 150, 0.35);
-          padding: 10px 16px;
-          font-size: 15px;
-          font-family: "InterRegular", sans-serif;
-          background: rgba(255, 255, 255, 0.85);
-        }
-        .drawer-input:focus {
-          outline: none;
-          border-color: #4f4bce;
-          box-shadow: 0 0 0 3px rgba(79, 75, 206, 0.18);
-        }
-        .clear-button {
-          align-self: flex-start;
-          border: none;
-          background: none;
-          color: #4f4bce;
-          font-size: 13px;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          cursor: pointer;
-          padding: 0;
+          display: block;
         }
         .columns {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 24px;
+          gap: 28px;
         }
         .column {
-          background: rgba(255, 255, 255, 0.86);
-          border-radius: 28px;
-          padding: 24px;
-          box-shadow: 0 24px 42px rgba(22, 22, 22, 0.14);
+          border: 2px solid #1b1b1b;
+          padding: 24px 24px 32px;
+          background: #f7f4eb;
           display: flex;
           flex-direction: column;
         }
@@ -533,7 +514,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-transform: uppercase;
           font-family: "RecoletaMedium", serif;
           letter-spacing: 0.18em;
-          color: #1f1f1f;
+          color: #111;
           margin-bottom: 16px;
         }
         .column-header h2 {
@@ -542,11 +523,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .column-count {
           font-family: "InterMedium", sans-serif;
-          font-size: 14px;
-          padding: 4px 10px;
-          border-radius: 14px;
-          background: rgba(79, 75, 206, 0.12);
-          color: #3b3670;
+          font-size: 13px;
+          padding: 4px 12px;
+          border: 2px solid #1b1b1b;
         }
         .column-content {
           overflow-y: auto;
@@ -557,23 +536,22 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           padding-right: 8px;
         }
         .article-card {
-          background: linear-gradient(160deg, #f7f7f7, #e2dfd9);
-          border-radius: 20px;
+          border: 2px solid #1b1b1b;
           padding: 18px;
           display: grid;
           grid-template-columns: 120px minmax(0, 1fr);
           gap: 16px;
           font-family: "InterRegular", sans-serif;
           color: #1f1f1f;
+          background: #f4f2ec;
         }
         .article-card.event {
-          background: linear-gradient(160deg, #f7f7f7, #f0f7e1);
+          background: #eef5df;
         }
         .article-media img {
           width: 100%;
           height: 120px;
           object-fit: cover;
-          border-radius: 16px;
         }
         .article-body {
           display: flex;
@@ -593,7 +571,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           margin: 0;
           font-size: 18px;
           font-family: "RecoletaMedium", serif;
-          color: #232323;
+          color: #111;
         }
         .article-body p {
           margin: 0;
@@ -608,54 +586,63 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-size: 13px;
           text-transform: uppercase;
           letter-spacing: 0.14em;
-          color: #4f4bce;
+          color: #1b1b1b;
+          padding: 4px 10px;
+          border: 2px solid transparent;
         }
         .article-link.highlight {
-          color: #1a7a45;
+          color: #1b1b1b;
         }
         .article-link:hover,
         .article-link:focus-visible {
-          text-decoration: underline;
+          border-color: #1b1b1b;
+          background: #1b1b1b;
+          color: #f4f2ec;
         }
-        @media (max-width: 1200px) {
+        @media (max-width: 960px) {
           .content {
-            padding: 32px;
+            padding: 32px 36px 48px;
+          }
+        }
+        @media (max-width: 700px) {
+          .content {
+            flex-direction: column;
+            gap: 32px;
+            padding: 28px 24px 40px;
+          }
+          .search-drawer {
+            width: 100%;
+            max-height: 72px;
+            min-height: auto;
+            flex-direction: column;
+          }
+          .search-drawer.open {
+            max-height: 520px;
+          }
+          .drawer-toggle {
+            writing-mode: horizontal-tb;
+            border-bottom: 2px solid #1b1b1b;
+            padding: 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .drawer-toggle span {
+            transform: none;
+          }
+          .drawer-body {
+            border-top: 2px solid #1b1b1b;
+            border-left: none;
+            transform: translateY(-100%);
+          }
+          .search-drawer.open .drawer-body {
+            transform: translateY(0);
           }
           .intro {
             grid-template-columns: 1fr;
           }
           .intro-visual {
             order: -1;
-          }
-        }
-        @media (max-width: 1024px) {
-          .columns-area {
-            grid-template-columns: 1fr;
-          }
-          .search-drawer {
-            order: -1;
-            width: 100%;
-            height: auto;
-            display: flex;
-            align-items: center;
-          }
-          .search-drawer.open {
-            width: 100%;
-          }
-          .drawer-toggle {
-            position: static;
-            width: 56px;
-            height: 56px;
-            border-radius: 18px;
-            writing-mode: horizontal-tb;
-            padding: 0 16px;
-          }
-          .drawer-body {
-            padding: 16px 24px;
-            transform: translateY(-8px);
-          }
-          .search-drawer.open .drawer-body {
-            transform: translateY(0);
           }
           .columns {
             grid-template-columns: 1fr;
@@ -675,9 +662,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             justify-content: center;
             gap: 16px;
           }
-          .content {
-            padding: 24px 20px 40px;
-          }
           .intro-text {
             padding: 24px;
           }
@@ -689,6 +673,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           }
           .article-media img {
             height: 180px;
+          }
+          .search-drawer {
+            padding: 0 20px;
           }
         }
       `}</style>
