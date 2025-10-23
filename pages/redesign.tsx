@@ -164,10 +164,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 </p>
                 <div className="intro-actions">
                   <Link href="/categories/info" className="intro-action primary-action">
-                    manifeste
+                    <span className="intro-action-pill">manifeste</span>
                   </Link>
                   <Link href="/evenements" className="intro-action secondary-action">
-                    nous suivre
+                    <span className="intro-action-pill">nous suivre</span>
                   </Link>
                 </div>
               </div>
@@ -428,34 +428,37 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          text-decoration: none;
+          color: #111111;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .intro-action:visited {
+          color: inherit;
+        }
+        .intro-action-pill {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           font-family: "InterRegular", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
           padding: 6px 16px;
           border-radius: 999px;
           line-height: 1.1;
-          color: #111111;
-          text-decoration: none;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          min-height: 30px;
         }
-        .intro-action:visited {
-          color: inherit;
-        }
-        .intro-action:focus-visible {
-          outline: none;
-        }
-        .intro-action.primary-action {
+        .intro-action.primary-action .intro-action-pill {
           background: #c1c1f0;
         }
-        .intro-action.secondary-action {
+        .intro-action.secondary-action .intro-action-pill {
           background: #f4f0ae;
         }
-        .intro-action:hover,
-        .intro-action:focus-visible {
+        .intro-action:hover .intro-action-pill,
+        .intro-action:focus-visible .intro-action-pill {
           transform: translateY(-1px);
           box-shadow: 0 6px 14px rgba(17, 17, 17, 0.12);
         }
-        .intro-action:focus-visible {
+        .intro-action:focus-visible .intro-action-pill {
           outline: 2px solid rgba(17, 17, 17, 0.4);
           outline-offset: 2px;
         }
