@@ -189,10 +189,10 @@ gap: clamp(2.5rem, 7vw, 4.5rem);
       width: clamp(120px, 14vw, 160px);
     }
 
-    .portrait {
+    :global(.portrait) {
       position: relative;
+      display: block;
       width: 100%;
-      height: auto;
       aspect-ratio: 3 / 4;
       border: 2px solid currentColor;
       background: #eae5d9;
@@ -202,17 +202,14 @@ gap: clamp(2.5rem, 7vw, 4.5rem);
       margin: 0;
     }
 
-    .portrait:focus-visible {
+    :global(.portrait:focus-visible) {
       outline: 2px solid currentColor;
       outline-offset: 4px;
     }
 
-    .portrait-img {
+    :global(.portrait-img) {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
