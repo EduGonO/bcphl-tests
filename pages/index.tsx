@@ -52,7 +52,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
   return (
     <>
       <Head>
-        <title>Bicéphale · Acceuil</title>
+        <title>Bicéphale · Accueil</title>
         {/* Additional meta tags, scripts, etc. */}
         <meta
           name="description"
