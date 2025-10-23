@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Footer from "../app/components/Footer";
+import RedesignArticlePreviewCard from "../app/components/RedesignArticlePreviewCard";
 import { Article } from "../types";
 import { getArticleData } from "../lib/articleService";
 
@@ -73,12 +74,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .filter(matchesQuery),
     [sortedArticles, normalizedQuery]
   );
-
-  const getPrimaryMedia = (article: Article) => {
-    if (article.headerImage) return article.headerImage;
-    if (article.media && article.media.length > 0) return article.media[0];
-    return "";
-  };
 
   return (
     <>
@@ -214,32 +209,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     <span className="column-count">{featuredArticles.length}</span>
                   </header>
                   <div className="column-content">
-                    {featuredArticles.map((article) => {
-                      const media = getPrimaryMedia(article);
-                      return (
-                        <article key={article.slug} className="article-card">
-                          {media && (
-                            <div className="article-media">
-                              <img src={media} alt="" loading="lazy" />
-                            </div>
-                          )}
-                          <div className="article-body">
-                            <div className="article-meta">
-                              <time dateTime={article.date}>{formatDate(article.date)}</time>
-                              <span className="article-author">{article.author}</span>
-                            </div>
-                            <h3>{article.title}</h3>
-                            <p>{article.preview}</p>
-                            <Link
-                              href={`/${article.category}/${article.slug}`}
-                              className="article-link"
-                            >
-                              en lire
-                            </Link>
-                          </div>
-                        </article>
-                      );
-                    })}
+                    {featuredArticles.map((article) => (
+                      <RedesignArticlePreviewCard
+                        key={article.slug}
+                        article={article}
+                        variant="featured"
+                        formatDate={formatDate}
+                      />
+                    ))}
                   </div>
                 </section>
 
@@ -249,32 +226,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     <span className="column-count">{eventArticles.length}</span>
                   </header>
                   <div className="column-content">
-                    {eventArticles.map((article) => {
-                      const media = getPrimaryMedia(article);
-                      return (
-                        <article key={article.slug} className="article-card event">
-                          {media && (
-                            <div className="article-media">
-                              <img src={media} alt="" loading="lazy" />
-                            </div>
-                          )}
-                          <div className="article-body">
-                            <div className="article-meta">
-                              <time dateTime={article.date}>{formatDate(article.date)}</time>
-                              <span className="article-category">{article.category}</span>
-                            </div>
-                            <h3>{article.title}</h3>
-                            <p>{article.preview}</p>
-                            <Link
-                              href={`/${article.category}/${article.slug}`}
-                              className="article-link highlight"
-                            >
-                              d’infos
-                            </Link>
-                          </div>
-                        </article>
-                      );
-                    })}
+                    {eventArticles.map((article) => (
+                      <RedesignArticlePreviewCard
+                        key={article.slug}
+                        article={article}
+                        variant="event"
+                        formatDate={formatDate}
+                      />
+                    ))}
                   </div>
                 </section>
               </div>
@@ -572,39 +531,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           background: rgba(255, 255, 255, 0.5);
           color: #111111;
         }
-        .column-featured .article-card {
-          background: rgba(255, 255, 255, 0.7);
-          color: #111111;
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-        }
-        .column-featured .article-card.event {
-          background: rgba(255, 255, 255, 0.82);
-        }
-        .column-featured .article-body h3 {
-          color: #141414;
-        }
-        .column-featured .article-body p {
-          color: #2e2e2e;
-        }
-        .column-featured .article-meta {
-          color: rgba(17, 17, 17, 0.7);
-        }
-        .column-featured .article-link,
-        .column-featured .article-link.highlight {
-          color: #111111;
-          border-color: rgba(17, 17, 17, 0.5);
-        }
-        .column-featured .article-link:visited,
-        .column-featured .article-link.highlight:visited {
-          color: #111111;
-        }
-        .column-featured .article-link:hover,
-        .column-featured .article-link:focus-visible,
-        .column-featured .article-link.highlight:hover,
-        .column-featured .article-link.highlight:focus-visible {
-          background: #111111;
-          color: #f4f2ec;
-        }
         .column-events {
           background: #c7c7c7;
           color: #111111;
@@ -617,13 +543,17 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           background: rgba(255, 255, 255, 0.62);
           color: #111111;
         }
-        .column-events .article-card {
-          background: rgba(255, 255, 255, 0.8);
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+        .column-featured :global(.article-preview) {
+          color: #111111;
         }
-        .column-events .article-card.event {
-          background: #ffffff;
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+        .column-featured :global(.article-preview-link.featured) {
+          background: #c1c1f0;
+        }
+        .column-events :global(.article-preview) {
+          color: #111111;
+        }
+        .column-events :global(.article-preview-link.event) {
+          background: #f4f0ae;
         }
         .column-header {
           display: flex;
@@ -652,77 +582,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           overflow-y: auto;
           display: flex;
           flex-direction: column;
-          gap: 18px;
+          gap: 24px;
           max-height: clamp(420px, 60vh, 640px);
           padding-right: 8px;
-        }
-        .article-card {
-          padding: 18px;
-          display: grid;
-          grid-template-columns: 120px minmax(0, 1fr);
-          gap: 16px;
-          font-family: "InterRegular", sans-serif;
-          color: inherit;
-          border-radius: 18px;
-          transition: background 0.2s ease;
-        }
-        .article-media img {
-          width: 100%;
-          height: 120px;
-          object-fit: cover;
-          border-radius: 12px;
-        }
-        .article-body {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .article-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          color: #6d6351;
-        }
-        .article-body h3 {
-          margin: 0;
-          font-size: 18px;
-          font-family: "GayaRegular", serif;
-          color: #111;
-        }
-        .article-body p {
-          margin: 0;
-          font-size: 14px;
-          line-height: 1.5;
-          color: #3a352a;
-        }
-        .article-link {
-          margin-top: auto;
-          align-self: flex-start;
-          text-decoration: none;
-          font-family: "InterMedium", sans-serif;
-          font-size: 13px;
-          text-transform: uppercase;
-          letter-spacing: 0.14em;
-          color: #141414;
-          padding: 6px 14px;
-          border-radius: 18px;
-          border: 1px solid #141414;
-          transition: background 0.2s ease, color 0.2s ease;
-        }
-        .article-link:visited,
-        .article-link.highlight:visited {
-          color: #141414;
-        }
-        .article-link.highlight {
-          color: #141414;
-        }
-        .article-link:hover,
-        .article-link:focus-visible {
-          background: #141414;
-          color: #f7f2e6;
         }
         @media (max-width: 960px) {
           .intro {
@@ -793,12 +655,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             flex-wrap: wrap;
             justify-content: center;
             gap: 16px;
-          }
-          .article-card {
-            grid-template-columns: 1fr;
-          }
-          .article-media img {
-            height: 180px;
           }
           .search-drawer {
             padding: 0 20px;

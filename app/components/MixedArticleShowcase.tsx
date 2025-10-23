@@ -1,6 +1,7 @@
 // /app/components/MixedArticleShowcase.tsx
 import React from 'react'
 import { Article, Category } from '../../types'
+import { getArticleMediaStyle } from '../../lib/articleMedia'
 
 interface MixedArticleShowcaseProps {
   articles: Article[]
@@ -17,73 +18,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
   const mainItem   = articles[2]
   const rightItems = articles.slice(3, 7)
 
-  // Generate abstract pattern based on article slug
-  // abstract pattern: just two reliable variants
-// one vivid radial gradient that moves per slug
-// one radial gradient, hues 20-40° apart → subtle yet distinct
-const generateAbstractPattern = (article: Article) => {
-  const hash = hashString(article.slug);
-
-  const h1 =  hash % 360;                        // base hue
-  const d  = 20 + (hash >> 3) % 21;              // 20‒40° shift
-  const h2 = (h1 + (hash & 1 ? d : -d) + 360) % 360;
-
-  const c1 = `hsl(${h1}, 60%, 86%)`;
-  const c2 = `hsl(${h2}, 55%, 92%)`;
-
-  const x  = 10 + (hash >> 6) % 80;              // 10‒90 %
-  const y  = 10 + (hash >> 10) % 80;
-
-  return {
-    backgroundImage: `radial-gradient(circle at ${x}% ${y}%, ${c1} 0%, ${c2} 100%)`,
-    backgroundSize:  '100% 100%',
-    backgroundRepeat:'no-repeat',
-  };
-};
-  
-  // Hash function to get a deterministic number from article slug
-  const hashString = (str: string): number => {
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash // Convert to 32bit integer
-    }
-    return Math.abs(hash)
-  }
-  
-  // Extract hue from hex color
-  const getHue = (hexColor: string): number => {
-    // Convert hex to rgb
-    const r = parseInt(hexColor.slice(1, 3), 16) / 255
-    const g = parseInt(hexColor.slice(3, 5), 16) / 255
-    const b = parseInt(hexColor.slice(5, 7), 16) / 255
-    
-    const max = Math.max(r, g, b)
-    const min = Math.min(r, g, b)
-    
-    let h = 0
-    
-    if (max === min) {
-      h = 0 // achromatic
-    } else {
-      const d = max - min
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break
-        case g: h = (b - r) / d + 2; break
-        case b: h = (r - g) / d + 4; break
-      }
-      h *= 60
-    }
-    
-    return Math.round(h)
-  }
-
-  const thumbStyle = (a: Article) => {
-    return a.headerImage
-      ? { backgroundImage: `url(${a.headerImage})` }
-      : generateAbstractPattern(a)
-  }
+  const thumbStyle = (a: Article) => getArticleMediaStyle(a)
   
   const formatDate = (d: string): string =>
     d !== "Unknown Date"
