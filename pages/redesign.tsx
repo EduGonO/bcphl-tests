@@ -505,16 +505,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .columns-area {
           display: block;
-          padding: 0 0 64px;
+          padding: 0;
         }
         .columns {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 0;
-          overflow: hidden;
         }
         .column {
-          padding: 32px 32px 0;
           display: flex;
           flex-direction: column;
           box-sizing: border-box;
@@ -543,18 +541,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           background: rgba(255, 255, 255, 0.62);
           color: #111111;
         }
-        .column-featured :global(.article-preview) {
-          color: #111111;
-        }
-        .column-featured :global(.article-preview-link.featured) {
-          background: #c1c1f0;
-        }
-        .column-events :global(.article-preview) {
-          color: #111111;
-        }
-        .column-events :global(.article-preview-link.event) {
-          background: #f4f0ae;
-        }
         .column-header {
           display: flex;
           align-items: baseline;
@@ -564,6 +550,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-family: "GayaRegular", serif;
           letter-spacing: 0.18em;
           color: #2b2720;
+          padding: 32px 32px 0;
           margin-bottom: 16px;
         }
         .column-header h2 {
@@ -584,14 +571,41 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           flex-direction: column;
           gap: 24px;
           max-height: clamp(420px, 60vh, 640px);
-          padding-right: 8px;
+        }
+        .column-featured :global(.article-preview) {
+          color: #111111;
+          margin: 0 32px;
+        }
+        .column-featured :global(.article-preview:last-child) {
+          margin-bottom: 32px;
+        }
+        .column-featured :global(.article-preview-link.featured) {
+          background: #c1c1f0;
+        }
+        .column-events :global(.article-preview) {
+          color: #111111;
+          margin: 0 32px;
+        }
+        .column-events :global(.article-preview:last-child) {
+          margin-bottom: 32px;
+        }
+        .column-events :global(.article-preview-link.event) {
+          background: #f4f0ae;
         }
         @media (max-width: 960px) {
           .intro {
             padding: 40px 36px 0;
           }
-          .columns-area {
-            padding: 0 0 48px;
+          .column-header {
+            padding: 28px 28px 0;
+          }
+          .column-featured :global(.article-preview),
+          .column-events :global(.article-preview) {
+            margin: 0 28px;
+          }
+          .column-featured :global(.article-preview:last-child),
+          .column-events :global(.article-preview:last-child) {
+            margin-bottom: 28px;
           }
         }
         @media (max-width: 700px) {
@@ -638,8 +652,16 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           .columns {
             grid-template-columns: 1fr;
           }
-          .columns-area {
-            padding: 0 0 32px;
+          .column-header {
+            padding: 28px 24px 0;
+          }
+          .column-featured :global(.article-preview),
+          .column-events :global(.article-preview) {
+            margin: 0 24px;
+          }
+          .column-featured :global(.article-preview:last-child),
+          .column-events :global(.article-preview:last-child) {
+            margin-bottom: 24px;
           }
           .column-content {
             max-height: none;
