@@ -199,19 +199,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 </div>
               </div>
               <div className="intro-visual">
-                <div className="visual-card">
-                  <div className="visual-card-body">
-                    <p>
-                      « Les techniques que nous aimons sont celles qui nous font sentir
-                      plus vivants, plus attentifs à ce qui nous relie. »
-                    </p>
-                    <span>— Revue Bicéphale</span>
-                  </div>
-                  <img
-                    src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
-                    alt="Illustration"
-                  />
-                </div>
+                <img
+                  src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
+                  alt="Illustration de la revue Bicéphale"
+                />
               </div>
             </section>
 
@@ -458,10 +449,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           align-items: stretch;
         }
         .intro-text {
-          background: #ebe6dd;
-          padding: 36px 34px;
-          border-radius: 24px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.18);
+          background: transparent;
+          padding: 0;
+          border-radius: 0;
+          box-shadow: none;
           font-family: "InterRegular", sans-serif;
           color: #211f18;
           line-height: 1.56;
@@ -532,37 +523,21 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           fill: currentColor;
         }
         .intro-visual {
-          display: flex;
-          align-items: stretch;
-        }
-        .visual-card {
-          background: #e8e2d8;
-          padding: 30px;
+          position: relative;
           border-radius: 24px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.2);
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          gap: 24px;
+          overflow: hidden;
         }
-        .visual-card-body {
-          font-family: "InterRegular", sans-serif;
-          color: #3b362a;
-          font-size: 16px;
-          line-height: 1.6;
-        }
-        .visual-card-body span {
+        .intro-visual::before {
+          content: "";
           display: block;
-          margin-top: 12px;
-          font-size: 14px;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
+          padding-bottom: 135%;
         }
-        .visual-card img {
+        .intro-visual img {
+          position: absolute;
+          inset: 0;
           width: 100%;
+          height: 100%;
           object-fit: cover;
-          max-height: 220px;
-          border-radius: 18px;
         }
         .columns-area {
           display: block;
@@ -581,69 +556,69 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           flex-direction: column;
         }
         .column-featured {
-          background: #2f2f31;
-          color: #f4f2ec;
+          background: #a8a8a8;
+          color: #111111;
         }
         .column-featured .column-header {
-          color: #f4f2ec;
+          color: #111111;
         }
         .column-featured .column-count {
-          border: 1px solid rgba(255, 255, 255, 0.32);
-          background: rgba(244, 242, 236, 0.12);
-          color: #f4f2ec;
+          border: 1px solid rgba(17, 17, 17, 0.28);
+          background: rgba(255, 255, 255, 0.5);
+          color: #111111;
         }
         .column-featured .article-card {
-          background: rgba(244, 242, 236, 0.08);
-          color: #f4f2ec;
-          box-shadow: none;
+          background: rgba(255, 255, 255, 0.7);
+          color: #111111;
+          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
         }
         .column-featured .article-card.event {
-          background: rgba(244, 242, 236, 0.12);
+          background: rgba(255, 255, 255, 0.82);
         }
         .column-featured .article-body h3 {
-          color: #fbf9f2;
+          color: #141414;
         }
         .column-featured .article-body p {
-          color: #e3ded1;
+          color: #2e2e2e;
         }
         .column-featured .article-meta {
-          color: #d3cbbf;
+          color: rgba(17, 17, 17, 0.7);
         }
         .column-featured .article-link,
         .column-featured .article-link.highlight {
-          color: #f4f2ec;
-          border-color: rgba(244, 242, 236, 0.5);
+          color: #111111;
+          border-color: rgba(17, 17, 17, 0.5);
         }
         .column-featured .article-link:visited,
         .column-featured .article-link.highlight:visited {
-          color: #f4f2ec;
+          color: #111111;
         }
         .column-featured .article-link:hover,
         .column-featured .article-link:focus-visible,
         .column-featured .article-link.highlight:hover,
         .column-featured .article-link.highlight:focus-visible {
-          background: #f4f2ec;
-          color: #2f2f31;
+          background: #111111;
+          color: #f4f2ec;
         }
         .column-events {
-          background: #dad7d1;
-          color: #1f1a15;
+          background: #c7c7c7;
+          color: #111111;
         }
         .column-events .column-header {
-          color: #1f1a15;
+          color: #111111;
         }
         .column-events .column-count {
           border: 1px solid rgba(17, 17, 17, 0.28);
           background: rgba(255, 255, 255, 0.62);
-          color: #1f1a15;
+          color: #111111;
         }
         .column-events .article-card {
-          background: #f0ede7;
-          box-shadow: inset 0 0 0 1px rgba(49, 39, 28, 0.08);
+          background: rgba(255, 255, 255, 0.8);
+          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
         }
         .column-events .article-card.event {
           background: #ffffff;
-          box-shadow: inset 0 0 0 1px rgba(49, 39, 28, 0.08);
+          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
         }
         .column-header {
           display: flex;
@@ -806,12 +781,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             flex-wrap: wrap;
             justify-content: center;
             gap: 16px;
-          }
-          .intro-text {
-            padding: 24px;
-          }
-          .visual-card {
-            padding: 24px;
           }
           .article-card {
             grid-template-columns: 1fr;
