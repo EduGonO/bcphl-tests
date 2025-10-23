@@ -145,51 +145,29 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             <section className="intro">
               <div className="intro-text">
                 <p>
-                  Dans la même urgence que la revue <em>Acéphale</em> publiée par Georges
-                  Bataille en 1936 et portée par un désir de la contribution propre à
-                  Bernard Stiegler, la revue <strong>BICÉPHALE</strong> conjugue la créativité
-                  contemporaine à travers des textes inédits lors des soirées bicéphales
-                  et une démarche réflexive analysant les arts, les techniques et la
-                  société.
+                  Dans la même urgence que la revue {" "}
+                  <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
+                  en 1936 et portée par un désir de la contribution propre à {" "}
+                  <span className="intro-highlight">Bernard Stiegler</span>, la revue {" "}
+                  <strong className="intro-highlight">BICÉPHALE</strong> conjugue la
+                  créativité contemporaine à travers des textes inédits lors des soirées
+                  bicéphales et une démarche réflexive analysant les arts, les techniques
+                  et la société.
                 </p>
                 <p>
                   Cette revue embrasse nos multiplicités et questionne les techniques
-                  contemporaines afin de se faire vectrice de suggestion, de mouvement,
-                  de critique et de pensée.
+                  contemporaines afin de se faire vectrice de {" "}
+                  <span className="intro-highlight">suggestion</span>, de {" "}
+                  <span className="intro-highlight">mouvement</span>, de {" "}
+                  <span className="intro-highlight">critique</span> et de {" "}
+                  <span className="intro-highlight">pensée</span>.
                 </p>
                 <div className="intro-actions">
                   <Link href="/categories/info" className="primary-action">
-                    en lire +
+                    manifeste
                   </Link>
                   <Link href="/evenements" className="secondary-action">
-                    <span aria-hidden="true" className="instagram-icon">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect
-                          x="3"
-                          y="3"
-                          width="18"
-                          height="18"
-                          rx="5"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                        />
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="4.5"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                        />
-                        <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="instagram-label">insta</span>
+                    nous suivre
                   </Link>
                 </div>
               </div>
@@ -431,6 +409,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-text strong {
           font-family: "GayaRegular", serif;
           letter-spacing: 0.02em;
+          font-weight: 600;
+        }
+        .intro-text .intro-highlight {
+          font-family: "GayaRegular", serif;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+        }
+        .intro-text em.intro-highlight {
+          font-style: italic;
         }
         .intro-actions {
           display: flex;
@@ -439,52 +426,35 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-actions a {
           text-decoration: none;
-          font-family: "InterMedium", sans-serif;
-          font-size: 15px;
-          padding: 12px 26px;
+          font-family: "InterRegular", sans-serif;
+          font-size: 14px;
+          padding: 6px 16px;
           border-radius: 999px;
-          border: 1px solid #151515;
-          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-          color: #141414;
+          transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+          color: #111111;
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          line-height: 1;
-          letter-spacing: 0.04em;
+          justify-content: center;
+          line-height: 1.1;
+          letter-spacing: 0.05em;
         }
         .intro-actions a:visited {
-          color: #141414;
+          color: #111111;
         }
         .primary-action {
-          background: #d9cff9;
-          border-color: #3f3273;
-          color: #231b46;
+          background: #c1c1f0;
         }
         .secondary-action {
-          background: #d6f3c5;
-          border-color: #2d5932;
-          color: #14321a;
-        }
-        .instagram-icon {
-          display: flex;
-          align-items: center;
-        }
-        .instagram-icon svg {
-          display: block;
-          fill: currentColor;
-        }
-        .instagram-label {
-          letter-spacing: 0.02em;
+          background: #f4f0ae;
         }
         .intro-actions a:hover,
         .intro-actions a:focus-visible {
-          background: #141414;
-          color: #f7f4eb;
-          border-color: #141414;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 14px rgba(17, 17, 17, 0.12);
         }
-        .intro-actions a:hover .instagram-icon svg,
-        .intro-actions a:focus-visible .instagram-icon svg {
-          fill: currentColor;
+        .intro-actions a:focus-visible {
+          outline: 2px solid rgba(17, 17, 17, 0.4);
+          outline-offset: 2px;
         }
         .intro-visual {
           position: relative;
