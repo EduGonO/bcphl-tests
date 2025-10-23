@@ -275,15 +275,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #f4f2ec;
+          background: #e2ded6;
         }
         .top-nav {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 28px 48px 18px;
-          border-bottom: 2px solid #1b1b1b;
-          background: #f4f2ec;
+          padding: 26px 48px 18px;
+          border-bottom: 1px solid #b9b0a3;
+          background: #e6e1d8;
           position: sticky;
           top: 0;
           z-index: 50;
@@ -314,8 +314,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-transform: uppercase;
         }
         .nav-link {
-          color: #0d0d0d;
+          color: #111;
           text-decoration: none;
+        }
+        .nav-link:visited {
+          color: #111;
         }
         .nav-link:hover,
         .nav-link:focus-visible {
@@ -326,14 +329,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           gap: 40px;
           padding: 40px 48px 64px;
+          background: #e2ded6;
         }
         .search-drawer {
           position: relative;
           flex: 0 0 auto;
           width: 72px;
           align-self: stretch;
-          background: #e9e5d8;
-          border: 2px solid #1b1b1b;
+          background: #efdae0;
+          border-right: 1px solid #c3aeb6;
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -346,7 +350,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .drawer-toggle {
           background: none;
           border: none;
-          border-bottom: 2px solid #1b1b1b;
+          border-bottom: 1px solid rgba(17, 17, 17, 0.18);
           cursor: pointer;
           writing-mode: vertical-rl;
           text-transform: uppercase;
@@ -365,9 +369,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           flex-direction: column;
           gap: 18px;
-          padding: 28px;
-          background: #f7f4eb;
-          border-top: 2px solid #1b1b1b;
+          padding: 28px 26px 32px;
+          background: #f5e7ea;
+          border-top: 1px solid rgba(17, 17, 17, 0.16);
           transform: translateX(-100%);
           transition: transform 0.3s ease;
           pointer-events: none;
@@ -382,29 +386,37 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-family: "RecoletaMedium", serif;
           letter-spacing: 0.14em;
           font-size: 18px;
+          color: #2c1c23;
         }
         .drawer-label {
           font-size: 14px;
           font-family: "InterRegular", sans-serif;
           text-transform: uppercase;
           letter-spacing: 0.12em;
+          color: #5b3f47;
         }
         .drawer-input {
-          background: #fff;
-          border: 2px solid #1b1b1b;
+          background: #fff7fa;
+          border: 1px solid #bfa9b2;
           padding: 12px;
           font-size: 16px;
           font-family: "InterRegular", sans-serif;
         }
         .clear-button {
           align-self: flex-start;
-          background: none;
-          border: 2px solid #1b1b1b;
+          background: #fff7fa;
+          border: 1px solid #bfa9b2;
           padding: 6px 18px;
           text-transform: uppercase;
           font-size: 13px;
           font-family: "InterMedium", sans-serif;
           cursor: pointer;
+          color: #2c1c23;
+        }
+        .clear-button:hover,
+        .clear-button:focus-visible {
+          background: #2c1c23;
+          color: #fff7fa;
         }
         .main-sections {
           flex: 1;
@@ -414,17 +426,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro {
           display: grid;
-          grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-          gap: 28px;
+          grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+          gap: 32px;
           align-items: stretch;
         }
         .intro-text {
-          background: #f7f4eb;
-          padding: 32px;
-          border: 2px solid #1b1b1b;
+          background: #ebe6dd;
+          padding: 36px 34px;
+          border-radius: 24px;
+          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.18);
           font-family: "InterRegular", sans-serif;
-          color: #101010;
-          line-height: 1.58;
+          color: #211f18;
+          line-height: 1.56;
           font-size: 16px;
         }
         .intro-text p {
@@ -447,27 +460,38 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
           padding: 12px 30px;
-          border-radius: 28px;
-          border: 2px solid #1b1b1b;
+          border-radius: 30px;
+          border: 1px solid #1b1b1b;
           text-transform: uppercase;
           letter-spacing: 0.16em;
+          transition: background 0.2s ease, color 0.2s ease;
+          color: #101010;
+        }
+        .intro-actions a:visited {
+          color: #101010;
         }
         .primary-action {
-          background: #1b1b1b;
-          color: #f4f2ec;
+          background: #54c86d;
+          border-color: #1f3a25;
+          color: #0d2112;
         }
         .secondary-action {
-          background: #f4f2ec;
-          color: #1b1b1b;
+          background: #f5f1ea;
+        }
+        .intro-actions a:hover,
+        .intro-actions a:focus-visible {
+          background: #101010;
+          color: #f7f4eb;
         }
         .intro-visual {
           display: flex;
           align-items: stretch;
         }
         .visual-card {
-          background: #f4f2ec;
-          border: 2px solid #1b1b1b;
-          padding: 28px;
+          background: #e8e2d8;
+          padding: 30px;
+          border-radius: 24px;
+          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.2);
           display: flex;
           flex-direction: column;
           justify-content: space-between;
@@ -475,7 +499,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .visual-card-body {
           font-family: "InterRegular", sans-serif;
-          color: #3f3f3f;
+          color: #3b362a;
           font-size: 16px;
           line-height: 1.6;
         }
@@ -490,6 +514,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           width: 100%;
           object-fit: cover;
           max-height: 220px;
+          border-radius: 18px;
         }
         .columns-area {
           display: block;
@@ -497,12 +522,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .columns {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 28px;
+          gap: 32px;
         }
         .column {
-          border: 2px solid #1b1b1b;
-          padding: 24px 24px 32px;
-          background: #f7f4eb;
+          padding: 26px 24px 34px;
+          background: #efe9de;
+          border-radius: 26px;
+          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.18);
           display: flex;
           flex-direction: column;
         }
@@ -514,7 +540,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-transform: uppercase;
           font-family: "RecoletaMedium", serif;
           letter-spacing: 0.18em;
-          color: #111;
+          color: #2b2720;
           margin-bottom: 16px;
         }
         .column-header h2 {
@@ -525,7 +551,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-family: "InterMedium", sans-serif;
           font-size: 13px;
           padding: 4px 12px;
-          border: 2px solid #1b1b1b;
+          border-radius: 16px;
+          border: 1px solid rgba(17, 17, 17, 0.36);
+          background: rgba(255, 255, 255, 0.6);
         }
         .column-content {
           overflow-y: auto;
@@ -536,22 +564,24 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           padding-right: 8px;
         }
         .article-card {
-          border: 2px solid #1b1b1b;
           padding: 18px;
           display: grid;
           grid-template-columns: 120px minmax(0, 1fr);
           gap: 16px;
           font-family: "InterRegular", sans-serif;
           color: #1f1f1f;
-          background: #f4f2ec;
+          background: #f7f2e6;
+          border-radius: 18px;
+          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.16);
         }
         .article-card.event {
-          background: #eef5df;
+          background: #f2eef9;
         }
         .article-media img {
           width: 100%;
           height: 120px;
           object-fit: cover;
+          border-radius: 12px;
         }
         .article-body {
           display: flex;
@@ -565,7 +595,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-size: 12px;
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          color: #5a5a5a;
+          color: #6d6351;
         }
         .article-body h3 {
           margin: 0;
@@ -577,6 +607,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           margin: 0;
           font-size: 14px;
           line-height: 1.5;
+          color: #3a352a;
         }
         .article-link {
           margin-top: auto;
@@ -586,18 +617,23 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-size: 13px;
           text-transform: uppercase;
           letter-spacing: 0.14em;
-          color: #1b1b1b;
-          padding: 4px 10px;
-          border: 2px solid transparent;
+          color: #141414;
+          padding: 6px 14px;
+          border-radius: 18px;
+          border: 1px solid #141414;
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+        .article-link:visited,
+        .article-link.highlight:visited {
+          color: #141414;
         }
         .article-link.highlight {
-          color: #1b1b1b;
+          color: #141414;
         }
         .article-link:hover,
         .article-link:focus-visible {
-          border-color: #1b1b1b;
-          background: #1b1b1b;
-          color: #f4f2ec;
+          background: #141414;
+          color: #f7f2e6;
         }
         @media (max-width: 960px) {
           .content {
@@ -621,7 +657,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           }
           .drawer-toggle {
             writing-mode: horizontal-tb;
-            border-bottom: 2px solid #1b1b1b;
+            border-bottom: 1px solid rgba(17, 17, 17, 0.2);
             padding: 16px 0;
             display: flex;
             align-items: center;
@@ -631,7 +667,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             transform: none;
           }
           .drawer-body {
-            border-top: 2px solid #1b1b1b;
+            border-top: 1px solid rgba(17, 17, 17, 0.16);
             border-left: none;
             transform: translateY(-100%);
           }
