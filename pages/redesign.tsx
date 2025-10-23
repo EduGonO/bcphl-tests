@@ -163,11 +163,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                   <span className="intro-highlight">pensée</span>.
                 </p>
                 <div className="intro-actions">
-                  <Link href="/categories/info" className="primary-action">
-                    manifeste
+                  <Link href="/categories/info" className="intro-action primary-action">
+                    <span className="intro-action-label">manifeste</span>
                   </Link>
-                  <Link href="/evenements" className="secondary-action">
-                    nous suivre
+                  <Link href="/evenements" className="intro-action secondary-action">
+                    <span className="intro-action-label">nous suivre</span>
                   </Link>
                 </div>
               </div>
@@ -424,35 +424,41 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           gap: 18px;
           margin-top: 28px;
         }
-        .intro-actions a {
+        .intro-action {
+          display: inline-flex;
           text-decoration: none;
-          font-family: "InterRegular", sans-serif;
-          font-size: 14px;
-          padding: 6px 16px;
-          border-radius: 999px;
-          transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-          color: #111111;
+        }
+        .intro-action:visited {
+          color: inherit;
+        }
+        .intro-action:focus-visible {
+          outline: none;
+        }
+        .intro-action-label {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          line-height: 1.1;
+          font-family: "InterRegular", sans-serif;
+          font-size: 14px;
           letter-spacing: 0.05em;
-        }
-        .intro-actions a:visited {
+          padding: 6px 16px;
+          border-radius: 999px;
+          line-height: 1.1;
           color: #111111;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .primary-action {
+        .intro-action.primary-action .intro-action-label {
           background: #c1c1f0;
         }
-        .secondary-action {
+        .intro-action.secondary-action .intro-action-label {
           background: #f4f0ae;
         }
-        .intro-actions a:hover,
-        .intro-actions a:focus-visible {
+        .intro-action:hover .intro-action-label,
+        .intro-action:focus-visible .intro-action-label {
           transform: translateY(-1px);
           box-shadow: 0 6px 14px rgba(17, 17, 17, 0.12);
         }
-        .intro-actions a:focus-visible {
+        .intro-action:focus-visible .intro-action-label {
           outline: 2px solid rgba(17, 17, 17, 0.4);
           outline-offset: 2px;
         }
