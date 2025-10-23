@@ -85,6 +85,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           display: flex;
           flex-direction: column;
           gap: 10px;
+          margin-top: 6px;
         }
         .article-preview-title {
           margin: 0;
@@ -128,7 +129,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           font-family: "InterRegular", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
-          padding: 10px 20px;
+          padding: 6px 16px;
           border-radius: 999px;
           transition: transform 0.2s ease;
         }
