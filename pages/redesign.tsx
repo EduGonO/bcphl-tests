@@ -217,7 +217,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
             <section className="columns-area">
               <div className="columns">
-                <section className="column">
+                <section className="column column-featured">
                   <header className="column-header">
                     <h2>à la une</h2>
                     <span className="column-count">{featuredArticles.length}</span>
@@ -252,7 +252,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                   </div>
                 </section>
 
-                <section className="column">
+                <section className="column column-events">
                   <header className="column-header">
                     <h2>nos événements</h2>
                     <span className="column-count">{eventArticles.length}</span>
@@ -570,15 +570,80 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .columns {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 32px;
+          gap: 0;
+          border-radius: 32px;
+          overflow: hidden;
+          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
         }
         .column {
-          padding: 26px 24px 34px;
-          background: #efe9de;
-          border-radius: 26px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.18);
+          padding: 32px 32px 40px;
           display: flex;
           flex-direction: column;
+        }
+        .column-featured {
+          background: #2f2f31;
+          color: #f4f2ec;
+        }
+        .column-featured .column-header {
+          color: #f4f2ec;
+        }
+        .column-featured .column-count {
+          border: 1px solid rgba(255, 255, 255, 0.32);
+          background: rgba(244, 242, 236, 0.12);
+          color: #f4f2ec;
+        }
+        .column-featured .article-card {
+          background: rgba(244, 242, 236, 0.08);
+          color: #f4f2ec;
+          box-shadow: none;
+        }
+        .column-featured .article-card.event {
+          background: rgba(244, 242, 236, 0.12);
+        }
+        .column-featured .article-body h3 {
+          color: #fbf9f2;
+        }
+        .column-featured .article-body p {
+          color: #e3ded1;
+        }
+        .column-featured .article-meta {
+          color: #d3cbbf;
+        }
+        .column-featured .article-link,
+        .column-featured .article-link.highlight {
+          color: #f4f2ec;
+          border-color: rgba(244, 242, 236, 0.5);
+        }
+        .column-featured .article-link:visited,
+        .column-featured .article-link.highlight:visited {
+          color: #f4f2ec;
+        }
+        .column-featured .article-link:hover,
+        .column-featured .article-link:focus-visible,
+        .column-featured .article-link.highlight:hover,
+        .column-featured .article-link.highlight:focus-visible {
+          background: #f4f2ec;
+          color: #2f2f31;
+        }
+        .column-events {
+          background: #dad7d1;
+          color: #1f1a15;
+        }
+        .column-events .column-header {
+          color: #1f1a15;
+        }
+        .column-events .column-count {
+          border: 1px solid rgba(17, 17, 17, 0.28);
+          background: rgba(255, 255, 255, 0.62);
+          color: #1f1a15;
+        }
+        .column-events .article-card {
+          background: #f0ede7;
+          box-shadow: inset 0 0 0 1px rgba(49, 39, 28, 0.08);
+        }
+        .column-events .article-card.event {
+          background: #ffffff;
+          box-shadow: inset 0 0 0 1px rgba(49, 39, 28, 0.08);
         }
         .column-header {
           display: flex;
@@ -617,13 +682,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           grid-template-columns: 120px minmax(0, 1fr);
           gap: 16px;
           font-family: "InterRegular", sans-serif;
-          color: #1f1f1f;
-          background: #f7f2e6;
+          color: inherit;
           border-radius: 18px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.16);
-        }
-        .article-card.event {
-          background: #f2eef9;
+          transition: background 0.2s ease;
         }
         .article-media img {
           width: 100%;
