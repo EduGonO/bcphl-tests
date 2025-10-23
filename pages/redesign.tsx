@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Footer from "../app/components/Footer";
+import RedesignArticlePreviewCard from "../app/components/RedesignArticlePreviewCard";
 import { Article } from "../types";
 import { getArticleData } from "../lib/articleService";
 
@@ -74,12 +75,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     [sortedArticles, normalizedQuery]
   );
 
-  const getPrimaryMedia = (article: Article) => {
-    if (article.headerImage) return article.headerImage;
-    if (article.media && article.media.length > 0) return article.media[0];
-    return "";
-  };
-
   return (
     <>
       <Head>
@@ -150,140 +145,73 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             <section className="intro">
               <div className="intro-text">
                 <p>
-                  Dans la même urgence que la revue <em>Acéphale</em> publiée par Georges
-                  Bataille en 1936 et portée par un désir de la contribution propre à
-                  Bernard Stiegler, la revue <strong>BICÉPHALE</strong> conjugue la créativité
-                  contemporaine à travers des textes inédits lors des soirées bicéphales
-                  et une démarche réflexive analysant les arts, les techniques et la
-                  société.
+                  Dans la même urgence que la revue {" "}
+                  <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
+                  en 1936 et portée par un désir de la contribution propre à {" "}
+                  <span className="intro-highlight">Bernard Stiegler</span>, la revue {" "}
+                  <strong className="intro-highlight">BICÉPHALE</strong> conjugue la
+                  créativité contemporaine à travers des textes inédits lors des soirées
+                  bicéphales et une démarche réflexive analysant les arts, les techniques
+                  et la société.
                 </p>
                 <p>
                   Cette revue embrasse nos multiplicités et questionne les techniques
-                  contemporaines afin de se faire vectrice de suggestion, de mouvement,
-                  de critique et de pensée.
+                  contemporaines afin de se faire vectrice de {" "}
+                  <span className="intro-highlight">suggestion</span>, de {" "}
+                  <span className="intro-highlight">mouvement</span>, de {" "}
+                  <span className="intro-highlight">critique</span> et de {" "}
+                  <span className="intro-highlight">pensée</span>.
                 </p>
                 <div className="intro-actions">
-                  <Link href="/categories/info" className="primary-action">
-                    en lire +
+                  <Link href="/categories/info" className="intro-action primary-action">
+                    <span className="intro-action-pill">manifeste</span>
                   </Link>
-                  <Link href="/evenements" className="secondary-action">
-                    <span aria-hidden="true" className="instagram-icon">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect
-                          x="3"
-                          y="3"
-                          width="18"
-                          height="18"
-                          rx="5"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                        />
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="4.5"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                        />
-                        <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <span className="instagram-label">insta</span>
+                  <Link href="/evenements" className="intro-action secondary-action">
+                    <span className="intro-action-pill">nous suivre</span>
                   </Link>
                 </div>
               </div>
               <div className="intro-visual">
-                <div className="visual-card">
-                  <div className="visual-card-body">
-                    <p>
-                      « Les techniques que nous aimons sont celles qui nous font sentir
-                      plus vivants, plus attentifs à ce qui nous relie. »
-                    </p>
-                    <span>— Revue Bicéphale</span>
-                  </div>
-                  <img
-                    src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
-                    alt="Illustration"
-                  />
-                </div>
+                <img
+                  src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
+                  alt="Illustration de la revue Bicéphale"
+                />
               </div>
             </section>
 
             <section className="columns-area">
               <div className="columns">
-                <section className="column">
+                <section className="column column-featured">
                   <header className="column-header">
                     <h2>à la une</h2>
                     <span className="column-count">{featuredArticles.length}</span>
                   </header>
                   <div className="column-content">
-                    {featuredArticles.map((article) => {
-                      const media = getPrimaryMedia(article);
-                      return (
-                        <article key={article.slug} className="article-card">
-                          {media && (
-                            <div className="article-media">
-                              <img src={media} alt="" loading="lazy" />
-                            </div>
-                          )}
-                          <div className="article-body">
-                            <div className="article-meta">
-                              <time dateTime={article.date}>{formatDate(article.date)}</time>
-                              <span className="article-author">{article.author}</span>
-                            </div>
-                            <h3>{article.title}</h3>
-                            <p>{article.preview}</p>
-                            <Link
-                              href={`/${article.category}/${article.slug}`}
-                              className="article-link"
-                            >
-                              en lire
-                            </Link>
-                          </div>
-                        </article>
-                      );
-                    })}
+                    {featuredArticles.map((article) => (
+                      <RedesignArticlePreviewCard
+                        key={article.slug}
+                        article={article}
+                        variant="featured"
+                        formatDate={formatDate}
+                      />
+                    ))}
                   </div>
                 </section>
 
-                <section className="column">
+                <section className="column column-events">
                   <header className="column-header">
                     <h2>nos événements</h2>
                     <span className="column-count">{eventArticles.length}</span>
                   </header>
                   <div className="column-content">
-                    {eventArticles.map((article) => {
-                      const media = getPrimaryMedia(article);
-                      return (
-                        <article key={article.slug} className="article-card event">
-                          {media && (
-                            <div className="article-media">
-                              <img src={media} alt="" loading="lazy" />
-                            </div>
-                          )}
-                          <div className="article-body">
-                            <div className="article-meta">
-                              <time dateTime={article.date}>{formatDate(article.date)}</time>
-                              <span className="article-category">{article.category}</span>
-                            </div>
-                            <h3>{article.title}</h3>
-                            <p>{article.preview}</p>
-                            <Link
-                              href={`/${article.category}/${article.slug}`}
-                              className="article-link highlight"
-                            >
-                              d’infos
-                            </Link>
-                          </div>
-                        </article>
-                      );
-                    })}
+                    {eventArticles.map((article) => (
+                      <RedesignArticlePreviewCard
+                        key={article.slug}
+                        article={article}
+                        variant="event"
+                        formatDate={formatDate}
+                      />
+                    ))}
                   </div>
                 </section>
               </div>
@@ -296,13 +224,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
       <style jsx>{`
         :global(body) {
-          background: #f4f2ec;
+          background: #ffffff;
         }
         .page-wrapper {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #e2ded6;
+          background: #ffffff;
         }
         .top-nav {
           display: flex;
@@ -310,7 +238,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           justify-content: space-between;
           padding: 26px 48px 18px;
           border-bottom: 1px solid #b9b0a3;
-          background: #e6e1d8;
+          background: rgba(255, 255, 255, 0.88);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           position: sticky;
           top: 0;
           z-index: 50;
@@ -319,7 +249,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           align-items: center;
           gap: 14px;
-          font-family: "RecoletaMedium", "GayaRegular", serif;
+          font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
@@ -354,9 +284,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .content {
           flex: 1;
           display: flex;
-          gap: 40px;
-          padding: 40px 48px 64px;
-          background: #e2ded6;
+          gap: 0;
+          padding: 0;
+          background: #ffffff;
         }
         .search-drawer {
           position: relative;
@@ -370,6 +300,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           overflow: hidden;
           transition: width 0.3s ease, max-height 0.3s ease;
           min-height: 100%;
+          box-sizing: border-box;
         }
         .search-drawer.open {
           width: 320px;
@@ -410,7 +341,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .drawer-body h3 {
           margin: 0;
           text-transform: uppercase;
-          font-family: "RecoletaMedium", serif;
+          font-family: "GayaRegular", serif;
           letter-spacing: 0.14em;
           font-size: 18px;
           color: #2c1c23;
@@ -450,18 +381,20 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           flex-direction: column;
           gap: 52px;
+          background: #e4e4e4;
         }
         .intro {
           display: grid;
           grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
           gap: 32px;
           align-items: stretch;
+          padding: 48px 48px 0;
         }
         .intro-text {
-          background: #ebe6dd;
-          padding: 36px 34px;
-          border-radius: 24px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.18);
+          background: transparent;
+          padding: 0;
+          border-radius: 0;
+          box-shadow: none;
           font-family: "InterRegular", sans-serif;
           color: #211f18;
           line-height: 1.56;
@@ -474,111 +407,115 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-style: italic;
         }
         .intro-text strong {
-          font-family: "RecoletaMedium", serif;
+          font-family: "GayaRegular", serif;
           letter-spacing: 0.02em;
+          font-weight: 600;
+        }
+        .intro-text .intro-highlight {
+          font-family: "GayaRegular", serif;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+        }
+        .intro-text em.intro-highlight {
+          font-style: italic;
         }
         .intro-actions {
           display: flex;
           gap: 18px;
           margin-top: 28px;
         }
-        .intro-actions a {
-          text-decoration: none;
-          font-family: "InterMedium", sans-serif;
-          font-size: 15px;
-          padding: 12px 26px;
-          border-radius: 999px;
-          border: 1px solid #151515;
-          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-          color: #141414;
+        .intro-action {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          line-height: 1;
-          letter-spacing: 0.04em;
+          justify-content: center;
+          text-decoration: none;
+          color: #111111;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .intro-actions a:visited {
-          color: #141414;
+        .intro-action:visited {
+          color: inherit;
         }
-        .primary-action {
-          background: #d9cff9;
-          border-color: #3f3273;
-          color: #231b46;
-        }
-        .secondary-action {
-          background: #d6f3c5;
-          border-color: #2d5932;
-          color: #14321a;
-        }
-        .instagram-icon {
-          display: flex;
+        .intro-action-pill {
+          display: inline-flex;
           align-items: center;
+          justify-content: center;
+          font-family: "InterRegular", sans-serif;
+          font-size: 14px;
+          letter-spacing: 0.05em;
+          padding: 6px 16px;
+          border-radius: 999px;
+          line-height: 1.1;
+          min-height: 30px;
         }
-        .instagram-icon svg {
-          display: block;
-          fill: currentColor;
+        .intro-action.primary-action .intro-action-pill {
+          background: #c1c1f0;
         }
-        .instagram-label {
-          letter-spacing: 0.02em;
+        .intro-action.secondary-action .intro-action-pill {
+          background: #f4f0ae;
         }
-        .intro-actions a:hover,
-        .intro-actions a:focus-visible {
-          background: #141414;
-          color: #f7f4eb;
-          border-color: #141414;
+        .intro-action:hover .intro-action-pill,
+        .intro-action:focus-visible .intro-action-pill {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 14px rgba(17, 17, 17, 0.12);
         }
-        .intro-actions a:hover .instagram-icon svg,
-        .intro-actions a:focus-visible .instagram-icon svg {
-          fill: currentColor;
+        .intro-action:focus-visible .intro-action-pill {
+          outline: 2px solid rgba(17, 17, 17, 0.4);
+          outline-offset: 2px;
         }
         .intro-visual {
-          display: flex;
-          align-items: stretch;
-        }
-        .visual-card {
-          background: #e8e2d8;
-          padding: 30px;
+          position: relative;
           border-radius: 24px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.2);
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          gap: 24px;
+          overflow: hidden;
         }
-        .visual-card-body {
-          font-family: "InterRegular", sans-serif;
-          color: #3b362a;
-          font-size: 16px;
-          line-height: 1.6;
-        }
-        .visual-card-body span {
+        .intro-visual::before {
+          content: "";
           display: block;
-          margin-top: 12px;
-          font-size: 14px;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
+          padding-bottom: 135%;
         }
-        .visual-card img {
+        .intro-visual img {
+          position: absolute;
+          inset: 0;
           width: 100%;
+          height: 100%;
           object-fit: cover;
-          max-height: 220px;
-          border-radius: 18px;
         }
         .columns-area {
           display: block;
+          padding: 0;
         }
         .columns {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 32px;
+          gap: 0;
         }
         .column {
-          padding: 26px 24px 34px;
-          background: #efe9de;
-          border-radius: 26px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.18);
           display: flex;
           flex-direction: column;
+          box-sizing: border-box;
+        }
+        .column-featured {
+          background: #d8d8d8;
+          color: #111111;
+        }
+        .column-featured .column-header {
+          color: #111111;
+        }
+        .column-featured .column-count {
+          border: 1px solid rgba(17, 17, 17, 0.28);
+          background: rgba(255, 255, 255, 0.5);
+          color: #111111;
+        }
+        .column-events {
+          background: #f2f2f2;
+          color: #111111;
+        }
+        .column-events .column-header {
+          color: #111111;
+        }
+        .column-events .column-count {
+          border: 1px solid rgba(17, 17, 17, 0.28);
+          background: rgba(255, 255, 255, 0.62);
+          color: #111111;
         }
         .column-header {
           display: flex;
@@ -586,9 +523,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           justify-content: space-between;
           gap: 16px;
           text-transform: uppercase;
-          font-family: "RecoletaMedium", serif;
+          font-family: "GayaRegular", serif;
           letter-spacing: 0.18em;
           color: #2b2720;
+          padding: 32px 32px 0;
           margin-bottom: 16px;
         }
         .column-header h2 {
@@ -607,92 +545,39 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           overflow-y: auto;
           display: flex;
           flex-direction: column;
-          gap: 18px;
+          gap: 24px;
           max-height: clamp(420px, 60vh, 640px);
-          padding-right: 8px;
         }
-        .article-card {
-          padding: 18px;
-          display: grid;
-          grid-template-columns: 120px minmax(0, 1fr);
-          gap: 16px;
-          font-family: "InterRegular", sans-serif;
-          color: #1f1f1f;
-          background: #f7f2e6;
-          border-radius: 18px;
-          box-shadow: inset 0 0 0 1px rgba(96, 87, 68, 0.16);
+        .column-featured :global(.article-preview),
+        .column-events :global(.article-preview) {
+          color: #111111;
+          margin: 0 32px;
         }
-        .article-card.event {
-          background: #f2eef9;
-        }
-        .article-media img {
-          width: 100%;
-          height: 120px;
-          object-fit: cover;
-          border-radius: 12px;
-        }
-        .article-body {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .article-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          color: #6d6351;
-        }
-        .article-body h3 {
-          margin: 0;
-          font-size: 18px;
-          font-family: "RecoletaMedium", serif;
-          color: #111;
-        }
-        .article-body p {
-          margin: 0;
-          font-size: 14px;
-          line-height: 1.5;
-          color: #3a352a;
-        }
-        .article-link {
-          margin-top: auto;
-          align-self: flex-start;
-          text-decoration: none;
-          font-family: "InterMedium", sans-serif;
-          font-size: 13px;
-          text-transform: uppercase;
-          letter-spacing: 0.14em;
-          color: #141414;
-          padding: 6px 14px;
-          border-radius: 18px;
-          border: 1px solid #141414;
-          transition: background 0.2s ease, color 0.2s ease;
-        }
-        .article-link:visited,
-        .article-link.highlight:visited {
-          color: #141414;
-        }
-        .article-link.highlight {
-          color: #141414;
-        }
-        .article-link:hover,
-        .article-link:focus-visible {
-          background: #141414;
-          color: #f7f2e6;
+        .column-featured :global(.article-preview:last-child),
+        .column-events :global(.article-preview:last-child) {
+          margin-bottom: 32px;
         }
         @media (max-width: 960px) {
-          .content {
-            padding: 32px 36px 48px;
+          .intro {
+            padding: 40px 36px 0;
+          }
+          .column-header {
+            padding: 28px 28px 0;
+          }
+          .column-featured :global(.article-preview),
+          .column-events :global(.article-preview) {
+            margin: 0 28px;
+          }
+          .column-featured :global(.article-preview:last-child),
+          .column-events :global(.article-preview:last-child) {
+            margin-bottom: 28px;
           }
         }
         @media (max-width: 700px) {
           .content {
             flex-direction: column;
-            gap: 32px;
-            padding: 28px 24px 40px;
+            gap: 0;
+            padding: 0;
           }
           .search-drawer {
             width: 100%;
@@ -724,12 +609,24 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           }
           .intro {
             grid-template-columns: 1fr;
+            padding: 32px 24px 0;
           }
           .intro-visual {
             order: -1;
           }
           .columns {
             grid-template-columns: 1fr;
+          }
+          .column-header {
+            padding: 28px 24px 0;
+          }
+          .column-featured :global(.article-preview),
+          .column-events :global(.article-preview) {
+            margin: 0 24px;
+          }
+          .column-featured :global(.article-preview:last-child),
+          .column-events :global(.article-preview:last-child) {
+            margin-bottom: 24px;
           }
           .column-content {
             max-height: none;
@@ -746,18 +643,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             justify-content: center;
             gap: 16px;
           }
-          .intro-text {
-            padding: 24px;
-          }
-          .visual-card {
-            padding: 24px;
-          }
-          .article-card {
-            grid-template-columns: 1fr;
-          }
-          .article-media img {
-            height: 180px;
-          }
           .search-drawer {
             padding: 0 20px;
           }
@@ -770,6 +655,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .page-wrapper a:visited {
           color: inherit;
+        }
+        .page-wrapper .footer {
+          margin-top: 0;
         }
       `}</style>
     </>
