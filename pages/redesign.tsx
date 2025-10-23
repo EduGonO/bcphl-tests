@@ -363,6 +363,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           overflow: hidden;
           transition: width 0.3s ease, max-height 0.3s ease;
           min-height: 100%;
+          box-sizing: border-box;
         }
         .search-drawer.open {
           width: 320px;
@@ -554,9 +555,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           overflow: hidden;
         }
         .column {
-          padding: 32px 32px 40px;
+          padding: 32px 32px 0;
           display: flex;
           flex-direction: column;
+          box-sizing: border-box;
         }
         .column-featured {
           background: #a8a8a8;
