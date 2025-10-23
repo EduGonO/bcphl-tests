@@ -301,7 +301,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           justify-content: space-between;
           padding: 26px 48px 18px;
           border-bottom: 1px solid #b9b0a3;
-          background: #ffffff;
+          background: rgba(255, 255, 255, 0.88);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           position: sticky;
           top: 0;
           z-index: 50;
@@ -310,7 +312,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           align-items: center;
           gap: 14px;
-          font-family: "RecoletaMedium", "GayaRegular", serif;
+          font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
@@ -401,7 +403,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .drawer-body h3 {
           margin: 0;
           text-transform: uppercase;
-          font-family: "RecoletaMedium", serif;
+          font-family: "GayaRegular", serif;
           letter-spacing: 0.14em;
           font-size: 18px;
           color: #2c1c23;
@@ -467,7 +469,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-style: italic;
         }
         .intro-text strong {
-          font-family: "RecoletaMedium", serif;
+          font-family: "GayaRegular", serif;
           letter-spacing: 0.02em;
         }
         .intro-actions {
@@ -543,15 +545,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .columns-area {
           display: block;
-          padding: 0 48px 64px;
+          padding: 0 0 64px;
         }
         .columns {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 0;
-          border-radius: 32px;
           overflow: hidden;
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
         }
         .column {
           padding: 32px 32px 40px;
@@ -629,7 +629,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           justify-content: space-between;
           gap: 16px;
           text-transform: uppercase;
-          font-family: "RecoletaMedium", serif;
+          font-family: "GayaRegular", serif;
           letter-spacing: 0.18em;
           color: #2b2720;
           margin-bottom: 16px;
@@ -687,7 +687,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .article-body h3 {
           margin: 0;
           font-size: 18px;
-          font-family: "RecoletaMedium", serif;
+          font-family: "GayaRegular", serif;
           color: #111;
         }
         .article-body p {
@@ -727,7 +727,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             padding: 40px 36px 0;
           }
           .columns-area {
-            padding: 0 36px 48px;
+            padding: 0 0 48px;
           }
         }
         @media (max-width: 700px) {
@@ -775,7 +775,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             grid-template-columns: 1fr;
           }
           .columns-area {
-            padding: 0 24px 32px;
+            padding: 0 0 32px;
           }
           .column-content {
             max-height: none;
