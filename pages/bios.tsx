@@ -378,7 +378,6 @@ const BiosPage = () => {
           border: none;
           border-bottom: 1px solid rgba(17, 17, 17, 0.18);
           cursor: pointer;
-          writing-mode: vertical-rl;
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
@@ -389,14 +388,22 @@ const BiosPage = () => {
           grid-area: 1 / 1;
           align-self: start;
           justify-self: stretch;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
+          display: block;
           min-height: 204px;
+          width: 100%;
+          min-width: 0;
         }
         .drawer-toggle span {
+          position: absolute;
+          top: 24px;
+          bottom: 16px;
+          left: 36px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          writing-mode: vertical-rl;
           transform: rotate(180deg);
-          display: inline-block;
+          line-height: 1;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
@@ -672,7 +679,6 @@ const BiosPage = () => {
             grid-template-rows: auto;
           }
           .drawer-toggle {
-            writing-mode: horizontal-tb;
             border-bottom: 1px solid rgba(17, 17, 17, 0.2);
             padding: 16px 20px;
             display: flex;
@@ -681,7 +687,12 @@ const BiosPage = () => {
             min-height: auto;
           }
           .drawer-toggle span {
+            writing-mode: horizontal-tb;
             transform: none;
+            position: static;
+            top: auto;
+            bottom: auto;
+            left: auto;
           }
           .drawer-section.open .drawer-toggle {
             transform: translateY(-8px);
