@@ -392,16 +392,17 @@ const BiosPage = () => {
         }
         .drawer-toggle span {
           position: absolute;
-          inset: 0;
-          display: flex;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(-90deg);
+          transform-origin: center;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          writing-mode: vertical-rl;
-          transform: rotate(180deg);
           line-height: 1;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.06em;
           white-space: nowrap;
-          width: 100%;
+          padding: 0 4px;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
@@ -685,13 +686,13 @@ const BiosPage = () => {
             min-height: auto;
           }
           .drawer-toggle span {
-            writing-mode: horizontal-tb;
             transform: none;
             position: static;
             top: auto;
             left: auto;
             white-space: normal;
             width: auto;
+            padding: 0;
           }
           .drawer-section.open .drawer-toggle {
             transform: translateY(-8px);
