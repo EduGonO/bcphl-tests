@@ -384,18 +384,15 @@ const BiosPage = () => {
           grid-area: 1 / 1;
           align-self: start;
           justify-self: stretch;
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           height: 100%;
           min-height: 204px;
           width: 100%;
           min-width: 0;
         }
         .drawer-toggle span {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) rotate(-90deg);
-          transform-origin: center;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -403,6 +400,8 @@ const BiosPage = () => {
           letter-spacing: 0.06em;
           white-space: nowrap;
           padding: 0 4px;
+          transform: rotate(-90deg);
+          transform-origin: center;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
