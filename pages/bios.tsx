@@ -377,29 +377,28 @@ const BiosPage = () => {
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.12em;
           padding: 24px 0 16px;
           color: #0d0d0d;
           transition: opacity 0.3s ease, transform 0.3s ease;
           grid-area: 1 / 1;
           align-self: start;
           justify-self: stretch;
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           min-height: 204px;
           width: 100%;
           min-width: 0;
         }
         .drawer-toggle span {
-          position: absolute;
-          top: 24px;
-          bottom: 16px;
-          left: 50%;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           writing-mode: vertical-rl;
-          transform: translateX(-50%) rotate(180deg);
+          transform: rotate(180deg);
           line-height: 1;
+          letter-spacing: 0.12em;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
