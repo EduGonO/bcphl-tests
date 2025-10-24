@@ -443,7 +443,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: grid;
           grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
           gap: 32px;
-          align-items: stretch;
+          align-items: start;
           padding: 48px 48px 0;
         }
         .intro-text {
@@ -524,13 +524,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           border-radius: 14px;
           overflow: hidden;
           display: flex;
-          align-self: stretch;
+          align-self: start;
           justify-content: center;
           align-items: center;
         }
         .intro-visual img {
-          width: 100%;
           height: 100%;
+          width: auto;
+          max-height: 100%;
           max-width: 100%;
           object-fit: contain;
           flex: 0 1 auto;
