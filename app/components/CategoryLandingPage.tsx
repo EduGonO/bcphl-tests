@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ReactNode, useMemo, useState } from "react";
 
@@ -5,6 +7,7 @@ import { NAV_LINKS } from "../../config/navLinks";
 import { Article } from "../../types";
 import Footer from "./Footer";
 import RedesignArticlePreviewCard from "./RedesignArticlePreviewCard";
+import RedesignSearchSidebar from "./RedesignSearchSidebar";
 
 interface CategoryLandingPageProps {
   articles: Article[];
@@ -44,7 +47,6 @@ const CategoryLandingPage = ({
   columnTitle,
 }: CategoryLandingPageProps) => {
   const [query, setQuery] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -84,105 +86,7 @@ const CategoryLandingPage = ({
       </header>
 
       <main className="content">
-        <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
-          <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
-            <button
-              type="button"
-              className="drawer-toggle"
-              onClick={() => {
-                setDrawerOpen(true);
-              }}
-              aria-expanded={drawerOpen}
-              aria-controls="search-panel"
-              tabIndex={drawerOpen ? -1 : 0}
-              aria-hidden={drawerOpen}
-            >
-              <span>Recherche</span>
-            </button>
-            <div
-              className="drawer-body"
-              id="search-panel"
-              aria-hidden={!drawerOpen}
-            >
-              <div className="drawer-header">
-                <h3>Recherche</h3>
-                <button
-                  type="button"
-                  className="drawer-close"
-                  onClick={() => setDrawerOpen(false)}
-                  aria-label="Réduire la recherche"
-                >
-                  Fermer
-                </button>
-              </div>
-              <label className="drawer-label" htmlFor="search-input">
-                Recherchez un article
-              </label>
-              <input
-                id="search-input"
-                className="drawer-input"
-                type="text"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Titre, auteur, mot-clé..."
-                tabIndex={drawerOpen ? 0 : -1}
-              />
-              {normalizedQuery && (
-                <button
-                  type="button"
-                  className="clear-button"
-                  onClick={() => setQuery("")}
-                  tabIndex={drawerOpen ? 0 : -1}
-                >
-                  Effacer
-                </button>
-              )}
-            </div>
-          </div>
-          <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
-            <button
-              type="button"
-              className="drawer-toggle"
-              onClick={() => {
-                setDrawerOpen(true);
-              }}
-              aria-expanded={drawerOpen}
-              aria-controls="newsletter-panel"
-              tabIndex={drawerOpen ? -1 : 0}
-              aria-hidden={drawerOpen}
-            >
-              <span>Newsletter</span>
-            </button>
-            <div
-              className="drawer-body drawer-body-newsletter"
-              id="newsletter-panel"
-              aria-hidden={!drawerOpen}
-            >
-              <div className="drawer-header">
-                <h3>Newsletter</h3>
-                <button
-                  type="button"
-                  className="drawer-close"
-                  onClick={() => setDrawerOpen(false)}
-                  aria-label="Réduire la newsletter"
-                >
-                  Fermer
-                </button>
-              </div>
-              <p className="drawer-text">
-                Recevez nos dernières publications et événements directement dans
-                votre boîte mail.
-              </p>
-              <Link
-                href="/newsletter"
-                className="drawer-newsletter-button"
-                tabIndex={drawerOpen ? 0 : -1}
-              >
-                S&rsquo;inscrire à la newsletter
-              </Link>
-            </div>
-          </div>
-        </aside>
+        <RedesignSearchSidebar query={query} onQueryChange={setQuery} />
 
         <div className="main-sections">
           <section className="intro">
@@ -274,7 +178,9 @@ const CategoryLandingPage = ({
           color: #111;
           text-decoration: none;
         }
-        .nav-link:visited {
+        .nav-link:visited,
+        .nav-link:hover,
+        .nav-link:focus-visible {
           color: #111;
         }
         .nav-link:hover,
@@ -287,150 +193,6 @@ const CategoryLandingPage = ({
           gap: 0;
           padding: 0;
           background: #ffffff;
-        }
-        .search-drawer {
-          position: relative;
-          flex: 0 0 auto;
-          width: 72px;
-          align-self: stretch;
-          background: #efdae0;
-          border-right: 1px solid #c3aeb6;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          transition: width 0.3s ease, max-height 0.3s ease;
-          min-height: 100%;
-          box-sizing: border-box;
-        }
-        .search-drawer.open {
-          width: 320px;
-        }
-        .drawer-section {
-          position: relative;
-          display: grid;
-          grid-template-rows: minmax(0, 1fr);
-          align-content: start;
-          overflow: hidden;
-          background: #efdae0;
-        }
-        .drawer-section.open {
-          background: #f5e7ea;
-        }
-        .drawer-toggle {
-          appearance: none;
-          border: none;
-          background: none;
-          padding: 20px 0;
-          font-family: "GayaRegular", serif;
-          font-size: 18px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          writing-mode: vertical-rl;
-          transform: rotate(180deg);
-          color: #2c1c23;
-          cursor: pointer;
-        }
-        .drawer-toggle:hover,
-        .drawer-toggle:focus-visible {
-          color: #1a0f14;
-        }
-        .drawer-body {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          padding: 24px;
-        }
-        .drawer-body-newsletter {
-          gap: 14px;
-        }
-        .drawer-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .drawer-body h3 {
-          margin: 0;
-          text-transform: uppercase;
-          font-family: "GayaRegular", serif;
-          letter-spacing: 0.14em;
-          font-size: 18px;
-          color: #2c1c23;
-        }
-        .drawer-close {
-          background: none;
-          border: 1px solid rgba(44, 28, 35, 0.4);
-          text-transform: uppercase;
-          font-family: "InterMedium", sans-serif;
-          letter-spacing: 0.12em;
-          font-size: 11px;
-          padding: 6px 16px;
-          cursor: pointer;
-          color: #2c1c23;
-          transition: background 0.2s ease, color 0.2s ease;
-        }
-        .drawer-close:hover,
-        .drawer-close:focus-visible {
-          background: #2c1c23;
-          color: #fff7fa;
-        }
-        .drawer-label {
-          font-size: 14px;
-          font-family: "InterRegular", sans-serif;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          color: #5b3f47;
-        }
-        .drawer-input {
-          background: #fff7fa;
-          border: 1px solid #bfa9b2;
-          padding: 12px;
-          font-size: 16px;
-          font-family: "InterRegular", sans-serif;
-        }
-        .clear-button {
-          align-self: flex-start;
-          background: #fff7fa;
-          border: 1px solid #bfa9b2;
-          padding: 6px 18px;
-          text-transform: uppercase;
-          font-size: 13px;
-          font-family: "InterMedium", sans-serif;
-          cursor: pointer;
-          color: #2c1c23;
-        }
-        .clear-button:hover,
-        .clear-button:focus-visible {
-          background: #2c1c23;
-          color: #fff7fa;
-        }
-        .drawer-text {
-          margin: 0;
-          font-size: 14px;
-          line-height: 1.6;
-          font-family: "InterRegular", sans-serif;
-          color: #3c2b31;
-        }
-        .drawer-newsletter-button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          background: #2c1c23;
-          color: #fff7fa;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          font-family: "InterMedium", sans-serif;
-          font-size: 12px;
-          padding: 12px 24px;
-          border: 1px solid #2c1c23;
-          cursor: pointer;
-          transition: background 0.2s ease, color 0.2s ease;
-          text-decoration: none;
-          align-self: flex-start;
-        }
-        .drawer-newsletter-button:hover,
-        .drawer-newsletter-button:focus-visible {
-          background: transparent;
-          color: #2c1c23;
         }
         .main-sections {
           flex: 1;
@@ -506,7 +268,7 @@ const CategoryLandingPage = ({
           display: flex;
           flex-direction: column;
           gap: 28px;
-          width: min(960px, 100%);
+          width: min(640px, 100%);
         }
         .column-header {
           display: flex;
@@ -530,38 +292,9 @@ const CategoryLandingPage = ({
           display: grid;
           gap: 24px;
         }
-        @media (max-width: 960px) {
-          .search-drawer {
-            position: sticky;
-            top: 92px;
-          }
-        }
         @media (max-width: 700px) {
           .content {
             flex-direction: column;
-          }
-          .search-drawer {
-            width: 100%;
-            border-right: none;
-            border-bottom: 1px solid #c3aeb6;
-            flex-direction: row;
-            overflow: hidden;
-            max-height: 72px;
-            transition: max-height 0.3s ease;
-          }
-          .search-drawer.open {
-            width: 100%;
-            max-height: 1000px;
-          }
-          .drawer-section {
-            width: 50%;
-          }
-          .drawer-toggle {
-            writing-mode: horizontal-tb;
-            transform: none;
-          }
-          .drawer-body {
-            padding: 20px;
           }
           .intro {
             padding: 32px 24px 0;
@@ -572,6 +305,13 @@ const CategoryLandingPage = ({
           .columns-area {
             padding: 0 24px 48px;
           }
+        }
+        :global(.page-wrapper a) {
+          color: inherit;
+          text-decoration: none;
+        }
+        :global(.page-wrapper a:visited) {
+          color: inherit;
         }
       `}</style>
     </div>
