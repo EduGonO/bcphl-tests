@@ -3,19 +3,13 @@ import Head from "next/head";
 import Link from "next/link";
 import Footer from "../app/components/Footer";
 import RedesignArticlePreviewCard from "../app/components/RedesignArticlePreviewCard";
+import { NAV_LINKS } from "../config/navLinks";
 import { Article } from "../types";
 import { getArticleData } from "../lib/articleService";
 
 interface RedesignProps {
   articles: Article[];
 }
-
-const NAV_LINKS = [
-  { label: "Réflexion", href: "/categories/info" },
-  { label: "Création", href: "/categories/image-critique" },
-  { label: "IRL", href: "/evenements" },
-  { label: "À propos", href: "/bios" },
-];
 
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");

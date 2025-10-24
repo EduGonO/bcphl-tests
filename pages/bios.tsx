@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import Footer from "../app/components/Footer";
+import { NAV_LINKS } from "../config/navLinks";
 import teamMembersData from "../data/team.json";
 import type { TeamMember } from "../types/bios";
 
@@ -26,13 +27,6 @@ const teamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[])
     };
   })
   .sort((a, b) => a.rank - b.rank);
-
-const NAV_LINKS = [
-  { label: "Réflexion", href: "/categories/info" },
-  { label: "Création", href: "/categories/image-critique" },
-  { label: "IRL", href: "/evenements" },
-  { label: "À propos", href: "/bios" },
-];
 
 type PortraitProps = {
   name: string;
