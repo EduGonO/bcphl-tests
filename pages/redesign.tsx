@@ -21,7 +21,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [introHeight, setIntroHeight] = useState<number | null>(null);
-  const introTextRef = useRef<HTMLDivElement | null>(null);
+  const introCopyRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -29,7 +29,16 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     }
 
     const measure = () => {
-      const textNode = introTextRef.current;
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      if (window.innerWidth <= 700) {
+        setIntroHeight((previous) => (previous === null ? previous : null));
+        return;
+      }
+
+      const textNode = introCopyRef.current;
       if (!textNode) {
         return;
       }
@@ -45,7 +54,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
     measure();
 
-    const textNode = introTextRef.current;
+    const textNode = introCopyRef.current;
     if (!textNode) {
       return;
     }
@@ -190,25 +199,27 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
           <div className="main-sections">
             <section className="intro">
-              <div className="intro-text" ref={introTextRef}>
-                <p>
-                  Dans la même urgence que la revue {" "}
-                  <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
-                  en 1936 et portée par un désir de la contribution propre à {" "}
-                  <span className="intro-highlight">Bernard Stiegler</span>, la revue {" "}
-                  <strong className="intro-highlight">BICÉPHALE</strong> conjugue la
-                  créativité contemporaine à travers des textes inédits lors des soirées
-                  bicéphales et une démarche réflexive analysant les arts, les techniques
-                  et la société.
-                </p>
-                <p>
-                  Cette revue embrasse nos multiplicités et questionne les techniques
-                  contemporaines afin de se faire vectrice de {" "}
-                  <span className="intro-highlight">suggestion</span>, de {" "}
-                  <span className="intro-highlight">mouvement</span>, de {" "}
-                  <span className="intro-highlight">critique</span> et de {" "}
-                  <span className="intro-highlight">pensée</span>.
-                </p>
+              <div className="intro-copy" ref={introCopyRef}>
+                <div className="intro-text">
+                  <p>
+                    Dans la même urgence que la revue {" "}
+                    <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
+                    en 1936 et portée par un désir de la contribution propre à {" "}
+                    <span className="intro-highlight">Bernard Stiegler</span>, la revue {" "}
+                    <strong className="intro-highlight">BICÉPHALE</strong> conjugue la
+                    créativité contemporaine à travers des textes inédits lors des soirées
+                    bicéphales et une démarche réflexive analysant les arts, les techniques
+                    et la société.
+                  </p>
+                  <p>
+                    Cette revue embrasse nos multiplicités et questionne les techniques
+                    contemporaines afin de se faire vectrice de {" "}
+                    <span className="intro-highlight">suggestion</span>, de {" "}
+                    <span className="intro-highlight">mouvement</span>, de {" "}
+                    <span className="intro-highlight">critique</span> et de {" "}
+                    <span className="intro-highlight">pensée</span>.
+                  </p>
+                </div>
                 <div className="intro-actions">
                   <Link href="/categories/info" className="intro-action">
                     <span className="intro-action-pill featured">manifeste</span>
@@ -220,7 +231,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
               </div>
               <div
                 className="intro-visual"
-                style={introHeight !== null ? { height: introHeight } : undefined}
+                style={
+                  introHeight !== null
+                    ? { height: Math.min(introHeight, 420) }
+                    : undefined
+                }
               >
                 <img
                   src="/media/home_image.jpeg"
@@ -436,27 +451,29 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro {
           display: grid;
           grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+          grid-template-areas: "copy visual";
           gap: clamp(28px, 6vw, 64px);
-          align-items: stretch;
-          justify-items: center;
+          align-items: flex-start;
+          justify-items: stretch;
           padding: 48px clamp(24px, 7vw, 88px) 0;
           max-width: 1200px;
           margin: 0 auto;
         }
-        .intro-text {
+        .intro-copy {
+          grid-area: copy;
           display: flex;
           flex-direction: column;
-          background: transparent;
+          gap: 24px;
+          max-width: 560px;
+          margin: 0 auto;
+          width: 100%;
           padding: 0 8px;
-          border-radius: 0;
-          box-shadow: none;
+        }
+        .intro-text {
           font-family: "InterRegular", sans-serif;
           color: #211f18;
           line-height: 1.56;
           font-size: 16px;
-          max-width: 560px;
-          margin: 0 auto;
-          width: 100%;
         }
         .intro-text p {
           margin: 0 0 16px;
@@ -480,7 +497,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-actions {
           display: flex;
           gap: 18px;
-          margin-top: 28px;
+          margin: 8px 0 0;
         }
         .intro-action {
           display: inline-flex;
@@ -521,12 +538,12 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-visual {
           position: relative;
+          grid-area: visual;
           border-radius: 8px;
           overflow: hidden;
           display: flex;
-          align-self: stretch;
+          align-items: flex-start;
           justify-content: center;
-          align-items: center;
           width: 100%;
           max-width: 520px;
         }
@@ -668,17 +685,44 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             transform: translateY(0);
           }
           .intro {
-            grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+            grid-template-columns: 1fr;
+            grid-template-areas:
+              "text"
+              "visual"
+              "actions";
             padding: 32px 20px 0;
-            gap: 20px;
-            max-width: 720px;
+            gap: 16px;
+            max-width: 480px;
+            justify-items: center;
+          }
+          .intro-copy {
+            display: contents;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
           }
           .intro-text {
-            padding: 0;
+            grid-area: text;
             max-width: 100%;
+            text-align: left;
           }
           .intro-visual {
-            max-width: min(56vw, 340px);
+            grid-area: visual;
+            max-width: min(68vw, 260px);
+            align-items: center;
+            justify-content: center;
+          }
+          .intro-visual img {
+            width: 100%;
+            height: auto;
+            max-height: 220px;
+          }
+          .intro-actions {
+            grid-area: actions;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0;
           }
           .columns {
             grid-template-columns: 1fr;
