@@ -372,7 +372,8 @@ const BiosPage = () => {
           display: grid;
           gap: clamp(2.5rem, 7vw, 4.5rem);
           color: #1f1f1f;
-          font-family: "GayaRegular", serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
+            "Segoe UI", sans-serif;
           font-weight: 400;
           font-synthesis: none;
         }
@@ -390,7 +391,8 @@ const BiosPage = () => {
           margin: 0;
           font-size: clamp(1.05rem, 2vw, 1.25rem);
           line-height: 1.55;
-          font-family: "GayaRegular", serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
+            "Segoe UI", sans-serif;
           font-weight: 400;
         }
         .team {
@@ -439,12 +441,14 @@ const BiosPage = () => {
           gap: 0.85rem;
           font-size: 1rem;
           line-height: 1.6;
-          font-family: "GayaRegular", serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
+            "Segoe UI", sans-serif;
           font-weight: 400;
         }
         .member-text :global(.bio-paragraph) {
           margin: 0;
-          font-family: "GayaRegular", serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
+            "Segoe UI", sans-serif;
           font-weight: 400;
         }
         .member-text :global(.bio-paragraph + .bio-paragraph) {

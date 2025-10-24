@@ -466,18 +466,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           position: relative;
           border-radius: 24px;
           overflow: hidden;
-        }
-        .intro-visual::before {
-          content: "";
-          display: block;
-          padding-bottom: 135%;
+          display: flex;
         }
         .intro-visual img {
-          position: absolute;
-          inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
+          flex: 1 1 auto;
         }
         .columns-area {
           display: block;
