@@ -161,7 +161,6 @@ const BiosPage = () => {
             <section className="bios" aria-label="Membres et Contributeurs - Bicéphale">
               <header className="masthead">
                 <p className="overline">Membres et Contributeurs - Bicéphale</p>
-                <h1>Association BIC - Brigade d’Interventions Contributives</h1>
                 <p>
                   L’association Brigade d’Interventions Contributives (B.I.C) développe des actions culturelles visant à créer des
                   espaces d’expression artistique transdisciplinaire et de réflexions partagées. Ses interventions incluent l’organisation
@@ -382,13 +381,6 @@ const BiosPage = () => {
           letter-spacing: 0.25em;
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
-        }
-        .masthead h1 {
-          margin: 0;
-          font-size: clamp(2.3rem, 7vw, 3.5rem);
-          text-transform: uppercase;
-          font-family: "GayaRegular", serif;
-          letter-spacing: 0.08em;
         }
         .masthead p {
           margin: 0;
