@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Footer from "../app/components/Footer";
@@ -20,6 +20,62 @@ const NAV_LINKS = [
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [introHeight, setIntroHeight] = useState<number | null>(null);
+  const introCopyRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const measure = () => {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      if (window.innerWidth <= 700) {
+        setIntroHeight((previous) => (previous === null ? previous : null));
+        return;
+      }
+
+      const textNode = introCopyRef.current;
+      if (!textNode) {
+        return;
+      }
+
+      const { height } = textNode.getBoundingClientRect();
+      setIntroHeight((previous) => {
+        if (previous === null) {
+          return height;
+        }
+        return Math.abs(previous - height) > 0.5 ? height : previous;
+      });
+    };
+
+    measure();
+
+    const textNode = introCopyRef.current;
+    if (!textNode) {
+      return;
+    }
+
+    let observer: ResizeObserver | null = null;
+    if ("ResizeObserver" in window) {
+      observer = new ResizeObserver(() => {
+        measure();
+      });
+      observer.observe(textNode);
+    }
+
+    window.addEventListener("resize", measure);
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
 
   const parseDate = (value: string) => {
     const parsed = Date.parse(value);
@@ -143,37 +199,46 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
           <div className="main-sections">
             <section className="intro">
-              <div className="intro-text">
-                <p>
-                  Dans la même urgence que la revue {" "}
-                  <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
-                  en 1936 et portée par un désir de la contribution propre à {" "}
-                  <span className="intro-highlight">Bernard Stiegler</span>, la revue {" "}
-                  <strong className="intro-highlight">BICÉPHALE</strong> conjugue la
-                  créativité contemporaine à travers des textes inédits lors des soirées
-                  bicéphales et une démarche réflexive analysant les arts, les techniques
-                  et la société.
-                </p>
-                <p>
-                  Cette revue embrasse nos multiplicités et questionne les techniques
-                  contemporaines afin de se faire vectrice de {" "}
-                  <span className="intro-highlight">suggestion</span>, de {" "}
-                  <span className="intro-highlight">mouvement</span>, de {" "}
-                  <span className="intro-highlight">critique</span> et de {" "}
-                  <span className="intro-highlight">pensée</span>.
-                </p>
+              <div className="intro-copy" ref={introCopyRef}>
+                <div className="intro-text">
+                  <p>
+                    Dans la même urgence que la revue {" "}
+                    <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
+                    en 1936 et portée par un désir de la contribution propre à {" "}
+                    <span className="intro-highlight">Bernard Stiegler</span>, la revue {" "}
+                    <strong className="intro-highlight">BICÉPHALE</strong> conjugue la
+                    créativité contemporaine à travers des textes inédits lors des soirées
+                    bicéphales et une démarche réflexive analysant les arts, les techniques
+                    et la société.
+                  </p>
+                  <p>
+                    Cette revue embrasse nos multiplicités et questionne les techniques
+                    contemporaines afin de se faire vectrice de {" "}
+                    <span className="intro-highlight">suggestion</span>, de {" "}
+                    <span className="intro-highlight">mouvement</span>, de {" "}
+                    <span className="intro-highlight">critique</span> et de {" "}
+                    <span className="intro-highlight">pensée</span>.
+                  </p>
+                </div>
                 <div className="intro-actions">
-                  <Link href="/categories/info" className="intro-action primary-action">
-                    <span className="intro-action-pill">manifeste</span>
+                  <Link href="/categories/info" className="intro-action">
+                    <span className="intro-action-pill featured">manifeste</span>
                   </Link>
-                  <Link href="/evenements" className="intro-action secondary-action">
-                    <span className="intro-action-pill">nous suivre</span>
+                  <Link href="/evenements" className="intro-action">
+                    <span className="intro-action-pill event">nous suivre</span>
                   </Link>
                 </div>
               </div>
-              <div className="intro-visual">
+              <div
+                className="intro-visual"
+                style={
+                  introHeight !== null
+                    ? { height: Math.min(introHeight, 420) }
+                    : undefined
+                }
+              >
                 <img
-                  src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
+                  src="/media/home_image.jpeg"
                   alt="Illustration de la revue Bicéphale"
                 />
               </div>
@@ -385,16 +450,26 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro {
           display: grid;
-          grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-          gap: 32px;
-          align-items: stretch;
-          padding: 48px 48px 0;
+          grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+          grid-template-areas: "copy visual";
+          gap: clamp(28px, 6vw, 64px);
+          align-items: flex-start;
+          justify-items: stretch;
+          padding: 48px clamp(24px, 7vw, 88px) 0;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .intro-copy {
+          grid-area: copy;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          max-width: 560px;
+          margin: 0 auto;
+          width: 100%;
+          padding: 0 8px;
         }
         .intro-text {
-          background: transparent;
-          padding: 0;
-          border-radius: 0;
-          box-shadow: none;
           font-family: "InterRegular", sans-serif;
           color: #211f18;
           line-height: 1.56;
@@ -422,15 +497,12 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-actions {
           display: flex;
           gap: 18px;
-          margin-top: 28px;
+          margin: 8px 0 0;
         }
         .intro-action {
           display: inline-flex;
-          align-items: center;
-          justify-content: center;
           text-decoration: none;
           color: #111111;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .intro-action:visited {
           color: inherit;
@@ -439,6 +511,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          align-self: flex-start;
           font-family: "InterRegular", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
@@ -446,17 +519,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           border-radius: 999px;
           line-height: 1.1;
           min-height: 30px;
+          transition: transform 0.2s ease;
+          color: #111111;
         }
-        .intro-action.primary-action .intro-action-pill {
+        .intro-action-pill.featured {
           background: #c1c1f0;
         }
-        .intro-action.secondary-action .intro-action-pill {
+        .intro-action-pill.event {
           background: #f4f0ae;
         }
         .intro-action:hover .intro-action-pill,
         .intro-action:focus-visible .intro-action-pill {
           transform: translateY(-1px);
-          box-shadow: 0 6px 14px rgba(17, 17, 17, 0.12);
         }
         .intro-action:focus-visible .intro-action-pill {
           outline: 2px solid rgba(17, 17, 17, 0.4);
@@ -464,20 +538,23 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-visual {
           position: relative;
-          border-radius: 24px;
+          grid-area: visual;
+          border-radius: 8px;
           overflow: hidden;
-        }
-        .intro-visual::before {
-          content: "";
-          display: block;
-          padding-bottom: 135%;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          width: 100%;
+          max-width: 520px;
         }
         .intro-visual img {
-          position: absolute;
-          inset: 0;
-          width: 100%;
           height: 100%;
-          object-fit: cover;
+          width: auto;
+          max-height: 100%;
+          max-width: 100%;
+          object-fit: contain;
+          flex: 0 1 auto;
+          display: block;
         }
         .columns-area {
           display: block;
@@ -609,10 +686,43 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           }
           .intro {
             grid-template-columns: 1fr;
-            padding: 32px 24px 0;
+            grid-template-areas:
+              "text"
+              "visual"
+              "actions";
+            padding: 32px 20px 0;
+            gap: 16px;
+            max-width: 480px;
+            justify-items: center;
+          }
+          .intro-copy {
+            display: contents;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+          }
+          .intro-text {
+            grid-area: text;
+            max-width: 100%;
+            text-align: left;
           }
           .intro-visual {
-            order: -1;
+            grid-area: visual;
+            max-width: min(68vw, 260px);
+            align-items: center;
+            justify-content: center;
+          }
+          .intro-visual img {
+            width: 100%;
+            height: auto;
+            max-height: 220px;
+          }
+          .intro-actions {
+            grid-area: actions;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0;
           }
           .columns {
             grid-template-columns: 1fr;
