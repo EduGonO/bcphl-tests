@@ -124,14 +124,30 @@ const BiosPage = () => {
             <button
               type="button"
               className="drawer-toggle"
-              onClick={() => setSearchOpen((open) => !open)}
+              onClick={() => setSearchOpen(true)}
               aria-expanded={searchOpen}
               aria-controls="search-panel"
+              tabIndex={searchOpen ? -1 : 0}
+              aria-hidden={searchOpen}
             >
               <span>Recherche</span>
             </button>
-            <div className="drawer-body" id="search-panel" aria-hidden={!searchOpen}>
-              <h3>Recherche</h3>
+            <div
+              className="drawer-body"
+              id="search-panel"
+              aria-hidden={!searchOpen}
+            >
+              <div className="drawer-header">
+                <h3>Recherche</h3>
+                <button
+                  type="button"
+                  className="drawer-close"
+                  onClick={() => setSearchOpen(false)}
+                  aria-label="Réduire la recherche"
+                >
+                  Fermer
+                </button>
+              </div>
               <label className="drawer-label" htmlFor="search-input">
                 Recherchez un article
               </label>
@@ -301,10 +317,16 @@ const BiosPage = () => {
           letter-spacing: 0.28em;
           padding: 20px 0;
           color: #0d0d0d;
+          transition: opacity 0.3s ease, transform 0.3s ease;
         }
         .drawer-toggle span {
           transform: rotate(180deg);
           display: inline-block;
+        }
+        .search-drawer.open .drawer-toggle {
+          opacity: 0;
+          transform: translateX(-12px);
+          pointer-events: none;
         }
         .drawer-body {
           flex: 1;
@@ -314,13 +336,21 @@ const BiosPage = () => {
           padding: 28px 26px 32px;
           background: #f5e7ea;
           border-top: 1px solid rgba(17, 17, 17, 0.16);
-          transform: translateX(-100%);
-          transition: transform 0.3s ease;
+          opacity: 0;
+          transform: translateX(-24px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
           pointer-events: none;
         }
         .search-drawer.open .drawer-body {
+          opacity: 1;
           transform: translateX(0);
           pointer-events: auto;
+        }
+        .drawer-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
         }
         .drawer-body h3 {
           margin: 0;
@@ -329,6 +359,23 @@ const BiosPage = () => {
           letter-spacing: 0.14em;
           font-size: 18px;
           color: #2c1c23;
+        }
+        .drawer-close {
+          background: none;
+          border: 1px solid rgba(44, 28, 35, 0.4);
+          text-transform: uppercase;
+          font-family: "InterMedium", sans-serif;
+          letter-spacing: 0.12em;
+          font-size: 11px;
+          padding: 6px 16px;
+          cursor: pointer;
+          color: #2c1c23;
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+        .drawer-close:hover,
+        .drawer-close:focus-visible {
+          background: #2c1c23;
+          color: #fff7fa;
         }
         .drawer-label {
           font-size: 14px;
@@ -523,13 +570,18 @@ const BiosPage = () => {
           .drawer-toggle span {
             transform: none;
           }
+          .search-drawer.open .drawer-toggle {
+            transform: translateY(-8px);
+          }
           .drawer-body {
             border-top: 1px solid rgba(17, 17, 17, 0.16);
             border-left: none;
-            transform: translateY(-100%);
+            opacity: 0;
+            transform: translateY(-20px);
           }
           .search-drawer.open .drawer-body {
             transform: translateY(0);
+            opacity: 1;
           }
           .main-area {
             padding: clamp(2rem, 7vw, 3rem) clamp(1.25rem, 7vw, 2.5rem);
@@ -537,7 +589,9 @@ const BiosPage = () => {
         }
         @media (prefers-reduced-motion: reduce) {
           .search-drawer,
+          .drawer-toggle,
           .drawer-body,
+          .drawer-close,
           :global(.portrait-img) {
             transition-duration: 0.01ms !important;
           }
