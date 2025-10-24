@@ -242,6 +242,7 @@ const BiosPage = () => {
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0d0d0d;
+          font-weight: 400;
         }
         .brand-logo {
           width: 46px;
@@ -371,6 +372,7 @@ const BiosPage = () => {
           display: grid;
           gap: clamp(2.5rem, 7vw, 4.5rem);
           color: #1f1f1f;
+          font-synthesis: none;
         }
         .masthead {
           display: grid;
@@ -456,6 +458,7 @@ const BiosPage = () => {
           text-transform: uppercase;
           font-family: "GayaRegular", serif;
           letter-spacing: 0.04em;
+          font-weight: 400;
         }
         .role {
           margin: 0;
