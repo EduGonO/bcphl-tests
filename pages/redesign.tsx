@@ -384,6 +384,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           width: 320px;
         }
         .drawer-toggle {
+          position: relative;
+          z-index: 2;
           background: none;
           border: none;
           border-bottom: 1px solid rgba(17, 17, 17, 0.18);
@@ -409,6 +411,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           pointer-events: none;
         }
         .drawer-body {
+          position: relative;
+          z-index: 1;
           display: flex;
           flex-direction: column;
           gap: 18px;
