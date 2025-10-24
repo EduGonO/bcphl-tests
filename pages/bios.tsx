@@ -372,6 +372,8 @@ const BiosPage = () => {
           display: grid;
           gap: clamp(2.5rem, 7vw, 4.5rem);
           color: #1f1f1f;
+          font-family: "GayaRegular", serif;
+          font-weight: 400;
           font-synthesis: none;
         }
         .masthead {

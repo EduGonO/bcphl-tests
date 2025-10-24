@@ -173,7 +173,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
               </div>
               <div className="intro-visual">
                 <img
-                  src="/media/articles/Automaton/desertion-annie-lebrun.jpeg"
+                  src="/media/home_image.jpeg"
                   alt="Illustration de la revue Bicéphale"
                 />
               </div>
