@@ -372,8 +372,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           align-self: stretch;
           background: #efdae0;
           border-right: 1px solid #c3aeb6;
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-rows: minmax(0, 1fr);
+          align-content: start;
           overflow: hidden;
           transition: width 0.3s ease, max-height 0.3s ease;
           min-height: 100%;
@@ -395,6 +396,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           padding: 20px 0;
           color: #0d0d0d;
           transition: opacity 0.3s ease, transform 0.3s ease;
+          grid-area: 1 / 1;
+          align-self: start;
         }
         .drawer-toggle span {
           transform: rotate(180deg);
@@ -406,7 +409,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           pointer-events: none;
         }
         .drawer-body {
-          flex: 1;
           display: flex;
           flex-direction: column;
           gap: 18px;
@@ -417,6 +419,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           transform: translateX(-24px);
           transition: opacity 0.3s ease, transform 0.3s ease;
           pointer-events: none;
+          grid-area: 1 / 1;
+          align-self: start;
         }
         .search-drawer.open .drawer-body {
           opacity: 1;
@@ -703,7 +707,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             width: 100%;
             max-height: 72px;
             min-height: auto;
-            flex-direction: column;
           }
           .search-drawer.open {
             max-height: 520px;
