@@ -525,12 +525,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           overflow: hidden;
           display: flex;
           align-self: stretch;
+          justify-content: center;
+          align-items: center;
         }
         .intro-visual img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
-          flex: 1 1 auto;
+          max-width: 100%;
+          object-fit: contain;
+          flex: 0 1 auto;
           display: block;
         }
         .columns-area {
