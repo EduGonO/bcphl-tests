@@ -34,12 +34,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         return;
       }
 
-      const isStacked = window.matchMedia("(max-width: 700px)").matches;
-      if (isStacked) {
-        setIntroHeight(null);
-        return;
-      }
-
       const { height } = textNode.getBoundingClientRect();
       setIntroHeight((previous) => {
         if (previous === null) {
@@ -441,22 +435,28 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro {
           display: grid;
-          grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-          gap: 32px;
-          align-items: start;
-          padding: 48px 48px 0;
+          grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+          gap: clamp(28px, 6vw, 64px);
+          align-items: stretch;
+          justify-items: center;
+          padding: 48px clamp(24px, 7vw, 88px) 0;
+          max-width: 1200px;
+          margin: 0 auto;
         }
         .intro-text {
           display: flex;
           flex-direction: column;
           background: transparent;
-          padding: 0;
+          padding: 0 8px;
           border-radius: 0;
           box-shadow: none;
           font-family: "InterRegular", sans-serif;
           color: #211f18;
           line-height: 1.56;
           font-size: 16px;
+          max-width: 560px;
+          margin: 0 auto;
+          width: 100%;
         }
         .intro-text p {
           margin: 0 0 16px;
@@ -521,12 +521,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-visual {
           position: relative;
-          border-radius: 14px;
+          border-radius: 8px;
           overflow: hidden;
           display: flex;
-          align-self: start;
+          align-self: stretch;
           justify-content: center;
           align-items: center;
+          width: 100%;
+          max-width: 520px;
         }
         .intro-visual img {
           height: 100%;
@@ -666,11 +668,17 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             transform: translateY(0);
           }
           .intro {
-            grid-template-columns: 1fr;
-            padding: 32px 24px 0;
+            grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+            padding: 32px 20px 0;
+            gap: 20px;
+            max-width: 720px;
+          }
+          .intro-text {
+            padding: 0;
+            max-width: 100%;
           }
           .intro-visual {
-            order: -1;
+            max-width: min(56vw, 340px);
           }
           .columns {
             grid-template-columns: 1fr;
