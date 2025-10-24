@@ -454,28 +454,32 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.08em;
           padding: 24px 0 16px;
           color: #0d0d0d;
           transition: opacity 0.3s ease, transform 0.3s ease;
           grid-area: 1 / 1;
           align-self: start;
           justify-self: stretch;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: block;
+          height: 100%;
           min-height: 204px;
           width: 100%;
           min-width: 0;
         }
         .drawer-toggle span {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(180deg);
+          writing-mode: vertical-rl;
+          line-height: 1;
+          letter-spacing: 0.08em;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          writing-mode: vertical-rl;
-          transform: rotate(180deg);
-          line-height: 1;
-          letter-spacing: 0.12em;
+          white-space: nowrap;
+          width: max-content;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
@@ -835,8 +839,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             transform: none;
             position: static;
             top: auto;
-            bottom: auto;
             left: auto;
+            white-space: normal;
+            width: auto;
           }
           .drawer-section.open .drawer-toggle {
             transform: translateY(-8px);
