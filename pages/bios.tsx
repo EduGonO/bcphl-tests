@@ -392,17 +392,16 @@ const BiosPage = () => {
         }
         .drawer-toggle span {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) rotate(180deg);
-          writing-mode: vertical-rl;
-          line-height: 1;
-          letter-spacing: 0.08em;
-          display: inline-flex;
+          inset: 0;
+          display: flex;
           align-items: center;
           justify-content: center;
+          writing-mode: vertical-rl;
+          transform: rotate(180deg);
+          line-height: 1;
+          letter-spacing: 0.08em;
           white-space: nowrap;
-          width: max-content;
+          width: 100%;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
