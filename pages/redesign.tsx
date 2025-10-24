@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Footer from "../app/components/Footer";
@@ -20,6 +20,59 @@ const NAV_LINKS = [
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [introHeight, setIntroHeight] = useState<number | null>(null);
+  const introTextRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const measure = () => {
+      const textNode = introTextRef.current;
+      if (!textNode) {
+        return;
+      }
+
+      const isStacked = window.matchMedia("(max-width: 700px)").matches;
+      if (isStacked) {
+        setIntroHeight(null);
+        return;
+      }
+
+      const { height } = textNode.getBoundingClientRect();
+      setIntroHeight((previous) => {
+        if (previous === null) {
+          return height;
+        }
+        return Math.abs(previous - height) > 0.5 ? height : previous;
+      });
+    };
+
+    measure();
+
+    const textNode = introTextRef.current;
+    if (!textNode) {
+      return;
+    }
+
+    let observer: ResizeObserver | null = null;
+    if ("ResizeObserver" in window) {
+      observer = new ResizeObserver(() => {
+        measure();
+      });
+      observer.observe(textNode);
+    }
+
+    window.addEventListener("resize", measure);
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
 
   const parseDate = (value: string) => {
     const parsed = Date.parse(value);
@@ -143,7 +196,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
           <div className="main-sections">
             <section className="intro">
-              <div className="intro-text">
+              <div className="intro-text" ref={introTextRef}>
                 <p>
                   Dans la même urgence que la revue {" "}
                   <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
@@ -163,15 +216,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                   <span className="intro-highlight">pensée</span>.
                 </p>
                 <div className="intro-actions">
-                  <Link href="/categories/info" className="intro-action primary-action">
-                    <span className="intro-action-pill">manifeste</span>
+                  <Link href="/categories/info" className="intro-action">
+                    <span className="intro-action-pill featured">manifeste</span>
                   </Link>
-                  <Link href="/evenements" className="intro-action secondary-action">
-                    <span className="intro-action-pill">nous suivre</span>
+                  <Link href="/evenements" className="intro-action">
+                    <span className="intro-action-pill event">nous suivre</span>
                   </Link>
                 </div>
               </div>
-              <div className="intro-visual">
+              <div
+                className="intro-visual"
+                style={introHeight !== null ? { height: introHeight } : undefined}
+              >
                 <img
                   src="/media/home_image.jpeg"
                   alt="Illustration de la revue Bicéphale"
@@ -391,6 +447,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           padding: 48px 48px 0;
         }
         .intro-text {
+          display: flex;
+          flex-direction: column;
           background: transparent;
           padding: 0;
           border-radius: 0;
@@ -426,11 +484,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action {
           display: inline-flex;
-          align-items: center;
-          justify-content: center;
           text-decoration: none;
           color: #111111;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .intro-action:visited {
           color: inherit;
@@ -439,6 +494,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          align-self: flex-start;
           font-family: "InterRegular", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
@@ -446,17 +502,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           border-radius: 999px;
           line-height: 1.1;
           min-height: 30px;
+          transition: transform 0.2s ease;
+          color: #111111;
         }
-        .intro-action.primary-action .intro-action-pill {
+        .intro-action-pill.featured {
           background: #c1c1f0;
         }
-        .intro-action.secondary-action .intro-action-pill {
+        .intro-action-pill.event {
           background: #f4f0ae;
         }
         .intro-action:hover .intro-action-pill,
         .intro-action:focus-visible .intro-action-pill {
           transform: translateY(-1px);
-          box-shadow: 0 6px 14px rgba(17, 17, 17, 0.12);
         }
         .intro-action:focus-visible .intro-action-pill {
           outline: 2px solid rgba(17, 17, 17, 0.4);
@@ -464,7 +521,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-visual {
           position: relative;
-          border-radius: 18px;
+          border-radius: 14px;
           overflow: hidden;
           display: flex;
           align-self: stretch;
