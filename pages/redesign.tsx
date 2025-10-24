@@ -20,6 +20,7 @@ const NAV_LINKS = [
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [newsletterOpen, setNewsletterOpen] = useState(false);
   const [introHeight, setIntroHeight] = useState<number | null>(null);
   const introCopyRef = useRef<HTMLDivElement | null>(null);
 
@@ -156,56 +157,111 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         </header>
 
         <main className="content">
-          <aside className={`search-drawer ${searchOpen ? "open" : ""}`}>
-            <button
-              type="button"
-              className="drawer-toggle"
-              onClick={() => setSearchOpen(true)}
-              aria-expanded={searchOpen}
-              aria-controls="search-panel"
-              tabIndex={searchOpen ? -1 : 0}
-              aria-hidden={searchOpen}
-            >
-              <span>Recherche</span>
-            </button>
-            <div
-              className="drawer-body"
-              id="search-panel"
-              aria-hidden={!searchOpen}
-            >
-              <div className="drawer-header">
-                <h3>Recherche</h3>
-                <button
-                  type="button"
-                  className="drawer-close"
-                  onClick={() => setSearchOpen(false)}
-                  aria-label="Réduire la recherche"
-                >
-                  Fermer
-                </button>
-              </div>
-              <label className="drawer-label" htmlFor="search-input">
-                Recherchez un article
-              </label>
-              <input
-                id="search-input"
-                className="drawer-input"
-                type="text"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Titre, auteur, mot-clé..."
-                tabIndex={searchOpen ? 0 : -1}
-              />
-              {normalizedQuery && (
-                <button
-                  type="button"
-                  className="clear-button"
-                  onClick={() => setQuery("")}
+          <aside
+            className={`search-drawer ${
+              searchOpen || newsletterOpen ? "open" : ""
+            }`}
+          >
+            <div className={`drawer-section ${searchOpen ? "open" : ""}`}>
+              <button
+                type="button"
+                className="drawer-toggle"
+                onClick={() => {
+                  setNewsletterOpen(false);
+                  setSearchOpen(true);
+                }}
+                aria-expanded={searchOpen}
+                aria-controls="search-panel"
+                tabIndex={searchOpen ? -1 : 0}
+                aria-hidden={searchOpen}
+              >
+                <span>Recherche</span>
+              </button>
+              <div
+                className="drawer-body"
+                id="search-panel"
+                aria-hidden={!searchOpen}
+              >
+                <div className="drawer-header">
+                  <h3>Recherche</h3>
+                  <button
+                    type="button"
+                    className="drawer-close"
+                    onClick={() => setSearchOpen(false)}
+                    aria-label="Réduire la recherche"
+                  >
+                    Fermer
+                  </button>
+                </div>
+                <label className="drawer-label" htmlFor="search-input">
+                  Recherchez un article
+                </label>
+                <input
+                  id="search-input"
+                  className="drawer-input"
+                  type="text"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Titre, auteur, mot-clé..."
                   tabIndex={searchOpen ? 0 : -1}
+                />
+                {normalizedQuery && (
+                  <button
+                    type="button"
+                    className="clear-button"
+                    onClick={() => setQuery("")}
+                    tabIndex={searchOpen ? 0 : -1}
+                  >
+                    Effacer
+                  </button>
+                )}
+              </div>
+            </div>
+            <div
+              className={`drawer-section ${newsletterOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="drawer-toggle"
+                onClick={() => {
+                  setSearchOpen(false);
+                  setNewsletterOpen(true);
+                }}
+                aria-expanded={newsletterOpen}
+                aria-controls="newsletter-panel"
+                tabIndex={newsletterOpen ? -1 : 0}
+                aria-hidden={newsletterOpen}
+              >
+                <span>Newsletter</span>
+              </button>
+              <div
+                className="drawer-body drawer-body-newsletter"
+                id="newsletter-panel"
+                aria-hidden={!newsletterOpen}
+              >
+                <div className="drawer-header">
+                  <h3>Newsletter</h3>
+                  <button
+                    type="button"
+                    className="drawer-close"
+                    onClick={() => setNewsletterOpen(false)}
+                    aria-label="Réduire la newsletter"
+                  >
+                    Fermer
+                  </button>
+                </div>
+                <p className="drawer-text">
+                  Recevez nos dernières publications et événements directement
+                  dans votre boîte mail.
+                </p>
+                <Link
+                  href="/newsletter"
+                  className="drawer-newsletter-button"
+                  tabIndex={newsletterOpen ? 0 : -1}
                 >
-                  Effacer
-                </button>
-              )}
+                  S&rsquo;inscrire à la newsletter
+                </Link>
+              </div>
             </div>
           </aside>
 
@@ -372,9 +428,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           align-self: stretch;
           background: #efdae0;
           border-right: 1px solid #c3aeb6;
-          display: grid;
-          grid-template-rows: minmax(0, 1fr);
-          align-content: start;
+          display: flex;
+          flex-direction: column;
           overflow: hidden;
           transition: width 0.3s ease, max-height 0.3s ease;
           min-height: 100%;
@@ -382,6 +437,16 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .search-drawer.open {
           width: 320px;
+        }
+        .drawer-section {
+          position: relative;
+          display: grid;
+          grid-template-rows: minmax(0, 1fr);
+          align-content: start;
+          overflow: hidden;
+        }
+        .drawer-section + .drawer-section {
+          border-top: 1px solid rgba(17, 17, 17, 0.18);
         }
         .drawer-toggle {
           position: relative;
@@ -395,17 +460,22 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
           letter-spacing: 0.28em;
-          padding: 20px 0;
+          padding: 24px 0 16px;
           color: #0d0d0d;
           transition: opacity 0.3s ease, transform 0.3s ease;
           grid-area: 1 / 1;
           align-self: start;
+          justify-self: stretch;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          min-height: 204px;
         }
         .drawer-toggle span {
           transform: rotate(180deg);
           display: inline-block;
         }
-        .search-drawer.open .drawer-toggle {
+        .drawer-section.open .drawer-toggle {
           opacity: 0;
           transform: translateX(-12px);
           pointer-events: none;
@@ -426,10 +496,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           grid-area: 1 / 1;
           align-self: start;
         }
-        .search-drawer.open .drawer-body {
+        .drawer-section.open .drawer-body {
           opacity: 1;
           transform: translateX(0);
           pointer-events: auto;
+        }
+        .drawer-body-newsletter {
+          gap: 20px;
         }
         .drawer-header {
           display: flex;
@@ -491,6 +564,35 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .clear-button:focus-visible {
           background: #2c1c23;
           color: #fff7fa;
+        }
+        .drawer-text {
+          margin: 0;
+          font-size: 14px;
+          line-height: 1.6;
+          font-family: "InterRegular", sans-serif;
+          color: #3c2b31;
+        }
+        .drawer-newsletter-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #2c1c23;
+          color: #fff7fa;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          font-family: "InterMedium", sans-serif;
+          font-size: 12px;
+          padding: 12px 24px;
+          border: 1px solid #2c1c23;
+          cursor: pointer;
+          transition: background 0.2s ease, color 0.2s ease;
+          text-decoration: none;
+          align-self: flex-start;
+        }
+        .drawer-newsletter-button:hover,
+        .drawer-newsletter-button:focus-visible {
+          background: transparent;
+          color: #2c1c23;
         }
         .main-sections {
           flex: 1;
@@ -709,24 +811,28 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           }
           .search-drawer {
             width: 100%;
-            max-height: 72px;
+            max-height: 148px;
             min-height: auto;
           }
           .search-drawer.open {
-            max-height: 520px;
+            max-height: 640px;
+          }
+          .drawer-section {
+            grid-template-rows: auto;
           }
           .drawer-toggle {
             writing-mode: horizontal-tb;
             border-bottom: 1px solid rgba(17, 17, 17, 0.2);
-            padding: 16px 0;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            min-height: auto;
           }
           .drawer-toggle span {
             transform: none;
           }
-          .search-drawer.open .drawer-toggle {
+          .drawer-section.open .drawer-toggle {
             transform: translateY(-8px);
           }
           .drawer-body {
@@ -735,9 +841,12 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             opacity: 0;
             transform: translateY(-20px);
           }
-          .search-drawer.open .drawer-body {
+          .drawer-section.open .drawer-body {
             transform: translateY(0);
             opacity: 1;
+          }
+          .drawer-newsletter-button {
+            width: 100%;
           }
           .intro {
             grid-template-columns: 1fr;
@@ -814,9 +923,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         @media (prefers-reduced-motion: reduce) {
           .search-drawer,
+          .drawer-section,
           .drawer-toggle,
           .drawer-body,
-          .drawer-close {
+          .drawer-close,
+          .drawer-newsletter-button {
             transition-duration: 0.01ms !important;
           }
         }
