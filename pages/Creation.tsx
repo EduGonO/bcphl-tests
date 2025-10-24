@@ -1,0 +1,55 @@
+import Head from "next/head";
+import { ReactNode } from "react";
+
+import CategoryLandingPage from "../app/components/CategoryLandingPage";
+import { getArticleData } from "../lib/articleService";
+import { Article } from "../types";
+
+interface CreationPageProps {
+  articles: Article[];
+}
+
+const creationIntro: ReactNode = (
+  <>
+    <p>
+      Dans la section <span className="intro-highlight">Bascule</span>, nous
+      partageons des créations originales où les mots et les images se
+      rencontrent pour dessiner de nouveaux imaginaires.
+    </p>
+    <p>
+      Explorez les propositions artistiques de nos contributrices et
+      contributeurs, et laissez-vous surprendre par des formes qui oscillent
+      entre poésie, fiction et expérimentations visuelles.
+    </p>
+  </>
+);
+
+const CreationPage = ({ articles }: CreationPageProps) => {
+  return (
+    <>
+      <Head>
+        <title>Bicéphale · Création</title>
+        <meta
+          name="description"
+          content="Créations originales publiées dans la section Bascule du magazine Bicéphale."
+        />
+      </Head>
+      <CategoryLandingPage
+        articles={articles}
+        introContent={creationIntro}
+        columnTitle="Créations · Bascule"
+      />
+    </>
+  );
+};
+
+export async function getStaticProps() {
+  const { articles } = getArticleData();
+  return {
+    props: {
+      articles: articles.filter((article) => article.category === "Bascule"),
+    },
+  };
+}
+
+export default CreationPage;
