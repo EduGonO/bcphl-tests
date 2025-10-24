@@ -19,8 +19,7 @@ const NAV_LINKS = [
 
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [newsletterOpen, setNewsletterOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [introHeight, setIntroHeight] = useState<number | null>(null);
   const introCopyRef = useRef<HTMLDivElement | null>(null);
 
@@ -157,37 +156,32 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         </header>
 
         <main className="content">
-          <aside
-            className={`search-drawer ${
-              searchOpen || newsletterOpen ? "open" : ""
-            }`}
-          >
-            <div className={`drawer-section ${searchOpen ? "open" : ""}`}>
+          <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
+            <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
               <button
                 type="button"
                 className="drawer-toggle"
                 onClick={() => {
-                  setNewsletterOpen(false);
-                  setSearchOpen(true);
+                  setDrawerOpen(true);
                 }}
-                aria-expanded={searchOpen}
+                aria-expanded={drawerOpen}
                 aria-controls="search-panel"
-                tabIndex={searchOpen ? -1 : 0}
-                aria-hidden={searchOpen}
+                tabIndex={drawerOpen ? -1 : 0}
+                aria-hidden={drawerOpen}
               >
                 <span>Recherche</span>
               </button>
               <div
                 className="drawer-body"
                 id="search-panel"
-                aria-hidden={!searchOpen}
+                aria-hidden={!drawerOpen}
               >
                 <div className="drawer-header">
                   <h3>Recherche</h3>
                   <button
                     type="button"
                     className="drawer-close"
-                    onClick={() => setSearchOpen(false)}
+                    onClick={() => setDrawerOpen(false)}
                     aria-label="Réduire la recherche"
                   >
                     Fermer
@@ -203,48 +197,45 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Titre, auteur, mot-clé..."
-                  tabIndex={searchOpen ? 0 : -1}
+                  tabIndex={drawerOpen ? 0 : -1}
                 />
                 {normalizedQuery && (
                   <button
                     type="button"
                     className="clear-button"
                     onClick={() => setQuery("")}
-                    tabIndex={searchOpen ? 0 : -1}
+                    tabIndex={drawerOpen ? 0 : -1}
                   >
                     Effacer
                   </button>
                 )}
               </div>
             </div>
-            <div
-              className={`drawer-section ${newsletterOpen ? "open" : ""}`}
-            >
+            <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
               <button
                 type="button"
                 className="drawer-toggle"
                 onClick={() => {
-                  setSearchOpen(false);
-                  setNewsletterOpen(true);
+                  setDrawerOpen(true);
                 }}
-                aria-expanded={newsletterOpen}
+                aria-expanded={drawerOpen}
                 aria-controls="newsletter-panel"
-                tabIndex={newsletterOpen ? -1 : 0}
-                aria-hidden={newsletterOpen}
+                tabIndex={drawerOpen ? -1 : 0}
+                aria-hidden={drawerOpen}
               >
                 <span>Newsletter</span>
               </button>
               <div
                 className="drawer-body drawer-body-newsletter"
                 id="newsletter-panel"
-                aria-hidden={!newsletterOpen}
+                aria-hidden={!drawerOpen}
               >
                 <div className="drawer-header">
                   <h3>Newsletter</h3>
                   <button
                     type="button"
                     className="drawer-close"
-                    onClick={() => setNewsletterOpen(false)}
+                    onClick={() => setDrawerOpen(false)}
                     aria-label="Réduire la newsletter"
                   >
                     Fermer
@@ -257,7 +248,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 <Link
                   href="/newsletter"
                   className="drawer-newsletter-button"
-                  tabIndex={newsletterOpen ? 0 : -1}
+                  tabIndex={drawerOpen ? 0 : -1}
                 >
                   S&rsquo;inscrire à la newsletter
                 </Link>
@@ -444,9 +435,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           grid-template-rows: minmax(0, 1fr);
           align-content: start;
           overflow: hidden;
+          background: #efdae0;
+        }
+        .drawer-section.open {
+          background: #f5e7ea;
         }
         .drawer-section + .drawer-section {
           border-top: 1px solid rgba(17, 17, 17, 0.18);
+          margin-top: -1px;
         }
         .drawer-toggle {
           position: relative;
@@ -458,7 +454,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
-          letter-spacing: 0.28em;
+          letter-spacing: 0.18em;
           padding: 24px 0 16px;
           color: #0d0d0d;
           transition: opacity 0.3s ease, transform 0.3s ease;
@@ -474,12 +470,12 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           position: absolute;
           top: 24px;
           bottom: 16px;
-          left: 36px;
+          left: 50%;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           writing-mode: vertical-rl;
-          transform: rotate(180deg);
+          transform: translateX(-50%) rotate(180deg);
           line-height: 1;
         }
         .drawer-section.open .drawer-toggle {
