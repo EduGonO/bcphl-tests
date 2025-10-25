@@ -62,11 +62,14 @@ const TopNav = () => {
           object-fit: contain;
         }
         .brand-name {
+          display: inline-flex;
+          align-items: center;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0d0d0d;
+          line-height: 1;
         }
         .nav-links {
           display: flex;
