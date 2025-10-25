@@ -37,7 +37,7 @@ const CreationPage = ({ articles }: CreationPageProps) => {
       <CategoryLandingPage
         articles={articles}
         introContent={creationIntro}
-        columnTitle="Créations · Bascule"
+        columnTitle="Créations"
       />
     </>
   );
@@ -47,7 +47,9 @@ export async function getStaticProps() {
   const { articles } = getArticleData();
   return {
     props: {
-      articles: articles.filter((article) => article.category === "Bascule"),
+      articles: articles.filter(
+        (article) => article.category.toLowerCase() === "creation"
+      ),
     },
   };
 }

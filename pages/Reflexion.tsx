@@ -37,7 +37,7 @@ const ReflexionPage = ({ articles }: ReflexionPageProps) => {
       <CategoryLandingPage
         articles={articles}
         introContent={reflexionIntro}
-        columnTitle="Réflexions · Automaton"
+        columnTitle="Réflexions"
       />
     </>
   );
@@ -47,7 +47,9 @@ export async function getStaticProps() {
   const { articles } = getArticleData();
   return {
     props: {
-      articles: articles.filter((article) => article.category === "Automaton"),
+      articles: articles.filter(
+        (article) => article.category.toLowerCase() === "reflexion"
+      ),
     },
   };
 }
