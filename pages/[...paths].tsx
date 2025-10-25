@@ -140,7 +140,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         src="https://hypothes.is/embed.js"
         strategy="afterInteractive"
       />
-      
+
       <div
         style={{
           display: 'flex',

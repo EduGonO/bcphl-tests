@@ -165,10 +165,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                   </p>
                 </div>
                 <div className="intro-actions">
-                  <Link href="/categories/info" className="intro-action">
+                  <Link href="/bios" className="intro-action">
                     <span className="intro-action-pill featured">manifeste</span>
                   </Link>
-                  <Link href="/evenements" className="intro-action">
+                  <Link
+                    href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
+                    className="intro-action"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <span className="intro-action-pill event">nous suivre</span>
                   </Link>
                 </div>

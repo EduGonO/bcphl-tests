@@ -90,10 +90,15 @@ const CategoryLandingPage = ({
               <div className="intro-copy">
                 <div className="intro-text">{introContent}</div>
                 <div className="intro-actions">
-                  <Link href="/categories/info" className="intro-action">
+                  <Link href="/bios" className="intro-action">
                     <span className="intro-action-pill featured">manifeste</span>
                   </Link>
-                  <Link href="/evenements" className="intro-action">
+                  <Link
+                    href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
+                    className="intro-action"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <span className="intro-action-pill event">nous suivre</span>
                   </Link>
                 </div>
@@ -223,6 +228,10 @@ const CategoryLandingPage = ({
           flex-direction: column;
           gap: 28px;
           width: min(640px, 100%);
+          padding-top: clamp(12px, 2.8vw, 24px);
+        }
+        .main-sections.with-intro .single-column {
+          padding-top: clamp(4px, 1vw, 12px);
         }
         .column-header {
           display: flex;
@@ -236,7 +245,7 @@ const CategoryLandingPage = ({
         }
         .column-header h2 {
           margin: 0;
-          font-size: clamp(2.5rem, 5vw, 3.5rem);
+          font-size: clamp(2.1rem, 4.2vw, 2.9rem);
         }
         .column-count {
           font-size: 14px;
