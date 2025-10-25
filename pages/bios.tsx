@@ -391,6 +391,9 @@ const BiosPage = () => {
         .page-wrapper a:visited {
           color: inherit;
         }
+        .page-wrapper .footer {
+          margin-top: 0;
+        }
       `}</style>
     </>
   );
