@@ -4,7 +4,7 @@ import Link from "next/link";
 import Footer from "../app/components/Footer";
 import RedesignArticlePreviewCard from "../app/components/RedesignArticlePreviewCard";
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
-import { NAV_LINKS } from "../config/navLinks";
+import TopNav from "../app/components/TopNav";
 import { Article } from "../types";
 import { getArticleData } from "../lib/articleService";
 
@@ -136,23 +136,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         <title>Bicéphale · Nouvelle page</title>
       </Head>
       <div className="page-wrapper">
-        <header className="top-nav">
-          <div className="brand">
-            <img
-              src="/media/logo.png"
-              alt="Bicéphale"
-              className="brand-logo"
-            />
-            <span className="brand-name">Bicéphale</span>
-          </div>
-          <nav className="nav-links">
-            {NAV_LINKS.map((link) => (
-              <Link key={link.label} href={link.href} className="nav-link">
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </header>
+        <TopNav />
 
         <main className="content">
           <RedesignSearchSidebar query={query} onQueryChange={setQuery} />
@@ -256,55 +240,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           flex-direction: column;
           background: #ffffff;
-        }
-        .top-nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 26px 48px 18px;
-          border-bottom: 1px solid #b9b0a3;
-          background: rgba(255, 255, 255, 0.88);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-        .brand {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          font-family: "GayaRegular", serif;
-          font-size: 22px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-        .brand-logo {
-          width: 46px;
-          height: 46px;
-          object-fit: contain;
-        }
-        .brand-name {
-          color: #0d0d0d;
-        }
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 30px;
-          font-family: "InterMedium", sans-serif;
-          font-size: 16px;
-          text-transform: uppercase;
-        }
-        .nav-link {
-          color: #111;
-          text-decoration: none;
-        }
-        .nav-link:visited {
-          color: #111;
-        }
-        .nav-link:hover,
-        .nav-link:focus-visible {
-          color: #3a3a3a;
         }
         .content {
           flex: 1;
@@ -586,19 +521,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             max-height: none;
           }
         }
-        @media (max-width: 720px) {
-          .top-nav {
-            padding: 16px 20px;
-            flex-direction: column;
-            gap: 12px;
-          }
-          .nav-links {
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px;
-          }
-        }
-      `}</style>
+        `}</style>
       <style jsx global>{`
         .page-wrapper a {
           color: inherit;
