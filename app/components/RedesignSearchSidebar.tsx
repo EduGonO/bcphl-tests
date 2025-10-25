@@ -19,7 +19,8 @@ const RedesignSearchSidebar = ({
   searchLabel = "Recherchez un article",
   placeholder = "Titre, auteur, mot-clé...",
   clearLabel = "Effacer",
-  newsletterHref = "/newsletter",
+  newsletterHref =
+    "https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF",
   newsletterCta = "S’inscrire à la newsletter",
 }: RedesignSearchSidebarProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -188,18 +189,16 @@ const RedesignSearchSidebar = ({
           min-width: 0;
         }
         .drawer-toggle span {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%) rotate(-90deg);
-          transform-origin: center;
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          writing-mode: vertical-rl;
+          text-orientation: mixed;
+          transform: rotate(180deg);
           line-height: 1;
           letter-spacing: 0.06em;
           white-space: nowrap;
-          padding: 0 4px;
+          padding: 4px 0;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
@@ -221,6 +220,8 @@ const RedesignSearchSidebar = ({
           pointer-events: none;
           grid-area: 1 / 1;
           align-self: start;
+          box-sizing: border-box;
+          width: 100%;
         }
         .drawer-section.open .drawer-body {
           opacity: 1;
@@ -297,28 +298,33 @@ const RedesignSearchSidebar = ({
           line-height: 1.6;
           font-family: "InterRegular", sans-serif;
           color: #3c2b31;
+          word-break: break-word;
+          hyphens: auto;
         }
         .drawer-newsletter-button {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          background: #2c1c23;
+          background: linear-gradient(135deg, #2c1c23, #4a2f39);
           color: #fff7fa;
           text-transform: uppercase;
           letter-spacing: 0.12em;
           font-family: "InterMedium", sans-serif;
           font-size: 12px;
-          padding: 12px 24px;
+          padding: 12px 26px;
           border: 1px solid #2c1c23;
+          border-radius: 6px;
           cursor: pointer;
-          transition: background 0.2s ease, color 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
           text-decoration: none;
           align-self: flex-start;
+          box-shadow: 0 6px 16px rgba(44, 28, 35, 0.15);
         }
         .drawer-newsletter-button:hover,
         .drawer-newsletter-button:focus-visible {
-          background: transparent;
+          background: #fff7fa;
           color: #2c1c23;
+          box-shadow: 0 6px 16px rgba(44, 28, 35, 0.22);
         }
         @media (max-width: 960px) {
           .search-drawer {
@@ -337,23 +343,45 @@ const RedesignSearchSidebar = ({
           }
           .search-drawer.open {
             width: 100%;
-            max-height: 1000px;
+            max-height: none;
+            flex-direction: column;
           }
           .drawer-section {
             width: 50%;
+          }
+          .search-drawer.open .drawer-section {
+            width: 100%;
           }
           .drawer-toggle {
             min-height: 72px;
           }
           .drawer-toggle span {
-            position: static;
+            writing-mode: horizontal-tb;
+            text-orientation: initial;
             transform: none;
-            left: auto;
-            top: auto;
             padding: 0;
           }
           .drawer-body {
-            padding: 24px;
+            padding: 24px 20px 28px;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .drawer-text {
+            font-size: 15px;
+          }
+          .drawer-newsletter-button {
+            width: 100%;
+            justify-content: center;
+            font-size: 13px;
+          }
+          .search-drawer:not(.open) .drawer-section + .drawer-section {
+            border-top: none;
+            margin-top: 0;
+            border-left: 1px solid rgba(17, 17, 17, 0.18);
+          }
+          .search-drawer.open .drawer-section + .drawer-section {
+            border-top: 1px solid rgba(17, 17, 17, 0.18);
+            margin-top: -1px;
           }
         }
       `}</style>
