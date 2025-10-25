@@ -45,7 +45,7 @@ const RedesignSearchSidebar = ({
           tabIndex={drawerOpen ? -1 : 0}
           aria-hidden={drawerOpen}
         >
-          <span>Recherche</span>
+          <span className="drawer-toggle-label">Recherche</span>
         </button>
         <div
           className="drawer-body"
@@ -97,7 +97,7 @@ const RedesignSearchSidebar = ({
           tabIndex={drawerOpen ? -1 : 0}
           aria-hidden={drawerOpen}
         >
-          <span>Newsletter</span>
+          <span className="drawer-toggle-label">Newsletter</span>
         </button>
         <div
           className="drawer-body drawer-body-newsletter"
@@ -174,7 +174,6 @@ const RedesignSearchSidebar = ({
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
           letter-spacing: 0.08em;
-          padding: 24px 0 16px;
           color: #0d0d0d;
           transition: opacity 0.3s ease, transform 0.3s ease;
           grid-area: 1 / 1;
@@ -187,17 +186,22 @@ const RedesignSearchSidebar = ({
           min-height: 204px;
           width: 100%;
           min-width: 0;
+          padding: 0;
         }
-        .drawer-toggle span {
+        .drawer-toggle-label {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(-90deg);
+          transform-origin: center;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          writing-mode: vertical-rl;
-          text-orientation: mixed;
-          transform: rotate(180deg);
           line-height: 1;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.08em;
           white-space: nowrap;
+          width: var(--drawer-collapsed-width);
+          text-align: center;
           padding: 4px 0;
         }
         .drawer-section.open .drawer-toggle {
@@ -222,6 +226,7 @@ const RedesignSearchSidebar = ({
           align-self: start;
           box-sizing: border-box;
           width: 100%;
+          min-width: 0;
         }
         .drawer-section.open .drawer-body {
           opacity: 1;
@@ -355,10 +360,9 @@ const RedesignSearchSidebar = ({
           .drawer-toggle {
             min-height: 72px;
           }
-          .drawer-toggle span {
-            writing-mode: horizontal-tb;
-            text-orientation: initial;
-            transform: none;
+          .drawer-toggle-label {
+            width: 100%;
+            transform: translate(-50%, -50%);
             padding: 0;
           }
           .drawer-body {
