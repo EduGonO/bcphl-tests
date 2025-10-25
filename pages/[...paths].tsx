@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Script from "next/script";
 import Head from "next/head";
 import type { GetStaticPaths, GetStaticProps } from "next";
-import Header, { Category } from "../app/components/Header-2";
+import TopNav from "../app/components/TopNav";
 import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
 import {
@@ -11,7 +11,7 @@ import {
   getArticleData,
   getArticleRecords,
 } from "../lib/articleService";
-import { Article } from "../types";
+import { Article, Category } from "../types";
 import { mdToHtml } from "../lib/markdown";
 
 /* ── static paths ─────────────────────────────────────────────────── */
@@ -151,7 +151,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           fontFamily: bodyFont,
         }}
       >
-        <Header categories={categories} />
+        <TopNav />
 
         {/* Hero section with header image - now full width */}
         <div 
