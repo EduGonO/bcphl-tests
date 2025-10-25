@@ -1,8 +1,11 @@
-export const NAV_LINKS = [
-  { label: "Réflexion", href: "/Reflexion" },
-  { label: "Création", href: "/Creation" },
-  { label: "IRL", href: "/evenements" },
-  { label: "À propos", href: "/bios" },
-];
+export type NavLink = {
+  label: string;
+  href: string;
+  disabled?: boolean;
+};
 
-export type NavLink = typeof NAV_LINKS[number];
+export const NAV_LINKS: NavLink[] = [
+  { label: "Reflexión", href: "/Reflexion" },
+  { label: "Creation", href: "/Creation" },
+  { label: "À Propos", href: "/bios" },
+];
