@@ -43,7 +43,7 @@ const TopNav = () => {
           z-index: 50;
         }
         .brand {
-          display: inline-flex;
+          display: flex;
           flex-direction: row;
           align-items: center;
           gap: 14px;
@@ -55,7 +55,7 @@ const TopNav = () => {
           text-decoration: none;
         }
         .brand-visual {
-          display: inline-flex;
+          display: flex;
           align-items: center;
           justify-content: center;
         }
@@ -72,8 +72,9 @@ const TopNav = () => {
           object-fit: contain;
         }
         .brand-name {
-          display: inline-flex;
+          display: flex;
           align-items: center;
+          height: 46px;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
