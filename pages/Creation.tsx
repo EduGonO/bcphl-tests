@@ -1,6 +1,4 @@
 import Head from "next/head";
-import { ReactNode } from "react";
-
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
 import { getArticleData } from "../lib/articleService";
 import { Article } from "../types";
@@ -9,6 +7,9 @@ interface CreationPageProps {
   articles: Article[];
 }
 
+/*
+To restore the introduction section, re-enable the ReactNode import from "react"
+and uncomment the block below.
 const creationIntro: ReactNode = (
   <>
     <p>
@@ -23,6 +24,7 @@ const creationIntro: ReactNode = (
     </p>
   </>
 );
+*/
 
 const CreationPage = ({ articles }: CreationPageProps) => {
   return (
@@ -36,8 +38,8 @@ const CreationPage = ({ articles }: CreationPageProps) => {
       </Head>
       <CategoryLandingPage
         articles={articles}
-        introContent={creationIntro}
-        columnTitle="Créations · Bascule"
+        // introContent={creationIntro}
+        columnTitle="CRÉATION"
       />
     </>
   );
@@ -47,7 +49,9 @@ export async function getStaticProps() {
   const { articles } = getArticleData();
   return {
     props: {
-      articles: articles.filter((article) => article.category === "Bascule"),
+      articles: articles.filter(
+        (article) => article.category.toLowerCase() === "creation"
+      ),
     },
   };
 }

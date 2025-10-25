@@ -26,6 +26,13 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     linkTo: '/categories/image-critique',
     dataFolder: 'texts/Image-Critique',
   },
+  Creation: {
+    color: '#4caf50',
+    showInHeader: false,
+    showInDropdown: true,
+    media: [],
+    dataFolder: 'textes/Creation',
+  },
   'Bascule': {
     color: '#4caf50',
     showInHeader: false,
@@ -47,6 +54,13 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     showInDropdown: true,
     media: [],
     dataFolder: 'texts/Automaton',
+  },
+  Reflexion: {
+    color: '#93bcc9',
+    showInHeader: false,
+    showInDropdown: true,
+    media: [],
+    dataFolder: 'textes/Reflexion',
   },
   'Hypothèses': {
     color: '#9880a6',

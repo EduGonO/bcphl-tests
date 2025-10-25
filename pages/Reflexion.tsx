@@ -1,6 +1,4 @@
 import Head from "next/head";
-import { ReactNode } from "react";
-
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
 import { getArticleData } from "../lib/articleService";
 import { Article } from "../types";
@@ -9,6 +7,9 @@ interface ReflexionPageProps {
   articles: Article[];
 }
 
+/*
+To restore the introduction section, re-enable the ReactNode import from "react"
+and uncomment the block below.
 const reflexionIntro: ReactNode = (
   <>
     <p>
@@ -23,6 +24,7 @@ const reflexionIntro: ReactNode = (
     </p>
   </>
 );
+*/
 
 const ReflexionPage = ({ articles }: ReflexionPageProps) => {
   return (
@@ -36,8 +38,8 @@ const ReflexionPage = ({ articles }: ReflexionPageProps) => {
       </Head>
       <CategoryLandingPage
         articles={articles}
-        introContent={reflexionIntro}
-        columnTitle="Réflexions · Automaton"
+        // introContent={reflexionIntro}
+        columnTitle="RÉFLEXION"
       />
     </>
   );
@@ -47,7 +49,9 @@ export async function getStaticProps() {
   const { articles } = getArticleData();
   return {
     props: {
-      articles: articles.filter((article) => article.category === "Automaton"),
+      articles: articles.filter(
+        (article) => article.category.toLowerCase() === "reflexion"
+      ),
     },
   };
 }

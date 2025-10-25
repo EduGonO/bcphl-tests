@@ -2,138 +2,60 @@
 import React, { useState } from "react";
 import Script from "next/script";
 import Head from "next/head";
-import fs from "fs";
-import path from "path";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Header, { Category } from "../app/components/Header-2";
 import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
-import { getArticleData } from "../lib/articleService";
+import {
+  findArticleRecord,
+  getArticleData,
+  getArticleRecords,
+} from "../lib/articleService";
 import { Article } from "../types";
 import { mdToHtml } from "../lib/markdown";
-
-/* ── helper utils ─────────────────────────────────────────────────── */
-
-const TEXTS_DIR = path.join(process.cwd(), "texts");
-const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif)$/i;
-
-function readYaml(block: string): Record<string, any> {
-  const obj: Record<string, any> = {};
-  block
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .forEach((line) => {
-      const [k, ...v] = line.split(":");
-      if (k && v.length) {
-        const raw = v.join(":").trim();
-        obj[k.trim()] =
-          raw.startsWith("[") && raw.endsWith("]")
-            ? raw
-                .slice(1, -1)
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean)
-            : raw;
-      }
-    });
-  return obj;
-}
-
-function loadMd(filePath: string) {
-  const raw = fs.readFileSync(filePath, "utf8").trim();
-  if (raw.startsWith("---")) {
-    const end = raw.indexOf("\n---", 3);
-    if (end !== -1) {
-      const yaml = readYaml(raw.slice(3, end).trim());
-      const body = raw.slice(end + 4).trim();
-      return { yaml, body };
-    }
-  }
-  return { yaml: {}, body: raw };
-}
 
 /* ── static paths ─────────────────────────────────────────────────── */
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const pathsArr: { params: { paths: string[] } }[] = [];
+  const records = getArticleRecords();
+  const paths = records.map((record) => ({
+    params: { paths: [record.article.category, record.article.slug] },
+  }));
 
-  if (fs.existsSync(TEXTS_DIR)) {
-    const categoryFolders = fs
-      .readdirSync(TEXTS_DIR, { withFileTypes: true })
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name);
-
-    categoryFolders.forEach((cat) => {
-      const catDir = path.join(TEXTS_DIR, cat);
-      fs.readdirSync(catDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory())
-        .forEach((d) => {
-          const slug = d.name;
-          const hasMd =
-            fs
-              .readdirSync(path.join(catDir, slug))
-              .some((f) => f.endsWith(".md")); // ❗any .md, not only <slug>.md
-          if (hasMd) pathsArr.push({ params: { paths: [cat, slug] } });
-        });
-    });
-  }
-
-  return { paths: pathsArr, fallback: false };
+  return { paths, fallback: false };
 };
 
 /* ----- getStaticProps ------------------------------------------ */
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const [category, slug] = (params?.paths as string[]) || [];
-  const artDir = path.join(TEXTS_DIR, category, slug);
-
-  /* pick markdown file: prefer <slug>.md else first .md in folder */
-  let mdFile = `${slug}.md`;
-  if (!fs.existsSync(path.join(artDir, mdFile))) {
-    const mdFiles = fs.readdirSync(artDir).filter((f) => f.endsWith(".md"));
-    if (mdFiles.length === 0) return { notFound: true };
-    mdFile = mdFiles[0];
+  if (!category || !slug) {
+    return { notFound: true };
   }
-  const mdPath = path.join(artDir, mdFile);
 
-  const { yaml, body } = loadMd(mdPath);
-  const base = `/texts/${category}/${slug}`;         // for <img src>
-  const contentHtml = mdToHtml(body, base);
+  const record = findArticleRecord(category, slug);
+  if (!record) {
+    return { notFound: true };
+  }
 
-  const title =
-    yaml.title ||
-    (body.startsWith("#")
-      ? body.split("\n")[0].replace(/^#+\s*/, "")
-      : slug);
-  const author = yaml.author || "Unknown Author";
-  const date = yaml.date || "Unknown Date";
-  const headerImage = yaml["header-image"] || "";
+  const contentHtml = mdToHtml(record.body, record.publicBasePath);
 
-  /* media list = yaml.media[]  ∪  images physically present */
-  const dirImages = fs
-    .readdirSync(path.join(TEXTS_DIR, category, slug))
-    .filter((f) => IMAGE_EXT.test(f))
-    .map((f) => path.join("/texts", category, slug, f)); // hint path
-  const yamlMedia = Array.isArray(yaml.media) ? yaml.media : [];
-  const media: string[] = [...new Set([...yamlMedia, ...dirImages])];
-
-  /* Other articles for grid */
   const { articles, categories } = getArticleData();
   const gridArticles = articles.filter(
-    (a) =>
-      a.category.toLowerCase() === category.toLowerCase() && a.slug !== slug
+    (article) =>
+      article.category.toLowerCase() === record.article.category.toLowerCase() &&
+      article.slug !== record.article.slug
   );
 
   return {
     props: {
-      title,
-      date,
-      author,
-      headerImage,
-      media,
-      category,
-      content: contentHtml, 
+      title: record.article.title,
+      date: record.article.date,
+      author: record.article.author,
+      headerImage: record.article.headerImage,
+      media: record.article.media,
+      category: record.article.category,
+      content: contentHtml,
       gridArticles,
       categories,
     },

@@ -11,7 +11,7 @@ import RedesignSearchSidebar from "./RedesignSearchSidebar";
 
 interface CategoryLandingPageProps {
   articles: Article[];
-  introContent: ReactNode;
+  introContent?: ReactNode;
   columnTitle: string;
 }
 
@@ -47,6 +47,8 @@ const CategoryLandingPage = ({
   columnTitle,
 }: CategoryLandingPageProps) => {
   const [query, setQuery] = useState("");
+
+  const hasIntro = Boolean(introContent);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -88,20 +90,26 @@ const CategoryLandingPage = ({
       <main className="content">
         <RedesignSearchSidebar query={query} onQueryChange={setQuery} />
 
-        <div className="main-sections">
-          <section className="intro">
-            <div className="intro-copy">
-              <div className="intro-text">{introContent}</div>
-              <div className="intro-actions">
-                <Link href="/categories/info" className="intro-action">
-                  <span className="intro-action-pill featured">manifeste</span>
-                </Link>
-                <Link href="/evenements" className="intro-action">
-                  <span className="intro-action-pill event">nous suivre</span>
-                </Link>
+        <div
+          className={`main-sections ${
+            hasIntro ? "with-intro" : "without-intro"
+          }`}
+        >
+          {hasIntro && (
+            <section className="intro">
+              <div className="intro-copy">
+                <div className="intro-text">{introContent}</div>
+                <div className="intro-actions">
+                  <Link href="/categories/info" className="intro-action">
+                    <span className="intro-action-pill featured">manifeste</span>
+                  </Link>
+                  <Link href="/evenements" className="intro-action">
+                    <span className="intro-action-pill event">nous suivre</span>
+                  </Link>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           <section className="columns-area">
             <div className="single-column">
@@ -201,6 +209,9 @@ const CategoryLandingPage = ({
           gap: 52px;
           background: #e4e4e4;
         }
+        .main-sections.without-intro {
+          gap: 0;
+        }
         .intro {
           display: flex;
           justify-content: center;
@@ -260,9 +271,13 @@ const CategoryLandingPage = ({
         .columns-area {
           display: flex;
           justify-content: center;
-          padding: 0 clamp(24px, 6vw, 72px) 64px;
+          padding: clamp(32px, 6vw, 64px) clamp(24px, 6vw, 72px)
+            clamp(48px, 7vw, 72px);
           width: 100%;
           box-sizing: border-box;
+        }
+        .main-sections.with-intro .columns-area {
+          padding-top: 0;
         }
         .single-column {
           display: flex;
@@ -282,7 +297,7 @@ const CategoryLandingPage = ({
         }
         .column-header h2 {
           margin: 0;
-          font-size: 20px;
+          font-size: clamp(2.5rem, 5vw, 3.5rem);
         }
         .column-count {
           font-size: 14px;
@@ -312,6 +327,9 @@ const CategoryLandingPage = ({
         }
         :global(.page-wrapper a:visited) {
           color: inherit;
+        }
+        :global(.page-wrapper .footer) {
+          margin-top: 0;
         }
       `}</style>
     </div>
