@@ -41,7 +41,8 @@ const TopNav = () => {
           z-index: 50;
         }
         .brand {
-          display: flex;
+          display: inline-flex;
+          flex-direction: row;
           align-items: center;
           gap: 14px;
           column-gap: 14px;
@@ -59,12 +60,13 @@ const TopNav = () => {
         }
         .brand-logo {
           display: block;
+          flex-shrink: 0;
           width: 46px;
           height: 46px;
           object-fit: contain;
         }
         .brand-name {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           font-family: "GayaRegular", serif;
           font-size: 22px;
