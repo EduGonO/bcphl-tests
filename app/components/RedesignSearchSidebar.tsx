@@ -19,7 +19,8 @@ const RedesignSearchSidebar = ({
   searchLabel = "Recherchez un article",
   placeholder = "Titre, auteur, mot-clé...",
   clearLabel = "Effacer",
-  newsletterHref = "/newsletter",
+  newsletterHref =
+    "https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF",
   newsletterCta = "S’inscrire à la newsletter",
 }: RedesignSearchSidebarProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -44,7 +45,7 @@ const RedesignSearchSidebar = ({
           tabIndex={drawerOpen ? -1 : 0}
           aria-hidden={drawerOpen}
         >
-          <span>Recherche</span>
+          <span className="drawer-toggle-label">Recherche</span>
         </button>
         <div
           className="drawer-body"
@@ -96,7 +97,7 @@ const RedesignSearchSidebar = ({
           tabIndex={drawerOpen ? -1 : 0}
           aria-hidden={drawerOpen}
         >
-          <span>Newsletter</span>
+          <span className="drawer-toggle-label">Newsletter</span>
         </button>
         <div
           className="drawer-body drawer-body-newsletter"
@@ -131,7 +132,8 @@ const RedesignSearchSidebar = ({
       <style jsx>{`
         .search-drawer {
           --drawer-collapsed-width: 72px;
-          position: relative;
+          position: sticky;
+          top: 92px;
           flex: 0 0 auto;
           width: var(--drawer-collapsed-width);
           align-self: stretch;
@@ -173,7 +175,6 @@ const RedesignSearchSidebar = ({
           font-family: "InterMedium", sans-serif;
           font-size: 15px;
           letter-spacing: 0.08em;
-          padding: 24px 0 16px;
           color: #0d0d0d;
           transition: opacity 0.3s ease, transform 0.3s ease;
           grid-area: 1 / 1;
@@ -186,20 +187,23 @@ const RedesignSearchSidebar = ({
           min-height: 204px;
           width: 100%;
           min-width: 0;
+          padding: 0;
         }
-        .drawer-toggle span {
+        .drawer-toggle-label {
           position: absolute;
-          left: 50%;
           top: 50%;
+          left: 50%;
           transform: translate(-50%, -50%) rotate(-90deg);
           transform-origin: center;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           line-height: 1;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.08em;
           white-space: nowrap;
-          padding: 0 4px;
+          width: var(--drawer-collapsed-width);
+          text-align: center;
+          padding: 4px 0;
         }
         .drawer-section.open .drawer-toggle {
           opacity: 0;
@@ -221,6 +225,9 @@ const RedesignSearchSidebar = ({
           pointer-events: none;
           grid-area: 1 / 1;
           align-self: start;
+          box-sizing: border-box;
+          width: 100%;
+          min-width: 0;
         }
         .drawer-section.open .drawer-body {
           opacity: 1;
@@ -297,33 +304,38 @@ const RedesignSearchSidebar = ({
           line-height: 1.6;
           font-family: "InterRegular", sans-serif;
           color: #3c2b31;
+          word-break: break-word;
+          hyphens: auto;
         }
         .drawer-newsletter-button {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          background: #2c1c23;
+          background: linear-gradient(135deg, #2c1c23, #4a2f39);
           color: #fff7fa;
           text-transform: uppercase;
           letter-spacing: 0.12em;
           font-family: "InterMedium", sans-serif;
           font-size: 12px;
-          padding: 12px 24px;
+          padding: 12px 26px;
           border: 1px solid #2c1c23;
+          border-radius: 6px;
           cursor: pointer;
-          transition: background 0.2s ease, color 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
           text-decoration: none;
           align-self: flex-start;
+          box-shadow: 0 6px 16px rgba(44, 28, 35, 0.15);
         }
         .drawer-newsletter-button:hover,
         .drawer-newsletter-button:focus-visible {
-          background: transparent;
+          background: #fff7fa;
           color: #2c1c23;
+          box-shadow: 0 6px 16px rgba(44, 28, 35, 0.22);
         }
         @media (max-width: 960px) {
           .search-drawer {
-            position: sticky;
-            top: 92px;
+            position: static;
+            top: auto;
           }
         }
         @media (max-width: 700px) {
@@ -337,23 +349,44 @@ const RedesignSearchSidebar = ({
           }
           .search-drawer.open {
             width: 100%;
-            max-height: 1000px;
+            max-height: none;
+            flex-direction: column;
           }
           .drawer-section {
             width: 50%;
           }
+          .search-drawer.open .drawer-section {
+            width: 100%;
+          }
           .drawer-toggle {
             min-height: 72px;
           }
-          .drawer-toggle span {
-            position: static;
-            transform: none;
-            left: auto;
-            top: auto;
+          .drawer-toggle-label {
+            width: 100%;
+            transform: translate(-50%, -50%);
             padding: 0;
           }
           .drawer-body {
-            padding: 24px;
+            padding: 24px 20px 28px;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .drawer-text {
+            font-size: 15px;
+          }
+          .drawer-newsletter-button {
+            width: 100%;
+            justify-content: center;
+            font-size: 13px;
+          }
+          .search-drawer:not(.open) .drawer-section + .drawer-section {
+            border-top: none;
+            margin-top: 0;
+            border-left: 1px solid rgba(17, 17, 17, 0.18);
+          }
+          .search-drawer.open .drawer-section + .drawer-section {
+            border-top: 1px solid rgba(17, 17, 17, 0.18);
+            margin-top: -1px;
           }
         }
       `}</style>
