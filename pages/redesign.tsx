@@ -133,7 +133,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   return (
     <>
       <Head>
-        <title>Bicéphale · Nouvelle page</title>
+        <title>Bicéphale · Accueil</title>
       </Head>
       <div className="page-wrapper">
         <TopNav />
