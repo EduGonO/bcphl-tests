@@ -6,7 +6,7 @@ import { getArticleMediaStyle } from "../../lib/articleMedia";
 
 interface RedesignArticlePreviewCardProps {
   article: Article;
-  variant: "featured" | "event";
+  variant: "reflexion" | "creation";
   formatDate: (value: string) => string;
 }
 
@@ -18,7 +18,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   const mediaStyle = getArticleMediaStyle(article);
   const formattedDate = formatDate(article.date);
   const linkHref = `/${article.category}/${article.slug}`;
-  const linkLabel = variant === "featured" ? "en lire" : "+ d'infos";
+  const linkLabel = variant === "reflexion" ? "en lire" : "découvrir";
 
   return (
     <Link href={linkHref} className={`article-preview ${variant}`} role="article">
@@ -55,7 +55,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           text-decoration: none;
           color: inherit;
         }
-        .article-preview.event {
+        .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
         }
         .article-preview:hover,
@@ -135,11 +135,11 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           transition: transform 0.2s ease;
           margin-top: 0;
         }
-        .article-preview-cta.featured {
+        .article-preview-cta.reflexion {
           background: #c1c1f0;
           color: #111111;
         }
-        .article-preview-cta.event {
+        .article-preview-cta.creation {
           background: #f4f0ae;
           color: #111111;
         }

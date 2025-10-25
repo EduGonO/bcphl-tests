@@ -40,6 +40,7 @@ const CreationPage = ({ articles }: CreationPageProps) => {
         articles={articles}
         // introContent={creationIntro}
         columnTitle="CRÉATION"
+        variant="creation"
       />
     </>
   );

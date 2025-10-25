@@ -13,6 +13,7 @@ interface CategoryLandingPageProps {
   articles: Article[];
   introContent?: ReactNode;
   columnTitle: string;
+  variant?: "reflexion" | "creation";
 }
 
 const parseDate = (value: string) => {
@@ -45,6 +46,7 @@ const CategoryLandingPage = ({
   articles,
   introContent,
   columnTitle,
+  variant = "reflexion",
 }: CategoryLandingPageProps) => {
   const [query, setQuery] = useState("");
 
@@ -122,7 +124,7 @@ const CategoryLandingPage = ({
                   <RedesignArticlePreviewCard
                     key={article.slug}
                     article={article}
-                    variant="featured"
+                    variant={variant}
                     formatDate={formatDate}
                   />
                 ))}

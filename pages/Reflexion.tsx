@@ -40,6 +40,7 @@ const ReflexionPage = ({ articles }: ReflexionPageProps) => {
         articles={articles}
         // introContent={reflexionIntro}
         columnTitle="RÉFLEXION"
+        variant="reflexion"
       />
     </>
   );
