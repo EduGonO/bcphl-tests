@@ -112,16 +112,21 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     return [...articles].sort((a, b) => parseDate(b.date) - parseDate(a.date));
   }, [articles]);
 
-  const featuredArticles = useMemo(
-    () => sortedArticles.filter(matchesQuery),
+  const reflexionArticles = useMemo(
+    () =>
+      sortedArticles.filter(
+        (article) =>
+          article.category?.toLowerCase() === "reflexion" && matchesQuery(article)
+      ),
     [sortedArticles, normalizedQuery]
   );
 
-  const eventArticles = useMemo(
+  const creationArticles = useMemo(
     () =>
-      sortedArticles
-        .filter((article) => article.category === "Automaton")
-        .filter(matchesQuery),
+      sortedArticles.filter(
+        (article) =>
+          article.category?.toLowerCase() === "creation" && matchesQuery(article)
+      ),
     [sortedArticles, normalizedQuery]
   );
 
@@ -203,15 +208,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
               <div className="columns">
                 <section className="column column-featured">
                   <header className="column-header">
-                    <h2>à la une</h2>
-                    <span className="column-count">{featuredArticles.length}</span>
+                    <h2>réflexion</h2>
+                    <span className="column-count">{reflexionArticles.length}</span>
                   </header>
                   <div className="column-content">
-                    {featuredArticles.map((article) => (
+                    {reflexionArticles.map((article) => (
                       <RedesignArticlePreviewCard
                         key={article.slug}
                         article={article}
-                        variant="featured"
+                        variant="reflexion"
                         formatDate={formatDate}
                       />
                     ))}
@@ -220,15 +225,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
                 <section className="column column-events">
                   <header className="column-header">
-                    <h2>nos événements</h2>
-                    <span className="column-count">{eventArticles.length}</span>
+                    <h2>création</h2>
+                    <span className="column-count">{creationArticles.length}</span>
                   </header>
                   <div className="column-content">
-                    {eventArticles.map((article) => (
+                    {creationArticles.map((article) => (
                       <RedesignArticlePreviewCard
                         key={article.slug}
                         article={article}
-                        variant="event"
+                        variant="creation"
                         formatDate={formatDate}
                       />
                     ))}
