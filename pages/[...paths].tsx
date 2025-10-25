@@ -1,5 +1,6 @@
 // pages/[...paths].tsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import Script from "next/script";
 import Head from "next/head";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import Header, { Category } from "../app/components/Header-2";
@@ -94,46 +95,6 @@ const ArticlePage: React.FC<ArtProps> = ({
     "RecoletaMedium" | "GayaRegular"
   >("GayaRegular");
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const scriptSrc = "https://hypothes.is/embed.js";
-
-    if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
-      const scriptTag = document.createElement("script");
-      scriptTag.src = scriptSrc;
-      scriptTag.async = true;
-      scriptTag.crossOrigin = "anonymous";
-      document.body.appendChild(scriptTag);
-    }
-
-    return () => {
-      const selectors = [
-        `script[src*="hypothes.is"]`,
-        "hypothesis-sidebar",
-        "hypothesis-toolbar",
-        "hypothesis-adder",
-        'iframe[src*="hypothes.is"]',
-        'link[rel="stylesheet"][href*="hypothes.is"]',
-      ];
-
-      selectors.forEach((selector) => {
-        document.querySelectorAll(selector).forEach((node) => {
-          node.parentElement?.removeChild(node);
-        });
-      });
-
-      document.body.classList.remove("hypothesis-sidebar-open");
-      document.body.classList.remove("hypothesis-no-annotator");
-
-      if (typeof window !== "undefined") {
-        delete (window as { hypothesisConfig?: unknown }).hypothesisConfig;
-      }
-    };
-  }, []);
-
   // Parse date properly
   const formattedDate = date !== "Unknown Date" 
     ? new Date(date).toLocaleDateString("fr-FR", {
@@ -175,6 +136,10 @@ const ArticlePage: React.FC<ArtProps> = ({
           }}
         />
       </Head>
+      <Script
+        src="https://hypothes.is/embed.js"
+        strategy="afterInteractive"
+      />
 
       <div
         style={{
