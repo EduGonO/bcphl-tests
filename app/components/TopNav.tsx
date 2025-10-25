@@ -60,9 +60,10 @@ const TopNav = () => {
           width: 46px;
           height: 46px;
           object-fit: contain;
+          display: block;
         }
         .brand-name {
-          display: inline-flex;
+          display: flex;
           align-items: center;
           font-family: "GayaRegular", serif;
           font-size: 22px;
@@ -70,6 +71,7 @@ const TopNav = () => {
           text-transform: uppercase;
           color: #0d0d0d;
           line-height: 1;
+          height: 46px;
         }
         .nav-links {
           display: flex;
