@@ -6,7 +6,9 @@ const TopNav = () => {
   return (
     <header className="top-nav">
       <Link href="/" className="brand" aria-label="Accueil Bicéphale">
-        <img src="/media/logo.png" alt="Bicéphale" className="brand-logo" />
+        <span className="brand-visual">
+          <img src="/media/logo.png" alt="Bicéphale" className="brand-logo" />
+        </span>
         <span className="brand-name">Bicéphale</span>
       </Link>
       <nav className="nav-links">
@@ -41,17 +43,20 @@ const TopNav = () => {
           z-index: 50;
         }
         .brand {
-          display: inline-flex;
-          flex-direction: row;
+          display: flex;
           align-items: center;
           gap: 14px;
-          column-gap: 14px;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0d0d0d;
           text-decoration: none;
+        }
+        .brand-visual {
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .brand:visited,
         .brand:hover,
