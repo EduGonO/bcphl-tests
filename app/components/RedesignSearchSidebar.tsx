@@ -132,7 +132,8 @@ const RedesignSearchSidebar = ({
       <style jsx>{`
         .search-drawer {
           --drawer-collapsed-width: 72px;
-          position: relative;
+          position: sticky;
+          top: 92px;
           flex: 0 0 auto;
           width: var(--drawer-collapsed-width);
           align-self: stretch;
@@ -333,8 +334,8 @@ const RedesignSearchSidebar = ({
         }
         @media (max-width: 960px) {
           .search-drawer {
-            position: sticky;
-            top: 92px;
+            position: static;
+            top: auto;
           }
         }
         @media (max-width: 700px) {
