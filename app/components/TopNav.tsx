@@ -43,7 +43,8 @@ const TopNav = () => {
           z-index: 50;
         }
         .brand {
-          display: flex;
+          display: inline-flex;
+          flex-direction: row;
           align-items: center;
           gap: 14px;
           font-family: "GayaRegular", serif;
@@ -54,7 +55,7 @@ const TopNav = () => {
           text-decoration: none;
         }
         .brand-visual {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
         }
@@ -116,6 +117,21 @@ const TopNav = () => {
             justify-content: center;
             gap: 16px;
           }
+        }
+      `}</style>
+      <style jsx global>{`
+        .top-nav .brand,
+        .top-nav .brand:visited,
+        .top-nav .brand:hover,
+        .top-nav .brand:focus-visible,
+        .top-nav .brand:active,
+        .top-nav .nav-link,
+        .top-nav .nav-link:visited,
+        .top-nav .nav-link:hover,
+        .top-nav .nav-link:focus-visible,
+        .top-nav .nav-link:active {
+          color: #0d0d0d;
+          text-decoration: none;
         }
       `}</style>
     </header>
