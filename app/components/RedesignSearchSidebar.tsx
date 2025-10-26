@@ -124,6 +124,7 @@ const RedesignSearchSidebar = ({
             {newsletterCta}
           </Link>
         </div>
+      </div>
       </aside>
 
       <style jsx>{`
