@@ -34,19 +34,20 @@ const RedesignSearchSidebar = ({
   };
 
   return (
-    <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
-      <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
-        <button
-          type="button"
-          className="drawer-toggle"
-          onClick={handleToggleOpen}
-          aria-expanded={drawerOpen}
-          aria-controls="search-panel"
-          tabIndex={drawerOpen ? -1 : 0}
-          aria-hidden={drawerOpen}
-        >
-          <span className="drawer-toggle-label">Recherche</span>
-        </button>
+    <div className={`search-drawer-wrapper ${drawerOpen ? "open" : ""}`}>
+      <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
+        <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
+          <button
+            type="button"
+            className="drawer-toggle"
+            onClick={handleToggleOpen}
+            aria-expanded={drawerOpen}
+            aria-controls="search-panel"
+            tabIndex={drawerOpen ? -1 : 0}
+            aria-hidden={drawerOpen}
+          >
+            <span className="drawer-toggle-label">Recherche</span>
+          </button>
         <div
           className="drawer-body"
           id="search-panel"
@@ -130,30 +131,44 @@ const RedesignSearchSidebar = ({
       </div>
 
       <style jsx>{`
-        .search-drawer {
+        .search-drawer-wrapper {
           --drawer-collapsed-width: 72px;
           --drawer-collapsed-height: 176px;
-          --drawer-offset: 108px;
+          --drawer-offset: calc(var(--sticky-header-height, 96px) + 16px);
+          position: relative;
+          display: flex;
+          flex: 0 0 auto;
+          align-self: stretch;
+          width: var(--drawer-collapsed-width);
+          transition: width 0.3s ease;
+        }
+        .search-drawer-wrapper::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: #efdae0;
+          border-right: 1px solid #c3aeb6;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .search-drawer-wrapper.open {
+          width: 320px;
+        }
+        .search-drawer {
           position: sticky;
           top: var(--drawer-offset);
           flex: 0 0 auto;
-          width: var(--drawer-collapsed-width);
+          width: 100%;
           align-self: flex-start;
-          background: #efdae0;
-          border-right: 1px solid #c3aeb6;
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          transition: width 0.3s ease;
           height: fit-content;
           max-height: max(360px, calc(100vh - (var(--drawer-offset) + 32px)));
           box-sizing: border-box;
-          box-shadow: 0 0 0 100vmax #efdae0;
-          clip-path: inset(0 -100vmax -100vmax -100vmax);
           z-index: 1;
         }
         .search-drawer.open {
-          width: 320px;
           overflow-y: auto;
         }
         .drawer-section {
@@ -351,6 +366,13 @@ const RedesignSearchSidebar = ({
           box-shadow: 0 10px 28px rgba(44, 28, 35, 0.24);
         }
         @media (max-width: 960px) {
+          .search-drawer-wrapper {
+            width: 100%;
+            align-self: stretch;
+          }
+          .search-drawer-wrapper::before {
+            display: none;
+          }
           .search-drawer {
             position: static;
             top: auto;
@@ -362,6 +384,7 @@ const RedesignSearchSidebar = ({
           }
         }
         @media (max-width: 700px) {
+          .search-drawer-wrapper,
           .search-drawer {
             width: 100%;
             border-right: none;
@@ -370,6 +393,7 @@ const RedesignSearchSidebar = ({
             overflow: hidden;
             max-height: 72px;
           }
+          .search-drawer-wrapper.open,
           .search-drawer.open {
             width: 100%;
             max-height: none;
@@ -412,7 +436,8 @@ const RedesignSearchSidebar = ({
           }
         }
       `}</style>
-    </aside>
+      </aside>
+    </div>
   );
 };
 
