@@ -34,7 +34,8 @@ const RedesignSearchSidebar = ({
   };
 
   return (
-    <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
+    <div className={`search-drawer-rail ${drawerOpen ? "open" : ""}`}>
+      <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
       <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
         <button
           type="button"
@@ -123,9 +124,22 @@ const RedesignSearchSidebar = ({
             {newsletterCta}
           </Link>
         </div>
-      </div>
+      </aside>
 
       <style jsx>{`
+        .search-drawer-rail {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex: 0 0 auto;
+          align-items: stretch;
+          align-self: stretch;
+          background: #efdae0;
+          border-right: 1px solid #c3aeb6;
+        }
+        .search-drawer-rail.open {
+          z-index: 2;
+        }
         .search-drawer {
           --drawer-collapsed-width: 72px;
           --drawer-collapsed-height: 176px;
@@ -138,9 +152,7 @@ const RedesignSearchSidebar = ({
           top: var(--drawer-offset);
           flex: 0 0 auto;
           width: var(--drawer-collapsed-width);
-          align-self: stretch;
           background: #efdae0;
-          border-right: 1px solid #c3aeb6;
           display: flex;
           flex-direction: column;
           overflow: visible;
@@ -150,18 +162,6 @@ const RedesignSearchSidebar = ({
           padding-bottom: 24px;
           transition: width 0.3s ease, max-height 0.3s ease;
           z-index: 1;
-        }
-        .search-drawer::after {
-          content: "";
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          height: max(0px, calc(100vh - var(--drawer-offset)));
-          background: #efdae0;
-          border-right: 1px solid #c3aeb6;
-          pointer-events: none;
-          z-index: -1;
         }
         .search-drawer.open {
           width: 320px;
@@ -362,6 +362,10 @@ const RedesignSearchSidebar = ({
           box-shadow: 0 10px 28px rgba(44, 28, 35, 0.24);
         }
         @media (max-width: 960px) {
+          .search-drawer-rail {
+            background: transparent;
+            border-right: none;
+          }
           .search-drawer {
             position: static;
             top: auto;
@@ -371,11 +375,11 @@ const RedesignSearchSidebar = ({
             align-self: stretch;
             padding-bottom: 0;
           }
-          .search-drawer::after {
-            display: none;
-          }
         }
         @media (max-width: 700px) {
+          .search-drawer-rail {
+            width: 100%;
+          }
           .search-drawer {
             width: 100%;
             border-right: none;
@@ -426,7 +430,7 @@ const RedesignSearchSidebar = ({
           }
         }
       `}</style>
-    </aside>
+    </div>
   );
 };
 

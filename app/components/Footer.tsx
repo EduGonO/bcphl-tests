@@ -108,6 +108,8 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
           margin-top: 40px;
           font-family: -apple-system, InterRegular, sans-serif;
           font-size: 14px;
+          position: relative;
+          z-index: 5;
         }
         .footer-inner {
           max-width: 1024px;
