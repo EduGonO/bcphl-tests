@@ -133,8 +133,9 @@ const RedesignSearchSidebar = ({
         .search-drawer {
           --drawer-collapsed-width: 72px;
           --drawer-collapsed-height: 176px;
+          --drawer-offset: 108px;
           position: sticky;
-          top: 92px;
+          top: var(--drawer-offset);
           flex: 0 0 auto;
           width: var(--drawer-collapsed-width);
           align-self: flex-start;
@@ -145,8 +146,11 @@ const RedesignSearchSidebar = ({
           overflow: hidden;
           transition: width 0.3s ease;
           height: fit-content;
-          max-height: calc(100vh - 120px);
+          max-height: max(360px, calc(100vh - (var(--drawer-offset) + 32px)));
           box-sizing: border-box;
+          box-shadow: 0 0 0 100vmax #efdae0;
+          clip-path: inset(0 -100vmax -100vmax -100vmax);
+          z-index: 1;
         }
         .search-drawer.open {
           width: 320px;
@@ -353,6 +357,8 @@ const RedesignSearchSidebar = ({
             max-height: none;
             height: auto;
             align-self: stretch;
+            box-shadow: none;
+            clip-path: none;
           }
         }
         @media (max-width: 700px) {
