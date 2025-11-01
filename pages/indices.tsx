@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSession, signOut } from "next-auth/react";
 import TopNav from "../app/components/TopNav";
 import { Article } from "../types";
-import { getArticleData } from "../lib/articleService";
+import { getArticleRecords } from "../lib/articleService";
+import { categoryConfigMap, defaultCategoryColor } from "../config/categoryColors";
 
 /* ---- types ------------------------------------------------------ */
 export type Entry = Article;
@@ -173,34 +174,32 @@ const Editor: React.FC<Props> = ({ cats }) => {
         <title>Bicéphale · Indices</title>
       </Head>
       <TopNav />
-      <main className="page">
-        <div className="layout">
-
-          {/* ---------- sidebar -------------------------------------- */}
-          <aside className="nav">
-            <div className="panel user">
-              <div className="user-meta">
-                <span className="user-label">Session</span>
-                <span className="user-email">{session?.user?.email}</span>
+      <main className="indices">
+        <div className="indices__layout">
+          <aside className="sidebar">
+            <div className="sidebar__session">
+              <div className="sidebar__session-info">
+                <span className="sidebar__session-label">Session</span>
+                <span className="sidebar__session-email">{session?.user?.email}</span>
               </div>
-              <button onClick={()=>signOut()} className="lo">Déconnexion</button>
+              <button onClick={() => signOut()} className="sidebar__signout">Déconnexion</button>
             </div>
 
             {activeEntry && (
-              <section className="panel digest">
-                <header className="digest-head">
-                  <span className="digest-label">Fiche article</span>
-                  <span className={`digest-status ${digestState.tone}`}>
+              <section className="summary">
+                <div className="summary__header">
+                  <span className="summary__label">Résumé</span>
+                  <span className={`summary__status summary__status--${digestState.tone}`}>
                     {digestState.label}
                   </span>
-                </header>
-                <div className="digest-title">{yaml.title || activeEntry.title}</div>
-                <div className="digest-sub">
+                </div>
+                <h2 className="summary__title">{yaml.title || activeEntry.title}</h2>
+                <p className="summary__meta">
                   {[yaml.author || activeEntry.author, yaml.date || activeEntry.date]
                     .filter(Boolean)
-                    .join(" · ") || "métadonnées à compléter"}
-                </div>
-                <dl className="digest-stats">
+                    .join(" · ") || "Métadonnées à compléter"}
+                </p>
+                <dl className="summary__grid">
                   <div>
                     <dt>Mots</dt>
                     <dd>{metrics.wordCount.toLocaleString("fr-FR")}</dd>
@@ -217,12 +216,6 @@ const Editor: React.FC<Props> = ({ cats }) => {
                     <dt>Caractères</dt>
                     <dd>{metrics.characters.toLocaleString("fr-FR")}</dd>
                   </div>
-                </dl>
-                <dl className="digest-meta">
-                  <div>
-                    <dt>Image une</dt>
-                    <dd>{headerImageName}</dd>
-                  </div>
                   <div>
                     <dt>Catégorie</dt>
                     <dd>{cat}</dd>
@@ -231,204 +224,585 @@ const Editor: React.FC<Props> = ({ cats }) => {
                     <dt>Slug</dt>
                     <dd>{slug}</dd>
                   </div>
+                  <div>
+                    <dt>Image</dt>
+                    <dd>{headerImageName}</dd>
+                  </div>
                 </dl>
               </section>
             )}
 
-            {cats.map(c=>(
-              <section className="section" key={c.name}>
-                <header className="cat">
-                  <span className="cat-indicator" style={{ background: c.color }} />
-                  <span className="cat-label">{c.name}</span>
-                </header>
-                <ul>
-                  {c.entries.map(e=>(
-                    <li key={e.slug}>
-                      <button
-                        className={cat===c.name&&slug===e.slug ? "on":""}
-                        onClick={()=>load(c.name,e.slug)}
-                      >
-                        <span className="entry-title">{e.title}</span>
-                        {entryMeta(e) && (
-                          <span className="entry-meta">{entryMeta(e)}</span>
-                        )}
-                        {e.preview && (
-                          <span className="entry-preview">{e.preview}</span>
-                        )}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
+            <div className="sidebar__list">
+              {cats.map((c) => (
+                <section className="category" key={c.name}>
+                  <header className="category__header">
+                    <span className="category__dot" style={{ background: c.color }} />
+                    <span className="category__label">{c.name}</span>
+                  </header>
+                  <ul className="category__entries">
+                    {c.entries.map((e) => (
+                      <li key={e.slug}>
+                        <button
+                          className={cat === c.name && slug === e.slug ? "entry entry--active" : "entry"}
+                          onClick={() => load(c.name, e.slug)}
+                        >
+                          <span className="entry__title">{e.title}</span>
+                          {entryMeta(e) && <span className="entry__meta">{entryMeta(e)}</span>}
+                          {e.preview && <span className="entry__preview">{e.preview}</span>}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
           </aside>
 
-          {/* ---------- editor --------------------------------------- */}
-          <section className="stage">
-            <header className="stage-head">
-              <h1>Indices</h1>
-              {cat && slug ? (
-                <span className="stage-sub">{cat} / {slug}</span>
-              ) : (
-                <span className="stage-sub">Sélectionnez un article</span>
-              )}
+          <section className="editor">
+            <header className="editor__header">
+              <div>
+                <h1>Indices</h1>
+                <span className="editor__path">
+                  {cat && slug ? `${cat} / ${slug}` : "Sélectionnez un article"}
+                </span>
+              </div>
+              {status === "saved" && <span className="editor__badge">Enregistré</span>}
             </header>
 
             {cat && slug ? (
               <>
-                {/* meta */}
-                <div className="meta">
-                  {META_FIELDS.map(({ key, label }) => (
-                    <label key={key} className="meta-field">
-                      <span>{label}</span>
-                      <input
-                        value={yaml[key]||""}
-                        onChange={e=>{ setYaml({...yaml,[key]:e.target.value}); mark(); }}
-                      />
+                <div className="editor__scroll">
+                  <div className="meta">
+                    {META_FIELDS.map(({ key, label }) => (
+                      <label key={key} className="meta__field">
+                        <span>{label}</span>
+                        <input
+                          value={yaml[key] || ""}
+                          onChange={(e) => {
+                            setYaml({ ...yaml, [key]: e.target.value });
+                            mark();
+                          }}
+                        />
+                      </label>
+                    ))}
+                    <label className="meta__field">
+                      <span>Image d’en-tête</span>
+                      <select
+                        value={yaml["header-image"] || ""}
+                        onChange={(e) => {
+                          setYaml({ ...yaml, "header-image": e.target.value });
+                          mark();
+                        }}
+                      >
+                        <option value="">– sélectionner –</option>
+                        {images.map((p) => (
+                          <option key={p} value={p}>
+                            {p.split("/").pop()}
+                          </option>
+                        ))}
+                      </select>
                     </label>
-                  ))}
-                  <label className="meta-field">
-                    <span>Image d’en-tête</span>
-                    <select
-                      value={yaml["header-image"]||""}
-                      onChange={e=>{ setYaml({...yaml,"header-image":e.target.value}); mark(); }}
-                    >
-                      <option value="">– sélectionner –</option>
-                      {images.map(p=>(
-                        <option key={p} value={p}>{p.split("/").pop()}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <div className="meta-upload">
-                    <button onClick={()=>fileRef.current?.click()}>Importer une image…</button>
-                    <input type="file" ref={fileRef} style={{display:"none"}}
+                  </div>
+
+                  <div className="media-tools">
+                    <button onClick={() => fileRef.current?.click()} className="media-tools__upload">
+                      Importer une image…
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileRef}
+                      style={{ display: "none" }}
                       accept="image/*"
-                      onChange={async e=>{
-                        const f = e.target.files?.[0]; if(!f||!cat||!slug)return;
-                        const p = await upload(cat,slug,f);
-                        setImages(x=>[...x,p]); setYaml({...yaml,"header-image":p}); mark();
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (!f || !cat || !slug) return;
+                        const p = await upload(cat, slug, f);
+                        setImages((x) => [...x, p]);
+                        setYaml({ ...yaml, "header-image": p });
+                        mark();
                       }}
                     />
                   </div>
+
+                  {images.length > 0 && (
+                    <div className="thumbnails">
+                      {images.map((p) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={p}
+                          src={p}
+                          alt=""
+                          title={p.split("/").pop()}
+                          className={yaml["header-image"] === p ? "thumbnails__item thumbnails__item--active" : "thumbnails__item"}
+                          onClick={() => {
+                            setYaml({ ...yaml, "header-image": p });
+                            mark();
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <label className="editor__content">
+                    <span>Contenu</span>
+                    <textarea
+                      ref={txtRef}
+                      value={body}
+                      onChange={(e) => {
+                        setBody(e.target.value);
+                        mark();
+                      }}
+                    />
+                  </label>
                 </div>
 
-                {/* thumbnails */}
-                {images.length>0 && (
-                  <div className="thumbs">
-                    {images.map(p=>(
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img key={p} src={p} alt=""
-                        title={p.split("/").pop()}
-                        className={yaml["header-image"]===p ? "active" : ""}
-                        onClick={()=>{ setYaml({...yaml,"header-image":p}); mark(); }}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* body */}
-                <label className="body-field">
-                  <span>Contenu</span>
-                  <textarea ref={txtRef} value={body}
-                    onChange={e=>{ setBody(e.target.value); mark(); }}
-                  />
-                </label>
-
-                {/* save */}
-                <div className="stage-footer">
-                  <button className="save"
-                    disabled={status==="saving"}
-                    onClick={save}
-                  >{status==="saving"?"saving…":"enregistrer"}</button>
-                  {status==="saved" && <span className="ok">Enregistré</span>}
-                </div>
+                <footer className="editor__footer">
+                  <button className="save" disabled={status === "saving"} onClick={save}>
+                    {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                  </button>
+                  {status === "saving" && <span className="editor__progress">Sauvegarde en cours…</span>}
+                  {status === "err" && <span className="editor__error">Erreur lors de l’enregistrement</span>}
+                </footer>
               </>
-            ) : <p className="hint">Choisissez un article pour commencer</p>}
+            ) : (
+              <div className="editor__empty">Choisissez un article pour commencer</div>
+            )}
           </section>
         </div>
       </main>
 
       <style jsx>{`
-        .page{min-height:calc(100vh - 120px);padding:48px;background:#f4f1ec;display:flex;justify-content:center;}
-        .layout{display:flex;gap:32px;width:100%;max-width:1320px;}
-        .nav{width:340px;display:flex;flex-direction:column;gap:28px;}
-        .panel{padding:20px 22px;border-radius:20px;background:#ffffff;border:1px solid rgba(25,25,25,0.05);
-          box-shadow:0 18px 40px rgba(17,17,17,0.04);font-family:"Helvetica Neue",sans-serif;color:#303030;}
-        .user{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
-        .user-meta{display:flex;flex-direction:column;gap:4px;max-width:200px;}
-        .user-label{font-size:11px;text-transform:uppercase;letter-spacing:0.24em;color:#969696;}
-        .user-email{font-size:14px;font-weight:500;line-height:1.4;color:#2d2d2d;word-break:break-word;}
-        .lo{background:none;border:none;padding:0;font-size:11px;text-transform:uppercase;letter-spacing:0.24em;color:#9c3d28;cursor:pointer;}
-        .digest{display:flex;flex-direction:column;gap:18px;}
-        .digest-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:0.24em;color:#9a9a9a;}
-        .digest-label{font-weight:600;}
-        .digest-status{font-size:10px;letter-spacing:0.18em;border-radius:999px;padding:4px 12px;border:1px solid rgba(0,0,0,0.08);text-transform:uppercase;color:#7b7b7b;}
-        .digest-status.saving{color:#926f1f;border-color:rgba(146,111,31,0.3);background:rgba(146,111,31,0.12);}
-        .digest-status.dirty{color:#8d3a2f;border-color:rgba(141,58,47,0.25);background:rgba(141,58,47,0.08);}
-        .digest-status.saved{color:#2f7a4a;border-color:rgba(47,122,74,0.28);background:rgba(47,122,74,0.1);}
-        .digest-title{font-size:18px;font-weight:600;line-height:1.4;color:#1f1f1f;}
-        .digest-sub{font-size:13px;line-height:1.5;color:#6b6b6b;}
-        .digest-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
-        .digest-stats div{display:flex;flex-direction:column;gap:4px;}
-        .digest-stats dt{font-size:10px;text-transform:uppercase;letter-spacing:0.24em;color:#a0a0a0;}
-        .digest-stats dd{margin:0;font-size:15px;font-weight:500;color:#2b2b2b;}
-        .digest-meta{display:grid;gap:10px;font-size:11px;color:#6b6b6b;}
-        .digest-meta div{display:flex;flex-direction:column;gap:4px;}
-        .digest-meta dt{font-size:10px;text-transform:uppercase;letter-spacing:0.26em;color:#a0a0a0;}
-        .digest-meta dd{margin:0;font-size:13px;color:#3a3a3a;word-break:break-all;}
-        .section{display:flex;flex-direction:column;gap:12px;}
-        .cat{display:flex;align-items:center;gap:12px;font-family:"Helvetica Neue",sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.3em;color:#7d7d7d;padding:0 4px;}
-        .cat-indicator{width:10px;height:10px;border-radius:999px;flex-shrink:0;}
-        ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;}
-        li button{width:100%;border-radius:16px;border:1px solid rgba(0,0,0,0.04);background:#ffffff;padding:16px;text-align:left;
-          font-family:"Helvetica Neue",sans-serif;font-size:14px;line-height:1.4;color:#2d2d2d;cursor:pointer;
-          transition:background 0.2s ease,border 0.2s ease,transform 0.2s ease;box-shadow:0 12px 24px rgba(15,15,15,0.03);}
-        li button:hover{background:#f7f5f2;border-color:rgba(0,0,0,0.1);transform:translateY(-1px);}
-        li button.on{border-color:rgba(0,0,0,0.18);background:#f0eeea;}
-        .entry-meta{display:block;margin-top:6px;font-size:11px;color:#898989;letter-spacing:0.12em;text-transform:uppercase;}
-        .entry-preview{display:block;margin-top:8px;font-size:12px;line-height:1.55;color:#6a6a6a;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-        .stage{flex:1;display:flex;flex-direction:column;gap:24px;padding:36px;border-radius:26px;background:#ffffff;
-          border:1px solid rgba(25,25,25,0.05);box-shadow:0 28px 48px rgba(17,17,17,0.05);font-family:"Helvetica Neue",sans-serif;}
-        .stage-head{display:flex;flex-direction:column;gap:8px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:16px;}
-        .stage-head h1{margin:0;font-weight:500;font-size:22px;letter-spacing:0.18em;text-transform:uppercase;color:#1f1f1f;}
-        .stage-sub{font-size:12px;text-transform:uppercase;letter-spacing:0.24em;color:#9b9b9b;}
-        .meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
-        .meta-field{display:flex;flex-direction:column;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:0.18em;color:#8b8b8b;}
-        .meta-field input,.meta-field select{padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.08);font-size:14px;color:#2d2d2d;
-          background:#f8f7f5;transition:border 0.2s ease,background 0.2s ease;}
-        .meta-field input:focus,.meta-field select:focus{outline:none;border-color:rgba(0,0,0,0.18);background:#ffffff;}
-        .meta-upload{display:flex;align-items:center;gap:12px;padding:12px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.18em;color:#8b8b8b;}
-        .meta-upload button{padding:10px 18px;border-radius:999px;border:1px solid rgba(0,0,0,0.12);background:#fff;font-size:11px;
-          letter-spacing:0.2em;text-transform:uppercase;color:#2d2d2d;cursor:pointer;transition:background 0.2s ease,border 0.2s ease;}
-        .meta-upload button:hover{background:#f3f2f0;border-color:rgba(0,0,0,0.18);}
-        .thumbs{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;}
-        .thumbs img{width:100px;height:72px;object-fit:cover;border-radius:12px;border:1px solid transparent;cursor:pointer;transition:border 0.2s ease,opacity 0.2s ease;}
-        .thumbs img:hover{opacity:0.8;}
-        .thumbs img.active{border-color:#2d2d2d;}
-        .body-field{display:flex;flex-direction:column;gap:10px;font-size:12px;text-transform:uppercase;letter-spacing:0.18em;color:#8b8b8b;}
-        textarea{min-height:420px;border-radius:16px;border:1px solid rgba(0,0,0,0.08);padding:20px;font-family:"SF Mono","Source Code Pro",monospace;font-size:14px;line-height:1.6;
-          background:#f8f7f5;color:#1f1f1f;transition:border 0.2s ease,background 0.2s ease;}
-        textarea:focus{outline:none;border-color:rgba(0,0,0,0.18);background:#ffffff;}
-        .stage-footer{display:flex;align-items:center;gap:16px;}
-        .save{padding:12px 32px;border-radius:999px;border:1px solid rgba(0,0,0,0.12);background:#111;color:#fff;font-size:11px;
-          letter-spacing:0.24em;text-transform:uppercase;cursor:pointer;}
-        .save:disabled{opacity:0.4;cursor:default;}
-        .ok{font-size:12px;text-transform:uppercase;letter-spacing:0.18em;color:#4a4a4a;}
-        .hint{margin:auto;font-family:"Helvetica Neue",sans-serif;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#9b9b9b;}
-        @media (max-width:1200px){
-          .page{padding:32px;}
-          .layout{flex-direction:column;}
-          .nav{width:100%;flex-direction:row;gap:24px;overflow-x:auto;padding-bottom:8px;}
-          .panel{min-width:280px;}
-          .section{min-width:220px;}
+        .indices {
+          min-height: calc(100vh - 64px);
+          padding: 24px 32px 32px;
+          background: #f3f3f5;
+          display: flex;
+          justify-content: center;
+          box-sizing: border-box;
         }
-        @media (max-width:720px){
-          .page{padding:24px;}
-          .layout{gap:24px;}
-          .nav{flex-direction:column;}
-          .panel{width:100%;}
-          .stage{padding:24px;}
-          textarea{min-height:320px;}
+        .indices__layout {
+          width: 100%;
+          max-width: 1440px;
+          display: flex;
+          gap: 24px;
+          min-height: calc(100vh - 80px);
+        }
+        .sidebar {
+          width: 340px;
+          display: flex;
+          flex-direction: column;
+          padding: 20px 18px;
+          background: #ffffff;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 16px;
+          box-shadow: 0 12px 24px rgba(15, 15, 15, 0.04);
+          gap: 18px;
+        }
+        .sidebar__session {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        .sidebar__session-info {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          font-family: "SF Pro Text", "Helvetica Neue", sans-serif;
+        }
+        .sidebar__session-label {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: #8b8d94;
+        }
+        .sidebar__session-email {
+          font-size: 13px;
+          color: #1f1f23;
+          font-weight: 500;
+          line-height: 1.3;
+          word-break: break-word;
+        }
+        .sidebar__signout {
+          border: none;
+          background: transparent;
+          color: #a62f21;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          cursor: pointer;
+        }
+        .summary {
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 12px;
+          padding: 16px;
+          background: #fafafb;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .summary__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: #83858b;
+        }
+        .summary__label {
+          font-weight: 600;
+        }
+        .summary__status {
+          padding: 2px 10px;
+          border-radius: 999px;
+          border: 1px solid transparent;
+          font-size: 10px;
+          letter-spacing: 0.18em;
+        }
+        .summary__status--idle {
+          border-color: rgba(0, 0, 0, 0.08);
+          color: #61646b;
+        }
+        .summary__status--saving {
+          border-color: rgba(153, 118, 18, 0.3);
+          background: rgba(153, 118, 18, 0.08);
+          color: #83630f;
+        }
+        .summary__status--dirty {
+          border-color: rgba(158, 54, 42, 0.3);
+          background: rgba(158, 54, 42, 0.08);
+          color: #a63c2b;
+        }
+        .summary__status--saved {
+          border-color: rgba(36, 119, 70, 0.28);
+          background: rgba(36, 119, 70, 0.08);
+          color: #2b7a4a;
+        }
+        .summary__title {
+          margin: 0;
+          font-size: 17px;
+          line-height: 1.3;
+          color: #1b1d21;
+          font-weight: 600;
+        }
+        .summary__meta {
+          margin: 0;
+          font-size: 12px;
+          color: #5a5c62;
+          line-height: 1.4;
+        }
+        .summary__grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+          font-size: 11px;
+        }
+        .summary__grid dt {
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: #8c8e95;
+        }
+        .summary__grid dd {
+          margin: 0;
+          font-size: 13px;
+          color: #26282d;
+          font-weight: 500;
+        }
+        .sidebar__list {
+          flex: 1;
+          overflow-y: auto;
+          padding-right: 4px;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+        .category__header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.22em;
+          font-size: 10px;
+          color: #7a7c82;
+        }
+        .category__dot {
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .category__entries {
+          list-style: none;
+          margin: 8px 0 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .entry {
+          width: 100%;
+          text-align: left;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 10px;
+          background: #ffffff;
+          padding: 12px 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          cursor: pointer;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          font-family: "SF Pro Text", "Helvetica Neue", sans-serif;
+        }
+        .entry:hover {
+          border-color: rgba(0, 0, 0, 0.18);
+          box-shadow: 0 6px 18px rgba(16, 16, 18, 0.08);
+        }
+        .entry--active {
+          border-color: rgba(0, 0, 0, 0.35);
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+        }
+        .entry__title {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1f2024;
+          line-height: 1.4;
+        }
+        .entry__meta {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.16em;
+          color: #787a80;
+        }
+        .entry__preview {
+          font-size: 11px;
+          color: #60626a;
+          line-height: 1.45;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .editor {
+          flex: 1;
+          background: #ffffff;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          border-radius: 16px;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 16px 32px rgba(15, 15, 15, 0.04);
+        }
+        .editor__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          padding-bottom: 16px;
+          margin-bottom: 20px;
+        }
+        .editor__header h1 {
+          margin: 0;
+          font-size: 18px;
+          text-transform: uppercase;
+          letter-spacing: 0.24em;
+          color: #1f1f22;
+        }
+        .editor__path {
+          display: block;
+          margin-top: 6px;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: #7a7c82;
+        }
+        .editor__badge {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          padding: 4px 12px;
+          border-radius: 999px;
+          background: rgba(36, 119, 70, 0.12);
+          color: #2b7a4a;
+        }
+        .editor__scroll {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          overflow-y: auto;
+          padding-right: 4px;
+        }
+        .meta {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 12px;
+        }
+        .meta__field {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.16em;
+          color: #71737b;
+        }
+        .meta__field input,
+        .meta__field select {
+          padding: 10px 12px;
+          border-radius: 10px;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          background: #f7f8f9;
+          font-size: 13px;
+          color: #1f2024;
+          transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .meta__field input:focus,
+        .meta__field select:focus {
+          outline: none;
+          border-color: rgba(0, 0, 0, 0.32);
+          background: #ffffff;
+        }
+        .media-tools {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 12px;
+        }
+        .media-tools__upload {
+          border: 1px solid rgba(0, 0, 0, 0.16);
+          border-radius: 999px;
+          padding: 8px 18px;
+          background: transparent;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          cursor: pointer;
+        }
+        .media-tools__upload:hover {
+          background: #f1f2f4;
+        }
+        .thumbnails {
+          display: flex;
+          gap: 10px;
+          overflow-x: auto;
+          padding-bottom: 2px;
+        }
+        .thumbnails__item {
+          width: 96px;
+          height: 68px;
+          object-fit: cover;
+          border-radius: 10px;
+          border: 1px solid transparent;
+          cursor: pointer;
+          transition: border-color 0.2s ease, opacity 0.2s ease;
+        }
+        .thumbnails__item:hover {
+          opacity: 0.85;
+        }
+        .thumbnails__item--active {
+          border-color: rgba(0, 0, 0, 0.4);
+        }
+        .editor__content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.16em;
+          color: #6f7178;
+        }
+        textarea {
+          flex: 1;
+          min-height: 420px;
+          border-radius: 12px;
+          border: 1px solid rgba(0, 0, 0, 0.16);
+          padding: 18px;
+          font-family: "SF Mono", "Source Code Pro", monospace;
+          font-size: 13px;
+          line-height: 1.55;
+          color: #16181c;
+          background: #fdfdfd;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        textarea:focus {
+          outline: none;
+          border-color: rgba(0, 0, 0, 0.35);
+          box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+        }
+        .editor__footer {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding-top: 18px;
+          border-top: 1px solid rgba(0, 0, 0, 0.08);
+          margin-top: 20px;
+        }
+        .save {
+          border-radius: 999px;
+          padding: 10px 30px;
+          border: none;
+          background: #111217;
+          color: #ffffff;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.24em;
+          cursor: pointer;
+        }
+        .save:disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+        .editor__progress,
+        .editor__error {
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+        .editor__progress {
+          color: #7a5e16;
+        }
+        .editor__error {
+          color: #a02f21;
+        }
+        .editor__empty {
+          margin: auto;
+          font-size: 12px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #7a7c82;
+        }
+        @media (max-width: 1200px) {
+          .indices {
+            padding: 20px;
+          }
+          .indices__layout {
+            flex-direction: column;
+            height: auto;
+          }
+          .sidebar {
+            width: 100%;
+            flex-direction: column;
+            padding: 18px;
+            max-height: none;
+          }
+          .sidebar__list {
+            max-height: 320px;
+          }
+        }
+        @media (max-width: 768px) {
+          .indices {
+            padding: 16px;
+          }
+          .indices__layout {
+            gap: 16px;
+          }
+          .editor {
+            padding: 20px;
+          }
+          textarea {
+            min-height: 300px;
+          }
         }
       `}</style>
     </>
@@ -437,8 +811,12 @@ const Editor: React.FC<Props> = ({ cats }) => {
 
 /* ---- server side list ------------------------------------------ */
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const { articles, categories } = getArticleData();
-  const order = ["creation", "reflexion"];
+  const allowed = new Set(["creation", "reflexion"]);
+  const records = getArticleRecords().filter(
+    (record) =>
+      record.sourceType === "flat" &&
+      allowed.has(record.article.category.toLowerCase())
+  );
 
   const parseDate = (value: string) => {
     const parsed = Date.parse(value);
@@ -450,49 +828,48 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
     return Number.isNaN(fallback) ? 0 : fallback;
   };
 
-  const categoryMap = new Map<string, { name: string; color: string }>();
-  categories.forEach((category) => {
-    const key = category.name.toLowerCase();
-    categoryMap.set(key, { name: category.name, color: category.color });
-  });
+  const categoryMeta = new Map<string, { name: string; color: string }>();
+  const grouped = new Map<string, Entry[]>();
 
-  const articlesByCategory = new Map<string, Entry[]>();
-  articles.forEach((article) => {
+  records.forEach((record) => {
+    const article = record.article;
     const key = article.category.toLowerCase();
-    const list = articlesByCategory.get(key) ?? [];
-    list.push(article);
-    articlesByCategory.set(key, list);
+    const existing = grouped.get(key) ?? [];
+    existing.push(article);
+    grouped.set(key, existing);
+
+    if (!categoryMeta.has(key)) {
+      const match = Object.entries(categoryConfigMap).find(
+        ([name]) => name.toLowerCase() === key
+      );
+      const displayName = match ? match[0] : article.category;
+      const color = match ? match[1].color : defaultCategoryColor;
+      categoryMeta.set(key, { name: displayName, color });
+    }
   });
 
-  const getOrderIndex = (value: string) => {
-    const index = order.indexOf(value);
-    return index === -1 ? order.length : index;
-  };
-
-  const sortedKeys = Array.from(articlesByCategory.keys()).sort((a, b) => {
-    const indexA = getOrderIndex(a);
-    const indexB = getOrderIndex(b);
-    if (indexA !== indexB) {
+  const order = ["creation", "reflexion"];
+  const sortedKeys = Array.from(grouped.keys()).sort((a, b) => {
+    const indexA = order.indexOf(a);
+    const indexB = order.indexOf(b);
+    if (indexA !== -1 || indexB !== -1) {
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
       return indexA - indexB;
     }
     return a.localeCompare(b);
   });
 
-  const cats: Cat[] = sortedKeys
-    .map((key) => {
-      const items = articlesByCategory.get(key) ?? [];
-      if (items.length === 0) {
-        return null;
-      }
-      const meta = categoryMap.get(key) ?? { name: key, color: "#607d8b" };
-      const entries = [...items].sort((a, b) => parseDate(b.date) - parseDate(a.date));
-      return {
-        name: meta.name,
-        color: meta.color,
-        entries,
-      };
-    })
-    .filter((cat): cat is Cat => Boolean(cat));
+  const cats: Cat[] = sortedKeys.map((key) => {
+    const items = grouped.get(key) ?? [];
+    const meta = categoryMeta.get(key) ?? { name: key, color: defaultCategoryColor };
+    const entries = [...items].sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    return {
+      name: meta.name,
+      color: meta.color,
+      entries,
+    };
+  });
 
   return { props: { cats } };
 };
