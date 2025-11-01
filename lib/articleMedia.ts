@@ -1,17 +1,9 @@
 import { CSSProperties } from "react";
 import { Article } from "../types";
+import hashString from "./hashString";
+import generateArticlePlaceholderTexture from "./articlePlaceholderTexture";
 
-const hashString = (value: string): number => {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) {
-    const charCode = value.charCodeAt(index);
-    hash = (hash << 5) - hash + charCode;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return Math.abs(hash);
-};
-
-const generateAbstractPattern = (article: Article): CSSProperties => {
+export const generateGradientPattern = (article: Article): CSSProperties => {
   const seed = hashString(article.slug || article.title || "article");
   const baseHue = seed % 360;
   const hueShift = 20 + ((seed >> 3) % 21);
@@ -40,7 +32,7 @@ export const getArticleMediaStyle = (article: Article): CSSProperties => {
     };
   }
 
-  return generateAbstractPattern(article);
+  return generateArticlePlaceholderTexture(article);
 };
 
 export default getArticleMediaStyle;
