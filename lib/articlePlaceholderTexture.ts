@@ -72,13 +72,11 @@ export const generateArticlePlaceholderTexture = (article: Article): CSSProperti
     const cx = width * (random() * 1.35 - 0.18);
     const cy = height * (random() * 1.35 - 0.18);
     const strokeWidth = 0.6 + random() * 0.9;
-    const opacity = 0.32 + random() * 0.28;
+    const opacity = 0.26 + random() * 0.28;
     rings.push(
       `<circle cx="${toFixed(cx)}" cy="${toFixed(cy)}" r="${toFixed(radius)}" fill="none" stroke="#111111" stroke-width="${toFixed(
         strokeWidth,
-      )}" stroke-opacity="${toFixed(opacity)}" stroke-dasharray="${toFixed(6 + random() * 18)} ${toFixed(
-        8 + random() * 16,
-      )}" />`,
+      )}" stroke-opacity="${toFixed(opacity)}" />`,
     );
   }
 
@@ -93,13 +91,33 @@ export const generateArticlePlaceholderTexture = (article: Article): CSSProperti
     const endAngle = startAngle + arcLength;
     const path = createArcPath(cx, cy, radius, startAngle, endAngle);
     const strokeWidth = 0.8 + random() * 0.7;
-    const opacity = 0.42 + random() * 0.28;
+    const opacity = 0.36 + random() * 0.28;
     arcs.push(
       `<path d="${path}" fill="none" stroke="#111111" stroke-width="${toFixed(
         strokeWidth,
-      )}" stroke-opacity="${toFixed(opacity)}" stroke-dasharray="${toFixed(8 + random() * 24)} ${toFixed(
-        12 + random() * 22,
-      )}" />`,
+      )}" stroke-opacity="${toFixed(opacity)}" stroke-linecap="round" />`,
+    );
+  }
+
+  const chordCount = 4 + Math.floor(random() * 3);
+  const chords: string[] = [];
+  for (let index = 0; index < chordCount; index += 1) {
+    const radius = Math.max(width, height) * (0.25 + random() * 0.75);
+    const cx = width * (random() * 1.2 - 0.1);
+    const cy = height * (random() * 1.2 - 0.1);
+    const startAngle = random() * Math.PI * 2;
+    const endAngle = startAngle + Math.PI * (0.15 + random() * 0.6);
+    const innerRadius = radius * (0.65 + random() * 0.15);
+    const startX = cx + Math.cos(startAngle) * innerRadius;
+    const startY = cy + Math.sin(startAngle) * innerRadius;
+    const endX = cx + Math.cos(endAngle) * innerRadius;
+    const endY = cy + Math.sin(endAngle) * innerRadius;
+    const strokeWidth = 0.6 + random() * 0.5;
+    const opacity = 0.28 + random() * 0.3;
+    chords.push(
+      `<line x1="${toFixed(startX)}" y1="${toFixed(startY)}" x2="${toFixed(endX)}" y2="${toFixed(
+        endY,
+      )}" stroke="#111111" stroke-width="${toFixed(strokeWidth)}" stroke-opacity="${toFixed(opacity)}" stroke-linecap="round" />`,
     );
   }
 
@@ -114,14 +132,14 @@ export const generateArticlePlaceholderTexture = (article: Article): CSSProperti
       lines.push(
         `<line x1="0" y1="${toFixed(yPosition)}" x2="${width}" y2="${toFixed(
           yPosition + (random() - 0.5) * 16,
-        )}" stroke="${accentColor}" stroke-width="${toFixed(thickness)}" stroke-opacity="${toFixed(opacity)}" />`,
+        )}" stroke="${accentColor}" stroke-width="${toFixed(thickness)}" stroke-opacity="${toFixed(opacity)}" stroke-linecap="round" />`,
       );
     } else if (orientation < 0.66) {
       const xPosition = width * random();
       lines.push(
         `<line x1="${toFixed(xPosition)}" y1="0" x2="${toFixed(
           xPosition + (random() - 0.5) * 20,
-        )}" y2="${height}" stroke="${accentColor}" stroke-width="${toFixed(thickness)}" stroke-opacity="${toFixed(opacity)}" />`,
+        )}" y2="${height}" stroke="${accentColor}" stroke-width="${toFixed(thickness)}" stroke-opacity="${toFixed(opacity)}" stroke-linecap="round" />`,
       );
     } else {
       const x1 = width * (random() * 1.2 - 0.1);
@@ -131,12 +149,50 @@ export const generateArticlePlaceholderTexture = (article: Article): CSSProperti
       lines.push(
         `<line x1="${toFixed(x1)}" y1="${toFixed(y1)}" x2="${toFixed(x2)}" y2="${toFixed(y2)}" stroke="${accentColor}" stroke-width="${toFixed(
           thickness,
-        )}" stroke-opacity="${toFixed(opacity)}" />`,
+        )}" stroke-opacity="${toFixed(opacity)}" stroke-linecap="round" />`,
       );
     }
   }
 
-  const svgContent = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">\n  <rect width="100%" height="100%" fill="${backgroundColor}"/>\n  ${filledShapes.join("\n  ")}\n  ${rings.join("\n  ")}\n  ${arcs.join("\n  ")}\n  ${lines.join("\n  ")}\n</svg>`;
+  const polygonCount = 3 + Math.floor(random() * 3);
+  const polygons: string[] = [];
+  for (let index = 0; index < polygonCount; index += 1) {
+    const centerX = width * (random() * 1.2 - 0.1);
+    const centerY = height * (random() * 1.2 - 0.1);
+    const pointCount = 3 + Math.floor(random() * 3);
+    const radius = Math.max(width, height) * (0.05 + random() * 0.12);
+    const rotation = random() * Math.PI * 2;
+    const points: string[] = [];
+    for (let pointIndex = 0; pointIndex < pointCount; pointIndex += 1) {
+      const angle = rotation + (pointIndex / pointCount) * Math.PI * 2;
+      const distance = radius * (0.65 + random() * 0.45);
+      const x = centerX + Math.cos(angle) * distance;
+      const y = centerY + Math.sin(angle) * distance;
+      points.push(`${toFixed(x)},${toFixed(y)}`);
+    }
+    const opacity = 0.25 + random() * 0.25;
+    polygons.push(
+      `<polygon points="${points.join(" ")}" fill="none" stroke="#111111" stroke-width="${toFixed(
+        0.5 + random() * 0.4,
+      )}" stroke-opacity="${toFixed(opacity)}" />`,
+    );
+  }
+
+  const accentDotCount = 6 + Math.floor(random() * 6);
+  const accentDots: string[] = [];
+  for (let index = 0; index < accentDotCount; index += 1) {
+    const radius = 1.2 + random() * 2.2;
+    const cx = width * random();
+    const cy = height * random();
+    const opacity = 0.4 + random() * 0.4;
+    accentDots.push(
+      `<circle cx="${toFixed(cx)}" cy="${toFixed(cy)}" r="${toFixed(radius)}" fill="${accentColor}" fill-opacity="${toFixed(
+        opacity,
+      )}" />`,
+    );
+  }
+
+  const svgContent = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">\n  <rect width="100%" height="100%" fill="${backgroundColor}"/>\n  ${filledShapes.join("\n  ")}\n  ${rings.join("\n  ")}\n  ${arcs.join("\n  ")}\n  ${chords.join("\n  ")}\n  ${polygons.join("\n  ")}\n  ${lines.join("\n  ")}\n  ${accentDots.join("\n  ")}\n</svg>`;
 
   const encodedSvg = encodeURIComponent(svgContent)
     .replace(/'/g, "%27")
