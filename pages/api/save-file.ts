@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
+import path from "path";
+import { findArticleRecord, clearArticleCache } from "../../lib/articleService";
 
 const REPO   = process.env.GITHUB_REPO!;
 const TOKEN  = process.env.GITHUB_TOKEN!;
@@ -18,7 +20,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
   if (!cat || !slug || typeof body !== "string") return res.status(400).end();
 
-  const filePath = `texts/${cat}/${slug}/${slug}.md`;
+  const record = findArticleRecord(cat, slug);
+  if (!record) {
+    return res.status(404).end();
+  }
+
+  const relativePath = path.relative(process.cwd(), record.absolutePath);
+  const filePath = relativePath.split(path.sep).join("/");
 
   // 1) Fetch current file to get its SHA
   const metaResp = await fetch(
@@ -61,6 +69,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error("GitHub commit failed", await commitResp.text());
     return res.status(500).end();
   }
+
+  clearArticleCache();
 
   res.status(200).json({ ok: true });
 }
