@@ -337,3 +337,7 @@ export function getArticleData(): {
 
   return { articles, categories };
 }
+
+export const clearArticleCache = () => {
+  cachedCollection = null;
+};
