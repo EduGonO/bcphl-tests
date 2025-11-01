@@ -4,11 +4,15 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import TopNav from "../app/components/TopNav";
 import { Article } from "../types";
-import { getArticleData } from "../lib/articleService";
+import { getArticleRecords } from "../lib/articleService";
+import {
+  categoryConfigMap,
+  defaultCategoryColor,
+} from "../config/categoryColors";
 
 /* ---- types ------------------------------------------------------ */
 export type Entry = Article;
-export type Cat = { name: string; color: string; entries: Entry[] };
+export type Cat = { id: string; name: string; color: string; entries: Entry[] };
 interface Props { cats: Cat[] }
 
 /* ---- helpers ---------------------------------------------------- */
@@ -46,7 +50,8 @@ const Editor: React.FC<Props> = ({ cats }) => {
   const { data: session } = useSession();
 
   /* selection */
-  const [cat, setCat]   = useState<string | null>(null);
+  const [catId, setCatId] = useState<string | null>(null);
+  const [catLabel, setCatLabel] = useState<string | null>(null);
   const [slug, setSlug] = useState<string | null>(null);
 
   /* doc state */
@@ -61,12 +66,12 @@ const Editor: React.FC<Props> = ({ cats }) => {
   const mark  = () => (dirty.current = true);
 
   /* load article -------------------------------------------------- */
-  const load = useCallback(async (c: string, s: string) => {
+  const load = useCallback(async (c: Cat, s: string) => {
     setStat("idle");
     dirty.current = false;
 
-    const raw = await fetchText(c, s);
-    const mediaList = await fetchMedia(c, s);
+    const raw = await fetchText(c.id, s);
+    const mediaList = await fetchMedia(c.id, s);
 
     let meta: Record<string, string> = {};
     let content = raw;
@@ -91,23 +96,24 @@ const Editor: React.FC<Props> = ({ cats }) => {
       return base;
     });
 
-    setCat(c);
+    setCatId(c.id);
+    setCatLabel(c.name);
     setSlug(s);
     setTimeout(() => txtRef.current?.focus(), 50);
   }, []);
 
   /* save ---------------------------------------------------------- */
   const save = useCallback(async () => {
-    if (!cat || !slug || !dirty.current) return;
+    if (!catId || !slug || !dirty.current) return;
     setStat("saving");
     const front =
       "---\n" +
       Object.entries(yaml).map(([k,v])=>`${k}: ${v}`).join("\n") +
       "\n---\n\n";
-    await saveText(cat, slug, front + body);
+    await saveText(catId, slug, front + body);
     dirty.current = false;
     setStat("saved"); setTimeout(()=>setStat("idle"),1200);
-  },[cat,slug,yaml,body]);
+  },[catId,slug,yaml,body]);
 
   /* keyboard shortcut */
   useEffect(()=>{
@@ -136,47 +142,62 @@ const Editor: React.FC<Props> = ({ cats }) => {
 
           {/* ---------- sidebar -------------------------------------- */}
           <aside className="nav">
-            <div className="user">
-              <span className="user-email">{session?.user?.email}</span>
-              <button onClick={()=>signOut()} className="lo">logout</button>
+            <div className="nav-surface">
+              <header className="nav-header">
+                <div className="nav-ident">
+                  <span className="nav-title">Bibliothèque</span>
+                  <span className="nav-subtitle">Textes éditoriaux</span>
+                </div>
+                <div className="nav-user">
+                  <span className="nav-email">{session?.user?.email}</span>
+                  <button onClick={()=>signOut()} className="nav-signout">Se déconnecter</button>
+                </div>
+              </header>
+
+              <div className="nav-groups">
+                {cats.map(c=>(
+                  <section className="section" key={c.id}>
+                    <header className="cat">
+                      <span className="cat-indicator" style={{ background: c.color }} />
+                      <div className="cat-meta">
+                        <span className="cat-label">{c.name}</span>
+                        <span className="cat-count">{c.entries.length} fichier{c.entries.length>1?"s":""}</span>
+                      </div>
+                    </header>
+                    <ul>
+                      {c.entries.map(e=>(
+                        <li key={e.slug}>
+                          <button
+                            className={catId===c.id&&slug===e.slug ? "on":""}
+                            onClick={()=>load(c,e.slug)}
+                            aria-current={catId===c.id&&slug===e.slug ? "page":undefined}
+                          >
+                            <span className="entry-title">{e.title}</span>
+                            {entryMeta(e) && (
+                              <span className="entry-meta">{entryMeta(e)}</span>
+                            )}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
             </div>
-            {cats.map(c=>(
-              <section className="section" key={c.name}>
-                <header className="cat">
-                  <span className="cat-indicator" style={{ background: c.color }} />
-                  <span className="cat-label">{c.name}</span>
-                </header>
-                <ul>
-                  {c.entries.map(e=>(
-                    <li key={e.slug}>
-                      <button
-                        className={cat===c.name&&slug===e.slug ? "on":""}
-                        onClick={()=>load(c.name,e.slug)}
-                      >
-                        <span className="entry-title">{e.title}</span>
-                        {entryMeta(e) && (
-                          <span className="entry-meta">{entryMeta(e)}</span>
-                        )}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
           </aside>
 
           {/* ---------- editor --------------------------------------- */}
           <section className="stage">
             <header className="stage-head">
               <h1>Indices</h1>
-              {cat && slug ? (
-                <span className="stage-sub">{cat} / {slug}</span>
+              {catLabel && slug ? (
+                <span className="stage-sub">{catLabel} / {slug}</span>
               ) : (
                 <span className="stage-sub">Sélectionnez un article</span>
               )}
             </header>
 
-            {cat && slug ? (
+            {catId && slug ? (
               <>
                 {/* meta */}
                 <div className="meta">
@@ -206,8 +227,8 @@ const Editor: React.FC<Props> = ({ cats }) => {
                     <input type="file" ref={fileRef} style={{display:"none"}}
                       accept="image/*"
                       onChange={async e=>{
-                        const f = e.target.files?.[0]; if(!f||!cat||!slug)return;
-                        const p = await upload(cat,slug,f);
+                        const f = e.target.files?.[0]; if(!f||!catId||!slug)return;
+                        const p = await upload(catId,slug,f);
                         setImages(x=>[...x,p]); setYaml({...yaml,"header-image":p}); mark();
                       }}
                     />
@@ -253,22 +274,33 @@ const Editor: React.FC<Props> = ({ cats }) => {
       <style jsx>{`
         .page{min-height:calc(100vh - 120px);padding:48px;background:#f4f1ec;display:flex;justify-content:center;}
         .layout{display:flex;gap:32px;width:100%;max-width:1280px;}
-        .nav{width:320px;display:flex;flex-direction:column;gap:32px;}
-        .user{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-radius:16px;
-          background:#ffffff;border:1px solid rgba(25,25,25,0.06);font-family:"Helvetica Neue",sans-serif;font-size:13px;color:#4a4a4a;}
-        .user-email{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;}
-        .lo{background:none;border:none;font-size:12px;font-family:"Helvetica Neue",sans-serif;text-transform:uppercase;
-          letter-spacing:0.18em;color:#9c3d28;cursor:pointer;padding:0;}
-        .section{display:flex;flex-direction:column;gap:12px;}
-        .cat{display:flex;align-items:center;gap:12px;font-family:"Helvetica Neue",sans-serif;font-size:12px;text-transform:uppercase;
-          letter-spacing:0.24em;color:#808080;}
+        .nav{width:320px;display:flex;}
+        .nav-surface{background:#ffffff;border:1px solid rgba(25,25,25,0.04);border-radius:24px;padding:28px 26px;
+          box-shadow:0 22px 60px rgba(17,17,17,0.06);display:flex;flex-direction:column;gap:32px;width:100%;}
+        .nav-header{display:flex;flex-direction:column;gap:18px;padding-bottom:18px;border-bottom:1px solid rgba(0,0,0,0.06);}
+        .nav-ident{display:flex;flex-direction:column;gap:4px;font-family:"Helvetica Neue",sans-serif;}
+        .nav-title{font-size:17px;font-weight:500;letter-spacing:0.32em;text-transform:uppercase;color:#1f1f1f;}
+        .nav-subtitle{font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#9b9b9b;}
+        .nav-user{display:flex;flex-direction:column;gap:6px;font-family:"Helvetica Neue",sans-serif;}
+        .nav-email{font-size:13px;color:#4a4a4a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .nav-signout{align-self:flex-start;padding:8px 16px;border-radius:999px;border:1px solid rgba(0,0,0,0.08);background:#f9f7f4;
+          font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#7a5042;cursor:pointer;transition:all 0.2s ease;}
+        .nav-signout:hover{background:#efeae3;border-color:rgba(0,0,0,0.16);}
+        .nav-groups{display:flex;flex-direction:column;gap:28px;}
+        .section{display:flex;flex-direction:column;gap:14px;}
+        .cat{display:flex;gap:14px;align-items:center;}
         .cat-indicator{width:10px;height:10px;border-radius:999px;flex-shrink:0;}
-        ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
-        li button{width:100%;border-radius:14px;border:1px solid rgba(0,0,0,0.06);background:#fff;padding:14px 16px;text-align:left;
-          font-family:"Helvetica Neue",sans-serif;font-size:14px;line-height:1.45;color:#2d2d2d;cursor:pointer;transition:background 0.2s ease,border 0.2s ease;}
-        li button:hover{background:#f3f2f0;}
-        li button.on{border-color:rgba(0,0,0,0.16);background:#eceae6;}
-        .entry-meta{display:block;margin-top:4px;font-size:12px;color:#7a7a7a;letter-spacing:0.08em;text-transform:uppercase;}
+        .cat-meta{display:flex;flex-direction:column;gap:4px;font-family:"Helvetica Neue",sans-serif;}
+        .cat-label{font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#2d2d2d;}
+        .cat-count{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a3a3a3;}
+        ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;}
+        li button{width:100%;border-radius:16px;padding:14px 18px;text-align:left;font-family:"Helvetica Neue",sans-serif;font-size:14px;
+          line-height:1.45;color:#2d2d2d;cursor:pointer;position:relative;border:none;background:rgba(255,255,255,0.6);
+          transition:background 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05);}
+        li button:hover{background:#f3f2f0;transform:translateX(2px);}
+        li button.on{background:#ece7df;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);}
+        li button.on::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:999px;background:#1f1f1f;}
+        .entry-meta{display:block;margin-top:6px;font-size:12px;color:#7a7a7a;letter-spacing:0.08em;text-transform:uppercase;}
         .stage{flex:1;display:flex;flex-direction:column;gap:24px;padding:32px;border-radius:20px;background:#ffffff;
           border:1px solid rgba(25,25,25,0.05);box-shadow:0 18px 40px rgba(17,17,17,0.04);font-family:"Helvetica Neue",sans-serif;}
         .stage-head{display:flex;flex-direction:column;gap:8px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:16px;}
@@ -300,13 +332,11 @@ const Editor: React.FC<Props> = ({ cats }) => {
         @media (max-width:1200px){
           .page{padding:32px;}
           .layout{flex-direction:column;}
-          .nav{width:100%;flex-direction:row;gap:24px;overflow-x:auto;padding-bottom:8px;}
-          .section{min-width:220px;}
+          .nav{width:100%;}
         }
         @media (max-width:720px){
           .page{padding:24px;}
           .layout{gap:24px;}
-          .nav{flex-direction:column;}
           .stage{padding:24px;}
           textarea{min-height:320px;}
         }
@@ -317,7 +347,9 @@ const Editor: React.FC<Props> = ({ cats }) => {
 
 /* ---- server side list ------------------------------------------ */
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const { articles, categories } = getArticleData();
+  const records = getArticleRecords().filter(
+    (record) => record.sourceType === "flat"
+  );
   const order = ["creation", "reflexion"];
 
   const parseDate = (value: string) => {
@@ -330,15 +362,24 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
     return Number.isNaN(fallback) ? 0 : fallback;
   };
 
-  const categoryMap = new Map<string, { name: string; color: string }>();
-  categories.forEach((category) => {
-    const key = category.name.toLowerCase();
-    categoryMap.set(key, { name: category.name, color: category.color });
-  });
+  const displayMap: Record<string, { name: string; color: string }> = {
+    creation: {
+      name: "Création",
+      color: categoryConfigMap["Creation"]?.color ?? defaultCategoryColor,
+    },
+    reflexion: {
+      name: "Réflexion",
+      color: categoryConfigMap["Reflexion"]?.color ?? defaultCategoryColor,
+    },
+  };
 
   const articlesByCategory = new Map<string, Entry[]>();
-  articles.forEach((article) => {
+  records.forEach((record) => {
+    const article = record.article;
     const key = article.category.toLowerCase();
+    if (!order.includes(key)) {
+      return;
+    }
     const list = articlesByCategory.get(key) ?? [];
     list.push(article);
     articlesByCategory.set(key, list);
@@ -364,9 +405,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
       if (items.length === 0) {
         return null;
       }
-      const meta = categoryMap.get(key) ?? { name: key, color: "#607d8b" };
+      const meta = displayMap[key] ?? { name: key, color: defaultCategoryColor };
       const entries = [...items].sort((a, b) => parseDate(b.date) - parseDate(a.date));
       return {
+        id: key,
         name: meta.name,
         color: meta.color,
         entries,
