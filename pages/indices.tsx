@@ -3,41 +3,27 @@ import type { GetServerSideProps } from "next";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import TopNav from "../app/components/TopNav";
+import SupabaseWorkspace from "../app/components/indices/SupabaseWorkspace";
 import { Article } from "../types";
 import { getArticleRecords } from "../lib/articleService";
 import { categoryConfigMap, defaultCategoryColor } from "../config/categoryColors";
 import { getSupabaseServerClient } from "../lib/supabase/serverClient";
+import {
+  formatSupabaseError,
+  loadSupabaseCategorySummaries,
+} from "../lib/supabase/content";
+import type {
+  SupabaseArticleDetail,
+  SupabaseCategorySummary,
+} from "../types/supabase";
 
 /* ---- types ------------------------------------------------------ */
 export type Entry = Article;
 export type Cat = { name: string; color: string; entries: Entry[] };
 
-type SupabaseArticle = {
-  id: string;
-  slug: string;
-  title: string;
-  author: string | null;
-  status: boolean;
-  authoredDate: string | null;
-  publishedAt: string | null;
-  preview: string | null;
-  excerpt: string | null;
-  headerImagePath: string | null;
-  sortOrder: number;
-};
-
-type SupabaseCategory = {
-  id: string;
-  slug: string;
-  name: string;
-  color: string;
-  sortOrder: number;
-  articles: SupabaseArticle[];
-};
-
 interface Props {
   cats: Cat[];
-  supabaseCats: SupabaseCategory[];
+  supabaseCats: SupabaseCategorySummary[];
   supabaseError?: string | null;
 }
 
@@ -70,95 +56,6 @@ const META_FIELDS = [
   { key: "author", label: "Auteur" },
   { key: "date", label: "Date" },
 ] as const;
-
-const SupabasePreview: React.FC<{ categories: SupabaseCategory[]; error?: string | null }> = ({
-  categories,
-  error,
-}) => {
-  if (error) {
-    return (
-      <section className="supabase-panel">
-        <header className="supabase-panel__header">
-          <h2>Supabase (aperçu)</h2>
-          <span className="supabase-panel__badge supabase-panel__badge--error">Erreur</span>
-        </header>
-        <p className="supabase-panel__message">{error}</p>
-      </section>
-    );
-  }
-
-  if (!categories.length) {
-    return (
-      <section className="supabase-panel">
-        <header className="supabase-panel__header">
-          <h2>Supabase (aperçu)</h2>
-          <span className="supabase-panel__badge">Bêta</span>
-        </header>
-        <p className="supabase-panel__message">
-          Aucun contenu n&apos;a encore été importé depuis Supabase. Les articles importés
-          apparaîtront ici pour test.
-        </p>
-      </section>
-    );
-  }
-
-  return (
-    <section className="supabase-panel">
-      <header className="supabase-panel__header">
-        <h2>Supabase (aperçu)</h2>
-        <span className="supabase-panel__badge">Bêta</span>
-      </header>
-      <div className="supabase-panel__grid">
-        {categories.map((category) => (
-          <article key={category.id} className="supabase-card">
-            <header className="supabase-card__header">
-              <span
-                className="supabase-card__dot"
-                style={{ backgroundColor: category.color || "#999" }}
-              />
-              <div>
-                <h3>{category.name}</h3>
-                <span className="supabase-card__meta">
-                  {category.articles.length} article{category.articles.length > 1 ? "s" : ""}
-                </span>
-              </div>
-            </header>
-            <ul className="supabase-card__list">
-              {category.articles.map((article) => {
-                const displayDate = article.authoredDate ?? article.publishedAt;
-                const formattedDate = displayDate
-                  ? new Date(displayDate).toLocaleDateString("fr-FR")
-                  : "Date inconnue";
-
-                return (
-                  <li key={article.id} className="supabase-article">
-                    <div className="supabase-article__title">{article.title}</div>
-                    <div className="supabase-article__meta">
-                      <span>{article.author || "Auteur inconnu"}</span>
-                      <span>{formattedDate}</span>
-                    </div>
-                    <div className="supabase-article__footer">
-                      <span
-                        className={
-                          article.status
-                            ? "supabase-article__status supabase-article__status--published"
-                            : "supabase-article__status supabase-article__status--draft"
-                        }
-                      >
-                        {article.status ? "Publié" : "Brouillon"}
-                      </span>
-                      <code className="supabase-article__slug">{article.slug}</code>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-};
 
 /* ---- component -------------------------------------------------- */
 const Editor: React.FC<Props> = ({ cats, supabaseCats, supabaseError }) => {
@@ -488,7 +385,7 @@ const Editor: React.FC<Props> = ({ cats, supabaseCats, supabaseError }) => {
             )}
           </section>
         </div>
-        <SupabasePreview categories={supabaseCats} error={supabaseError} />
+        <SupabaseWorkspace categories={supabaseCats} error={supabaseError} />
       </div>
     </main>
 
@@ -513,142 +410,6 @@ const Editor: React.FC<Props> = ({ cats, supabaseCats, supabaseError }) => {
           display: flex;
           gap: 24px;
           min-height: calc(100vh - 80px);
-        }
-        .supabase-panel {
-          width: 100%;
-          background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.06);
-          border-radius: 16px;
-          box-shadow: 0 12px 24px rgba(15, 15, 15, 0.04);
-          padding: 20px 24px 24px;
-          box-sizing: border-box;
-        }
-        .supabase-panel__header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          margin-bottom: 16px;
-        }
-        .supabase-panel__header h2 {
-          margin: 0;
-          font-size: 18px;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-        }
-        .supabase-panel__badge {
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          background: rgba(0, 0, 0, 0.05);
-          padding: 4px 10px;
-          border-radius: 999px;
-          color: #40434a;
-        }
-        .supabase-panel__badge--error {
-          background: rgba(166, 47, 33, 0.12);
-          color: #a62f21;
-        }
-        .supabase-panel__message {
-          margin: 0;
-          font-size: 13px;
-          color: #4d4f55;
-          line-height: 1.5;
-        }
-        .supabase-panel__grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 18px;
-        }
-        .supabase-card {
-          border: 1px solid rgba(0, 0, 0, 0.06);
-          border-radius: 12px;
-          padding: 16px;
-          background: #fafafb;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .supabase-card__header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .supabase-card__dot {
-          width: 14px;
-          height: 14px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-        .supabase-card__header h3 {
-          margin: 0;
-          font-size: 15px;
-          font-weight: 600;
-        }
-        .supabase-card__meta {
-          display: block;
-          margin-top: 4px;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          color: #8b8d94;
-        }
-        .supabase-card__list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .supabase-article {
-          border-radius: 10px;
-          border: 1px solid rgba(0, 0, 0, 0.04);
-          background: #ffffff;
-          padding: 12px 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .supabase-article__title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #22242a;
-        }
-        .supabase-article__meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          font-size: 12px;
-          color: #555962;
-        }
-        .supabase-article__footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 11px;
-        }
-        .supabase-article__status {
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          padding: 2px 8px;
-          border-radius: 999px;
-          border: 1px solid transparent;
-        }
-        .supabase-article__status--published {
-          border-color: rgba(36, 119, 70, 0.28);
-          color: #2b7a4a;
-          background: rgba(36, 119, 70, 0.08);
-        }
-        .supabase-article__status--draft {
-          border-color: rgba(158, 54, 42, 0.28);
-          color: #a63c2b;
-          background: rgba(158, 54, 42, 0.08);
-        }
-        .supabase-article__slug {
-          font-family: "SF Mono", "Source Code Pro", monospace;
-          font-size: 11px;
-          color: #5f626a;
         }
         .sidebar {
           width: 340px;
@@ -1140,96 +901,19 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
     };
   });
 
-  let supabaseCats: SupabaseCategory[] = [];
+  let supabaseCats: SupabaseCategorySummary[] = [];
   let supabaseError: string | null = null;
 
   try {
     const supabase = getSupabaseServerClient();
     if (!supabase) {
       supabaseError =
-        "Configurer SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY pour activer l’aperçu Supabase.";
+        "Configurer SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY pour activer Supabase.";
     } else {
-      const { data: categoryRows, error: categoryErr } = await supabase
-        .from("bicephale_categories")
-        .select("id, slug, name, color, sort_order")
-        .order("sort_order", { ascending: true });
-
-      if (categoryErr) {
-        supabaseError = `Chargement des catégories Supabase impossible : ${categoryErr.message}`;
-      } else if (categoryRows) {
-        const categoryMap = new Map<string, SupabaseCategory>(
-          categoryRows.map((row) => [
-            row.id,
-            {
-              id: row.id,
-              slug: row.slug,
-              name: row.name,
-              color: row.color,
-              sortOrder: row.sort_order ?? 0,
-              articles: [],
-            },
-          ])
-        );
-
-        const { data: linkRows, error: linkErr } = await supabase
-          .from("bicephale_article_categories")
-          .select(
-            `category_id, sort_order, article:bicephale_articles (
-              id,
-              slug,
-              title,
-              author_name,
-              status,
-              authored_date,
-              published_at,
-              preview,
-              excerpt,
-              header_image_path
-            )`
-          );
-
-        if (linkErr) {
-          supabaseError = `Chargement des articles Supabase impossible : ${linkErr.message}`;
-        } else if (linkRows) {
-          linkRows.forEach((link) => {
-            const category = categoryMap.get((link as any).category_id as string);
-            const rawArticle = (link as any).article;
-            const article = Array.isArray(rawArticle) ? rawArticle[0] : rawArticle;
-            if (!category || !article) return;
-
-            category.articles.push({
-              id: article.id as string,
-              slug: article.slug as string,
-              title: article.title as string,
-              author: (article.author_name as string) ?? null,
-              status: Boolean(article.status),
-              authoredDate: (article.authored_date as string) ?? null,
-              publishedAt: (article.published_at as string) ?? null,
-              preview: (article.preview as string) ?? null,
-              excerpt: (article.excerpt as string) ?? null,
-              headerImagePath: (article.header_image_path as string) ?? null,
-              sortOrder: ((link as any).sort_order as number) ?? 0,
-            });
-          });
-
-          supabaseCats = Array.from(categoryMap.values())
-            .map((category) => ({
-              ...category,
-              articles: category.articles.sort((a, b) => {
-                const orderDiff = a.sortOrder - b.sortOrder;
-                if (orderDiff !== 0) return orderDiff;
-                const sortDiff = (a.publishedAt ? Date.parse(a.publishedAt) : 0) -
-                  (b.publishedAt ? Date.parse(b.publishedAt) : 0);
-                if (sortDiff !== 0) return sortDiff * -1;
-                return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
-              }),
-            }))
-            .sort((a, b) => a.sortOrder - b.sortOrder);
-        }
-      }
+      supabaseCats = await loadSupabaseCategorySummaries(supabase);
     }
   } catch (error) {
-    supabaseError = error instanceof Error ? error.message : "Erreur inconnue";
+    supabaseError = formatSupabaseError(error);
   }
 
   return { props: { cats, supabaseCats, supabaseError } };
