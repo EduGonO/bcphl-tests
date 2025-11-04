@@ -86,8 +86,15 @@ const upsertArticle = async (
 
   const supabase = ensureClient();
 
-  const bodyJsonValue = payload.bodyJson ? JSON.parse(payload.bodyJson) : null;
-  const bodyHtmlValue = payload.bodyHtml ?? null;
+  let bodyJsonValue: Record<string, any> | null = null;
+  if (payload.bodyJson && payload.bodyJson.trim()) {
+    try {
+      bodyJsonValue = JSON.parse(payload.bodyJson);
+    } catch (error) {
+      throw new Error("Le contenu JSON est invalide.");
+    }
+  }
+  const bodyHtmlValue = payload.bodyHtml && payload.bodyHtml.trim() ? payload.bodyHtml : null;
 
   const { data: insertRows, error: insertErr } = await supabase
     .from("bicephale_articles")

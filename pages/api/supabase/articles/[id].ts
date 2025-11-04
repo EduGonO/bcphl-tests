@@ -100,7 +100,14 @@ const handlePut = async (
       return res.status(400).json({ error: "Le slug est obligatoire." });
     }
 
-    const bodyJsonValue = payload.bodyJson ? JSON.parse(payload.bodyJson) : null;
+    let bodyJsonValue: Record<string, any> | null = null;
+    if (payload.bodyJson && payload.bodyJson.trim()) {
+      try {
+        bodyJsonValue = JSON.parse(payload.bodyJson);
+      } catch (parseError) {
+        return res.status(400).json({ error: "Le contenu JSON est invalide." });
+      }
+    }
 
     const { error: updateErr } = await supabase
       .from("bicephale_articles")
@@ -116,7 +123,7 @@ const handlePut = async (
         header_image_path: payload.headerImagePath,
         body_markdown: payload.bodyMarkdown,
         body_json: bodyJsonValue,
-        body_html: payload.bodyHtml ?? null,
+        body_html: payload.bodyHtml && payload.bodyHtml.trim() ? payload.bodyHtml : null,
       })
       .eq("id", articleId);
 

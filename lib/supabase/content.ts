@@ -50,7 +50,7 @@ export const loadSupabaseCategorySummaries = async (
   const { data: linkRows, error: linkErr } = await supabase
     .from("bicephale_article_categories")
     .select(
-      `category_id, sort_order, article:bicephale_articles (
+      `category_id, sort_order, article:bicephale_articles!bicephale_article_categories_article_id_fkey (
         id,
         slug,
         title,
@@ -101,8 +101,8 @@ export const loadSupabaseArticleDetail = async (
     .from("bicephale_articles")
     .select(
       `id, slug, title, author_name, status, authored_date, published_at, preview, excerpt, header_image_path, body_markdown, body_json, body_html, created_at, updated_at,
-       categories:bicephale_article_categories ( sort_order, category:bicephale_categories ( id, slug, name, color, sort_order ) ),
-       relations:bicephale_article_relations ( sort_order, related:bicephale_articles ( id, slug, title, status ) ),
+       categories:bicephale_article_categories!bicephale_article_categories_article_id_fkey ( sort_order, category:bicephale_categories ( id, slug, name, color, sort_order ) ),
+       relations:bicephale_article_relations!bicephale_article_relations_source_article_id_fkey ( sort_order, related:bicephale_articles!bicephale_article_relations_related_article_id_fkey ( id, slug, title, status ) ),
        media:bicephale_article_media ( id, storage_bucket, storage_path, caption, credit, alt_text, is_header, sort_order )`
     )
     .eq("id", id)

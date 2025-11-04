@@ -3,6 +3,7 @@ import type {
   SupabaseArticleDetail,
   SupabaseCategorySummary,
 } from "../../../types/supabase";
+import SupabaseRichTextEditor from "./SupabaseRichTextEditor";
 
 const toLocalDateTimeInput = (value: string | null) => {
   if (!value) return "";
@@ -261,6 +262,25 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
       updateForm("relatedArticleIds", values.filter((id) => id !== selectedArticleId));
     },
     [selectedArticleId, updateForm]
+  );
+
+  const handleRichTextChange = useCallback(
+    (markdown: string, html: string) => {
+      setFormState((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          bodyMarkdown: markdown,
+          bodyHtml: html,
+        };
+      });
+      dirtyRef.current = true;
+      if (status === "saved" || status === "error") {
+        setStatus("idle");
+        setStatusMessage(null);
+      }
+    },
+    [status]
   );
 
   const handleSave = useCallback(async () => {
@@ -668,33 +688,49 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
                   />
                 </label>
 
-                <label>
-                  <span>Contenu Markdown</span>
-                  <textarea
-                    className="supabase-editor__textarea"
+                <div className="supabase-editor__richtext">
+                  <div className="supabase-editor__richtext-header">
+                    <span>Contenu (éditeur riche)</span>
+                    <p>Les modifications sont enregistrées en Markdown et HTML.</p>
+                  </div>
+                  <SupabaseRichTextEditor
+                    key={articleDetail?.id ?? "new"}
                     value={formState.bodyMarkdown}
-                    onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
+                    onChange={handleRichTextChange}
+                    placeholder="Écrivez votre article…"
                   />
-                </label>
+                </div>
 
-                <label>
-                  <span>Contenu HTML</span>
-                  <textarea
-                    className="supabase-editor__textarea"
-                    value={formState.bodyHtml}
-                    onChange={(event) => updateForm("bodyHtml", event.target.value)}
-                  />
-                </label>
+                <details className="supabase-editor__advanced">
+                  <summary>Afficher les champs bruts</summary>
+                  <label>
+                    <span>Contenu Markdown</span>
+                    <textarea
+                      className="supabase-editor__textarea"
+                      value={formState.bodyMarkdown}
+                      onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
+                    />
+                  </label>
 
-                <label>
-                  <span>Contenu JSON (TipTap / Rich text)</span>
-                  <textarea
-                    className="supabase-editor__textarea"
-                    value={formState.bodyJson}
-                    onChange={(event) => updateForm("bodyJson", event.target.value)}
-                    placeholder='{ "type": "doc" }'
-                  />
-                </label>
+                  <label>
+                    <span>Contenu HTML</span>
+                    <textarea
+                      className="supabase-editor__textarea"
+                      value={formState.bodyHtml}
+                      onChange={(event) => updateForm("bodyHtml", event.target.value)}
+                    />
+                  </label>
+
+                  <label>
+                    <span>Contenu JSON (TipTap / Rich text)</span>
+                    <textarea
+                      className="supabase-editor__textarea"
+                      value={formState.bodyJson}
+                      onChange={(event) => updateForm("bodyJson", event.target.value)}
+                      placeholder='{ "type": "doc" }'
+                    />
+                  </label>
+                </details>
 
                 <fieldset className="supabase-editor__fieldset">
                   <legend>Catégories</legend>
@@ -1104,6 +1140,67 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         .supabase-editor__textarea {
           min-height: 120px;
           resize: vertical;
+        }
+        .supabase-editor__richtext {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .supabase-editor__richtext-header {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .supabase-editor__richtext-header span {
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .supabase-editor__richtext-header p {
+          margin: 0;
+          font-size: 12px;
+          color: #5a5c62;
+          text-transform: none;
+          letter-spacing: 0;
+        }
+        .supabase-rich-text {
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        .supabase-rich-text .ql-toolbar {
+          border: none;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        }
+        .supabase-rich-text .ql-container {
+          border: none;
+          font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          min-height: 260px;
+        }
+        .supabase-rich-text__loading {
+          padding: 24px;
+          text-align: center;
+          font-size: 13px;
+          color: #5a5c62;
+        }
+        .supabase-editor__advanced {
+          margin-top: 8px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+          padding: 12px;
+          background: #ffffff;
+        }
+        .supabase-editor__advanced summary {
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+        .supabase-editor__advanced[open] {
+          background: #f5f7f9;
+        }
+        .supabase-editor__advanced label {
+          margin-top: 12px;
         }
         .supabase-editor__checkbox {
           flex-direction: row;
