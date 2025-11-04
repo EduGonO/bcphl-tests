@@ -1,9 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const fallbackUrl = "https://suxbfvkamlanguqoanab.supabase.co";
-const fallbackServiceKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1eGJmdmthbWxhbmd1cW9hbmFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjAyMzQ3NywiZXhwIjoyMDc3NTk5NDc3fQ.8W9AYks6HDhDHOWXqV5hxvtokN4QEF4A3RBcYp2MzVI";
-
 const urlEnvKeys = ["SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL"] as const;
 const serviceEnvKeys = [
   "SUPABASE_SERVICE_ROLE_KEY",
@@ -14,19 +10,26 @@ const serviceEnvKeys = [
 
 export type ServerSupabaseClient = SupabaseClient;
 
+const firstEnvValue = (keys: readonly string[]): string | null => {
+  for (const key of keys) {
+    const value = process.env[key];
+    if (typeof value === "string" && value.trim() !== "") {
+      return value;
+    }
+  }
+  return null;
+};
+
 export const getSupabaseServerClient = (): ServerSupabaseClient | null => {
-  const supabaseUrl = urlEnvKeys
-    .map((key) => process.env[key])
-    .find((value): value is string => Boolean(value));
-
-  const supabaseServiceKey = serviceEnvKeys
-    .map((key) => process.env[key])
-    .find((value): value is string => Boolean(value));
-
-  const url = supabaseUrl ?? fallbackUrl;
-  const key = supabaseServiceKey ?? fallbackServiceKey;
+  const url = firstEnvValue(urlEnvKeys);
+  const key = firstEnvValue(serviceEnvKeys);
 
   if (!url || !key) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "Supabase environment variables are not fully configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
+      );
+    }
     return null;
   }
 
