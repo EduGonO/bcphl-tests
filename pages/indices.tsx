@@ -3,14 +3,29 @@ import type { GetServerSideProps } from "next";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import TopNav from "../app/components/TopNav";
+import SupabaseWorkspace from "../app/components/indices/SupabaseWorkspace";
 import { Article } from "../types";
 import { getArticleRecords } from "../lib/articleService";
 import { categoryConfigMap, defaultCategoryColor } from "../config/categoryColors";
+import { getSupabaseServerClient } from "../lib/supabase/serverClient";
+import {
+  formatSupabaseError,
+  loadSupabaseCategorySummaries,
+} from "../lib/supabase/content";
+import type {
+  SupabaseArticleDetail,
+  SupabaseCategorySummary,
+} from "../types/supabase";
 
 /* ---- types ------------------------------------------------------ */
 export type Entry = Article;
 export type Cat = { name: string; color: string; entries: Entry[] };
-interface Props { cats: Cat[] }
+
+interface Props {
+  cats: Cat[];
+  supabaseCats: SupabaseCategorySummary[];
+  supabaseError?: string | null;
+}
 
 /* ---- helpers ---------------------------------------------------- */
 const fetchText = (c: string, s: string) =>
@@ -43,7 +58,7 @@ const META_FIELDS = [
 ] as const;
 
 /* ---- component -------------------------------------------------- */
-const Editor: React.FC<Props> = ({ cats }) => {
+const Editor: React.FC<Props> = ({ cats, supabaseCats, supabaseError }) => {
   const { data: session } = useSession();
 
   /* selection */
@@ -175,9 +190,10 @@ const Editor: React.FC<Props> = ({ cats }) => {
       </Head>
       <TopNav />
       <main className="indices">
-        <div className="indices__layout">
-          <aside className="sidebar">
-            <div className="sidebar__session">
+        <div className="indices__container">
+          <div className="indices__layout">
+            <aside className="sidebar">
+              <div className="sidebar__session">
               <div className="sidebar__session-info">
                 <span className="sidebar__session-label">Session</span>
                 <span className="sidebar__session-email">{session?.user?.email}</span>
@@ -369,7 +385,9 @@ const Editor: React.FC<Props> = ({ cats }) => {
             )}
           </section>
         </div>
-      </main>
+        <SupabaseWorkspace categories={supabaseCats} error={supabaseError} />
+      </div>
+    </main>
 
       <style jsx>{`
         .indices {
@@ -380,9 +398,15 @@ const Editor: React.FC<Props> = ({ cats }) => {
           justify-content: center;
           box-sizing: border-box;
         }
-        .indices__layout {
+        .indices__container {
           width: 100%;
           max-width: 1440px;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+        .indices__layout {
+          width: 100%;
           display: flex;
           gap: 24px;
           min-height: calc(100vh - 80px);
@@ -776,6 +800,9 @@ const Editor: React.FC<Props> = ({ cats }) => {
           .indices {
             padding: 20px;
           }
+          .indices__container {
+            gap: 18px;
+          }
           .indices__layout {
             flex-direction: column;
             height: auto;
@@ -793,6 +820,9 @@ const Editor: React.FC<Props> = ({ cats }) => {
         @media (max-width: 768px) {
           .indices {
             padding: 16px;
+          }
+          .indices__container {
+            gap: 16px;
           }
           .indices__layout {
             gap: 16px;
@@ -871,7 +901,22 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
     };
   });
 
-  return { props: { cats } };
+  let supabaseCats: SupabaseCategorySummary[] = [];
+  let supabaseError: string | null = null;
+
+  try {
+    const supabase = getSupabaseServerClient();
+    if (!supabase) {
+      supabaseError =
+        "Configurer SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY pour activer Supabase.";
+    } else {
+      supabaseCats = await loadSupabaseCategorySummaries(supabase);
+    }
+  } catch (error) {
+    supabaseError = formatSupabaseError(error);
+  }
+
+  return { props: { cats, supabaseCats, supabaseError } };
 };
 
 export default Editor;
