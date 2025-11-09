@@ -235,7 +235,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
           {headerNavItems}
           
           <div className="nav-item search-item">
-            <Link href="/indices">
+            <Link href="/editeur">
               <a className="search-button" aria-label="Search">
                 <svg
                   width="16"

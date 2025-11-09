@@ -8,11 +8,7 @@ export default withAuth({
 })
 
 export const config = {
-  matcher: [
-    "/indices",
-    "/api/file",
-    "/api/save-file",
-  ],
+  matcher: ["/editeur", "/indices", "/api/file", "/api/save-file"],
 }
 
 
@@ -33,7 +29,7 @@ export async function middleware(request: NextRequest) {
   console.log(`Middleware check: Path=${request.nextUrl.pathname}, HasToken=${!!token}`);
 
   // Protect the indices page
-  if (request.nextUrl.pathname === '/indices') {
+  if (request.nextUrl.pathname === '/editeur') {
     if (!token) {
       // Save the original URL to redirect back after login
       const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
@@ -44,7 +40,7 @@ export async function middleware(request: NextRequest) {
 
   // Redirect to indices if already logged in and trying to access signin
   if (request.nextUrl.pathname === '/auth/signin' && token) {
-    return NextResponse.redirect(new URL('/indices', request.url));
+    return NextResponse.redirect(new URL('/editeur', request.url));
   }
 
   return NextResponse.next();
@@ -52,9 +48,6 @@ export async function middleware(request: NextRequest) {
 
 // Specify which paths should be processed by middleware
 export const config = {
-  matcher: [
-    '/indices', 
-    '/auth/signin',
-  ],
+  matcher: ['/editeur', '/indices', '/auth/signin'],
 };
 */
