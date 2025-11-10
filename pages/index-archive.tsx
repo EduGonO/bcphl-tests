@@ -148,7 +148,7 @@ const IndexArchive: React.FC<HomeProps> = ({ articles, categories }) => {
 };
 
 export async function getStaticProps() {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   return { props: { articles, categories } };
 }
 

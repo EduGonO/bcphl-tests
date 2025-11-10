@@ -1,7 +1,6 @@
 // /app/components/ArticleGrid.tsx
 import React from 'react'
 import { Article, Category } from '../../types'
-import { mdToHtml } from "../../lib/markdown";
 import ReactMarkdown from 'react-markdown';
 
 interface ArticleGridProps {
@@ -21,38 +20,36 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
     <h2 className="heading">À lire également</h2>
     <div className="grid-container">
       {articles.map((article, idx) => {
-        const cat = categories.find((c) => c.name === article.category)
+        const categorySegment = article.categorySlug || article.category
+        const cat = categories.find(
+          (c) =>
+            c.slug.toLowerCase() === categorySegment.toLowerCase() ||
+            c.name.toLowerCase() === article.category.toLowerCase()
+        )
         const color = cat?.color || '#ccc'
         const imgStyle = headerImages[article.slug]
           ? { backgroundImage: `url(${headerImages[article.slug]})` }
           : { backgroundColor: `${color}20` }
 
-        
-  // Parse date properly
-  const formattedDate = article.date !== "Unknown Date" 
-  ? new Date(article.date).toLocaleDateString("fr-FR", {
-      month: "long", 
-      day: "numeric",
-      year: "numeric",
-    })
-  : "";
-
-  const previewHtml = mdToHtml(
-    article.preview,
-    `/texts/${article.category}/${article.slug}`
-  )
+        const formattedDate =
+          article.date !== 'Unknown Date'
+            ? new Date(article.date).toLocaleDateString('fr-FR', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })
+            : ''
 
         return (
           <a
             key={article.slug || idx}
-            href={`/${article.category}/${article.slug}`}
+            href={`/${categorySegment}/${article.slug}`}
             className="card-link"
           >
             <div className="card">
               <div className="card-image" style={imgStyle} />
 
               <div className="card-content">
-                
                 <h3 className="title">{article.title}</h3>
 
                 <p className="preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
@@ -69,7 +66,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
                     backgroundColor: `${color}20`,
                   }}
                 >
-                  {article.category}
+                  {article.category || cat?.name || categorySegment}
                 </span>
               </div>
             </div>

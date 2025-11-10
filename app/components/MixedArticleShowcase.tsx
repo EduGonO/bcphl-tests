@@ -17,6 +17,7 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
   const leftItems  = articles.slice(0, 2)
   const mainItem   = articles[2]
   const rightItems = articles.slice(3, 7)
+  const mainCategorySegment = mainItem ? mainItem.categorySlug || mainItem.category : ''
 
   const thumbStyle = (a: Article) => getArticleMediaStyle(a)
   
@@ -32,22 +33,25 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
   return (
     <section className="mas">
       <div className="col left">
-        {leftItems.map(a => (
-          <a
-            key={a.slug}
-            href={`/${a.category}/${a.slug}`}
-            className="small-card"
-          >
-            <div className="thumb" style={thumbStyle(a)} />
-            <h4 className="title">{a.title}</h4>
-            <p className="author">{a.author}</p>
-          </a>
-        ))}
+        {leftItems.map(a => {
+          const categorySegment = a.categorySlug || a.category
+          return (
+            <a
+              key={a.slug}
+              href={`/${categorySegment}/${a.slug}`}
+              className="small-card"
+            >
+              <div className="thumb" style={thumbStyle(a)} />
+              <h4 className="title">{a.title}</h4>
+              <p className="author">{a.author}</p>
+            </a>
+          )
+        })}
       </div>
 
       {mainItem && (
         <a
-          href={`/${mainItem.category}/${mainItem.slug}`}
+          href={`/${mainCategorySegment}/${mainItem.slug}`}
           className="col center"
         >
           <div className="main-thumb" style={thumbStyle(mainItem)} />
@@ -58,19 +62,22 @@ const MixedArticleShowcase: React.FC<MixedArticleShowcaseProps> = ({
       )}
 
       <div className="col right">
-        {rightItems.map(a => (
-          <a
-            key={a.slug}
-            href={`/${a.category}/${a.slug}`}
-            className="list-item"
-          >
-          <div className="thumb" style={thumbStyle(a)} />
-            <div className="text">
-              <h4 className="title">{a.title}</h4>
-              <p className="meta">{a.author} • {formatDate(a.date)}</p>
-            </div>
-          </a>
-        ))}
+        {rightItems.map(a => {
+          const categorySegment = a.categorySlug || a.category
+          return (
+            <a
+              key={a.slug}
+              href={`/${categorySegment}/${a.slug}`}
+              className="list-item"
+            >
+              <div className="thumb" style={thumbStyle(a)} />
+              <div className="text">
+                <h4 className="title">{a.title}</h4>
+                <p className="meta">{a.author} • {formatDate(a.date)}</p>
+              </div>
+            </a>
+          )
+        })}
       </div>
 
       <style jsx>{`

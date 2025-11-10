@@ -16,19 +16,23 @@ const CategoryArticlePreview: React.FC<Props> = ({
   headerImages = {},
   titleFont = 'GayaRegular',
 }) => {
-  const [sel, setSel] = useState(categories[0]?.name || '')
-  const recent = articles.filter((a) => a.category === sel).slice(0, 3)
+  const [sel, setSel] = useState(categories[0]?.slug || '')
+  const activeSlug = sel || categories[0]?.slug || ''
+  const activeCategory = categories.find((c) => c.slug === activeSlug) || categories[0]
+  const recent = articles
+    .filter((a) => (a.categorySlug || a.category) === activeSlug)
+    .slice(0, 3)
 
   return (
     <section className="cap">
       <div className="header">
         <div className="cats">
           {categories.map((c) => {
-            const active = c.name === sel
+            const active = c.slug === activeSlug
             return (
               <button
-                key={c.name}
-                onClick={() => setSel(c.name)}
+                key={c.slug}
+                onClick={() => setSel(c.slug)}
                 className={`cat${active ? ' active' : ''}`}
                 style={{ '--border-color': c.color } as React.CSSProperties}
               >
@@ -47,8 +51,8 @@ const CategoryArticlePreview: React.FC<Props> = ({
           categories={categories}
           titleFont={titleFont}
         />
-        <a href={`/categories/${sel}`} className="see-more">
-          Explorer rubrique {sel} →
+        <a href={`/categories/${activeSlug}`} className="see-more">
+          Explorer rubrique {activeCategory?.name || activeSlug} →
         </a>
       </div>
 

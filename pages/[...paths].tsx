@@ -18,10 +18,13 @@ import { mdToHtml } from "../lib/markdown";
 /* ── static paths ─────────────────────────────────────────────────── */
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const records = getArticleRecords();
-  const paths = records.map((record) => ({
-    params: { paths: [record.article.category, record.article.slug] },
-  }));
+  const records = await getArticleRecords();
+  const paths = records.map((record) => {
+    const categorySegment = record.article.categorySlug || record.article.category;
+    return {
+      params: { paths: [categorySegment, record.article.slug] },
+    };
+  });
 
   return { paths, fallback: false };
 };
@@ -34,24 +37,25 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return { notFound: true };
   }
 
-  const record = findArticleRecord(category, slug);
+  const record = await findArticleRecord(category, slug);
   if (!record) {
     return { notFound: true };
   }
 
-  const contentHtml = mdToHtml(record.body, record.publicBasePath);
+  const contentHtml = record.bodyHtml || mdToHtml(record.body, record.publicBasePath);
 
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
+  const normalizedCategorySlug = record.article.categorySlug.toLowerCase();
   const gridArticles = articles.filter(
     (article) =>
-      article.category.toLowerCase() === record.article.category.toLowerCase() &&
+      (article.categorySlug || article.category).toLowerCase() === normalizedCategorySlug &&
       article.slug !== record.article.slug
   );
 
   const searchArticles = articles.filter(
     (article) =>
       !(article.slug === record.article.slug &&
-        article.category.toLowerCase() === record.article.category.toLowerCase())
+        (article.categorySlug || article.category).toLowerCase() === normalizedCategorySlug)
   );
 
   return {
@@ -62,6 +66,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       headerImage: record.article.headerImage,
       media: record.article.media,
       category: record.article.category,
+      categorySlug: record.article.categorySlug,
       content: contentHtml,
       gridArticles,
       categories,
@@ -79,6 +84,7 @@ interface ArtProps {
   headerImage: string;
   media: string[];
   category: string;
+  categorySlug: string;
   content: string;
   gridArticles: Article[];
   categories: Category[];
@@ -92,6 +98,7 @@ const ArticlePage: React.FC<ArtProps> = ({
   headerImage,
   media,
   category,
+  categorySlug,
   content,
   gridArticles,
   categories,
@@ -130,9 +137,12 @@ const ArticlePage: React.FC<ArtProps> = ({
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
+  const normalizedSlug = categorySlug.toLowerCase();
   const articleColor =
     categories.find(
-      (current) => current.name.toLowerCase() === category.toLowerCase()
+      (current) =>
+        current.slug.toLowerCase() === normalizedSlug ||
+        current.name.toLowerCase() === category.toLowerCase()
     )?.color || "#d4d4d4";
 
   const backdropColor = hexToRgba(articleColor, 0.18);

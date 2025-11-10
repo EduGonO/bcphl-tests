@@ -73,6 +73,7 @@ const RedesignSearchSidebar = ({
           article.title,
           article.author,
           article.category,
+          article.categorySlug,
           article.preview,
         ]
           .filter(Boolean)
@@ -85,7 +86,7 @@ const RedesignSearchSidebar = ({
 
         const title = article.title.toLowerCase();
         const author = (article.author || "").toLowerCase();
-        const category = (article.category || "").toLowerCase();
+        const category = (article.categorySlug || article.category || "").toLowerCase();
 
         let score = 0;
 
@@ -196,15 +197,16 @@ const RedesignSearchSidebar = ({
                   aria-labelledby="search-results-heading"
                 >
                   {searchResults.map((article) => {
-                    const linkHref = `/${article.category}/${article.slug}`;
+                    const categorySegment = article.categorySlug || article.category;
+                    const linkHref = `/${categorySegment}/${article.slug}`;
                     const formattedDate = formatResultDate(article.date);
                     const showDate = Boolean(formattedDate);
                     const showAuthor = Boolean(article.author);
-                    const showCategory = Boolean(article.category);
+                    const showCategory = Boolean(article.category || article.categorySlug);
 
                     return (
                       <li
-                        key={`${article.category}-${article.slug}`}
+                        key={`${categorySegment}-${article.slug}`}
                         className="search-result-item"
                       >
                         <Link
@@ -247,7 +249,7 @@ const RedesignSearchSidebar = ({
                             )}
                             {showCategory && (
                               <span className="search-result-category">
-                                {article.category}
+                                {article.category || article.categorySlug}
                               </span>
                             )}
                           </span>

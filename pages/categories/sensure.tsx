@@ -346,7 +346,7 @@ aria-label={`Lire ${article.title}`}
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   const filteredArticles = articles.filter(a => a.category === 'Sensure');
   
   return {

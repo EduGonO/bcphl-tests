@@ -19,8 +19,11 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
 
   const currentArticle = articles[currentIndex];
   const catColor =
-    categories.find((c) => c.name === currentArticle.category)?.color ||
-    '#f0f0f0';
+    categories.find(
+      (c) =>
+        c.slug.toLowerCase() === currentArticle.categorySlug.toLowerCase() ||
+        c.name.toLowerCase() === currentArticle.category.toLowerCase()
+    )?.color || '#f0f0f0';
 
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
@@ -33,7 +36,7 @@ const ArticleBlock: React.FC<ArticleBlockProps> = ({
   return (
     <div className="article-block-container">
       <a
-        href={`/${currentArticle.category}/${currentArticle.slug}`}
+        href={`/${currentArticle.categorySlug || currentArticle.category}/${currentArticle.slug}`}
         className="article-block"
       >
         <div
