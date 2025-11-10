@@ -169,6 +169,9 @@ const TopNav: React.FC = () => {
           height: 42px;
           min-height: 42px;
           max-height: 42px;
+          block-size: 42px;
+          min-block-size: 42px;
+          max-block-size: 42px;
           flex: 1 1 280px;
           min-width: 0;
           white-space: nowrap;
