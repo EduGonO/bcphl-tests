@@ -111,6 +111,7 @@ const TopNav: React.FC = () => {
         .brand-name {
           display: inline-flex;
           align-items: center;
+          min-height: 46px;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
