@@ -146,6 +146,7 @@ export default function SignInPage() {
           padding: 0.85rem 1rem;
           border-radius: 16px;
           border: 1px solid rgba(209, 213, 219, 0.7);
+          box-sizing: border-box;
           background: rgba(248, 250, 255, 0.75);
           color: rgba(15, 23, 42, 0.86);
           font-size: 0.95rem;
