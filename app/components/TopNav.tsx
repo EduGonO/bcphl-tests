@@ -1,21 +1,13 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { signOut, useSession } from "next-auth/react";
 import React, { useEffect, useMemo, useState } from "react";
 
 import { NAV_LINKS } from "../../config/navLinks";
 
-const WORKSPACE_ROUTES = new Set(["/editeur", "/admin", "/master"]);
-
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
-
-  const isWorkspaceRoute = WORKSPACE_ROUTES.has(router.pathname);
-  const canShowSession = status === "authenticated" && isWorkspaceRoute;
-  const sessionEmail = session?.user?.email ?? "";
 
   useEffect(() => {
     const handleResize = () => {
@@ -125,23 +117,6 @@ const TopNav: React.FC = () => {
           </nav>
         </div>
       </div>
-      {canShowSession && (
-        <div className="top-nav__meta">
-          <div className="top-nav__session">
-            <div className="top-nav__session-info">
-              <span className="top-nav__session-label">Connecté·e</span>
-              <span className="top-nav__session-email">{sessionEmail}</span>
-            </div>
-            <button
-              type="button"
-              className="top-nav__signout"
-              onClick={() => signOut()}
-            >
-              Déconnexion
-            </button>
-          </div>
-        </div>
-      )}
       <style jsx>{`
         .top-nav {
           position: sticky;
@@ -311,62 +286,6 @@ const TopNav: React.FC = () => {
           pointer-events: none;
         }
 
-        .top-nav__meta {
-          display: flex;
-          width: 100%;
-          justify-content: flex-end;
-        }
-
-        .top-nav__session {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          background: rgba(24, 25, 32, 0.05);
-          border-radius: 16px;
-          padding: 12px 18px;
-          box-shadow: inset 0 0 0 1px rgba(24, 25, 32, 0.04);
-        }
-
-        .top-nav__session-info {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          max-width: 220px;
-        }
-
-        .top-nav__session-label {
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.16em;
-          color: #7b7d86;
-        }
-
-        .top-nav__session-email {
-          font-size: 13px;
-          color: #181920;
-          font-weight: 600;
-          word-break: break-word;
-        }
-
-        .top-nav__signout {
-          border: none;
-          background: #181920;
-          color: #ffffff;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.22em;
-          border-radius: 999px;
-          padding: 9px 20px;
-          cursor: pointer;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-          white-space: nowrap;
-        }
-
-        .top-nav__signout:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 10px 18px rgba(24, 25, 32, 0.18);
-        }
-
         @media (max-width: 1100px) {
           .top-nav__categories {
             flex-basis: 100%;
@@ -413,10 +332,6 @@ const TopNav: React.FC = () => {
 
           .nav-links {
             gap: 20px;
-          }
-
-          .top-nav__meta {
-            justify-content: flex-start;
           }
 
           .top-nav--compact {

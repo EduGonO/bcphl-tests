@@ -1,3 +1,4 @@
+import { signOut, useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   SupabaseArticleDetail,
@@ -91,6 +92,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const [createStatus, setCreateStatus] = useState<"idle" | "creating">("idle");
   const [createError, setCreateError] = useState<string | null>(null);
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting">("idle");
+
+  const { data: session, status: sessionStatus } = useSession();
+  const sessionEmail = session?.user?.email ?? "";
+  const canShowSession = sessionStatus === "authenticated";
 
   const workspaceVariant = variant;
   const showAdvanced = workspaceVariant !== "writer";
@@ -463,8 +468,22 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   return (
     <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
-        <div>
-          <h2>NOM_EDITEUR</h2>
+        <div className="supabase-panel__intro">
+          {canShowSession && (
+            <div className="supabase-panel__session">
+              <div className="supabase-panel__session-info">
+                <span className="supabase-panel__session-label">Connecté·e</span>
+                <span className="supabase-panel__session-email">{sessionEmail}</span>
+              </div>
+              <button
+                type="button"
+                className="supabase-panel__signout"
+                onClick={() => signOut()}
+              >
+                Déconnexion
+              </button>
+            </div>
+          )}
           <p className="supabase-panel__subtitle">
             {allArticles.length} article{allArticles.length > 1 ? "s" : ""} en ligne
           </p>
@@ -883,15 +902,59 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           border-bottom: 1px solid rgba(0, 0, 0, 0.08);
           flex-shrink: 0;
         }
-        .supabase-panel__header h2 {
-          margin: 0;
-          font-size: 17px;
+        .supabase-panel__intro {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .supabase-panel__session {
+          display: inline-flex;
+          align-items: center;
+          gap: 14px;
+          padding: 10px 16px;
+          border-radius: 18px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          background: rgba(255, 255, 255, 0.6);
+          box-shadow: 0 10px 24px rgba(18, 19, 27, 0.08);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+        }
+        .supabase-panel__session-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-width: 0;
+        }
+        .supabase-panel__session-label {
+          font-size: 10px;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
-          letter-spacing: 0.22em;
-          color: #151720;
+          color: #6b6e76;
+        }
+        .supabase-panel__session-email {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1c1e24;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+        .supabase-panel__signout {
+          border: none;
+          border-radius: 999px;
+          padding: 8px 16px;
+          font-size: 10px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          background: #1f2024;
+          color: #ffffff;
+          cursor: pointer;
+        }
+        .supabase-panel__signout:hover {
+          background: #292a30;
         }
         .supabase-panel__subtitle {
-          margin: 8px 0 0;
+          margin: 0;
           font-size: 13px;
           color: #5a5c62;
         }
@@ -1109,7 +1172,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           display: flex;
           flex-direction: column;
           gap: 18px;
-          overflow: hidden;
+          overflow: visible;
         }
         .supabase-workspace__empty {
           margin: auto;
@@ -1306,6 +1369,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           color: #5a5c62;
         }
         .supabase-editor__details {
+          display: flex;
+          flex-direction: column;
           gap: 12px;
         }
         .supabase-editor__details-grid {
@@ -1319,7 +1384,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__stack {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 6px;
+        }
+        .supabase-editor__stack > * {
+          margin: 0;
         }
         .supabase-editor__field textarea {
           min-height: 120px;
@@ -1368,8 +1436,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           text-transform: uppercase;
           color: #5a5c62;
         }
+        .supabase-editor__media {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
         .supabase-editor__media ul {
-          margin: 8px 0 0;
+          margin: 4px 0 0;
           padding-left: 16px;
           color: #5a5c62;
           font-size: 12px;
