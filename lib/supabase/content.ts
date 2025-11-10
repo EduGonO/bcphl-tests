@@ -17,6 +17,7 @@ const mapArticleSummary = (
   status: Boolean(input.status),
   authoredDate: input.authored_date ? String(input.authored_date) : null,
   publishedAt: input.published_at ? String(input.published_at) : null,
+  updatedAt: input.updated_at ? String(input.updated_at) : null,
   preview: input.preview ?? null,
   excerpt: input.excerpt ?? null,
   headerImagePath: input.header_image_path ?? null,
@@ -58,6 +59,7 @@ export const loadSupabaseCategorySummaries = async (
         status,
         authored_date,
         published_at,
+        updated_at,
         preview,
         excerpt,
         header_image_path
