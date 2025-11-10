@@ -18,7 +18,11 @@ const MasterPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
         <title>Bicéphale · Master</title>
       </Head>
       <TopNav />
-      <EditorShell categories={supabaseCats} error={supabaseError} />
+      <EditorShell
+        categories={supabaseCats}
+        error={supabaseError}
+        variant="master"
+      />
     </>
   );
 };

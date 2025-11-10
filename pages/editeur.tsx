@@ -18,7 +18,11 @@ const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
         <title>Bicéphale · Éditeur</title>
       </Head>
       <TopNav />
-      <EditorShell categories={supabaseCats} error={supabaseError} />
+      <EditorShell
+        categories={supabaseCats}
+        error={supabaseError}
+        variant="writer"
+      />
     </>
   );
 };

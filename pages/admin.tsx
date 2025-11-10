@@ -18,7 +18,11 @@ const AdminPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
         <title>Bicéphale · Admin</title>
       </Head>
       <TopNav />
-      <EditorShell categories={supabaseCats} error={supabaseError} />
+      <EditorShell
+        categories={supabaseCats}
+        error={supabaseError}
+        variant="admin"
+      />
     </>
   );
 };

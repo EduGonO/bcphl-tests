@@ -56,12 +56,19 @@ const detailToForm = (detail: SupabaseArticleDetail): SupabaseFormState => ({
 
 type StatusTone = "idle" | "loading" | "saving" | "saved" | "dirty" | "error";
 
+export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
+
 type SupabaseWorkspaceProps = {
   categories: SupabaseCategorySummary[];
   error?: string | null;
+  variant?: SupabaseWorkspaceVariant;
 };
 
-const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error }) => {
+const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
+  categories,
+  error,
+  variant = "admin",
+}) => {
   const [supabaseCategories, setSupabaseCategories] = useState(categories);
   const [panelError, setPanelError] = useState<string | null>(error ?? null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
@@ -84,6 +91,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
   const [createStatus, setCreateStatus] = useState<"idle" | "creating">("idle");
   const [createError, setCreateError] = useState<string | null>(null);
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting">("idle");
+
+  const workspaceVariant = variant;
+  const showAdvanced = workspaceVariant !== "writer";
 
   useEffect(() => {
     setSupabaseCategories(categories);
@@ -451,7 +461,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
   );
 
   return (
-    <section className="supabase-panel">
+    <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
         <div>
           <h2>Espace articles</h2>
@@ -729,36 +739,38 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
                   />
                 </div>
 
-                <details className="supabase-editor__advanced">
-                  <summary>Afficher les champs bruts</summary>
-                  <label>
-                    <span>Contenu Markdown</span>
-                    <textarea
-                      className="supabase-editor__textarea"
-                      value={formState.bodyMarkdown}
-                      onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
-                    />
-                  </label>
+                {showAdvanced && (
+                  <details className="supabase-editor__advanced">
+                    <summary>Afficher les champs bruts</summary>
+                    <label>
+                      <span>Contenu Markdown</span>
+                      <textarea
+                        className="supabase-editor__textarea"
+                        value={formState.bodyMarkdown}
+                        onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
+                      />
+                    </label>
 
-                  <label>
-                    <span>Contenu HTML</span>
-                    <textarea
-                      className="supabase-editor__textarea"
-                      value={formState.bodyHtml}
-                      onChange={(event) => updateForm("bodyHtml", event.target.value)}
-                    />
-                  </label>
+                    <label>
+                      <span>Contenu HTML</span>
+                      <textarea
+                        className="supabase-editor__textarea"
+                        value={formState.bodyHtml}
+                        onChange={(event) => updateForm("bodyHtml", event.target.value)}
+                      />
+                    </label>
 
-                  <label>
-                    <span>Contenu JSON (TipTap / Rich text)</span>
-                    <textarea
-                      className="supabase-editor__textarea"
-                      value={formState.bodyJson}
-                      onChange={(event) => updateForm("bodyJson", event.target.value)}
-                      placeholder='{ "type": "doc" }'
-                    />
-                  </label>
-                </details>
+                    <label>
+                      <span>Contenu JSON (TipTap / Rich text)</span>
+                      <textarea
+                        className="supabase-editor__textarea"
+                        value={formState.bodyJson}
+                        onChange={(event) => updateForm("bodyJson", event.target.value)}
+                        placeholder='{ "type": "doc" }'
+                      />
+                    </label>
+                  </details>
+                )}
 
                 <fieldset className="supabase-editor__fieldset">
                   <legend>Catégories</legend>
@@ -850,9 +862,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
       <style jsx>{`
         .supabase-panel {
           width: 100%;
+          height: 100%;
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 20px;
+          overflow: hidden;
         }
         .supabase-panel__header {
           display: flex;
@@ -861,6 +875,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           gap: 16px;
           padding-bottom: 12px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          flex-shrink: 0;
         }
         .supabase-panel__header h2 {
           margin: 0;
@@ -884,6 +899,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           background: rgba(162, 47, 33, 0.08);
           color: #a62f21;
           font-size: 13px;
+          flex-shrink: 0;
         }
         .supabase-button {
           border: none;
@@ -915,6 +931,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           border-radius: 12px;
           padding: 16px;
           background: #f9fafb;
+          flex-shrink: 0;
         }
         .supabase-create__row {
           display: grid;
@@ -994,17 +1011,19 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           font-size: 12px;
         }
         .supabase-workspace {
+          flex: 1;
+          min-height: 0;
           display: grid;
           grid-template-columns: 320px minmax(0, 1fr);
           gap: 24px;
         }
         .supabase-workspace__sidebar {
-          max-height: 520px;
+          min-height: 0;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           gap: 16px;
-          padding-right: 6px;
+          padding-right: 8px;
         }
         .supabase-category__header {
           display: flex;
@@ -1076,6 +1095,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         }
         .supabase-workspace__editor {
           flex: 1;
+          min-height: 0;
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 16px;
           padding: 22px 24px;
@@ -1083,8 +1103,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           display: flex;
           flex-direction: column;
           gap: 20px;
-          max-height: 520px;
-          overflow-y: auto;
+          overflow: hidden;
         }
         .supabase-workspace__empty {
           margin: auto;
@@ -1149,6 +1168,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           display: flex;
           flex-direction: column;
           gap: 16px;
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          padding-right: 6px;
         }
         .supabase-editor__grid {
           display: grid;
@@ -1182,6 +1205,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           display: flex;
           flex-direction: column;
           gap: 12px;
+          flex: 1;
+          min-height: 0;
         }
         .supabase-editor__richtext-header {
           display: flex;
@@ -1203,6 +1228,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           border: 1px solid rgba(0, 0, 0, 0.12);
           border-radius: 12px;
           overflow: hidden;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
         }
         .supabase-rich-text .ql-toolbar {
           border: none;
@@ -1211,7 +1239,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         .supabase-rich-text .ql-container {
           border: none;
           font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          min-height: 260px;
+          flex: 1;
+          min-height: 0;
         }
         .supabase-rich-text__loading {
           padding: 24px;
@@ -1289,6 +1318,28 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         .supabase-editor__footer {
           display: flex;
           gap: 12px;
+          flex-shrink: 0;
+        }
+        .supabase-panel--writer .supabase-editor__form {
+          gap: 12px;
+        }
+        .supabase-panel--writer .supabase-editor__grid {
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 10px;
+        }
+        .supabase-panel--writer .supabase-editor__form label {
+          font-size: 10px;
+          letter-spacing: 0.12em;
+        }
+        .supabase-panel--writer .supabase-editor__richtext {
+          padding-top: 4px;
+        }
+        .supabase-panel--writer .supabase-editor__richtext-header span {
+          font-size: 14px;
+        }
+        .supabase-panel--writer .supabase-editor__richtext-header p {
+          font-size: 11px;
+          color: #4a4c53;
         }
         @media (max-width: 1080px) {
           .supabase-workspace {
