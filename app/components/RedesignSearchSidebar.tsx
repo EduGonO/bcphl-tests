@@ -510,6 +510,7 @@ const RedesignSearchSidebar = ({
           display: flex;
           flex-direction: column;
           gap: 12px;
+          padding-bottom: 8px;
         }
         .search-results-label {
           margin: 0;
@@ -524,7 +525,7 @@ const RedesignSearchSidebar = ({
           flex-direction: column;
           gap: 10px;
           margin: 0;
-          padding: 0;
+          padding: 2px 2px 10px;
           list-style: none;
           max-height: 240px;
           overflow-y: auto;
@@ -572,7 +573,8 @@ const RedesignSearchSidebar = ({
           display: inline-flex;
           flex-wrap: wrap;
           align-items: center;
-          gap: 6px;
+          column-gap: 6px;
+          row-gap: 8px;
           font-family: "InterRegular", sans-serif;
           font-size: 12px;
           letter-spacing: 0.04em;
@@ -586,8 +588,16 @@ const RedesignSearchSidebar = ({
           font-style: normal;
         }
         .search-result-category {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px 10px 3px;
+          background: rgba(44, 28, 35, 0.08);
+          border: 1px solid rgba(44, 28, 35, 0.16);
+          border-radius: 999px;
           font-family: "InterMedium", sans-serif;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.1em;
+          color: #2c1c23;
         }
         .search-result-separator {
           color: rgba(44, 28, 35, 0.38);
