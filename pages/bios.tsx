@@ -5,7 +5,9 @@ import ReactMarkdown from "react-markdown";
 import Footer from "../app/components/Footer";
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import TopNav from "../app/components/TopNav";
+import { getArticleData } from "../lib/articleService";
 import teamMembersData from "../data/team.json";
+import { Article } from "../types";
 import type { TeamMember } from "../types/bios";
 
 type TeamMemberWithPortraits = TeamMember & {
@@ -35,6 +37,10 @@ type PortraitProps = {
   priority?: boolean;
   className?: string;
 };
+
+interface BiosPageProps {
+  articles: Article[];
+}
 
 const Portrait = ({
   name,
@@ -85,7 +91,7 @@ const Portrait = ({
   );
 };
 
-const BiosPage = () => {
+const BiosPage = ({ articles }: BiosPageProps) => {
   const [query, setQuery] = useState("");
   return (
     <>
@@ -100,7 +106,11 @@ const BiosPage = () => {
         <TopNav />
 
         <main className="content">
-          <RedesignSearchSidebar query={query} onQueryChange={setQuery} />
+          <RedesignSearchSidebar
+            query={query}
+            onQueryChange={setQuery}
+            articles={articles}
+          />
 
           <div className="main-area">
             <section className="bios" aria-label="Membres et Contributeurs - Bicéphale">
@@ -325,5 +335,14 @@ const BiosPage = () => {
     </>
   );
 };
+
+export async function getStaticProps() {
+  const { articles } = getArticleData();
+  return {
+    props: {
+      articles,
+    },
+  };
+}
 
 export default BiosPage;

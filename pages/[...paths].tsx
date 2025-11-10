@@ -48,6 +48,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       article.slug !== record.article.slug
   );
 
+  const searchArticles = articles.filter(
+    (article) =>
+      !(article.slug === record.article.slug &&
+        article.category.toLowerCase() === record.article.category.toLowerCase())
+  );
+
   return {
     props: {
       title: record.article.title,
@@ -59,6 +65,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       content: contentHtml,
       gridArticles,
       categories,
+      searchArticles,
     },
   };
 };
@@ -75,6 +82,7 @@ interface ArtProps {
   content: string;
   gridArticles: Article[];
   categories: Category[];
+  searchArticles: Article[];
 }
 
 const ArticlePage: React.FC<ArtProps> = ({
@@ -87,6 +95,7 @@ const ArticlePage: React.FC<ArtProps> = ({
   content,
   gridArticles,
   categories,
+  searchArticles,
 }) => {
   const [query, setQuery] = useState("");
 
@@ -162,6 +171,7 @@ const ArticlePage: React.FC<ArtProps> = ({
             onQueryChange={setQuery}
             searchLabel="Rechercher dans la revue"
             placeholder="Titre, auteur, mot-clé…"
+            articles={searchArticles}
           />
 
           <div className="article-layout">

@@ -139,7 +139,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         <TopNav />
 
         <main className="content">
-          <RedesignSearchSidebar query={query} onQueryChange={setQuery} />
+          <RedesignSearchSidebar
+            query={query}
+            onQueryChange={setQuery}
+            articles={sortedArticles}
+          />
 
           <div className="main-sections">
             <section className="intro">
