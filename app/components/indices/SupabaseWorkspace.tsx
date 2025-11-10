@@ -464,9 +464,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
         <div>
-          <h2>Espace articles</h2>
+          <h2>NOM_EDITEUR</h2>
           <p className="supabase-panel__subtitle">
-            Gestion des articles et de leurs contenus
+            {allArticles.length} article{allArticles.length > 1 ? "s" : ""} en ligne
           </p>
         </div>
         <div className="supabase-panel__actions">
@@ -515,7 +515,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
               />
             </label>
             <label>
-              <span>Slug</span>
+              <span>Adresse</span>
               <input
                 value={createDraft.slug}
                 onChange={(event) =>
@@ -642,16 +642,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         <div className="supabase-workspace__editor">
           {selectedArticleId && formState ? (
             <>
-              <header className="supabase-editor__header">
-                <div className="supabase-editor__heading">
-                  <h3>{formState.title || "Sans titre"}</h3>
-                  <p>{articleDetail?.slug}</p>
-                </div>
-                <span className={`supabase-editor__status supabase-editor__status--${digest.tone}`}>
-                  {digest.label}
-                </span>
-              </header>
-
               <div className="supabase-editor__content">
                 <section className="supabase-editor__primary">
                   <label className="supabase-editor__field supabase-editor__field--title">
@@ -694,8 +684,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                 <section className="supabase-editor__canvas">
                   <div className="supabase-editor__richtext-header">
-                    <span>Contenu éditorial</span>
-                    <p>Les modifications sont enregistrées en Markdown et HTML.</p>
+                    <span>Contenu de l’article</span>
+                    <span
+                      className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
+                    >
+                      {digest.label}
+                    </span>
                   </div>
                   <SupabaseRichTextEditor
                     key={articleDetail?.id ?? "new"}
@@ -708,7 +702,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                 <section className="supabase-editor__details">
                   <div className="supabase-editor__details-grid">
                     <label className="supabase-editor__field">
-                      <span>Slug</span>
+                      <span>Adresse</span>
                       <input
                         value={formState.slug}
                         onChange={(event) => updateForm("slug", event.target.value)}
@@ -758,14 +752,49 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     </label>
                   </div>
 
-                  <label className="supabase-editor__field">
-                    <span>Image d’en-tête (URL ou chemin de stockage)</span>
-                    <input
-                      value={formState.headerImagePath}
-                      onChange={(event) => updateForm("headerImagePath", event.target.value)}
-                      placeholder="storage/articles/image.jpg"
-                    />
-                  </label>
+                  <div className="supabase-editor__stack">
+                    <label className="supabase-editor__field">
+                      <span>Image d’en-tête (URL ou chemin de stockage)</span>
+                      <input
+                        value={formState.headerImagePath}
+                        onChange={(event) => updateForm("headerImagePath", event.target.value)}
+                        placeholder="storage/articles/image.jpg"
+                      />
+                    </label>
+
+                    <label className="supabase-editor__field supabase-editor__field--related">
+                      <span>Articles liés</span>
+                      <select
+                        multiple
+                        value={formState.relatedArticleIds}
+                        onChange={(event) =>
+                          handleRelatedChange(
+                            Array.from(event.target.selectedOptions).map((option) => option.value)
+                          )
+                        }
+                      >
+                        {relatedOptions.map((article) => (
+                          <option key={article.id} value={article.id}>
+                            {article.title} · {article.categoryName}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    {articleDetail?.media?.length ? (
+                      <div className="supabase-editor__media">
+                        <h4>Médias liés</h4>
+                        <ul>
+                          {articleDetail.media.map((media) => (
+                            <li key={media.id}>
+                              <code>{media.storagePath}</code>
+                              {media.caption && <span>{media.caption}</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
 
                   {showAdvanced && (
                     <details className="supabase-editor__advanced">
@@ -799,39 +828,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       </label>
                     </details>
                   )}
-
-                  <label className="supabase-editor__field">
-                    <span>Articles liés</span>
-                    <select
-                      multiple
-                      value={formState.relatedArticleIds}
-                      onChange={(event) =>
-                        handleRelatedChange(
-                          Array.from(event.target.selectedOptions).map((option) => option.value)
-                        )
-                      }
-                    >
-                      {relatedOptions.map((article) => (
-                        <option key={article.id} value={article.id}>
-                          {article.title} · {article.categoryName}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  {articleDetail?.media?.length ? (
-                    <div className="supabase-editor__media">
-                      <h4>Médias liés</h4>
-                      <ul>
-                        {articleDetail.media.map((media) => (
-                          <li key={media.id}>
-                            <code>{media.storagePath}</code>
-                            {media.caption && <span>{media.caption}</span>}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
 
                   {articleDetail && (
                     <div className="supabase-editor__meta">
@@ -1126,41 +1122,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           padding: 40px 24px;
           background: #fafbff;
         }
-        .supabase-editor__header {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 18px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        }
-        .supabase-editor__heading {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        .supabase-editor__heading h3 {
-          margin: 0;
-          font-size: 20px;
-          font-weight: 600;
-          letter-spacing: -0.01em;
-          color: #171821;
-        }
-        .supabase-editor__heading p {
-          margin: 0;
-          font-size: 12px;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          color: #8a8d98;
-        }
         .supabase-editor__status {
           border-radius: 999px;
-          padding: 6px 14px;
-          font-size: 11px;
+          padding: 4px 10px;
+          font-size: 10px;
           text-transform: uppercase;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.16em;
           border: 1px solid rgba(0, 0, 0, 0.12);
-          background: #ffffff;
+          background: #f6f7fb;
           color: #4c4f58;
           flex-shrink: 0;
         }
@@ -1304,19 +1273,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           border-bottom: 1px solid rgba(0, 0, 0, 0.06);
           padding-bottom: 8px;
         }
-        .supabase-editor__richtext-header span {
+        .supabase-editor__richtext-header span:first-of-type {
           font-size: 14px;
           font-weight: 600;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #2a2c34;
-        }
-        .supabase-editor__richtext-header p {
-          margin: 0;
-          font-size: 11px;
-          color: #6e707a;
-          text-transform: none;
-          letter-spacing: 0;
         }
         .supabase-rich-text {
           border: 1px solid rgba(0, 0, 0, 0.08);
@@ -1344,7 +1306,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           color: #5a5c62;
         }
         .supabase-editor__details {
-          gap: 16px;
+          gap: 12px;
         }
         .supabase-editor__details-grid {
           display: grid;
@@ -1353,6 +1315,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__details-grid--wide {
           grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+        .supabase-editor__stack {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
         }
         .supabase-editor__field textarea {
           min-height: 120px;
@@ -1436,11 +1403,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-panel--writer .supabase-editor__field--title input {
           font-size: 20px;
         }
-        .supabase-panel--writer .supabase-editor__richtext-header span {
+        .supabase-panel--writer .supabase-editor__richtext-header span:first-of-type {
           font-size: 13px;
-        }
-        .supabase-panel--writer .supabase-editor__richtext-header p {
-          font-size: 10px;
         }
         @media (max-width: 900px) {
           .supabase-editor__primary-row {
