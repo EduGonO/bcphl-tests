@@ -159,15 +159,24 @@ const buildArticleRecord = (
   const yamlMedia = normalizeMedia(yaml.media);
   const media = Array.from(new Set([...yamlMedia, ...mediaFromDir]));
 
+  const preview = createPreview(body);
+  const normalizedDate = date && date !== "Unknown Date" ? date : "";
+
   const article: Article = {
+    id: slug,
     title,
     slug,
     category,
+    categoryName: category,
     date,
     author,
-    preview: createPreview(body),
+    preview,
     media,
     headerImage,
+    excerpt: null,
+    publishedAt: normalizedDate || null,
+    authoredDate: normalizedDate || null,
+    updatedAt: null,
   };
 
   return {

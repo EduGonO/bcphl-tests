@@ -1,10 +1,12 @@
 import Head from "next/head";
+import type { GetServerSideProps } from "next";
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
-import { getArticleData } from "../lib/articleService";
 import { Article } from "../types";
+import { loadPublicContent } from "../lib/supabase/publicContent";
 
 interface ReflexionPageProps {
   articles: Article[];
+  supabaseError?: string | null;
 }
 
 /*
@@ -26,7 +28,7 @@ const reflexionIntro: ReactNode = (
 );
 */
 
-const ReflexionPage = ({ articles }: ReflexionPageProps) => {
+const ReflexionPage = ({ articles, supabaseError }: ReflexionPageProps) => {
   return (
     <>
       <Head>
@@ -41,20 +43,36 @@ const ReflexionPage = ({ articles }: ReflexionPageProps) => {
         // introContent={reflexionIntro}
         columnTitle="RÉFLEXION"
         variant="reflexion"
+        error={supabaseError}
       />
     </>
   );
 };
 
-export async function getStaticProps() {
-  const { articles } = getArticleData();
-  return {
-    props: {
-      articles: articles.filter(
-        (article) => article.category.toLowerCase() === "reflexion"
-      ),
-    },
-  };
-}
+export const getServerSideProps: GetServerSideProps<ReflexionPageProps> = async () => {
+  try {
+    const { categories } = await loadPublicContent();
+    const reflexionCategory = categories.find(
+      (category) => category.slug?.toLowerCase() === "reflexion"
+    );
+
+    return {
+      props: {
+        articles: reflexionCategory ? reflexionCategory.articles : [],
+        supabaseError: null,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        articles: [],
+        supabaseError:
+          error instanceof Error
+            ? error.message
+            : "Impossible de charger la catégorie Réflexion.",
+      },
+    };
+  }
+};
 
 export default ReflexionPage;

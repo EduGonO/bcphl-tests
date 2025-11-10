@@ -1,18 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import type { GetServerSideProps } from "next";
 import Footer from "../app/components/Footer";
 import RedesignArticlePreviewCard from "../app/components/RedesignArticlePreviewCard";
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import TopNav from "../app/components/TopNav";
 import { Article } from "../types";
-import { getArticleData } from "../lib/articleService";
+import { loadPublicContent } from "../lib/supabase/publicContent";
 
 interface RedesignProps {
   articles: Article[];
+  supabaseError?: string | null;
 }
 
-const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
+const RedesignPage: React.FC<RedesignProps> = ({ articles, supabaseError }) => {
   const [query, setQuery] = useState("");
   const [introHeight, setIntroHeight] = useState<number | null>(null);
   const introCopyRef = useRef<HTMLDivElement | null>(null);
@@ -146,6 +148,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           />
 
           <div className="main-sections">
+            {supabaseError && (
+              <section className="error-banner" role="alert">
+                <p>{supabaseError}</p>
+              </section>
+            )}
             <section className="intro">
               <div className="intro-copy" ref={introCopyRef}>
                 <div className="intro-text">
@@ -263,6 +270,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           flex-direction: column;
           gap: 52px;
           background: #e4e4e4;
+        }
+        .error-banner {
+          background: #ffe0e0;
+          border-bottom: 1px solid rgba(255, 17, 34, 0.2);
+          color: #5f2121;
+          font-family: "InterRegular", sans-serif;
+          padding: 12px clamp(24px, 7vw, 88px);
         }
         .intro {
           display: grid;
@@ -547,9 +561,24 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   );
 };
 
-export async function getStaticProps() {
-  const { articles } = getArticleData();
-  return { props: { articles } };
-}
-
 export default RedesignPage;
+
+export const getServerSideProps: GetServerSideProps<RedesignProps> = async () => {
+  try {
+    const { articles } = await loadPublicContent();
+    return {
+      props: {
+        articles,
+        supabaseError: null,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        articles: [],
+        supabaseError:
+          error instanceof Error ? error.message : "Impossible de charger les articles.",
+      },
+    };
+  }
+};

@@ -1,13 +1,15 @@
 import Head from "next/head";
+import type { GetServerSideProps } from "next";
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
-import { getArticleData } from "../lib/articleService";
 import { Article } from "../types";
+import { loadPublicContent } from "../lib/supabase/publicContent";
 
 interface IRLPageProps {
   articles: Article[];
+  supabaseError?: string | null;
 }
 
-const IRLPage = ({ articles }: IRLPageProps) => {
+const IRLPage = ({ articles, supabaseError }: IRLPageProps) => {
   return (
     <>
       <Head>
@@ -21,20 +23,34 @@ const IRLPage = ({ articles }: IRLPageProps) => {
         articles={articles}
         columnTitle="IRL"
         variant="irl"
+        error={supabaseError}
       />
     </>
   );
 };
 
-export async function getStaticProps() {
-  const { articles } = getArticleData();
-  return {
-    props: {
-      articles: articles.filter(
-        (article) => article.category.toLowerCase() === "irl"
-      ),
-    },
-  };
-}
+export const getServerSideProps: GetServerSideProps<IRLPageProps> = async () => {
+  try {
+    const { categories } = await loadPublicContent();
+    const irlCategory = categories.find(
+      (category) => category.slug?.toLowerCase() === "irl"
+    );
+
+    return {
+      props: {
+        articles: irlCategory ? irlCategory.articles : [],
+        supabaseError: null,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        articles: [],
+        supabaseError:
+          error instanceof Error ? error.message : "Impossible de charger la catégorie IRL.",
+      },
+    };
+  }
+};
 
 export default IRLPage;

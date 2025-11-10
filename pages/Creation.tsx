@@ -1,10 +1,12 @@
 import Head from "next/head";
+import type { GetServerSideProps } from "next";
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
-import { getArticleData } from "../lib/articleService";
 import { Article } from "../types";
+import { loadPublicContent } from "../lib/supabase/publicContent";
 
 interface CreationPageProps {
   articles: Article[];
+  supabaseError?: string | null;
 }
 
 /*
@@ -26,7 +28,7 @@ const creationIntro: ReactNode = (
 );
 */
 
-const CreationPage = ({ articles }: CreationPageProps) => {
+const CreationPage = ({ articles, supabaseError }: CreationPageProps) => {
   return (
     <>
       <Head>
@@ -41,20 +43,34 @@ const CreationPage = ({ articles }: CreationPageProps) => {
         // introContent={creationIntro}
         columnTitle="CRÉATION"
         variant="creation"
+        error={supabaseError}
       />
     </>
   );
 };
 
-export async function getStaticProps() {
-  const { articles } = getArticleData();
-  return {
-    props: {
-      articles: articles.filter(
-        (article) => article.category.toLowerCase() === "creation"
-      ),
-    },
-  };
-}
+export const getServerSideProps: GetServerSideProps<CreationPageProps> = async () => {
+  try {
+    const { categories } = await loadPublicContent();
+    const creationCategory = categories.find(
+      (category) => category.slug?.toLowerCase() === "creation"
+    );
+
+    return {
+      props: {
+        articles: creationCategory ? creationCategory.articles : [],
+        supabaseError: null,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        articles: [],
+        supabaseError:
+          error instanceof Error ? error.message : "Impossible de charger la catégorie Création.",
+      },
+    };
+  }
+};
 
 export default CreationPage;
