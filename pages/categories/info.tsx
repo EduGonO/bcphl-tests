@@ -1,6 +1,6 @@
 // /pages/categories/image-critique.tsx
 import React, { useEffect, useRef } from 'react';
-import { GetStaticProps } from 'next';
+import { GetServerSideProps } from 'next';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types';
@@ -402,10 +402,10 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const { articles, categories } = await getArticleData();
   const filteredArticles = articles.filter(a => a.category === 'Image-Critique');
-  
+
   return {
     props: { 
       articles: filteredArticles,

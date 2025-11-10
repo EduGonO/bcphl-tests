@@ -133,7 +133,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
   );
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { articles, categories } = await getArticleData();
   return { props: { articles, categories } };
 }

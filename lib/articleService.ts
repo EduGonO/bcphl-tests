@@ -31,8 +31,7 @@ type ArticleCollection = {
   categories: Category[];
 };
 
-let cachedCollectionPromise: Promise<ArticleCollection> | null = null;
-const detailCache = new Map<string, SupabaseArticleDetail | null>();
+type DetailCache = Map<string, Promise<SupabaseArticleDetail | null>>;
 
 const configSlugMap = new Map<string, string>();
 Object.keys(categoryConfigMap).forEach((name) => {
@@ -53,13 +52,18 @@ const ensureSupabaseClient = () => {
 
 const fetchArticleDetail = async (
   articleId: string,
-  supabase = ensureSupabaseClient()
+  supabase = ensureSupabaseClient(),
+  cache?: DetailCache
 ): Promise<SupabaseArticleDetail | null> => {
-  if (!detailCache.has(articleId)) {
-    const detail = await loadSupabaseArticleDetail(supabase, articleId);
-    detailCache.set(articleId, detail);
+  const targetCache = cache ?? new Map<string, Promise<SupabaseArticleDetail | null>>();
+
+  let detailPromise = targetCache.get(articleId);
+  if (!detailPromise) {
+    detailPromise = loadSupabaseArticleDetail(supabase, articleId);
+    targetCache.set(articleId, detailPromise);
   }
-  return detailCache.get(articleId) ?? null;
+
+  return detailPromise.then((detail) => detail ?? null);
 };
 
 const buildStoragePublicUrl = (bucket: string, rawPath?: string | null): string => {
@@ -238,87 +242,80 @@ const mapArticleCategories = (
 };
 
 const ensureCollection = async (): Promise<ArticleCollection> => {
-  if (cachedCollectionPromise) {
-    return cachedCollectionPromise;
+  const supabase = ensureSupabaseClient();
+  const supabaseCategories = await loadSupabaseCategorySummaries(supabase);
+
+  const categories = supabaseCategories.map(resolveCategoryMeta);
+  const categoriesById = new Map(categories.map((category) => [category.id, category]));
+  const categoriesBySlug = new Map(
+    categories.map((category) => [category.slug.toLowerCase(), category])
+  );
+
+  const records: ArticleRecord[] = [];
+  const seenKeys = new Set<string>();
+  const detailCache: DetailCache = new Map();
+
+  for (const categorySummary of supabaseCategories) {
+    const categoryMeta =
+      categoriesById.get(categorySummary.id) ||
+      categoriesBySlug.get((categorySummary.slug || "").toLowerCase());
+
+    const categorySlug = categoryMeta?.slug || categorySummary.slug || categoryToSlug(categorySummary.name);
+    const categoryName = categoryMeta?.name || categorySummary.name || categorySlug;
+
+    for (const summary of categorySummary.articles) {
+      if (!summary.status) {
+        continue;
+      }
+
+      const detail = await fetchArticleDetail(summary.id, supabase, detailCache);
+      if (!detail || !detail.status) {
+        continue;
+      }
+
+      const recordKey = `${detail.id}::${categorySlug.toLowerCase()}`;
+      if (seenKeys.has(recordKey)) {
+        continue;
+      }
+      seenKeys.add(recordKey);
+
+      const media = resolveMedia(detail);
+      const headerImage = resolveHeaderImage(summary, detail, media);
+      const articleCategories = mapArticleCategories(
+        detail,
+        categoriesById,
+        categoriesBySlug
+      );
+
+      const article: Article = {
+        id: detail.id,
+        title: detail.title,
+        slug: detail.slug,
+        category: categoryName,
+        categorySlug,
+        date: resolveDate(summary, detail),
+        author: detail.authorName ?? "",
+        preview: resolvePreview(summary, detail),
+        media,
+        headerImage,
+      };
+
+      const record: ArticleRecord = {
+        article,
+        body: detail.bodyMarkdown ?? "",
+        bodyHtml: detail.bodyHtml,
+        supabaseId: detail.id,
+        articleCategories,
+        relatedArticles: detail.relatedArticles,
+        publicBasePath: "",
+        sourceType: SOURCE_TYPE,
+      };
+
+      records.push(record);
+    }
   }
 
-  cachedCollectionPromise = (async () => {
-    const supabase = ensureSupabaseClient();
-    const supabaseCategories = await loadSupabaseCategorySummaries(supabase);
-
-    const categories = supabaseCategories.map(resolveCategoryMeta);
-    const categoriesById = new Map(categories.map((category) => [category.id, category]));
-    const categoriesBySlug = new Map(
-      categories.map((category) => [category.slug.toLowerCase(), category])
-    );
-
-    const records: ArticleRecord[] = [];
-    const seenKeys = new Set<string>();
-
-    for (const categorySummary of supabaseCategories) {
-      const categoryMeta =
-        categoriesById.get(categorySummary.id) ||
-        categoriesBySlug.get((categorySummary.slug || "").toLowerCase());
-
-      const categorySlug = categoryMeta?.slug || categorySummary.slug || categoryToSlug(categorySummary.name);
-      const categoryName = categoryMeta?.name || categorySummary.name || categorySlug;
-
-      for (const summary of categorySummary.articles) {
-        if (!summary.status) {
-          continue;
-        }
-
-        const detail = await fetchArticleDetail(summary.id, supabase);
-        if (!detail || !detail.status) {
-          continue;
-        }
-
-        const recordKey = `${detail.id}::${categorySlug.toLowerCase()}`;
-        if (seenKeys.has(recordKey)) {
-          continue;
-        }
-        seenKeys.add(recordKey);
-
-        const media = resolveMedia(detail);
-        const headerImage = resolveHeaderImage(summary, detail, media);
-        const articleCategories = mapArticleCategories(
-          detail,
-          categoriesById,
-          categoriesBySlug
-        );
-
-        const article: Article = {
-          id: detail.id,
-          title: detail.title,
-          slug: detail.slug,
-          category: categoryName,
-          categorySlug,
-          date: resolveDate(summary, detail),
-          author: detail.authorName ?? "",
-          preview: resolvePreview(summary, detail),
-          media,
-          headerImage,
-        };
-
-        const record: ArticleRecord = {
-          article,
-          body: detail.bodyMarkdown ?? "",
-          bodyHtml: detail.bodyHtml,
-          supabaseId: detail.id,
-          articleCategories,
-          relatedArticles: detail.relatedArticles,
-          publicBasePath: "",
-          sourceType: SOURCE_TYPE,
-        };
-
-        records.push(record);
-      }
-    }
-
-    return { records, categories };
-  })();
-
-  return cachedCollectionPromise;
+  return { records, categories };
 };
 
 export const getArticleRecords = async (): Promise<ArticleRecord[]> => {
@@ -353,6 +350,5 @@ export async function getArticleData(): Promise<{
 }
 
 export const clearArticleCache = () => {
-  cachedCollectionPromise = null;
-  detailCache.clear();
+  // Intentionally left blank; the Supabase-backed loader fetches fresh data per request.
 };

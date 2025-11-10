@@ -1,7 +1,7 @@
 
 // /pages/categories/sensure.tsx
 import React from 'react';
-import { GetStaticProps } from 'next';
+import { GetServerSideProps } from 'next';
 import { getArticleData } from '../../lib/articleService';
 import { categoryConfigMap } from '../../config/categoryColors';
 import { Article } from '../../types';
@@ -345,7 +345,7 @@ aria-label={`Lire ${article.title}`}
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const { articles, categories } = await getArticleData();
   const filteredArticles = articles.filter(a => a.category === 'Sensure');
   

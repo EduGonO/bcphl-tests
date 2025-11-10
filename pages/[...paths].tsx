@@ -2,36 +2,18 @@
 import React, { useMemo, useState } from "react";
 import Script from "next/script";
 import Head from "next/head";
-import type { GetStaticPaths, GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
 import TopNav from "../app/components/TopNav";
 import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
-import {
-  findArticleRecord,
-  getArticleData,
-  getArticleRecords,
-} from "../lib/articleService";
+import { findArticleRecord, getArticleData } from "../lib/articleService";
 import { Article, Category } from "../types";
 import { mdToHtml } from "../lib/markdown";
 
-/* ── static paths ─────────────────────────────────────────────────── */
+/* ----- getServerSideProps --------------------------------------- */
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const records = await getArticleRecords();
-  const paths = records.map((record) => {
-    const categorySegment = record.article.categorySlug || record.article.category;
-    return {
-      params: { paths: [categorySegment, record.article.slug] },
-    };
-  });
-
-  return { paths, fallback: false };
-};
-
-/* ----- getStaticProps ------------------------------------------ */
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const [category, slug] = (params?.paths as string[]) || [];
   if (!category || !slug) {
     return { notFound: true };
