@@ -13,7 +13,7 @@ type Props = {
 
 const MasterPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
   return (
-    <>
+    <div className="workspace-page">
       <Head>
         <title>Bicéphale · Master</title>
       </Head>
@@ -23,7 +23,20 @@ const MasterPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
         error={supabaseError}
         variant="master"
       />
-    </>
+
+      <style jsx>{`
+        .workspace-page {
+          min-height: 100dvh;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .workspace-page :global(.editor-shell) {
+          flex: 1;
+          display: flex;
+        }
+      `}</style>
+    </div>
   );
 };
 

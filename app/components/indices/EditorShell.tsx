@@ -27,7 +27,8 @@ const EditorShell: React.FC<EditorShellProps> = ({
 
       <style jsx>{`
         .editor-shell {
-          height: calc(100vh - 88px);
+          flex: 1;
+          min-height: 0;
           padding: 28px 28px 36px;
           background: linear-gradient(160deg, #f7f7fb 0%, #eef0f8 100%);
           display: flex;
@@ -54,7 +55,6 @@ const EditorShell: React.FC<EditorShellProps> = ({
         @media (max-width: 1024px) {
           .editor-shell {
             padding: 24px 22px 32px;
-            height: calc(100vh - 96px);
           }
 
           .editor-shell__workspace {
@@ -65,8 +65,6 @@ const EditorShell: React.FC<EditorShellProps> = ({
         @media (max-width: 640px) {
           .editor-shell {
             padding: 18px 16px 26px;
-            height: auto;
-            min-height: calc(100vh - 96px);
           }
 
           .editor-shell__workspace {

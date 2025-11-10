@@ -13,7 +13,7 @@ interface Props {
 
 const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
   return (
-    <>
+    <div className="workspace-page">
       <Head>
         <title>Bicéphale · Éditeur</title>
       </Head>
@@ -23,7 +23,20 @@ const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
         error={supabaseError}
         variant="writer"
       />
-    </>
+
+      <style jsx>{`
+        .workspace-page {
+          min-height: 100dvh;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .workspace-page :global(.editor-shell) {
+          flex: 1;
+          display: flex;
+        }
+      `}</style>
+    </div>
   );
 };
 

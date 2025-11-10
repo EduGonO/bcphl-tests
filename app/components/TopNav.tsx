@@ -63,6 +63,7 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: space-between;
           gap: 32px;
+          flex-wrap: wrap;
           padding: 24px 48px 18px;
           border-bottom: 1px solid #b9b0a3;
           background: rgba(255, 255, 255, 0.9);
@@ -122,6 +123,8 @@ const TopNav: React.FC = () => {
           display: flex;
           align-items: center;
           gap: 28px;
+          flex-wrap: wrap;
+          justify-content: flex-end;
         }
 
         .nav-links {
@@ -213,10 +216,13 @@ const TopNav: React.FC = () => {
 
           .top-nav__right {
             gap: 20px;
+            width: 100%;
+            justify-content: space-between;
           }
 
           .nav-links {
             gap: 20px;
+            flex: 1;
           }
         }
 
@@ -240,6 +246,7 @@ const TopNav: React.FC = () => {
           }
 
           .top-nav__session {
+            width: 100%;
             justify-content: space-between;
           }
         }

@@ -1343,10 +1343,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         @media (max-width: 1080px) {
           .supabase-workspace {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: minmax(0, 320px) minmax(0, 1fr);
           }
           .supabase-workspace__sidebar {
             max-height: none;
+            padding-right: 0;
           }
         }
         @media (max-width: 720px) {
