@@ -1,11 +1,12 @@
 // pages/[...paths].tsx
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Script from "next/script";
 import Head from "next/head";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import TopNav from "../app/components/TopNav";
 import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
+import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import {
   findArticleRecord,
   getArticleData,
@@ -87,47 +88,61 @@ const ArticlePage: React.FC<ArtProps> = ({
   gridArticles,
   categories,
 }) => {
-  const [bodyFontSize, setBodyFontSize] = useState<number>(18);
-  const [bodyFont, setBodyFont] = useState<
-    "InterRegular" | "AvenirNextCondensed"
-  >("InterRegular");
-  const [titleFont, setTitleFont] = useState<
-    "RecoletaMedium" | "GayaRegular"
-  >("GayaRegular");
+  const [query, setQuery] = useState("");
 
-  // Parse date properly
-  const formattedDate = date !== "Unknown Date" 
-    ? new Date(date).toLocaleDateString("fr-FR", {
-        month: "long", 
+  const formattedDate = useMemo(() => {
+    if (!date || date === "Unknown Date") {
+      return "";
+    }
+
+    const parsed = Date.parse(date);
+    if (!Number.isNaN(parsed)) {
+      return new Date(parsed).toLocaleDateString("fr-FR", {
+        month: "long",
         day: "numeric",
         year: "numeric",
-      })
-    : "";
+      });
+    }
+
+    return date;
+  }, [date]);
 
   const hexToRgba = (hex: string, alpha: number): string => {
-    let r = 0,
-      g = 0,
-      b = 0;
+    let r = 0;
+    let g = 0;
+    let b = 0;
+
     if (hex.length === 7) {
       r = parseInt(hex.slice(1, 3), 16);
       g = parseInt(hex.slice(3, 5), 16);
       b = parseInt(hex.slice(5, 7), 16);
     }
+
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
   const articleColor =
     categories.find(
-      (c) => c.name.toLowerCase() === category.toLowerCase()
-    )?.color || "#f0f0f0";
-  const backdropColor = hexToRgba(articleColor, 0.1);
-  const accentColor = hexToRgba(articleColor, 0.9);
+      (current) => current.name.toLowerCase() === category.toLowerCase()
+    )?.color || "#d4d4d4";
+
+  const backdropColor = hexToRgba(articleColor, 0.18);
+  const accentColor = hexToRgba(articleColor, 0.8);
+
+  const heroImage = headerImage || (media && media.length > 0 ? media[0] : "");
+  const hasHeroImage = Boolean(heroImage);
+  const heroMediaStyle = hasHeroImage
+    ? {
+        backgroundImage: `url(${heroImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
+    : undefined;
 
   return (
     <>
       <Head>
         <title>{title}</title>
-        {/* Hypothesis config (optional) */}
         <script
           type="application/json"
           className="js-hypothesis-config"
@@ -136,276 +151,357 @@ const ArticlePage: React.FC<ArtProps> = ({
           }}
         />
       </Head>
-      <Script
-        src="https://hypothes.is/embed.js"
-        strategy="afterInteractive"
-      />
+      <Script src="https://hypothes.is/embed.js" strategy="afterInteractive" />
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-          backgroundColor: '#fff',
-          fontSize: `${bodyFontSize}px`,
-          fontFamily: bodyFont,
-        }}
-      >
+      <div className="page-wrapper">
         <TopNav />
 
-        {/* Hero section with header image - now full width */}
-        <div 
-          className="article-hero" 
-          style={{ 
-            backgroundImage: headerImage ? `url(${headerImage})` : undefined,
-            backgroundColor: backdropColor
-          }}
-        >
-          <div className="article-hero-overlay" />
-          <div className="article-hero-content">
+        <main className="content">
+          <RedesignSearchSidebar
+            query={query}
+            onQueryChange={setQuery}
+            searchLabel="Rechercher dans la revue"
+            placeholder="Titre, auteur, mot-clé…"
+          />
 
-            <div className="article-category" style={{ color: accentColor }}>
-              {category}
-            </div>
+          <div className="article-layout">
+            <article className="article">
+              <header className="article-hero" style={{ backgroundColor: backdropColor }}>
+                <div className={`article-hero-inner${hasHeroImage ? "" : " no-media"}`}>
+                  <div className="article-hero-content">
+                    <div className="article-hero-header">
+                      <h1 className="article-title">{title}</h1>
+                      {author && <p className="article-author">{author}</p>}
+                    </div>
+                    {formattedDate && (
+                      <time className="article-date" dateTime={date}>
+                        {formattedDate}
+                      </time>
+                    )}
+                  </div>
+                  {hasHeroImage ? (
+                    <div
+                      className="article-hero-media"
+                      style={heroMediaStyle}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <>
+                      {/** Placeholder hero media intentionally commented out for future reuse.
+                       * <div
+                       *   className="article-hero-media"
+                       *   style={{
+                       *     backgroundImage: `linear-gradient(135deg, ${hexToRgba(
+                       *       articleColor,
+                       *       0.55
+                       *     )} 0%, ${hexToRgba(articleColor, 0.25)} 100%)`,
+                       *   }}
+                       *   aria-hidden="true"
+                       * />
+                       */}
+                    </>
+                  )}
+                </div>
+              </header>
 
-            <h1 className="article-title">{title}</h1>
-            <div className="article-meta">
-              <span className="article-author">{author}</span>
-              <span className="article-date">{formattedDate}</span>
-            </div>
+              <section className="article-body-wrapper">
+                <div
+                  className="article-body"
+                  dangerouslySetInnerHTML={{ __html: content }}
+                />
+              </section>
+            </article>
+
+            {gridArticles.length > 0 && (
+              <section className="related-articles">
+                <div className="related-articles-inner">
+                  <h2 className="related-heading">Dans la même rubrique</h2>
+                  <ArticleGrid
+                    articles={gridArticles}
+                    categories={categories}
+                    titleFont="GayaRegular"
+                  />
+                </div>
+              </section>
+            )}
           </div>
-        </div>
+        </main>
 
-        {/* Main content - narrower container */}
-        <div className="article-body-container">
-          <div className="article-body">
-          <div
-  className="article-body"
-  dangerouslySetInnerHTML={{ __html: content }}
-/>
-
-          </div>
-        </div>
-
-        {/* Related articles - container for proper alignment */}
-        <div className="container">
-          <div className="related-articles">
-            <ArticleGrid articles={gridArticles} categories={categories} titleFont="GayaRegular" />
-          </div>
-        </div>
-
-        <Footer />
+        <Footer footerColor="#0c0c0c" marginTop="0" />
       </div>
 
       <style jsx>{`
-        .container {
-          width: 100%;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 24px;
+        :global(body) {
+          background: #ffffff;
+        }
+
+        .page-wrapper {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background: #ffffff;
+        }
+
+        .content {
+          flex: 1;
+          display: flex;
+          gap: 0;
+          background: #ffffff;
+        }
+
+        .article-layout {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          background: #e8e8e8;
+        }
+
+        .article {
+          --article-max-width: 720px;
+          --article-horizontal-padding: clamp(32px, 10vw, 140px);
+          --article-hero-vertical-padding: clamp(36px, 6vw, 72px);
+          --article-body-padding-top: clamp(44px, 8vw, 92px);
+          --article-body-padding-bottom: clamp(36px, 7vw, 88px);
+          display: flex;
+          flex-direction: column;
+          gap: 0;
         }
 
         .article-hero {
-          position: relative;
-          height: 420px;
-          background-size: cover;
-          background-position: center;
-          width: 100%;
-          margin-top: 20px;
-          overflow: hidden;
+          padding: var(--article-hero-vertical-padding) 0;
+          background: ${backdropColor};
         }
 
-        .article-hero-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 90%);
+        .article-hero-inner {
+          display: flex;
+          width: 100%;
+          box-sizing: border-box;
+          align-items: stretch;
+          gap: clamp(24px, 4vw, 48px);
+          padding-left: calc(
+            (100% - min(var(--article-max-width), 100%)) / 2
+          );
+          padding-right: clamp(16px, 4vw, 40px);
+        }
+
+        .article-hero-inner.no-media {
+          gap: clamp(20px, 4vw, 28px);
+          justify-content: center;
+          width: min(
+            calc(var(--article-max-width) + var(--article-horizontal-padding) * 2),
+            100%
+          );
+          margin: 0 auto;
+          padding: 0 var(--article-horizontal-padding);
         }
 
         .article-hero-content {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          max-width: 900px;
-          margin: 0 auto;
-          padding: 60px 24px;
-          color: white;
-          text-align: center;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          gap: clamp(18px, 4vw, 28px);
+          color: #0d0d0d;
+          flex: 1 1 var(--article-max-width);
+          max-width: var(--article-max-width);
+          width: 100%;
+          margin: 0;
         }
 
-        .article-category {
-          display: inline-block;
-          font-size: 14px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
-          background-color: rgba(255, 255, 255, 0.84);
-          padding: 8px 16px;
-          border-radius: 4px;
-          margin-bottom: 20px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .article-hero-inner.no-media .article-hero-content {
+          margin: 0 auto;
+        }
+
+        .article-hero-header {
+          display: flex;
+          flex-direction: column;
+          gap: clamp(12px, 3vw, 20px);
         }
 
         .article-title {
-          font-family: ${titleFont};
-          font-size: 46px;
-          line-height: 1.2;
-          margin: 0 0 24px;
-          font-weight: normal;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .article-meta {
-          font-size: 16px;
-          opacity: 0.9;
-          display: flex;
-          justify-content: center;
-          gap: 16px;
+          margin: 0;
+          font-family: "GayaRegular", serif;
+          font-size: clamp(34px, 5.6vw, 64px);
+          line-height: 1.08;
+          font-weight: 400;
+          color: #111111;
+          text-align: left;
         }
 
         .article-author {
-          font-weight: 500;
+          margin: 0;
+          font-family: "GayaRegular", serif;
+          font-size: clamp(16px, 2.4vw, 22px);
+          letter-spacing: 0.01em;
+          text-align: right;
+          color: rgba(17, 17, 17, 0.78);
         }
 
-        .article-author:after {
-          content: "•";
-          margin-left: 16px;
-          opacity: 0.7;
+        .article-date {
+          font-family: "InterRegular", sans-serif;
+          font-size: 13px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(17, 17, 17, 0.68);
         }
 
-        .article-body-container {
-          margin: 60px auto;
-          max-width: 690px;
-          padding: 0 24px;
+        .article-hero-media {
+          flex: 0 0 clamp(220px, 28vw, 360px);
+          border-radius: 26px;
+          background-color: rgba(255, 255, 255, 0.68);
+          min-height: clamp(220px, 32vw, 380px);
+          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+          background-repeat: no-repeat;
+          background-size: cover;
+          background-position: center;
+        }
+
+        .article-body-wrapper {
+          padding: var(--article-body-padding-top) var(--article-horizontal-padding)
+            var(--article-body-padding-bottom);
+          background: #f9f9f9;
         }
 
         .article-body {
-          font-size: ${bodyFontSize}px;
-          line-height: 1.5;
-          color: #333;
+          max-width: 720px;
+          margin: 0 auto;
+          font-family: "InterRegular", sans-serif;
+          font-size: 18px;
+          line-height: 1.68;
+          color: #111111;
         }
 
-        .article-body p {
-          margin-bottom: 1.8em;
+        .article-body :global(p) {
+          margin: 0 0 1.8em;
         }
 
-        .article-body h2 {
-          font-family: ${titleFont};
-          font-size: 32px;
+        .article-body :global(h2) {
+          margin: 2.4em 0 1.2em;
+          font-family: "GayaRegular", serif;
+          font-size: 30px;
+          font-weight: 400;
+          color: #111111;
+          line-height: 1.2;
+        }
+
+        .article-body :global(h3) {
           margin: 2em 0 1em;
-          font-weight: normal;
-          color: #222;
+          font-family: "GayaRegular", serif;
+          font-size: 24px;
+          font-weight: 400;
+          color: #111111;
         }
 
-        .article-body h3 {
-          font-family: ${titleFont};
-          font-size: 26px;
-          margin: 1.8em 0 0.8em;
-          font-weight: normal;
-          color: #333;
-        }
-
-        .article-body a {
+        .article-body :global(a) {
           color: ${accentColor};
           text-decoration: none;
-          border-bottom: 1px solid rgba(0,0,0,0.1);
+          border-bottom: 1px solid rgba(17, 17, 17, 0.18);
           transition: border-color 0.2s ease;
         }
 
-        .article-body a:hover {
+        .article-body :global(a:hover),
+        .article-body :global(a:focus-visible) {
           border-color: ${accentColor};
         }
 
-.article-body img {
-    max-width: 50%;   /* never overflow column */
-    height: auto;      /* keep aspect ratio */
-    display: block;    /* remove inline-gap */
-    margin: 1rem auto; /* optional centering */
-  }
-        .article-body img {
-          max-width: 50%;
-          height: auto;
-          border-radius: 8px;
-          margin: 2em 0;
-          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        .article-body :global(blockquote) {
+          margin: 2.4em 0;
+          padding: 20px 28px 20px 32px;
+          border-left: 4px solid ${accentColor};
+          background: ${hexToRgba(articleColor, 0.16)};
+          border-radius: 6px;
+          font-style: italic;
         }
 
-        .article-body blockquote {
-          margin: 2em 0;
-          padding: 16px 24px 16px 32px;
-          border-left: 4px solid ${accentColor};
-          background-color: ${backdropColor};
-          font-style: italic;
-          border-radius: 4px;
+        .article-body :global(img) {
+          display: block;
+          max-width: min(100%, 520px);
+          margin: 2.4em auto;
+          border-radius: 18px;
+          box-shadow: 0 14px 30px rgba(17, 17, 17, 0.12);
         }
 
         .related-articles {
-          margin: 80px 0 60px;
+          padding: clamp(48px, 7vw, 92px) clamp(32px, 8vw, 96px) clamp(64px, 9vw, 120px);
+          background: #ffffff;
         }
 
-        .related-articles h2 {
-          font-family: ${titleFont};
-          font-size: 36px;
-          margin-bottom: 40px;
-          font-weight: normal;
-          text-align: center;
-          color: #222;
+        .related-articles-inner {
+          width: min(1120px, 100%);
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
         }
 
-        @media (max-width: 768px) {
-          .article-hero {
-            height: 400px;
+        .related-heading {
+          margin: 0;
+          font-family: "GayaRegular", serif;
+          font-size: 28px;
+          font-weight: 400;
+          color: #111111;
+          letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 1340px) {
+          .article-hero-inner {
+            flex-direction: column;
+            width: 100%;
+            padding: 0 var(--article-horizontal-padding);
+          }
+
+          .article-hero-inner.no-media {
+            width: 100%;
           }
 
           .article-hero-content {
-            padding: 40px 20px;
+            margin: 0 auto;
           }
 
-          .article-title {
-            font-size: 36px;
+          .article-hero-media {
+            width: 100%;
+            flex: 0 0 auto;
+            min-height: clamp(220px, 54vw, 340px);
+            order: -1;
           }
+        }
 
-          .article-meta {
+        @media (max-width: 720px) {
+          .content {
             flex-direction: column;
-            gap: 8px;
           }
 
-          .article-author:after {
-            display: none;
+          .article {
+            --article-horizontal-padding: clamp(20px, 8vw, 48px);
+            --article-body-padding-top: clamp(36px, 10vw, 64px);
+            --article-body-padding-bottom: clamp(24px, 8vw, 48px);
           }
 
-          .article-body-container {
-            margin: 40px auto;
+          .article-layout {
+            background: #f0f0f0;
           }
 
           .article-body {
             font-size: 17px;
           }
+
+          .related-articles {
+            padding: clamp(40px, 10vw, 72px) clamp(20px, 8vw, 48px);
+          }
         }
 
-        @media (max-width: 480px) {
-          .article-hero {
-            height: 300px;
+        @media (max-width: 520px) {
+          .article {
+            --article-hero-vertical-padding: clamp(28px, 12vw, 52px);
           }
 
           .article-title {
-            font-size: 32px;
+            font-size: clamp(30px, 9vw, 40px);
           }
 
-          .article-body-container {
-            padding: 0 16px;
+          .article-author {
+            font-size: clamp(15px, 5vw, 18px);
           }
         }
-
-  .article-body img {
-    max-width: 100%;   /* never overflow column */
-    height: auto;      /* keep aspect ratio */
-    display: block;    /* remove inline-gap */
-    margin: 1rem 0;    /* optional spacing */
-  }
       `}</style>
     </>
   );

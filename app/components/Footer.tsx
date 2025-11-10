@@ -4,9 +4,10 @@ import Link from 'next/link';
 
 interface FooterProps {
   footerColor?: string;
+  marginTop?: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
+const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '40px' }) => {
   const [newsletterOpen, setNewsletterOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -105,7 +106,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b' }) => {
           background: ${bgColor};
           color: ${footerColor};
           padding: 30px 15px;
-          margin-top: 40px;
+          margin-top: ${marginTop};
           font-family: -apple-system, InterRegular, sans-serif;
           font-size: 14px;
           position: relative;
