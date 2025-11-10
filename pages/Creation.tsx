@@ -46,7 +46,7 @@ const CreationPage = ({ articles }: CreationPageProps) => {
   );
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { articles } = await getArticleData();
   return {
     props: {
