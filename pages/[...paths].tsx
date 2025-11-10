@@ -227,7 +227,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           </div>
         </main>
 
-        <Footer footerColor="#0c0c0c" />
+        <Footer footerColor="#0c0c0c" marginTop="0" />
       </div>
 
       <style jsx>{`
@@ -257,13 +257,18 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article {
+          --article-max-width: 720px;
+          --article-horizontal-padding: clamp(32px, 10vw, 140px);
+          --article-hero-vertical-padding: clamp(36px, 6vw, 72px);
+          --article-body-padding-top: clamp(44px, 8vw, 92px);
+          --article-body-padding-bottom: clamp(36px, 7vw, 88px);
           display: flex;
           flex-direction: column;
           gap: 0;
         }
 
         .article-hero {
-          padding: clamp(36px, 6vw, 72px) clamp(28px, 8vw, 96px);
+          padding: var(--article-hero-vertical-padding) 0;
           background: ${backdropColor};
         }
 
@@ -273,13 +278,21 @@ const ArticlePage: React.FC<ArtProps> = ({
           box-sizing: border-box;
           align-items: stretch;
           gap: clamp(24px, 4vw, 48px);
-          padding-left: calc((100% - min(720px, 100%)) / 2);
+          padding-left: calc(
+            (100% - min(var(--article-max-width), 100%)) / 2
+          );
           padding-right: clamp(16px, 4vw, 40px);
         }
 
         .article-hero-inner.no-media {
-          padding-right: calc((100% - min(720px, 100%)) / 2);
           gap: clamp(20px, 4vw, 28px);
+          justify-content: center;
+          width: min(
+            calc(var(--article-max-width) + var(--article-horizontal-padding) * 2),
+            100%
+          );
+          margin: 0 auto;
+          padding: 0 var(--article-horizontal-padding);
         }
 
         .article-hero-content {
@@ -288,9 +301,14 @@ const ArticlePage: React.FC<ArtProps> = ({
           justify-content: flex-end;
           gap: clamp(18px, 4vw, 28px);
           color: #0d0d0d;
-          max-width: 720px;
+          flex: 1 1 var(--article-max-width);
+          max-width: var(--article-max-width);
           width: 100%;
           margin: 0;
+        }
+
+        .article-hero-inner.no-media .article-hero-content {
+          margin: 0 auto;
         }
 
         .article-hero-header {
@@ -338,7 +356,8 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-body-wrapper {
-          padding: clamp(44px, 8vw, 92px) clamp(32px, 10vw, 140px) clamp(36px, 7vw, 88px);
+          padding: var(--article-body-padding-top) var(--article-horizontal-padding)
+            var(--article-body-padding-bottom);
           background: #f9f9f9;
         }
 
@@ -426,12 +445,12 @@ const ArticlePage: React.FC<ArtProps> = ({
         @media (max-width: 1340px) {
           .article-hero-inner {
             flex-direction: column;
-            padding-left: clamp(24px, 6vw, 48px);
-            padding-right: clamp(24px, 6vw, 48px);
+            width: 100%;
+            padding: 0 var(--article-horizontal-padding);
           }
 
           .article-hero-inner.no-media {
-            padding-right: clamp(24px, 6vw, 48px);
+            width: 100%;
           }
 
           .article-hero-content {
@@ -451,6 +470,12 @@ const ArticlePage: React.FC<ArtProps> = ({
             flex-direction: column;
           }
 
+          .article {
+            --article-horizontal-padding: clamp(20px, 8vw, 48px);
+            --article-body-padding-top: clamp(36px, 10vw, 64px);
+            --article-body-padding-bottom: clamp(24px, 8vw, 48px);
+          }
+
           .article-layout {
             background: #f0f0f0;
           }
@@ -459,18 +484,14 @@ const ArticlePage: React.FC<ArtProps> = ({
             font-size: 17px;
           }
 
-          .article-body-wrapper {
-            padding: clamp(36px, 10vw, 64px) clamp(20px, 8vw, 48px);
-          }
-
           .related-articles {
             padding: clamp(40px, 10vw, 72px) clamp(20px, 8vw, 48px);
           }
         }
 
         @media (max-width: 520px) {
-          .article-hero {
-            padding: clamp(28px, 12vw, 52px) clamp(18px, 10vw, 36px);
+          .article {
+            --article-hero-vertical-padding: clamp(28px, 12vw, 52px);
           }
 
           .article-title {
