@@ -168,6 +168,7 @@ const TopNav: React.FC = () => {
           gap: 14px;
           height: 42px;
           min-height: 42px;
+          max-height: 42px;
           flex: 1 1 280px;
           min-width: 0;
           white-space: nowrap;
@@ -245,29 +246,15 @@ const TopNav: React.FC = () => {
 
         .nav-link {
           position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
           color: #111;
           text-decoration: none;
-          transition: color 0.2s ease;
-          padding-bottom: 6px;
-        }
-
-        .nav-link::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          height: 2px;
-          background: transparent;
-          transform: scaleX(0);
-          transform-origin: center;
-          transition: transform 0.2s ease, background 0.2s ease;
-        }
-
-        .nav-link:hover::after,
-        .nav-link:focus-visible::after {
-          background: rgba(17, 17, 17, 0.6);
-          transform: scaleX(1);
+          transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+          padding: 8px 16px;
+          border-radius: 999px;
         }
 
         .nav-link:visited {
@@ -277,16 +264,14 @@ const TopNav: React.FC = () => {
         .nav-link:hover,
         .nav-link:focus-visible {
           color: #3a3a3a;
+          background: rgba(17, 17, 17, 0.08);
         }
 
         .nav-link--active {
           font-family: "InterSemiBold", sans-serif;
           color: #111;
-        }
-
-        .nav-link--active::after {
-          background: #111;
-          transform: scaleX(1);
+          background: rgba(17, 17, 17, 0.12);
+          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
         }
 
         .nav-link.disabled {
@@ -381,7 +366,7 @@ const TopNav: React.FC = () => {
 
           .top-nav__categories {
             flex-basis: 100%;
-            justify-content: flex-start;
+            justify-content: center;
             overflow: hidden;
             max-height: 160px;
             transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.3s ease;
