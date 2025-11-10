@@ -130,18 +130,14 @@ const ArticlePage: React.FC<ArtProps> = ({
   const accentColor = hexToRgba(articleColor, 0.8);
 
   const heroImage = headerImage || (media && media.length > 0 ? media[0] : "");
-  const heroMediaStyle = heroImage
+  const hasHeroImage = Boolean(heroImage);
+  const heroMediaStyle = hasHeroImage
     ? {
         backgroundImage: `url(${heroImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }
-    : {
-        backgroundImage: `linear-gradient(135deg, ${hexToRgba(
-          articleColor,
-          0.55
-        )} 0%, ${hexToRgba(articleColor, 0.25)} 100%)`,
-      };
+    : undefined;
 
   return (
     <>
@@ -171,7 +167,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           <div className="article-layout">
             <article className="article">
               <header className="article-hero" style={{ backgroundColor: backdropColor }}>
-                <div className="article-hero-inner">
+                <div className={`article-hero-inner${hasHeroImage ? "" : " no-media"}`}>
                   <div className="article-hero-content">
                     <div className="article-hero-header">
                       <h1 className="article-title">{title}</h1>
@@ -183,11 +179,28 @@ const ArticlePage: React.FC<ArtProps> = ({
                       </time>
                     )}
                   </div>
-                  <div
-                    className="article-hero-media"
-                    style={heroMediaStyle}
-                    aria-hidden="true"
-                  />
+                  {hasHeroImage ? (
+                    <div
+                      className="article-hero-media"
+                      style={heroMediaStyle}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <>
+                      {/** Placeholder hero media intentionally commented out for future reuse.
+                       * <div
+                       *   className="article-hero-media"
+                       *   style={{
+                       *     backgroundImage: `linear-gradient(135deg, ${hexToRgba(
+                       *       articleColor,
+                       *       0.55
+                       *     )} 0%, ${hexToRgba(articleColor, 0.25)} 100%)`,
+                       *   }}
+                       *   aria-hidden="true"
+                       * />
+                       */}
+                    </>
+                  )}
                 </div>
               </header>
 
@@ -259,6 +272,14 @@ const ArticlePage: React.FC<ArtProps> = ({
           grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
           gap: clamp(28px, 6vw, 72px);
           align-items: stretch;
+        }
+
+        .article-hero-inner.no-media {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .article-hero-inner.no-media .article-hero-content {
+          max-width: 640px;
         }
 
         .article-hero-content {

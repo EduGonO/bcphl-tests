@@ -145,10 +145,7 @@ const RedesignSearchSidebar = ({
           --drawer-collapsed-width: 72px;
           --drawer-collapsed-height: 176px;
           --drawer-offset: calc(var(--sticky-header-height, 96px) + 16px);
-          --drawer-height: max(
-            var(--drawer-collapsed-height),
-            calc(100vh - var(--drawer-offset) - 32px)
-          );
+          --drawer-height: calc(100vh - var(--drawer-offset));
           position: sticky;
           top: var(--drawer-offset);
           flex: 0 0 auto;
@@ -159,14 +156,16 @@ const RedesignSearchSidebar = ({
           overflow: visible;
           box-sizing: border-box;
           min-height: var(--drawer-height);
-          max-height: var(--drawer-height);
+          height: max(var(--drawer-height), 100%);
+          max-height: none;
           padding-bottom: 24px;
-          transition: width 0.3s ease, max-height 0.3s ease;
+          transition: width 0.3s ease;
           z-index: 1;
         }
         .search-drawer.open {
           width: 320px;
-          overflow-y: auto;
+          min-height: var(--drawer-height);
+          height: auto;
         }
         .drawer-section {
           position: relative;
