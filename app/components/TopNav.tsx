@@ -69,7 +69,13 @@ const TopNav: React.FC = () => {
   const isCategoriesVisible = !(isMobileViewport && isCompact);
   const normalizedPath = useMemo(() => {
     const path = router.asPath ?? router.pathname;
-    return path.split(/[?#]/)[0].toLowerCase();
+    const normalized = path.split(/[?#]/)[0].toLowerCase();
+
+    if (normalized.endsWith("/") && normalized !== "/") {
+      return normalized.slice(0, -1);
+    }
+
+    return normalized;
   }, [router.asPath, router.pathname]);
 
   return (
@@ -91,29 +97,31 @@ const TopNav: React.FC = () => {
           }`}
         >
           <nav className="nav-links">
-            {NAV_LINKS.map((link) =>
-              link.disabled ? (
-                <span
-                  key={link.label}
-                  className="nav-link disabled"
-                  aria-disabled="true"
-                >
-                  {link.label}
-                </span>
-              ) : (
+            {NAV_LINKS.map((link) => {
+              if (link.disabled) {
+                return (
+                  <span key={link.label} className="nav-link disabled" aria-disabled="true">
+                    {link.label}
+                  </span>
+                );
+              }
+
+              const hrefLower = link.href.toLowerCase();
+              const isActive =
+                hrefLower === "/"
+                  ? normalizedPath === "/"
+                  : normalizedPath === hrefLower || normalizedPath.startsWith(`${hrefLower}/`);
+
+              return (
                 <Link
                   key={link.label}
                   href={link.href}
-                  className={`nav-link${
-                    normalizedPath === link.href.toLowerCase()
-                      ? " nav-link--active"
-                      : ""
-                  }`}
+                  className={`nav-link${isActive ? " nav-link--active" : ""}`}
                 >
                   {link.label}
                 </Link>
-              )
-            )}
+              );
+            })}
           </nav>
         </div>
       </div>
@@ -155,13 +163,15 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: space-between;
           column-gap: 48px;
-          row-gap: 16px;
           flex-wrap: wrap;
           width: 100%;
+          min-height: 42px;
+          min-block-size: 42px;
+          align-content: center;
         }
 
         .brand {
-          display: inline-flex;
+          display: flex;
           flex-direction: row;
           align-items: center;
           justify-content: flex-start;
@@ -193,6 +203,7 @@ const TopNav: React.FC = () => {
           justify-content: center;
           height: 42px;
           min-height: 42px;
+          max-height: 42px;
         }
 
         .brand-visual {
@@ -230,11 +241,13 @@ const TopNav: React.FC = () => {
           flex: 0 1 auto;
           min-width: auto;
           transition: opacity 0.25s ease;
+          margin-top: 0;
         }
 
         .top-nav__categories--hidden {
           opacity: 0;
           pointer-events: none;
+          margin-top: 0;
         }
 
         .nav-links {
@@ -275,6 +288,17 @@ const TopNav: React.FC = () => {
           color: #111;
           background: rgba(17, 17, 17, 0.12);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+        }
+
+        .nav-link--active::after {
+          content: "";
+          position: absolute;
+          left: 16px;
+          right: 16px;
+          bottom: 6px;
+          height: 3px;
+          border-radius: 999px;
+          background: rgba(17, 17, 17, 0.6);
         }
 
         .nav-link.disabled {
@@ -343,6 +367,7 @@ const TopNav: React.FC = () => {
           .top-nav__categories {
             flex-basis: 100%;
             justify-content: flex-start;
+            margin-top: 16px;
           }
 
           .nav-links {
@@ -364,7 +389,12 @@ const TopNav: React.FC = () => {
 
           .top-nav__layout {
             column-gap: 24px;
-            row-gap: 12px;
+            justify-content: center;
+          }
+
+          .brand {
+            flex: 0 1 auto;
+            margin: 0 auto;
           }
 
           .top-nav__categories {
@@ -374,6 +404,7 @@ const TopNav: React.FC = () => {
             max-height: 160px;
             transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.3s ease;
             transform: translateY(0);
+            margin-top: 12px;
           }
 
           .nav-links {
