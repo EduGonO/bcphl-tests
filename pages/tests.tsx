@@ -41,7 +41,11 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
       setBackgroundColor("#ffffff");
     } else {
       setActiveCategory(category);
-      setFilteredArticles(articles.filter((a) => a.category === category));
+      setFilteredArticles(
+        articles.filter(
+          (a) => (a.categorySlug || a.category) === category || a.category === category
+        )
+      );
       setBackgroundColor("#ffffff");
     }
   };
@@ -130,7 +134,7 @@ const Home: React.FC<HomeProps> = ({ articles, categories }) => {
 };
 
 export async function getStaticProps() {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   return { props: { articles, categories } };
 }
 

@@ -47,11 +47,12 @@ const CreationPage = ({ articles }: CreationPageProps) => {
 };
 
 export async function getStaticProps() {
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   return {
     props: {
       articles: articles.filter(
-        (article) => article.category.toLowerCase() === "creation"
+        (article) =>
+          (article.categorySlug || article.category).toLowerCase() === "creation"
       ),
     },
   };

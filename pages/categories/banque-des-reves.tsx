@@ -83,8 +83,9 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
 
         <div className="article-grid">
           {articles.map((article, index) => {
-            const imgStyle = headerImages[article.slug] 
-              ? { backgroundImage: `url(${headerImages[article.slug]})` } 
+            const categorySegment = article.categorySlug || categoryName;
+            const imgStyle = headerImages[article.slug]
+              ? { backgroundImage: `url(${headerImages[article.slug]})` }
               : { backgroundColor: `${color}20` };
             
             return (
@@ -107,8 +108,8 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
                     <span className="article-author">{article.author}</span>
                   </div>
                   <p className="article-preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
-                  <a 
-                    href={`/${categoryName}/${article.slug}`} 
+                  <a
+                    href={`/${categorySegment}/${article.slug}`}
                     className="read-more"
                     style={{ color }}
                   >
@@ -363,7 +364,7 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   const filteredArticles = articles.filter(a => a.category === 'Banque des rêves');
   
   return {
@@ -721,7 +722,7 @@ articles.forEach((article, index) => {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   const filteredArticles = articles.filter(a => a.category === 'Sensure');
   
   return {

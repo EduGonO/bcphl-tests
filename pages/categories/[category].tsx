@@ -59,7 +59,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   const slug = params?.category as string;
   
   // Find category name from slug
@@ -75,7 +75,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   // Filter articles by category
-  const filteredArticles = articles.filter(a => a.category === categoryName);
+  const filteredArticles = articles.filter((a) => {
+    const slug = a.categorySlug || a.category;
+    return slug === categoryName || a.category === categoryName;
+  });
   
   return {
     props: { 
@@ -163,7 +166,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   const category = params?.category as string;
   const filtered = articles.filter((a) => a.category === category);
   return {
@@ -218,7 +221,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return { notFound: true };
   }
 
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   const filtered = articles.filter((a) => a.category === category);
 
   return {
@@ -311,7 +314,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const config = categoryConfigMap[category];
   if (!config) return { notFound: true };
 
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   const filtered = articles.filter((a) => a.category === category);
 
   return {

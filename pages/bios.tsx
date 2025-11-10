@@ -337,7 +337,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
 };
 
 export async function getStaticProps() {
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   return {
     props: {
       articles,

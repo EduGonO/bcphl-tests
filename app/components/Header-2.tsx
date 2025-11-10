@@ -6,11 +6,12 @@ import {
   categoryConfigMap,
   getCategoryLink,
 } from "../../config/categoryColors";
+import type { Category as CoreCategory } from "../../types";
 
-export type Category = { name: string; color: string };
+export type Category = CoreCategory;
 
 export type HeaderProps = {
-  categories: Category[];
+  categories: CoreCategory[];
   onCategoryChange?: (category: string) => void;
 };
 
