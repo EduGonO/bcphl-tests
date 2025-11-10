@@ -9,11 +9,13 @@ import RedesignArticlePreviewCard from "./RedesignArticlePreviewCard";
 import RedesignSearchSidebar from "./RedesignSearchSidebar";
 import TopNav from "./TopNav";
 
+type CategoryLandingVariant = "reflexion" | "creation" | "irl";
+
 interface CategoryLandingPageProps {
   articles: Article[];
   introContent?: ReactNode;
   columnTitle: string;
-  variant?: "reflexion" | "creation";
+  variant?: CategoryLandingVariant;
 }
 
 const parseDate = (value: string) => {

@@ -4,9 +4,11 @@ import ReactMarkdown from "react-markdown";
 import { Article } from "../../types";
 import { getArticleMediaStyle } from "../../lib/articleMedia";
 
+type PreviewVariant = "reflexion" | "creation" | "irl";
+
 interface RedesignArticlePreviewCardProps {
   article: Article;
-  variant: "reflexion" | "creation";
+  variant: PreviewVariant;
   formatDate: (value: string) => string;
 }
 
@@ -18,7 +20,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   const mediaStyle = getArticleMediaStyle(article);
   const formattedDate = formatDate(article.date);
   const linkHref = `/${article.category}/${article.slug}`;
-  const linkLabel = variant === "reflexion" ? "en lire" : "découvrir";
+  const linkLabel = variant === "creation" ? "découvrir" : "en lire";
 
   return (
     <Link href={linkHref} className={`article-preview ${variant}`} role="article">
@@ -57,6 +59,9 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
+        }
+        .article-preview.irl {
+          background: rgba(255, 255, 255, 0.7);
         }
         .article-preview:hover,
         .article-preview:focus-visible {
@@ -141,6 +146,10 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview-cta.creation {
           background: #f4f0ae;
+          color: #111111;
+        }
+        .article-preview-cta.irl {
+          background: #b8e0ff;
           color: #111111;
         }
         .article-preview:hover .article-preview-cta,
