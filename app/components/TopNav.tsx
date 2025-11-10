@@ -165,8 +165,12 @@ const TopNav: React.FC = () => {
           column-gap: 48px;
           flex-wrap: wrap;
           width: 100%;
+          height: 42px;
           min-height: 42px;
+          max-height: 42px;
+          block-size: 42px;
           min-block-size: 42px;
+          max-block-size: 42px;
           align-content: center;
         }
 
