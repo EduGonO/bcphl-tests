@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+import type { Article } from "../../types";
 
 interface RedesignSearchSidebarProps {
   query: string;
@@ -11,6 +13,8 @@ interface RedesignSearchSidebarProps {
   clearLabel?: string;
   newsletterHref?: string;
   newsletterCta?: string;
+  articles?: Article[];
+  resultLimit?: number;
 }
 
 const RedesignSearchSidebar = ({
@@ -22,8 +26,104 @@ const RedesignSearchSidebar = ({
   newsletterHref =
     "https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF",
   newsletterCta = "S’inscrire à la newsletter",
+  articles = [],
+  resultLimit = 6,
 }: RedesignSearchSidebarProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const queryTokens = useMemo(
+    () =>
+      normalizedQuery
+        .split(/\s+/)
+        .map((token) => token.trim())
+        .filter(Boolean),
+    [normalizedQuery]
+  );
+
+  const formatResultDate = (value: string) => {
+    if (!value || value === "Unknown Date") {
+      return "";
+    }
+
+    const parsed = Date.parse(value);
+    if (!Number.isNaN(parsed)) {
+      try {
+        return new Date(parsed).toLocaleDateString("fr-FR", {
+          month: "short",
+          year: "numeric",
+        });
+      } catch (error) {
+        return value;
+      }
+    }
+
+    return value;
+  };
+
+  const { matches: searchResults, total: totalResults } = useMemo(() => {
+    if (!articles.length || queryTokens.length === 0) {
+      return { matches: [] as Article[], total: 0 };
+    }
+
+    const scored = articles
+      .map((article) => {
+        const haystack = [
+          article.title,
+          article.author,
+          article.category,
+          article.preview,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        if (queryTokens.some((token) => !haystack.includes(token))) {
+          return null;
+        }
+
+        const title = article.title.toLowerCase();
+        const author = (article.author || "").toLowerCase();
+        const category = (article.category || "").toLowerCase();
+
+        let score = 0;
+
+        queryTokens.forEach((token) => {
+          if (title.startsWith(token)) {
+            score += 6;
+          } else if (title.includes(token)) {
+            score += 4;
+          }
+
+          if (author.includes(token)) {
+            score += 2;
+          }
+
+          if (category.includes(token)) {
+            score += 1.5;
+          }
+
+          score += 1;
+        });
+
+        return { article, score };
+      })
+      .filter(
+        (entry): entry is { article: Article; score: number } => entry !== null
+      );
+
+    scored.sort((a, b) => b.score - a.score);
+
+    return {
+      matches: scored
+        .slice(0, Math.max(resultLimit, 1))
+        .map((entry) => entry.article),
+      total: scored.length,
+    };
+  }, [articles, queryTokens, resultLimit]);
+
+  const hasQuery = queryTokens.length > 0;
 
   const handleToggleOpen = () => {
     setDrawerOpen(true);
@@ -81,6 +181,87 @@ const RedesignSearchSidebar = ({
             >
               {clearLabel}
             </button>
+          )}
+          {hasQuery && (
+            <div className="search-results-wrapper">
+              <p className="search-results-label" id="search-results-heading">
+                {totalResults > 0
+                  ? `Résultats (${totalResults})`
+                  : "Aucun résultat"}
+              </p>
+              {searchResults.length > 0 ? (
+                <ul
+                  className="search-results"
+                  role="list"
+                  aria-labelledby="search-results-heading"
+                >
+                  {searchResults.map((article) => {
+                    const linkHref = `/${article.category}/${article.slug}`;
+                    const formattedDate = formatResultDate(article.date);
+                    const showDate = Boolean(formattedDate);
+                    const showAuthor = Boolean(article.author);
+                    const showCategory = Boolean(article.category);
+
+                    return (
+                      <li
+                        key={`${article.category}-${article.slug}`}
+                        className="search-result-item"
+                      >
+                        <Link
+                          href={linkHref}
+                          className="search-result-link"
+                          onClick={handleClose}
+                        >
+                          <span className="search-result-title">
+                            {article.title}
+                          </span>
+                          <span className="search-result-meta">
+                            {showAuthor && (
+                              <span className="search-result-author">
+                                {article.author}
+                              </span>
+                            )}
+                            {showAuthor && showDate && (
+                              <span
+                                className="search-result-separator"
+                                aria-hidden="true"
+                              >
+                                ·
+                              </span>
+                            )}
+                            {showDate && (
+                              <time
+                                className="search-result-date"
+                                dateTime={article.date}
+                              >
+                                {formattedDate}
+                              </time>
+                            )}
+                            {(showAuthor || showDate) && showCategory && (
+                              <span
+                                className="search-result-separator"
+                                aria-hidden="true"
+                              >
+                                ·
+                              </span>
+                            )}
+                            {showCategory && (
+                              <span className="search-result-category">
+                                {article.category}
+                              </span>
+                            )}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="search-no-results">
+                  Aucun article ne correspond à votre recherche pour le moment.
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -325,6 +506,99 @@ const RedesignSearchSidebar = ({
           background: #2c1c23;
           color: #fff7fa;
         }
+        .search-results-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .search-results-label {
+          margin: 0;
+          font-size: 13px;
+          font-family: "InterMedium", sans-serif;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: rgba(44, 28, 35, 0.72);
+        }
+        .search-results {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          max-height: 240px;
+          overflow-y: auto;
+          scrollbar-width: thin;
+        }
+        .search-results::-webkit-scrollbar {
+          width: 6px;
+        }
+        .search-results::-webkit-scrollbar-track {
+          background: rgba(255, 247, 250, 0.4);
+          border-radius: 999px;
+        }
+        .search-results::-webkit-scrollbar-thumb {
+          background: rgba(44, 28, 35, 0.35);
+          border-radius: 999px;
+        }
+        .search-result-item {
+          margin: 0;
+        }
+        .search-result-link {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          padding: 12px 14px;
+          border: 1px solid rgba(44, 28, 35, 0.14);
+          border-radius: 14px;
+          background: rgba(255, 247, 250, 0.92);
+          text-decoration: none;
+          transition: border-color 0.2s ease, transform 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+        .search-result-link:hover,
+        .search-result-link:focus-visible {
+          border-color: rgba(44, 28, 35, 0.36);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 18px rgba(44, 28, 35, 0.16);
+        }
+        .search-result-title {
+          font-family: "GayaRegular", serif;
+          font-size: 16px;
+          line-height: 1.32;
+          color: #2c1c23;
+        }
+        .search-result-meta {
+          display: inline-flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 6px;
+          font-family: "InterRegular", sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          color: rgba(44, 28, 35, 0.72);
+        }
+        .search-result-author {
+          font-family: "InterMedium", sans-serif;
+        }
+        .search-result-date {
+          font-style: normal;
+        }
+        .search-result-category {
+          font-family: "InterMedium", sans-serif;
+          letter-spacing: 0.08em;
+        }
+        .search-result-separator {
+          color: rgba(44, 28, 35, 0.38);
+        }
+        .search-no-results {
+          margin: 0;
+          font-family: "InterRegular", sans-serif;
+          font-size: 14px;
+          line-height: 1.5;
+          color: rgba(44, 28, 35, 0.68);
+        }
         .drawer-text {
           margin: 0;
           font-size: 14px;
@@ -418,6 +692,9 @@ const RedesignSearchSidebar = ({
             width: 100%;
             justify-content: center;
             font-size: 13px;
+          }
+          .search-results {
+            max-height: 200px;
           }
           .search-drawer:not(.open) .drawer-section + .drawer-section {
             border-top: none;
