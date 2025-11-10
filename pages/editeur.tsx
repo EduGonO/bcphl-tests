@@ -1,7 +1,6 @@
 import Head from "next/head";
 import type { GetServerSideProps } from "next";
 import React from "react";
-import { signOut, useSession } from "next-auth/react";
 import TopNav from "../app/components/TopNav";
 import EditorShell from "../app/components/indices/EditorShell";
 import type { SupabaseCategorySummary } from "../types/supabase";
@@ -13,24 +12,13 @@ interface Props {
 }
 
 const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
-  const { data: session } = useSession();
-
-  const sessionEmail = session?.user?.email ?? "Session non identifiée";
-
   return (
     <>
       <Head>
         <title>Bicéphale · Éditeur</title>
       </Head>
       <TopNav />
-      <EditorShell
-        eyebrow="Éditeur"
-        title="Espace rédaction"
-        sessionEmail={sessionEmail}
-        categories={supabaseCats}
-        error={supabaseError}
-        onSignOut={() => signOut()}
-      />
+      <EditorShell categories={supabaseCats} error={supabaseError} />
     </>
   );
 };
