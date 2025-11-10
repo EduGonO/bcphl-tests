@@ -75,8 +75,7 @@ const TopNav: React.FC = () => {
         }
 
         .brand {
-          display: flex;
-          flex-direction: row;
+          display: inline-flex;
           align-items: center;
           gap: 14px;
           height: 42px;
@@ -88,15 +87,19 @@ const TopNav: React.FC = () => {
           text-transform: uppercase;
           color: #0d0d0d;
           text-decoration: none;
-          line-height: 42px;
+          line-height: 1;
+        }
+
+        .brand-visual,
+        .brand-name {
+          display: inline-flex;
+          align-items: center;
+          height: 100%;
         }
 
         .brand-visual {
-          display: flex;
-          align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          height: 42px;
           width: 42px;
         }
 
@@ -115,15 +118,12 @@ const TopNav: React.FC = () => {
         }
 
         .brand-name {
-          display: flex;
-          align-items: center;
-          height: 42px;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0d0d0d;
-          line-height: 42px;
+          line-height: 1;
         }
 
         .top-nav__right {
