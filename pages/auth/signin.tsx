@@ -18,7 +18,7 @@ export default function SignInPage() {
   // Check if we have a callback URL from the query parameters
   const callbackUrl = Array.isArray(router.query.callbackUrl)
     ? router.query.callbackUrl[0]
-    : router.query.callbackUrl || "/indices";
+    : router.query.callbackUrl || "/editeur";
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -182,7 +182,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (session) {
     return { 
       redirect: { 
-        destination: ctx.query.callbackUrl as string || "/indices", 
+        destination: ctx.query.callbackUrl as string || "/editeur",
         permanent: false 
       } 
     };

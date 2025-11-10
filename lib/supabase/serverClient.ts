@@ -6,6 +6,8 @@ const serviceEnvKeys = [
   "SUPABASE_SERVICE_KEY",
   "SUPABASE_SECRET_KEY",
   "SUPABASE_SERVICE_API_KEY",
+  "SUPABASE_API_SECRET_KEY",
+  "SUPABASE_KEY",
 ];
 
 export type ServerSupabaseClient = SupabaseClient;
@@ -27,7 +29,7 @@ export const getSupabaseServerClient = (): ServerSupabaseClient | null => {
   if (!url || !key) {
     if (process.env.NODE_ENV !== "production") {
       console.warn(
-        "Supabase environment variables are not fully configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
+        "Supabase environment variables are not fully configured. Set SUPABASE_URL and SUPABASE_KEY."
       );
     }
     return null;

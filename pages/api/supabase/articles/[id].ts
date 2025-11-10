@@ -15,7 +15,7 @@ const ensureClient = () => {
   const client = getSupabaseServerClient();
   if (!client) {
     throw new Error(
-      "Supabase n’est pas configuré. Ajoutez SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY."
+      "Supabase n’est pas configuré. Ajoutez SUPABASE_URL et SUPABASE_KEY."
     );
   }
   return client;

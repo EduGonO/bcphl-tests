@@ -56,12 +56,19 @@ const detailToForm = (detail: SupabaseArticleDetail): SupabaseFormState => ({
 
 type StatusTone = "idle" | "loading" | "saving" | "saved" | "dirty" | "error";
 
+export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
+
 type SupabaseWorkspaceProps = {
   categories: SupabaseCategorySummary[];
   error?: string | null;
+  variant?: SupabaseWorkspaceVariant;
 };
 
-const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error }) => {
+const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
+  categories,
+  error,
+  variant = "admin",
+}) => {
   const [supabaseCategories, setSupabaseCategories] = useState(categories);
   const [panelError, setPanelError] = useState<string | null>(error ?? null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
@@ -84,6 +91,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
   const [createStatus, setCreateStatus] = useState<"idle" | "creating">("idle");
   const [createError, setCreateError] = useState<string | null>(null);
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting">("idle");
+
+  const workspaceVariant = variant;
+  const showAdvanced = workspaceVariant !== "writer";
 
   useEffect(() => {
     setSupabaseCategories(categories);
@@ -159,9 +169,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
 
   const confirmDiscard = useCallback(() => {
     if (!dirtyRef.current) return true;
-    return window.confirm(
-      "Des modifications Supabase non enregistrées seront perdues. Continuer ?"
-    );
+    return window.confirm("Des modifications non enregistrées seront perdues. Continuer ?");
   }, []);
 
   const fetchArticle = useCallback(async (articleId: string) => {
@@ -172,7 +180,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
       const response = await fetch(`/api/supabase/articles/${articleId}`);
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible de charger l’article Supabase.");
+        throw new Error(payload?.error ?? "Impossible de charger l’article.");
       }
       setArticleDetail(payload.article);
       setFormState(detailToForm(payload.article));
@@ -185,13 +193,33 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
     }
   }, []);
 
+  useEffect(() => {
+    if (selectedArticleId || !selectedCategoryId) {
+      return;
+    }
+
+    const activeCategory = supabaseCategories.find(
+      (category) => category.id === selectedCategoryId
+    );
+
+    if (!activeCategory || !activeCategory.articles.length) {
+      return;
+    }
+
+    const firstArticleId = activeCategory.articles[0].id;
+    setSelectedArticleId(firstArticleId);
+    fetchArticle(firstArticleId).catch(() => {
+      /* handled in fetchArticle */
+    });
+  }, [fetchArticle, selectedArticleId, selectedCategoryId, supabaseCategories]);
+
   const refreshCategories = useCallback(
     async (focusArticleId?: string) => {
       try {
         const response = await fetch("/api/supabase/articles");
         const payload = await response.json();
         if (!response.ok) {
-          throw new Error(payload?.error ?? "Impossible de charger les articles Supabase.");
+          throw new Error(payload?.error ?? "Impossible de charger les articles.");
         }
         setSupabaseCategories(payload.categories);
         setPanelError(null);
@@ -202,13 +230,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           if (containing) {
             setSelectedCategoryId(containing.id);
             setSelectedArticleId(focusArticleId);
+            await fetchArticle(focusArticleId);
           }
         }
       } catch (err) {
         setPanelError(err instanceof Error ? err.message : "Erreur inconnue");
       }
     },
-    []
+    [fetchArticle]
   );
 
   const handleSelectArticle = useCallback(
@@ -400,7 +429,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
 
   const handleDelete = useCallback(async () => {
     if (!selectedArticleId) return;
-    if (!window.confirm("Supprimer définitivement cet article Supabase ?")) {
+    if (!window.confirm("Supprimer définitivement cet article ?")) {
       return;
     }
     setDeleteStatus("deleting");
@@ -432,12 +461,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
   );
 
   return (
-    <section className="supabase-panel">
+    <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
         <div>
-          <h2>Supabase CMS</h2>
+          <h2>Espace articles</h2>
           <p className="supabase-panel__subtitle">
-            Gestion des articles stockés dans la base Supabase
+            Gestion des articles et de leurs contenus
           </p>
         </div>
         <div className="supabase-panel__actions">
@@ -452,7 +481,16 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
             type="button"
             className="supabase-button"
             onClick={() => {
-              setCreateOpen((open) => !open);
+              setCreateOpen((open) => {
+                const nextOpen = !open;
+                if (!open) {
+                  setCreateDraft((draft) => ({
+                    ...draft,
+                    categoryIds: selectedCategoryId ? [selectedCategoryId] : [],
+                  }));
+                }
+                return nextOpen;
+              });
               setCreateError(null);
             }}
           >
@@ -701,36 +739,38 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
                   />
                 </div>
 
-                <details className="supabase-editor__advanced">
-                  <summary>Afficher les champs bruts</summary>
-                  <label>
-                    <span>Contenu Markdown</span>
-                    <textarea
-                      className="supabase-editor__textarea"
-                      value={formState.bodyMarkdown}
-                      onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
-                    />
-                  </label>
+                {showAdvanced && (
+                  <details className="supabase-editor__advanced">
+                    <summary>Afficher les champs bruts</summary>
+                    <label>
+                      <span>Contenu Markdown</span>
+                      <textarea
+                        className="supabase-editor__textarea"
+                        value={formState.bodyMarkdown}
+                        onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
+                      />
+                    </label>
 
-                  <label>
-                    <span>Contenu HTML</span>
-                    <textarea
-                      className="supabase-editor__textarea"
-                      value={formState.bodyHtml}
-                      onChange={(event) => updateForm("bodyHtml", event.target.value)}
-                    />
-                  </label>
+                    <label>
+                      <span>Contenu HTML</span>
+                      <textarea
+                        className="supabase-editor__textarea"
+                        value={formState.bodyHtml}
+                        onChange={(event) => updateForm("bodyHtml", event.target.value)}
+                      />
+                    </label>
 
-                  <label>
-                    <span>Contenu JSON (TipTap / Rich text)</span>
-                    <textarea
-                      className="supabase-editor__textarea"
-                      value={formState.bodyJson}
-                      onChange={(event) => updateForm("bodyJson", event.target.value)}
-                      placeholder='{ "type": "doc" }'
-                    />
-                  </label>
-                </details>
+                    <label>
+                      <span>Contenu JSON (TipTap / Rich text)</span>
+                      <textarea
+                        className="supabase-editor__textarea"
+                        value={formState.bodyJson}
+                        onChange={(event) => updateForm("bodyJson", event.target.value)}
+                        placeholder='{ "type": "doc" }'
+                      />
+                    </label>
+                  </details>
+                )}
 
                 <fieldset className="supabase-editor__fieldset">
                   <legend>Catégories</legend>
@@ -813,7 +853,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
             </>
           ) : (
             <div className="supabase-workspace__empty">
-              Sélectionnez un article Supabase pour commencer.
+              Sélectionnez un article pour commencer.
             </div>
           )}
         </div>
@@ -822,30 +862,30 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
       <style jsx>{`
         .supabase-panel {
           width: 100%;
-          background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.06);
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 16px 32px rgba(15, 15, 15, 0.04);
+          height: 100%;
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 20px;
+          overflow: hidden;
         }
         .supabase-panel__header {
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
           gap: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          flex-shrink: 0;
         }
         .supabase-panel__header h2 {
           margin: 0;
-          font-size: 18px;
+          font-size: 17px;
           text-transform: uppercase;
-          letter-spacing: 0.24em;
-          color: #1f1f22;
+          letter-spacing: 0.22em;
+          color: #151720;
         }
         .supabase-panel__subtitle {
-          margin: 6px 0 0;
+          margin: 8px 0 0;
           font-size: 13px;
           color: #5a5c62;
         }
@@ -859,6 +899,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           background: rgba(162, 47, 33, 0.08);
           color: #a62f21;
           font-size: 13px;
+          flex-shrink: 0;
         }
         .supabase-button {
           border: none;
@@ -890,6 +931,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           border-radius: 12px;
           padding: 16px;
           background: #f9fafb;
+          flex-shrink: 0;
         }
         .supabase-create__row {
           display: grid;
@@ -969,16 +1011,19 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           font-size: 12px;
         }
         .supabase-workspace {
-          display: flex;
-          gap: 20px;
+          flex: 1;
+          min-height: 0;
+          display: grid;
+          grid-template-columns: 320px minmax(0, 1fr);
+          gap: 24px;
         }
         .supabase-workspace__sidebar {
-          width: 320px;
-          max-height: 520px;
+          min-height: 0;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           gap: 16px;
+          padding-right: 8px;
         }
         .supabase-category__header {
           display: flex;
@@ -1012,18 +1057,23 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         .supabase-entry {
           width: 100%;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 10px;
-          padding: 12px 14px;
+          border-radius: 12px;
+          padding: 12px 16px;
           display: flex;
           flex-direction: column;
           gap: 4px;
           background: #ffffff;
           text-align: left;
           cursor: pointer;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .supabase-entry:hover {
+          border-color: rgba(0, 0, 0, 0.18);
+          box-shadow: 0 8px 20px rgba(17, 17, 23, 0.08);
         }
         .supabase-entry--active {
-          border-color: rgba(0, 0, 0, 0.35);
-          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+          border-color: rgba(36, 119, 70, 0.32);
+          box-shadow: inset 0 0 0 1px rgba(36, 119, 70, 0.2);
         }
         .supabase-entry__title {
           font-size: 13px;
@@ -1045,20 +1095,26 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         }
         .supabase-workspace__editor {
           flex: 1;
+          min-height: 0;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 12px;
-          padding: 20px;
-          background: #fafafb;
+          border-radius: 16px;
+          padding: 22px 24px;
+          background: #fdfdff;
           display: flex;
           flex-direction: column;
-          gap: 18px;
-          max-height: 520px;
-          overflow-y: auto;
+          gap: 20px;
+          overflow: hidden;
         }
         .supabase-workspace__empty {
           margin: auto;
-          font-size: 14px;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.2em;
           color: #7a7c82;
+          border: 1px dashed rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+          padding: 40px 24px;
+          background: #fafbff;
         }
         .supabase-editor__header {
           display: flex;
@@ -1112,6 +1168,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           display: flex;
           flex-direction: column;
           gap: 16px;
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          padding-right: 6px;
         }
         .supabase-editor__grid {
           display: grid;
@@ -1145,6 +1205,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           display: flex;
           flex-direction: column;
           gap: 12px;
+          flex: 1;
+          min-height: 0;
         }
         .supabase-editor__richtext-header {
           display: flex;
@@ -1166,6 +1228,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
           border: 1px solid rgba(0, 0, 0, 0.12);
           border-radius: 12px;
           overflow: hidden;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
         }
         .supabase-rich-text .ql-toolbar {
           border: none;
@@ -1174,7 +1239,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         .supabase-rich-text .ql-container {
           border: none;
           font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          min-height: 260px;
+          flex: 1;
+          min-height: 0;
         }
         .supabase-rich-text__loading {
           padding: 24px;
@@ -1252,6 +1318,51 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         .supabase-editor__footer {
           display: flex;
           gap: 12px;
+          flex-shrink: 0;
+        }
+        .supabase-panel--writer .supabase-editor__form {
+          gap: 12px;
+        }
+        .supabase-panel--writer .supabase-editor__grid {
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 10px;
+        }
+        .supabase-panel--writer .supabase-editor__form label {
+          font-size: 10px;
+          letter-spacing: 0.12em;
+        }
+        .supabase-panel--writer .supabase-editor__richtext {
+          padding-top: 4px;
+        }
+        .supabase-panel--writer .supabase-editor__richtext-header span {
+          font-size: 14px;
+        }
+        .supabase-panel--writer .supabase-editor__richtext-header p {
+          font-size: 11px;
+          color: #4a4c53;
+        }
+        @media (max-width: 1080px) {
+          .supabase-workspace {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: minmax(0, 320px) minmax(0, 1fr);
+          }
+          .supabase-workspace__sidebar {
+            max-height: none;
+            padding-right: 0;
+          }
+        }
+        @media (max-width: 720px) {
+          .supabase-panel__header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+          }
+          .supabase-panel__actions {
+            flex-wrap: wrap;
+          }
+          .supabase-create__row {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          }
         }
       `}</style>
     </section>
