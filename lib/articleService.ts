@@ -1,112 +1,104 @@
-import fs from "fs";
-import path from "path";
-import { Article } from "../types";
+import type { SupabaseArticleDetail, SupabaseArticleRelation, SupabaseCategorySummary } from "../types/supabase";
+import { Article, Category } from "../types";
 import {
   categoryConfigMap,
+  categoryToSlug,
   defaultCategoryColor,
 } from "../config/categoryColors";
+import { getSupabaseServerClient } from "./supabase/serverClient";
+import {
+  loadSupabaseArticleDetail,
+  loadSupabaseCategorySummaries,
+} from "./supabase/content";
 
-const LEGACY_TEXTS_DIR = path.join(process.cwd(), "texts");
-const NEW_TEXTS_DIR = path.join(process.cwd(), "textes");
-const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif)$/i;
+const SOURCE_TYPE = "supabase" as const;
 
-const PUBLIC_LEGACY_BASE = "/texts";
-const PUBLIC_NEW_BASE = "/textes";
-
-type SourceType = "legacy" | "flat";
+type ArticleSource = typeof SOURCE_TYPE;
 
 export type ArticleRecord = {
   article: Article;
   body: string;
-  yaml: Record<string, any>;
-  absolutePath: string;
+  bodyHtml: string | null;
+  supabaseId: string;
+  articleCategories: Category[];
+  relatedArticles: SupabaseArticleRelation[];
   publicBasePath: string;
-  sourceType: SourceType;
+  sourceType: ArticleSource;
 };
 
 type ArticleCollection = {
   records: ArticleRecord[];
-  categoryColors: Map<string, string>;
+  categories: Category[];
 };
 
-let cachedCollection: ArticleCollection | null = null;
+type DetailCache = Map<string, Promise<SupabaseArticleDetail | null>>;
 
-const ensureString = (value: unknown): string =>
-  typeof value === "string" ? value : "";
+const configSlugMap = new Map<string, string>();
+Object.keys(categoryConfigMap).forEach((name) => {
+  const slug = categoryToSlug(name);
+  configSlugMap.set(slug.toLowerCase(), name);
+  configSlugMap.set(name.toLowerCase(), name);
+});
 
-const normalizeMedia = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value
-      .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-      .map((item) => item.trim());
-  }
-  if (typeof value === "string" && value.trim().length > 0) {
-    return [value.trim()];
-  }
-  return [];
-};
-
-const registerCategory = (
-  categoryColors: Map<string, string>,
-  categoryName: string
-) => {
-  if (!categoryColors.has(categoryName)) {
-    const config = categoryConfigMap[categoryName];
-    categoryColors.set(
-      categoryName,
-      config?.color || defaultCategoryColor
+const ensureSupabaseClient = () => {
+  const client = getSupabaseServerClient();
+  if (!client) {
+    throw new Error(
+      "Supabase n’est pas configuré. Ajoutez SUPABASE_URL et SUPABASE_KEY."
     );
   }
+  return client;
 };
 
-const readYaml = (block: string): Record<string, any> => {
-  const obj: Record<string, any> = {};
-  block
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .forEach((line) => {
-      const [rawKey, ...rawValue] = line.split(":");
-      if (!rawKey || rawValue.length === 0) {
-        return;
-      }
-      const key = rawKey.trim();
-      const joined = rawValue.join(":").trim();
-      obj[key] =
-        joined.startsWith("[") && joined.endsWith("]")
-          ? joined
-              .slice(1, -1)
-              .split(",")
-              .map((part) => part.trim())
-              .filter(Boolean)
-          : joined;
-    });
-  return obj;
-};
+const fetchArticleDetail = async (
+  articleId: string,
+  supabase = ensureSupabaseClient(),
+  cache?: DetailCache
+): Promise<SupabaseArticleDetail | null> => {
+  const targetCache = cache ?? new Map<string, Promise<SupabaseArticleDetail | null>>();
 
-const loadMarkdown = (filePath: string): { yaml: Record<string, any>; body: string } => {
-  const raw = fs.readFileSync(filePath, "utf8").trim();
-  if (raw.startsWith("---")) {
-    const end = raw.indexOf("\n---", 3);
-    if (end !== -1) {
-      const yamlBlock = raw.slice(3, end).trim();
-      const body = raw.slice(end + 4).trim();
-      return { yaml: readYaml(yamlBlock), body };
-    }
+  let detailPromise = targetCache.get(articleId);
+  if (!detailPromise) {
+    detailPromise = loadSupabaseArticleDetail(supabase, articleId);
+    targetCache.set(articleId, detailPromise);
   }
-  return { yaml: {}, body: raw };
+
+  return detailPromise.then((detail) => detail ?? null);
 };
 
-const slugify = (value: string): string => {
-  const base = value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .toLowerCase();
-  return base || "article";
+const buildStoragePublicUrl = (bucket: string, rawPath?: string | null): string => {
+  if (!rawPath) {
+    return "";
+  }
+
+  const path = String(rawPath).trim();
+  if (!path) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  if (path.includes("/storage/v1/object/public/")) {
+    return path;
+  }
+
+  if (path.startsWith("/")) {
+    return path;
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  if (!baseUrl) {
+    return `/${path}`;
+  }
+
+  const normalizedBase = baseUrl.replace(/\/+$/, "");
+  const normalizedPath = path
+    .replace(/^\/+/, "")
+    .replace(new RegExp(`^${bucket}/`), "");
+
+  return `${normalizedBase}/storage/v1/object/public/${bucket}/${normalizedPath}`;
 };
 
 const createPreview = (body: string): string => {
@@ -133,211 +125,230 @@ const createPreview = (body: string): string => {
   return preview;
 };
 
-const buildArticleRecord = (
-  categoryColors: Map<string, string>,
-  category: string,
-  slug: string,
-  filePath: string,
-  publicBasePath: string,
-  sourceType: SourceType,
-  yaml: Record<string, any>,
-  body: string,
-  mediaFromDir: string[] = []
-): ArticleRecord => {
-  registerCategory(categoryColors, category);
-
-  const titleCandidate = ensureString(yaml.title);
-  const title =
-    titleCandidate ||
-    (body.startsWith("#")
-      ? body.split("\n")[0].replace(/^#+\s*/, "").trim()
-      : slug);
-
-  const date = ensureString(yaml.date) || "Unknown Date";
-  const author = ensureString(yaml.author) || "Unknown Author";
-  const headerImage = ensureString(yaml["header-image"] || yaml.headerImage);
-  const yamlMedia = normalizeMedia(yaml.media);
-  const media = Array.from(new Set([...yamlMedia, ...mediaFromDir]));
-
-  const article: Article = {
-    title,
-    slug,
-    category,
-    date,
-    author,
-    preview: createPreview(body),
-    media,
-    headerImage,
-  };
-
-  return {
-    article,
-    body,
-    yaml,
-    absolutePath: filePath,
-    publicBasePath,
-    sourceType,
-  };
-};
-
-const collectLegacyArticles = (
-  categoryColors: Map<string, string>
-): ArticleRecord[] => {
-  if (!fs.existsSync(LEGACY_TEXTS_DIR)) {
-    return [];
-  }
-
-  const records: ArticleRecord[] = [];
-  const categories = fs
-    .readdirSync(LEGACY_TEXTS_DIR, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name);
-
-  for (const category of categories) {
-    const categoryDir = path.join(LEGACY_TEXTS_DIR, category);
-    const articleDirs = fs
-      .readdirSync(categoryDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name);
-
-    for (const slugDir of articleDirs) {
-      const articleDir = path.join(categoryDir, slugDir);
-      const mdFiles = fs.readdirSync(articleDir).filter((file) => file.endsWith(".md"));
-      if (mdFiles.length === 0) {
-        continue;
-      }
-
-      const preferred = mdFiles.find((file) => file === `${slugDir}.md`) ?? mdFiles[0];
-      const absolutePath = path.join(articleDir, preferred);
-      const { yaml, body } = loadMarkdown(absolutePath);
-
-      const imageList = fs
-        .readdirSync(articleDir)
-        .filter((file) => IMAGE_EXT.test(file))
-        .map((file) =>
-          path.posix.join(PUBLIC_LEGACY_BASE, category, slugDir, file)
-        );
-
-      records.push(
-        buildArticleRecord(
-          categoryColors,
-          category,
-          slugDir,
-          absolutePath,
-          path.posix.join(PUBLIC_LEGACY_BASE, category, slugDir),
-          "legacy",
-          yaml,
-          body,
-          imageList
-        )
-      );
-    }
-  }
-
-  return records;
-};
-
-const collectFlatArticles = (
-  categoryColors: Map<string, string>
-): ArticleRecord[] => {
-  if (!fs.existsSync(NEW_TEXTS_DIR)) {
-    return [];
-  }
-
-  const records: ArticleRecord[] = [];
-  const categories = fs
-    .readdirSync(NEW_TEXTS_DIR, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name);
-
-  for (const category of categories) {
-    const categoryDir = path.join(NEW_TEXTS_DIR, category);
-    const dirEntries = fs.readdirSync(categoryDir, { withFileTypes: true });
-    const markdownFiles = dirEntries
-      .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
-      .map((entry) => entry.name);
-
-    const existingSlugs = new Set<string>();
-
-    for (const fileName of markdownFiles) {
-      const absolutePath = path.join(categoryDir, fileName);
-      const { yaml, body } = loadMarkdown(absolutePath);
-      const baseName = fileName.replace(/\.md$/, "");
-      const frontMatterSlug = ensureString(yaml.slug);
-      let slugCandidate = frontMatterSlug
-        ? slugify(frontMatterSlug)
-        : slugify(baseName);
-
-      let finalSlug = slugCandidate;
-      let counter = 2;
-      while (existingSlugs.has(finalSlug)) {
-        finalSlug = `${slugCandidate}-${counter}`;
-        counter += 1;
-      }
-      existingSlugs.add(finalSlug);
-
-      records.push(
-        buildArticleRecord(
-          categoryColors,
-          category,
-          finalSlug,
-          absolutePath,
-          path.posix.join(PUBLIC_NEW_BASE, category),
-          "flat",
-          yaml,
-          body
-        )
-      );
-    }
-  }
-
-  return records;
-};
-
-const ensureCollection = (): ArticleCollection => {
-  if (cachedCollection) {
-    return cachedCollection;
-  }
-
-  const categoryColors = new Map<string, string>();
-  const records = [
-    ...collectLegacyArticles(categoryColors),
-    ...collectFlatArticles(categoryColors),
-  ];
-
-  cachedCollection = { records, categoryColors };
-  return cachedCollection;
-};
-
-export const getArticleRecords = (): ArticleRecord[] => ensureCollection().records;
-
-export const findArticleRecord = (
-  category: string,
-  slug: string
-): ArticleRecord | undefined => {
-  const normalizedCategory = category.toLowerCase();
-  const normalizedSlug = slug.toLowerCase();
-  return getArticleRecords().find(
-    (record) =>
-      record.article.category.toLowerCase() === normalizedCategory &&
-      record.article.slug.toLowerCase() === normalizedSlug
+const resolvePreview = (
+  summary: { preview: string | null; excerpt: string | null },
+  detail: SupabaseArticleDetail
+): string => {
+  return (
+    summary.preview?.trim() ||
+    summary.excerpt?.trim() ||
+    detail.preview?.trim() ||
+    detail.excerpt?.trim() ||
+    createPreview(detail.bodyMarkdown ?? "")
   );
 };
 
-export function getArticleData(): {
-  articles: Article[];
-  categories: { name: string; color: string }[];
-} {
-  const { records, categoryColors } = ensureCollection();
-  const articles = records.map((record) => record.article);
-  const categories = Array.from(categoryColors.entries()).map(([name, color]) => ({
-    name,
-    color,
-  }));
+const resolveDate = (
+  summary: { publishedAt: string | null; authoredDate: string | null; updatedAt: string | null },
+  detail: SupabaseArticleDetail
+): string => {
+  return (
+    summary.publishedAt?.trim() ||
+    detail.publishedAt?.trim() ||
+    summary.authoredDate?.trim() ||
+    detail.authoredDate?.trim() ||
+    summary.updatedAt?.trim() ||
+    detail.updatedAt?.trim() ||
+    detail.createdAt?.trim() ||
+    "Unknown Date"
+  );
+};
 
-  return { articles, categories };
+const resolveCategoryMeta = (
+  category: SupabaseCategorySummary
+): Category => {
+  const candidateSlug = (category.slug || categoryToSlug(category.name)).trim();
+  const configName =
+    configSlugMap.get(candidateSlug.toLowerCase()) ||
+    configSlugMap.get(category.name.toLowerCase()) ||
+    category.name ||
+    category.slug ||
+    category.id;
+
+  const configEntry = categoryConfigMap[configName];
+  const slugMatch = configSlugMap.get(candidateSlug.toLowerCase());
+  const slug =
+    slugMatch ||
+    category.slug?.trim() ||
+    categoryToSlug(configName) ||
+    configName;
+  const color = category.color?.trim() || configEntry?.color || defaultCategoryColor;
+
+  return {
+    id: category.id,
+    slug,
+    name: configName,
+    color,
+  };
+};
+
+const resolveMedia = (detail: SupabaseArticleDetail): string[] => {
+  const urls = detail.media
+    .map((entry) => buildStoragePublicUrl(entry.storageBucket, entry.storagePath))
+    .filter((value): value is string => Boolean(value));
+  return Array.from(new Set(urls));
+};
+
+const resolveHeaderImage = (
+  summary: { headerImagePath: string | null },
+  detail: SupabaseArticleDetail,
+  media: string[]
+): string => {
+  const headerMedia = detail.media.find((entry) => entry.isHeader);
+  const headerFromMedia = headerMedia
+    ? buildStoragePublicUrl(headerMedia.storageBucket, headerMedia.storagePath)
+    : "";
+
+  const headerFromSummary = buildStoragePublicUrl(
+    headerMedia?.storageBucket || "article-media",
+    summary.headerImagePath || detail.headerImagePath || null
+  );
+
+  const header = headerFromMedia || headerFromSummary || media[0] || "";
+  if (header && !media.includes(header)) {
+    media.unshift(header);
+  }
+  return header;
+};
+
+const mapArticleCategories = (
+  detail: SupabaseArticleDetail,
+  categoriesById: Map<string, Category>,
+  categoriesBySlug: Map<string, Category>
+): Category[] => {
+  const mapped: Category[] = [];
+
+  detail.categories.forEach((entry) => {
+    const byId = categoriesById.get(entry.id);
+    const slugKey = entry.slug ? entry.slug.toLowerCase() : categoryToSlug(entry.name).toLowerCase();
+    const bySlug = categoriesBySlug.get(slugKey);
+    const fallbackColor = entry.color?.trim() || defaultCategoryColor;
+
+    if (byId) {
+      mapped.push(byId);
+    } else if (bySlug) {
+      mapped.push(bySlug);
+    } else {
+      mapped.push({
+        id: entry.id,
+        slug: entry.slug || entry.name,
+        name: entry.name,
+        color: fallbackColor,
+      });
+    }
+  });
+
+  return mapped;
+};
+
+const ensureCollection = async (): Promise<ArticleCollection> => {
+  const supabase = ensureSupabaseClient();
+  const supabaseCategories = await loadSupabaseCategorySummaries(supabase);
+
+  const categories = supabaseCategories.map(resolveCategoryMeta);
+  const categoriesById = new Map(categories.map((category) => [category.id, category]));
+  const categoriesBySlug = new Map(
+    categories.map((category) => [category.slug.toLowerCase(), category])
+  );
+
+  const records: ArticleRecord[] = [];
+  const seenKeys = new Set<string>();
+  const detailCache: DetailCache = new Map();
+
+  for (const categorySummary of supabaseCategories) {
+    const categoryMeta =
+      categoriesById.get(categorySummary.id) ||
+      categoriesBySlug.get((categorySummary.slug || "").toLowerCase());
+
+    const categorySlug = categoryMeta?.slug || categorySummary.slug || categoryToSlug(categorySummary.name);
+    const categoryName = categoryMeta?.name || categorySummary.name || categorySlug;
+
+    for (const summary of categorySummary.articles) {
+      if (!summary.status) {
+        continue;
+      }
+
+      const detail = await fetchArticleDetail(summary.id, supabase, detailCache);
+      if (!detail || !detail.status) {
+        continue;
+      }
+
+      const recordKey = `${detail.id}::${categorySlug.toLowerCase()}`;
+      if (seenKeys.has(recordKey)) {
+        continue;
+      }
+      seenKeys.add(recordKey);
+
+      const media = resolveMedia(detail);
+      const headerImage = resolveHeaderImage(summary, detail, media);
+      const articleCategories = mapArticleCategories(
+        detail,
+        categoriesById,
+        categoriesBySlug
+      );
+
+      const article: Article = {
+        id: detail.id,
+        title: detail.title,
+        slug: detail.slug,
+        category: categoryName,
+        categorySlug,
+        date: resolveDate(summary, detail),
+        author: detail.authorName ?? "",
+        preview: resolvePreview(summary, detail),
+        media,
+        headerImage,
+      };
+
+      const record: ArticleRecord = {
+        article,
+        body: detail.bodyMarkdown ?? "",
+        bodyHtml: detail.bodyHtml,
+        supabaseId: detail.id,
+        articleCategories,
+        relatedArticles: detail.relatedArticles,
+        publicBasePath: "",
+        sourceType: SOURCE_TYPE,
+      };
+
+      records.push(record);
+    }
+  }
+
+  return { records, categories };
+};
+
+export const getArticleRecords = async (): Promise<ArticleRecord[]> => {
+  const collection = await ensureCollection();
+  return collection.records;
+};
+
+export const findArticleRecord = async (
+  category: string,
+  slug: string
+): Promise<ArticleRecord | undefined> => {
+  const normalizedCategory = category.toLowerCase();
+  const normalizedSlug = slug.toLowerCase();
+  const records = await getArticleRecords();
+
+  return records.find((record) => {
+    const categorySlug = record.article.categorySlug.toLowerCase();
+    const categoryName = record.article.category.toLowerCase();
+    const slugMatches = record.article.slug.toLowerCase() === normalizedSlug;
+    const categoryMatches =
+      categorySlug === normalizedCategory || categoryName === normalizedCategory;
+    return slugMatches && categoryMatches;
+  });
+};
+
+export async function getArticleData(): Promise<{
+  articles: Article[];
+  categories: Category[];
+}> {
+  const { records, categories } = await ensureCollection();
+  return { articles: records.map((record) => record.article), categories };
 }
 
 export const clearArticleCache = () => {
-  cachedCollection = null;
+  // Intentionally left blank; the Supabase-backed loader fetches fresh data per request.
 };

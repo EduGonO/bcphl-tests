@@ -47,11 +47,12 @@ const ReflexionPage = ({ articles }: ReflexionPageProps) => {
 };
 
 export async function getStaticProps() {
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   return {
     props: {
       articles: articles.filter(
-        (article) => article.category.toLowerCase() === "reflexion"
+        (article) =>
+          (article.categorySlug || article.category).toLowerCase() === "reflexion"
       ),
     },
   };

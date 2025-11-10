@@ -19,7 +19,8 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
 }) => {
   const mediaStyle = getArticleMediaStyle(article);
   const formattedDate = formatDate(article.date);
-  const linkHref = `/${article.category}/${article.slug}`;
+  const categorySegment = article.categorySlug || article.category;
+  const linkHref = `/${categorySegment}/${article.slug}`;
   const linkLabel = variant === "creation" ? "découvrir" : "en lire";
 
   return (

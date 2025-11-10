@@ -483,7 +483,7 @@ export default function SensurePage({ articles, categories }: SensurePageProps) 
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   const filteredArticles = articles.filter(a => a.category === 'Image-Critique');
   
   return {

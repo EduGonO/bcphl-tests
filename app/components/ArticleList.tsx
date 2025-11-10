@@ -1,7 +1,6 @@
 // /app/components/ArticleList.tsx
 import React from 'react'
 import { Article, Category } from '../../types'
-import { mdToHtml } from "../../lib/markdown";
 import ReactMarkdown from 'react-markdown';
 
 interface ArticleListProps {
@@ -17,7 +16,12 @@ const ArticleList: React.FC<ArticleListProps> = ({
 }) => (
   <section className="article-list">
     {articles.map((article, i) => {
-      const cat = categories.find((c) => c.name === article.category)
+      const categorySegment = article.categorySlug || article.category
+      const cat = categories.find(
+        (c) =>
+          c.slug.toLowerCase() === categorySegment.toLowerCase() ||
+          c.name.toLowerCase() === article.category.toLowerCase()
+      )
       const color = cat?.color || '#ccc'
       const thumbStyle = article.headerImage
         ? { backgroundImage: `url(${article.headerImage})` }
@@ -32,14 +36,9 @@ const ArticleList: React.FC<ArticleListProps> = ({
       year: "numeric",
     })
   : "";
-  const previewHtml = mdToHtml(
-    article.preview,
-    `/texts/${article.category}/${article.slug}`
-  )
-
       return (
         <a
-          href={`/${article.category}/${article.slug}`}
+          href={`/${categorySegment}/${article.slug}`}
           key={article.slug || i}
           className="row"
         >
@@ -52,20 +51,9 @@ const ArticleList: React.FC<ArticleListProps> = ({
               {article.author} • {formattedDate}
             </div>
 
-            {/*<span
-              className="label"
-              style={{
-                borderColor: color,
-                color,
-                backgroundColor: `${color}20`,
-              }}
-            >
-              {article.category}
-            </span>*/}
-
             <p className="preview"><ReactMarkdown>{article.preview}</ReactMarkdown></p>
-            
-            <span className="pre">{article.category.toUpperCase()}</span>
+
+            <span className="pre">{(article.category || cat?.name || categorySegment).toUpperCase()}</span>
           </div>
         </a>
       )

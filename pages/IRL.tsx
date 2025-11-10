@@ -27,11 +27,12 @@ const IRLPage = ({ articles }: IRLPageProps) => {
 };
 
 export async function getStaticProps() {
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   return {
     props: {
       articles: articles.filter(
-        (article) => article.category.toLowerCase() === "irl"
+        (article) =>
+          (article.categorySlug || article.category).toLowerCase() === "irl"
       ),
     },
   };

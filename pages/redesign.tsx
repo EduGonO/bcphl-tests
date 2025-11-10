@@ -116,7 +116,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     () =>
       sortedArticles.filter(
         (article) =>
-          article.category?.toLowerCase() === "reflexion" && matchesQuery(article)
+          (article.categorySlug || article.category)?.toLowerCase() === "reflexion" &&
+          matchesQuery(article)
       ),
     [sortedArticles, normalizedQuery]
   );
@@ -125,7 +126,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     () =>
       sortedArticles.filter(
         (article) =>
-          article.category?.toLowerCase() === "creation" && matchesQuery(article)
+          (article.categorySlug || article.category)?.toLowerCase() === "creation" &&
+          matchesQuery(article)
       ),
     [sortedArticles, normalizedQuery]
   );
@@ -548,7 +550,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 };
 
 export async function getStaticProps() {
-  const { articles } = getArticleData();
+  const { articles } = await getArticleData();
   return { props: { articles } };
 }
 

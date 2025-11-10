@@ -359,7 +359,7 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { articles, categories } = getArticleData();
+  const { articles, categories } = await getArticleData();
   const filteredArticles = articles.filter(a => a.category === 'Cartographie');
   
   return {
