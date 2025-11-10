@@ -75,7 +75,7 @@ const TopNav: React.FC = () => {
         }
 
         .brand {
-          display: flex;
+          display: inline-flex;
           flex-direction: row;
           align-items: center;
           gap: 14px;
@@ -88,9 +88,10 @@ const TopNav: React.FC = () => {
         }
 
         .brand-visual {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
         .brand:visited,
@@ -108,7 +109,7 @@ const TopNav: React.FC = () => {
         }
 
         .brand-name {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           height: 46px;
           font-family: "GayaRegular", serif;
