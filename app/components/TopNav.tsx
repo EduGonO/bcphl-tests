@@ -75,12 +75,11 @@ const TopNav: React.FC = () => {
         }
 
         .brand {
-          display: inline-flex;
+          display: flex;
+          flex-direction: row;
           align-items: center;
           gap: 14px;
           height: 42px;
-          min-height: 42px;
-          max-height: 42px;
           box-sizing: border-box;
           padding: 0;
           font-family: "GayaRegular", serif;
@@ -89,7 +88,7 @@ const TopNav: React.FC = () => {
           text-transform: uppercase;
           color: #0d0d0d;
           text-decoration: none;
-          line-height: 1;
+          line-height: 42px;
         }
 
         .brand-visual {
@@ -98,8 +97,7 @@ const TopNav: React.FC = () => {
           justify-content: center;
           flex-shrink: 0;
           height: 42px;
-          min-height: 42px;
-          max-height: 42px;
+          width: 42px;
         }
 
         .brand:visited,
@@ -120,14 +118,12 @@ const TopNav: React.FC = () => {
           display: flex;
           align-items: center;
           height: 42px;
-          min-height: 42px;
-          max-height: 42px;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0d0d0d;
-          line-height: 1;
+          line-height: 42px;
         }
 
         .top-nav__right {
