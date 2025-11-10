@@ -78,19 +78,38 @@ const TopNav: React.FC = () => {
           display: flex;
           flex-direction: row;
           align-items: center;
+          justify-content: flex-start;
+          flex-wrap: nowrap;
           gap: 14px;
+          height: 42px;
+          min-height: 42px;
+          flex: 1 1 auto;
+          min-width: 0;
+          white-space: nowrap;
+          box-sizing: border-box;
+          padding: 0;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0d0d0d;
           text-decoration: none;
+          line-height: 1;
+        }
+
+        .brand-visual,
+        .brand-name {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 42px;
+          min-height: 42px;
         }
 
         .brand-visual {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          flex-direction: row;
+          flex-shrink: 0;
+          width: 42px;
         }
 
         .brand:visited,
@@ -102,15 +121,12 @@ const TopNav: React.FC = () => {
         .brand-logo {
           display: block;
           flex-shrink: 0;
-          width: 46px;
-          height: 46px;
+          width: 42px;
+          height: 42px;
           object-fit: contain;
         }
 
         .brand-name {
-          display: flex;
-          align-items: center;
-          height: 46px;
           font-family: "GayaRegular", serif;
           font-size: 22px;
           letter-spacing: 0.08em;
