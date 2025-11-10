@@ -1,17 +1,24 @@
 // /types/index.ts
 export type Article = {
-  title: string;
+  id: string;
   slug: string;
   category: string;
+  categoryName: string;
+  title: string;
   date: string;
   author: string;
   preview: string;
-  media: string[];        // new
-  headerImage: string;    // new
+  media: string[];
+  headerImage: string;
+  excerpt: string | null;
+  publishedAt: string | null;
+  authoredDate: string | null;
+  updatedAt: string | null;
 };
 
-
 export type Category = {
-  name: string
-  color: string
-}
+  id?: string;
+  slug?: string;
+  name: string;
+  color: string;
+};

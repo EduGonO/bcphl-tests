@@ -2,119 +2,58 @@
 import React, { useMemo, useState } from "react";
 import Script from "next/script";
 import Head from "next/head";
-import type { GetStaticPaths, GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
 import TopNav from "../app/components/TopNav";
 import Footer from "../app/components/Footer";
 import ArticleGrid from "../app/components/ArticleGrid";
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
-import {
-  findArticleRecord,
-  getArticleData,
-  getArticleRecords,
-} from "../lib/articleService";
 import { Article, Category } from "../types";
-import { mdToHtml } from "../lib/markdown";
-
-/* ── static paths ─────────────────────────────────────────────────── */
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  const records = getArticleRecords();
-  const paths = records.map((record) => ({
-    params: { paths: [record.article.category, record.article.slug] },
-  }));
-
-  return { paths, fallback: false };
-};
-
-/* ----- getStaticProps ------------------------------------------ */
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const [category, slug] = (params?.paths as string[]) || [];
-  if (!category || !slug) {
-    return { notFound: true };
-  }
-
-  const record = findArticleRecord(category, slug);
-  if (!record) {
-    return { notFound: true };
-  }
-
-  const contentHtml = mdToHtml(record.body, record.publicBasePath);
-
-  const { articles, categories } = getArticleData();
-  const gridArticles = articles.filter(
-    (article) =>
-      article.category.toLowerCase() === record.article.category.toLowerCase() &&
-      article.slug !== record.article.slug
-  );
-
-  const searchArticles = articles.filter(
-    (article) =>
-      !(article.slug === record.article.slug &&
-        article.category.toLowerCase() === record.article.category.toLowerCase())
-  );
-
-  return {
-    props: {
-      title: record.article.title,
-      date: record.article.date,
-      author: record.article.author,
-      headerImage: record.article.headerImage,
-      media: record.article.media,
-      category: record.article.category,
-      content: contentHtml,
-      gridArticles,
-      categories,
-      searchArticles,
-    },
-  };
-};
-
-/* ── React page ───────────────────────────────────────────────────── */
+import {
+  loadPublicArticleBySlug,
+  loadPublicContent,
+} from "../lib/supabase/publicContent";
 
 interface ArtProps {
-  title: string;
-  date: string;
-  author: string;
-  headerImage: string;
-  media: string[];
+  article: Article;
   category: string;
   content: string;
   gridArticles: Article[];
   categories: Category[];
   searchArticles: Article[];
+  supabaseError?: string | null;
 }
 
 const ArticlePage: React.FC<ArtProps> = ({
-  title,
-  date,
-  author,
-  headerImage,
-  media,
+  article,
   category,
   content,
   gridArticles,
   categories,
   searchArticles,
+  supabaseError,
 }) => {
   const [query, setQuery] = useState("");
 
   const formattedDate = useMemo(() => {
-    if (!date || date === "Unknown Date") {
+    if (!article.date || article.date === "Unknown Date") {
       return "";
     }
 
-    const parsed = Date.parse(date);
+    const parsed = Date.parse(article.date);
     if (!Number.isNaN(parsed)) {
-      return new Date(parsed).toLocaleDateString("fr-FR", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      });
+      try {
+        return new Date(parsed).toLocaleDateString("fr-FR", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        });
+      } catch (error) {
+        return article.date;
+      }
     }
 
-    return date;
-  }, [date]);
+    return article.date;
+  }, [article.date]);
 
   const hexToRgba = (hex: string, alpha: number): string => {
     let r = 0;
@@ -138,7 +77,7 @@ const ArticlePage: React.FC<ArtProps> = ({
   const backdropColor = hexToRgba(articleColor, 0.18);
   const accentColor = hexToRgba(articleColor, 0.8);
 
-  const heroImage = headerImage || (media && media.length > 0 ? media[0] : "");
+  const heroImage = article.headerImage || (article.media.length > 0 ? article.media[0] : "");
   const hasHeroImage = Boolean(heroImage);
   const heroMediaStyle = hasHeroImage
     ? {
@@ -151,7 +90,7 @@ const ArticlePage: React.FC<ArtProps> = ({
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{article.title}</title>
         <script
           type="application/json"
           className="js-hypothesis-config"
@@ -176,15 +115,20 @@ const ArticlePage: React.FC<ArtProps> = ({
 
           <div className="article-layout">
             <article className="article">
+              {supabaseError && (
+                <div className="article-error" role="alert">
+                  <p>{supabaseError}</p>
+                </div>
+              )}
               <header className="article-hero" style={{ backgroundColor: backdropColor }}>
                 <div className={`article-hero-inner${hasHeroImage ? "" : " no-media"}`}>
                   <div className="article-hero-content">
                     <div className="article-hero-header">
-                      <h1 className="article-title">{title}</h1>
-                      {author && <p className="article-author">{author}</p>}
+                      <h1 className="article-title">{article.title}</h1>
+                      {article.author && <p className="article-author">{article.author}</p>}
                     </div>
                     {formattedDate && (
-                      <time className="article-date" dateTime={date}>
+                      <time className="article-date" dateTime={article.date}>
                         {formattedDate}
                       </time>
                     )}
@@ -198,318 +142,186 @@ const ArticlePage: React.FC<ArtProps> = ({
                   ) : (
                     <>
                       {/** Placeholder hero media intentionally commented out for future reuse.
-                       * <div
-                       *   className="article-hero-media"
-                       *   style={{
-                       *     backgroundImage: `linear-gradient(135deg, ${hexToRgba(
-                       *       articleColor,
-                       *       0.55
-                       *     )} 0%, ${hexToRgba(articleColor, 0.25)} 100%)`,
-                       *   }}
-                       *   aria-hidden="true"
-                       * />
-                       */}
+                      <div className="article-hero-media placeholder" aria-hidden="true">
+                        <span className="placeholder-label">Illustration</span>
+                      </div>
+                      */}
                     </>
                   )}
                 </div>
               </header>
 
-              <section className="article-body-wrapper">
-                <div
-                  className="article-body"
-                  dangerouslySetInnerHTML={{ __html: content }}
-                />
+              <section className="article-body">
+                <div className="article-content" dangerouslySetInnerHTML={{ __html: content }} />
               </section>
             </article>
 
-            {gridArticles.length > 0 && (
-              <section className="related-articles">
-                <div className="related-articles-inner">
-                  <h2 className="related-heading">Dans la même rubrique</h2>
-                  <ArticleGrid
-                    articles={gridArticles}
-                    categories={categories}
-                    titleFont="GayaRegular"
-                  />
-                </div>
-              </section>
-            )}
+            <aside className="article-sidebar">
+              <div className="sidebar-section">
+                <h2>Dans la même rubrique</h2>
+                <div className="sidebar-highlight" style={{ backgroundColor: accentColor }} />
+              </div>
+
+              <ArticleGrid articles={gridArticles} categories={categories} />
+            </aside>
           </div>
         </main>
 
-        <Footer footerColor="#0c0c0c" marginTop="0" />
+        <Footer footerColor="#0c0c0c" />
       </div>
 
       <style jsx>{`
         :global(body) {
           background: #ffffff;
         }
-
         .page-wrapper {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
           background: #ffffff;
         }
-
         .content {
           flex: 1;
           display: flex;
           gap: 0;
+          padding: 0;
           background: #ffffff;
         }
-
         .article-layout {
           flex: 1;
-          display: flex;
-          flex-direction: column;
-          background: #e8e8e8;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+          gap: 40px;
+          padding: 40px clamp(24px, 7vw, 88px) 60px;
+          background: #f3f3f3;
         }
-
         .article {
-          --article-max-width: 720px;
-          --article-horizontal-padding: clamp(32px, 10vw, 140px);
-          --article-hero-vertical-padding: clamp(36px, 6vw, 72px);
-          --article-body-padding-top: clamp(44px, 8vw, 92px);
-          --article-body-padding-bottom: clamp(36px, 7vw, 88px);
+          background: #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+          overflow: hidden;
           display: flex;
           flex-direction: column;
-          gap: 0;
         }
-
+        .article-error {
+          background: #ffe0e0;
+          border: 1px solid rgba(255, 17, 34, 0.2);
+          color: #5f2121;
+          font-family: "InterRegular", sans-serif;
+          padding: 12px 16px;
+          border-radius: 12px;
+          margin: 16px 16px 0;
+        }
         .article-hero {
-          padding: var(--article-hero-vertical-padding) 0;
-          background: ${backdropColor};
+          position: relative;
+          overflow: hidden;
         }
-
         .article-hero-inner {
-          display: flex;
-          width: 100%;
-          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
           align-items: stretch;
-          gap: clamp(24px, 4vw, 48px);
-          padding-left: calc(
-            (100% - min(var(--article-max-width), 100%)) / 2
-          );
-          padding-right: clamp(16px, 4vw, 40px);
         }
-
         .article-hero-inner.no-media {
-          gap: clamp(20px, 4vw, 28px);
-          justify-content: center;
-          width: min(
-            calc(var(--article-max-width) + var(--article-horizontal-padding) * 2),
-            100%
-          );
-          margin: 0 auto;
-          padding: 0 var(--article-horizontal-padding);
+          grid-template-columns: minmax(0, 1fr);
         }
-
         .article-hero-content {
+          padding: clamp(24px, 7vw, 56px) clamp(24px, 6vw, 64px);
           display: flex;
           flex-direction: column;
-          justify-content: flex-end;
-          gap: clamp(18px, 4vw, 28px);
-          color: #0d0d0d;
-          flex: 1 1 var(--article-max-width);
-          max-width: var(--article-max-width);
-          width: 100%;
-          margin: 0;
+          gap: 24px;
+          justify-content: center;
         }
-
-        .article-hero-inner.no-media .article-hero-content {
-          margin: 0 auto;
-        }
-
         .article-hero-header {
           display: flex;
           flex-direction: column;
-          gap: clamp(12px, 3vw, 20px);
+          gap: 18px;
         }
-
         .article-title {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: clamp(34px, 5.6vw, 64px);
-          line-height: 1.08;
-          font-weight: 400;
-          color: #111111;
-          text-align: left;
+          font-size: clamp(32px, 5vw, 48px);
+          line-height: 1.1;
+          color: #1a1714;
         }
-
         .article-author {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: clamp(16px, 2.4vw, 22px);
-          letter-spacing: 0.01em;
-          text-align: right;
-          color: rgba(17, 17, 17, 0.78);
+          font-size: 18px;
+          color: rgba(26, 23, 20, 0.75);
         }
-
         .article-date {
           font-family: "InterRegular", sans-serif;
-          font-size: 13px;
-          letter-spacing: 0.08em;
+          font-size: 12px;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: rgba(17, 17, 17, 0.68);
+          color: rgba(26, 23, 20, 0.7);
         }
-
         .article-hero-media {
-          flex: 0 0 clamp(220px, 28vw, 360px);
-          border-radius: 26px;
-          background-color: rgba(255, 255, 255, 0.68);
-          min-height: clamp(220px, 32vw, 380px);
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-          background-repeat: no-repeat;
-          background-size: cover;
-          background-position: center;
+          position: relative;
+          min-height: 240px;
+          background-color: rgba(255, 255, 255, 0.4);
         }
-
-        .article-body-wrapper {
-          padding: var(--article-body-padding-top) var(--article-horizontal-padding)
-            var(--article-body-padding-bottom);
-          background: #f9f9f9;
-        }
-
-        .article-body {
-          max-width: 720px;
-          margin: 0 auto;
+        .article-hero-media.placeholder {
+          display: flex;
+          align-items: center;
+          justify-content: center;
           font-family: "InterRegular", sans-serif;
+          color: rgba(26, 23, 20, 0.6);
+        }
+        .article-body {
+          padding: clamp(32px, 8vw, 80px);
+          font-family: "InterRegular", sans-serif;
+          color: #1c1a16;
+        }
+        .article-content :global(p) {
           font-size: 18px;
-          line-height: 1.68;
-          color: #111111;
+          line-height: 1.7;
+          margin: 0 0 1.4em;
         }
-
-        .article-body :global(p) {
-          margin: 0 0 1.8em;
-        }
-
-        .article-body :global(h2) {
-          margin: 2.4em 0 1.2em;
+        .article-content :global(h2),
+        .article-content :global(h3),
+        .article-content :global(h4) {
           font-family: "GayaRegular", serif;
-          font-size: 30px;
-          font-weight: 400;
-          color: #111111;
-          line-height: 1.2;
+          margin: 1.8em 0 0.8em;
         }
-
-        .article-body :global(h3) {
-          margin: 2em 0 1em;
-          font-family: "GayaRegular", serif;
-          font-size: 24px;
-          font-weight: 400;
-          color: #111111;
-        }
-
-        .article-body :global(a) {
-          color: ${accentColor};
-          text-decoration: none;
-          border-bottom: 1px solid rgba(17, 17, 17, 0.18);
-          transition: border-color 0.2s ease;
-        }
-
-        .article-body :global(a:hover),
-        .article-body :global(a:focus-visible) {
-          border-color: ${accentColor};
-        }
-
-        .article-body :global(blockquote) {
-          margin: 2.4em 0;
-          padding: 20px 28px 20px 32px;
-          border-left: 4px solid ${accentColor};
-          background: ${hexToRgba(articleColor, 0.16)};
-          border-radius: 6px;
-          font-style: italic;
-        }
-
-        .article-body :global(img) {
-          display: block;
-          max-width: min(100%, 520px);
-          margin: 2.4em auto;
-          border-radius: 18px;
-          box-shadow: 0 14px 30px rgba(17, 17, 17, 0.12);
-        }
-
-        .related-articles {
-          padding: clamp(48px, 7vw, 92px) clamp(32px, 8vw, 96px) clamp(64px, 9vw, 120px);
-          background: #ffffff;
-        }
-
-        .related-articles-inner {
-          width: min(1120px, 100%);
-          margin: 0 auto;
+        .article-sidebar {
           display: flex;
           flex-direction: column;
-          gap: 32px;
+          gap: 24px;
         }
-
-        .related-heading {
+        .sidebar-section {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          font-family: "InterRegular", sans-serif;
+        }
+        .sidebar-section h2 {
           margin: 0;
-          font-family: "GayaRegular", serif;
-          font-size: 28px;
-          font-weight: 400;
-          color: #111111;
-          letter-spacing: 0.02em;
+          font-size: 18px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(26, 23, 20, 0.72);
         }
-
-        @media (max-width: 1340px) {
-          .article-hero-inner {
-            flex-direction: column;
-            width: 100%;
-            padding: 0 var(--article-horizontal-padding);
+        .sidebar-highlight {
+          width: 60px;
+          height: 4px;
+          border-radius: 999px;
+        }
+        @media (max-width: 1040px) {
+          .article-layout {
+            grid-template-columns: minmax(0, 1fr);
+            padding: 32px 24px 60px;
           }
-
-          .article-hero-inner.no-media {
-            width: 100%;
-          }
-
-          .article-hero-content {
-            margin: 0 auto;
-          }
-
-          .article-hero-media {
-            width: 100%;
-            flex: 0 0 auto;
-            min-height: clamp(220px, 54vw, 340px);
+          .article-sidebar {
             order: -1;
           }
         }
-
         @media (max-width: 720px) {
-          .content {
-            flex-direction: column;
+          .article-hero-inner {
+            grid-template-columns: minmax(0, 1fr);
           }
-
-          .article {
-            --article-horizontal-padding: clamp(20px, 8vw, 48px);
-            --article-body-padding-top: clamp(36px, 10vw, 64px);
-            --article-body-padding-bottom: clamp(24px, 8vw, 48px);
-          }
-
-          .article-layout {
-            background: #f0f0f0;
-          }
-
-          .article-body {
-            font-size: 17px;
-          }
-
-          .related-articles {
-            padding: clamp(40px, 10vw, 72px) clamp(20px, 8vw, 48px);
-          }
-        }
-
-        @media (max-width: 520px) {
-          .article {
-            --article-hero-vertical-padding: clamp(28px, 12vw, 52px);
-          }
-
-          .article-title {
-            font-size: clamp(30px, 9vw, 40px);
-          }
-
-          .article-author {
-            font-size: clamp(15px, 5vw, 18px);
+          .article-hero-media {
+            min-height: 200px;
           }
         }
       `}</style>
@@ -518,3 +330,91 @@ const ArticlePage: React.FC<ArtProps> = ({
 };
 
 export default ArticlePage;
+
+export const getServerSideProps: GetServerSideProps<ArtProps> = async ({ params }) => {
+  const pathParams = (params?.paths as string[]) || [];
+  if (pathParams.length < 2) {
+    return { notFound: true };
+  }
+
+  const [requestedCategory, slug] = pathParams;
+
+  try {
+    const [detail, content] = await Promise.all([
+      loadPublicArticleBySlug(slug),
+      loadPublicContent(),
+    ]);
+
+    if (!detail) {
+      return { notFound: true };
+    }
+
+    const article = detail.article;
+
+    if (
+      article.category &&
+      requestedCategory &&
+      article.category.toLowerCase() !== requestedCategory.toLowerCase()
+    ) {
+      const categoryMatch = detail.categories.some(
+        (cat) => cat.slug?.toLowerCase() === requestedCategory.toLowerCase()
+      );
+      if (!categoryMatch) {
+        return { notFound: true };
+      }
+    }
+
+    const normalizedCategories: Category[] = content.categories.map((category) => ({
+      id: category.id,
+      slug: category.slug,
+      name: category.slug ?? category.name,
+      color: category.color,
+    }));
+
+    const gridArticles = content.categories
+      .find((cat) => cat.slug?.toLowerCase() === article.category.toLowerCase())
+      ?.articles.filter((item) => item.slug !== article.slug) ?? [];
+
+    const searchArticles = content.articles.filter((item) => item.slug !== article.slug);
+
+    return {
+      props: {
+        article,
+        category: requestedCategory,
+        content: detail.contentHtml,
+        gridArticles,
+        categories: normalizedCategories,
+        searchArticles,
+        supabaseError: null,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        article: {
+          id: "",
+          slug,
+          category: requestedCategory,
+          categoryName: "",
+          title: "Article indisponible",
+          date: "",
+          author: "",
+          preview: "",
+          media: [],
+          headerImage: "",
+          excerpt: null,
+          publishedAt: null,
+          authoredDate: null,
+          updatedAt: null,
+        },
+        category: requestedCategory,
+        content: "",
+        gridArticles: [],
+        categories: [],
+        searchArticles: [],
+        supabaseError:
+          error instanceof Error ? error.message : "Impossible de charger l’article demandé.",
+      },
+    };
+  }
+};

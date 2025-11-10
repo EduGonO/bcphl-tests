@@ -16,6 +16,7 @@ interface CategoryLandingPageProps {
   introContent?: ReactNode;
   columnTitle: string;
   variant?: CategoryLandingVariant;
+  error?: string | null;
 }
 
 const parseDate = (value: string) => {
@@ -49,6 +50,7 @@ const CategoryLandingPage = ({
   introContent,
   columnTitle,
   variant = "reflexion",
+  error,
 }: CategoryLandingPageProps) => {
   const [query, setQuery] = useState("");
 
@@ -91,6 +93,11 @@ const CategoryLandingPage = ({
             hasIntro ? "with-intro" : "without-intro"
           }`}
         >
+          {error && (
+            <section className="error-banner" role="alert">
+              <p>{error}</p>
+            </section>
+          )}
           {hasIntro && (
             <section className="intro">
               <div className="intro-copy">
@@ -161,6 +168,13 @@ const CategoryLandingPage = ({
         }
         .main-sections.without-intro {
           gap: 0;
+        }
+        .error-banner {
+          background: #ffe0e0;
+          border-bottom: 1px solid rgba(255, 17, 34, 0.2);
+          color: #5f2121;
+          font-family: "InterRegular", sans-serif;
+          padding: 12px clamp(24px, 7vw, 88px);
         }
         .intro {
           display: flex;

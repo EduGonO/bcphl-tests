@@ -22,9 +22,13 @@ const firstEnvValue = (keys: readonly string[]): string | null => {
   return null;
 };
 
+export const getSupabaseUrl = (): string | null => firstEnvValue(urlEnvKeys);
+
+const getSupabaseServiceKey = (): string | null => firstEnvValue(serviceEnvKeys);
+
 export const getSupabaseServerClient = (): ServerSupabaseClient | null => {
-  const url = firstEnvValue(urlEnvKeys);
-  const key = firstEnvValue(serviceEnvKeys);
+  const url = getSupabaseUrl();
+  const key = getSupabaseServiceKey();
 
   if (!url || !key) {
     if (process.env.NODE_ENV !== "production") {
