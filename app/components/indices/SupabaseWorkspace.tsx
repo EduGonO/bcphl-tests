@@ -643,7 +643,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           {selectedArticleId && formState ? (
             <>
               <header className="supabase-editor__header">
-                <div>
+                <div className="supabase-editor__heading">
                   <h3>{formState.title || "Sans titre"}</h3>
                   <p>{articleDetail?.slug}</p>
                 </div>
@@ -652,83 +652,49 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                 </span>
               </header>
 
-              <div className="supabase-editor__form">
-                <div className="supabase-editor__grid">
-                  <label>
+              <div className="supabase-editor__content">
+                <section className="supabase-editor__primary">
+                  <label className="supabase-editor__field supabase-editor__field--title">
                     <span>Titre</span>
                     <input
                       value={formState.title}
                       onChange={(event) => updateForm("title", event.target.value)}
+                      placeholder="Titre de l’article"
                     />
                   </label>
-                  <label>
-                    <span>Slug</span>
-                    <input
-                      value={formState.slug}
-                      onChange={(event) => updateForm("slug", event.target.value)}
-                    />
-                  </label>
-                  <label>
-                    <span>Auteur·rice</span>
-                    <input
-                      value={formState.authorName}
-                      onChange={(event) => updateForm("authorName", event.target.value)}
-                    />
-                  </label>
-                  <label className="supabase-editor__checkbox">
-                    <input
-                      type="checkbox"
-                      checked={formState.status}
-                      onChange={(event) => updateForm("status", event.target.checked)}
-                    />
-                    <span>Article publié</span>
-                  </label>
-                  <label>
-                    <span>Date éditoriale</span>
-                    <input
-                      type="date"
-                      value={formState.authoredDate}
-                      onChange={(event) => updateForm("authoredDate", event.target.value)}
-                    />
-                  </label>
-                  <label>
-                    <span>Date de publication</span>
-                    <input
-                      type="datetime-local"
-                      value={formState.publishedAt}
-                      onChange={(event) => updateForm("publishedAt", event.target.value)}
-                    />
-                  </label>
-                </div>
+                  <div className="supabase-editor__primary-row">
+                    <label className="supabase-editor__field">
+                      <span>Auteur·rice</span>
+                      <input
+                        value={formState.authorName}
+                        onChange={(event) => updateForm("authorName", event.target.value)}
+                        placeholder="Nom de l’auteur·rice"
+                      />
+                    </label>
+                    <fieldset className="supabase-editor__field supabase-editor__field--categories">
+                      <legend>Catégories</legend>
+                      <div className="supabase-editor__categories">
+                        {supabaseCategories.map((category) => {
+                          const checked = formState.categoryIds.includes(category.id);
+                          return (
+                            <label key={category.id} className={checked ? "active" : undefined}>
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => handleCategoryToggle(category.id)}
+                              />
+                              <span>{category.name}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
+                  </div>
+                </section>
 
-                <div className="supabase-editor__grid">
-                  <label>
-                    <span>Résumé (preview)</span>
-                    <textarea
-                      value={formState.preview}
-                      onChange={(event) => updateForm("preview", event.target.value)}
-                    />
-                  </label>
-                  <label>
-                    <span>Extrait (excerpt)</span>
-                    <textarea
-                      value={formState.excerpt}
-                      onChange={(event) => updateForm("excerpt", event.target.value)}
-                    />
-                  </label>
-                </div>
-
-                <label>
-                  <span>Image d’en-tête (URL ou chemin de stockage)</span>
-                  <input
-                    value={formState.headerImagePath}
-                    onChange={(event) => updateForm("headerImagePath", event.target.value)}
-                  />
-                </label>
-
-                <div className="supabase-editor__richtext">
+                <section className="supabase-editor__canvas">
                   <div className="supabase-editor__richtext-header">
-                    <span>Contenu (éditeur riche)</span>
+                    <span>Contenu éditorial</span>
                     <p>Les modifications sont enregistrées en Markdown et HTML.</p>
                   </div>
                   <SupabaseRichTextEditor
@@ -737,119 +703,163 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     onChange={handleRichTextChange}
                     placeholder="Écrivez votre article…"
                   />
-                </div>
+                </section>
 
-                {showAdvanced && (
-                  <details className="supabase-editor__advanced">
-                    <summary>Afficher les champs bruts</summary>
-                    <label>
-                      <span>Contenu Markdown</span>
-                      <textarea
-                        className="supabase-editor__textarea"
-                        value={formState.bodyMarkdown}
-                        onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
+                <section className="supabase-editor__details">
+                  <div className="supabase-editor__details-grid">
+                    <label className="supabase-editor__field">
+                      <span>Slug</span>
+                      <input
+                        value={formState.slug}
+                        onChange={(event) => updateForm("slug", event.target.value)}
+                        placeholder="exemple-d’article"
                       />
                     </label>
-
-                    <label>
-                      <span>Contenu HTML</span>
-                      <textarea
-                        className="supabase-editor__textarea"
-                        value={formState.bodyHtml}
-                        onChange={(event) => updateForm("bodyHtml", event.target.value)}
+                    <label className="supabase-editor__field supabase-editor__field--checkbox">
+                      <input
+                        type="checkbox"
+                        checked={formState.status}
+                        onChange={(event) => updateForm("status", event.target.checked)}
+                      />
+                      <span>Article publié</span>
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Date éditoriale</span>
+                      <input
+                        type="date"
+                        value={formState.authoredDate}
+                        onChange={(event) => updateForm("authoredDate", event.target.value)}
                       />
                     </label>
-
-                    <label>
-                      <span>Contenu JSON (TipTap / Rich text)</span>
-                      <textarea
-                        className="supabase-editor__textarea"
-                        value={formState.bodyJson}
-                        onChange={(event) => updateForm("bodyJson", event.target.value)}
-                        placeholder='{ "type": "doc" }'
+                    <label className="supabase-editor__field">
+                      <span>Date de publication</span>
+                      <input
+                        type="datetime-local"
+                        value={formState.publishedAt}
+                        onChange={(event) => updateForm("publishedAt", event.target.value)}
                       />
                     </label>
-                  </details>
-                )}
-
-                <fieldset className="supabase-editor__fieldset">
-                  <legend>Catégories</legend>
-                  <div className="supabase-editor__categories">
-                    {supabaseCategories.map((category) => {
-                      const checked = formState.categoryIds.includes(category.id);
-                      return (
-                        <label key={category.id} className={checked ? "active" : undefined}>
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => handleCategoryToggle(category.id)}
-                          />
-                          <span>{category.name}</span>
-                        </label>
-                      );
-                    })}
                   </div>
-                </fieldset>
 
-                <label>
-                  <span>Articles liés</span>
-                  <select
-                    multiple
-                    value={formState.relatedArticleIds}
-                    onChange={(event) =>
-                      handleRelatedChange(
-                        Array.from(event.target.selectedOptions).map((option) => option.value)
-                      )
-                    }
-                  >
-                    {relatedOptions.map((article) => (
-                      <option key={article.id} value={article.id}>
-                        {article.title} · {article.categoryName}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
+                    <label className="supabase-editor__field">
+                      <span>Résumé (preview)</span>
+                      <textarea
+                        value={formState.preview}
+                        onChange={(event) => updateForm("preview", event.target.value)}
+                      />
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Extrait (excerpt)</span>
+                      <textarea
+                        value={formState.excerpt}
+                        onChange={(event) => updateForm("excerpt", event.target.value)}
+                      />
+                    </label>
+                  </div>
 
-                {articleDetail?.media?.length ? (
-                  <div className="supabase-editor__media">
-                    <h4>Médias liés</h4>
-                    <ul>
-                      {articleDetail.media.map((media) => (
-                        <li key={media.id}>
-                          <code>{media.storagePath}</code>
-                          {media.caption && <span>{media.caption}</span>}
-                        </li>
+                  <label className="supabase-editor__field">
+                    <span>Image d’en-tête (URL ou chemin de stockage)</span>
+                    <input
+                      value={formState.headerImagePath}
+                      onChange={(event) => updateForm("headerImagePath", event.target.value)}
+                      placeholder="storage/articles/image.jpg"
+                    />
+                  </label>
+
+                  {showAdvanced && (
+                    <details className="supabase-editor__advanced">
+                      <summary>Afficher les champs bruts</summary>
+                      <label className="supabase-editor__field">
+                        <span>Contenu Markdown</span>
+                        <textarea
+                          className="supabase-editor__textarea"
+                          value={formState.bodyMarkdown}
+                          onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
+                        />
+                      </label>
+
+                      <label className="supabase-editor__field">
+                        <span>Contenu HTML</span>
+                        <textarea
+                          className="supabase-editor__textarea"
+                          value={formState.bodyHtml}
+                          onChange={(event) => updateForm("bodyHtml", event.target.value)}
+                        />
+                      </label>
+
+                      <label className="supabase-editor__field">
+                        <span>Contenu JSON (TipTap / Rich text)</span>
+                        <textarea
+                          className="supabase-editor__textarea"
+                          value={formState.bodyJson}
+                          onChange={(event) => updateForm("bodyJson", event.target.value)}
+                          placeholder='{ "type": "doc" }'
+                        />
+                      </label>
+                    </details>
+                  )}
+
+                  <label className="supabase-editor__field">
+                    <span>Articles liés</span>
+                    <select
+                      multiple
+                      value={formState.relatedArticleIds}
+                      onChange={(event) =>
+                        handleRelatedChange(
+                          Array.from(event.target.selectedOptions).map((option) => option.value)
+                        )
+                      }
+                    >
+                      {relatedOptions.map((article) => (
+                        <option key={article.id} value={article.id}>
+                          {article.title} · {article.categoryName}
+                        </option>
                       ))}
-                    </ul>
-                  </div>
-                ) : null}
+                    </select>
+                  </label>
 
-                {articleDetail && (
-                  <div className="supabase-editor__meta">
-                    <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
-                    <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
-                  </div>
-                )}
+                  {articleDetail?.media?.length ? (
+                    <div className="supabase-editor__media">
+                      <h4>Médias liés</h4>
+                      <ul>
+                        {articleDetail.media.map((media) => (
+                          <li key={media.id}>
+                            <code>{media.storagePath}</code>
+                            {media.caption && <span>{media.caption}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {articleDetail && (
+                    <div className="supabase-editor__meta">
+                      <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
+                      <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
+                    </div>
+                  )}
+
+                  <footer className="supabase-editor__footer">
+                    <button
+                      type="button"
+                      className="supabase-button supabase-button--primary"
+                      onClick={handleSave}
+                      disabled={status === "saving"}
+                    >
+                      {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                    </button>
+                    <button
+                      type="button"
+                      className="supabase-button supabase-button--danger"
+                      onClick={handleDelete}
+                      disabled={deleteStatus === "deleting"}
+                    >
+                      {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
+                    </button>
+                  </footer>
+                </section>
               </div>
-
-              <footer className="supabase-editor__footer">
-                <button
-                  type="button"
-                  className="supabase-button supabase-button--primary"
-                  onClick={handleSave}
-                  disabled={status === "saving"}
-                >
-                  {status === "saving" ? "Enregistrement…" : "Enregistrer"}
-                </button>
-                <button
-                  type="button"
-                  className="supabase-button supabase-button--danger"
-                  onClick={handleDelete}
-                  disabled={deleteStatus === "deleting"}
-                >
-                  {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
-                </button>
-              </footer>
             </>
           ) : (
             <div className="supabase-workspace__empty">
@@ -1097,12 +1107,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 16px;
-          padding: 22px 24px;
-          background: #fdfdff;
+          border-radius: 20px;
+          padding: 20px;
+          background: linear-gradient(140deg, #ffffff 0%, #f4f5fb 100%);
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 18px;
           overflow: hidden;
         }
         .supabase-workspace__empty {
@@ -1118,40 +1128,55 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__header {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
+          gap: 18px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         }
-        .supabase-editor__header h3 {
+        .supabase-editor__heading {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .supabase-editor__heading h3 {
           margin: 0;
-          font-size: 16px;
-          color: #1f1f22;
+          font-size: 20px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          color: #171821;
         }
-        .supabase-editor__header p {
-          margin: 4px 0 0;
+        .supabase-editor__heading p {
+          margin: 0;
           font-size: 12px;
-          color: #5a5c62;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #8a8d98;
         }
         .supabase-editor__status {
           border-radius: 999px;
-          padding: 4px 12px;
+          padding: 6px 14px;
           font-size: 11px;
           text-transform: uppercase;
           letter-spacing: 0.18em;
-          border: 1px solid rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          background: #ffffff;
+          color: #4c4f58;
+          flex-shrink: 0;
         }
         .supabase-editor__status--dirty {
-          border-color: rgba(158, 54, 42, 0.3);
-          background: rgba(158, 54, 42, 0.08);
-          color: #a63c2b;
+          border-color: rgba(168, 68, 52, 0.32);
+          background: rgba(168, 68, 52, 0.12);
+          color: #a64534;
         }
         .supabase-editor__status--loading {
-          border-color: rgba(153, 118, 18, 0.3);
-          background: rgba(153, 118, 18, 0.08);
-          color: #83630f;
+          border-color: rgba(156, 132, 35, 0.32);
+          background: rgba(156, 132, 35, 0.12);
+          color: #8a7120;
         }
         .supabase-editor__status--saving {
-          border-color: rgba(36, 119, 70, 0.3);
-          background: rgba(36, 119, 70, 0.08);
+          border-color: rgba(36, 119, 70, 0.32);
+          background: rgba(36, 119, 70, 0.12);
           color: #2b7a4a;
         }
         .supabase-editor__status--saved {
@@ -1160,11 +1185,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           color: #2b7a4a;
         }
         .supabase-editor__status--error {
-          border-color: rgba(162, 47, 33, 0.3);
-          background: rgba(162, 47, 33, 0.08);
+          border-color: rgba(162, 47, 33, 0.32);
+          background: rgba(162, 47, 33, 0.12);
           color: #a62f21;
         }
-        .supabase-editor__form {
+        .supabase-editor__content {
           display: flex;
           flex-direction: column;
           gap: 16px;
@@ -1173,68 +1198,138 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           overflow-y: auto;
           padding-right: 6px;
         }
-        .supabase-editor__grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        .supabase-editor__primary,
+        .supabase-editor__canvas,
+        .supabase-editor__details {
+          background: #ffffff;
+          border-radius: 16px;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+        .supabase-editor__canvas {
+          flex: 1;
+          min-height: 0;
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 18px 36px rgba(17, 18, 31, 0.06);
+        }
+        .supabase-editor__primary-row {
+          display: flex;
+          flex-wrap: wrap;
           gap: 12px;
         }
-        .supabase-editor__form label {
+        .supabase-editor__field {
           display: flex;
           flex-direction: column;
           gap: 6px;
-          font-size: 11px;
+          font-size: 10px;
           text-transform: uppercase;
           letter-spacing: 0.16em;
-          color: #71737b;
+          color: #6f717a;
+          flex: 1 1 200px;
         }
-        .supabase-editor__form input,
-        .supabase-editor__form textarea,
-        .supabase-editor__form select {
-          padding: 10px 12px;
-          border-radius: 10px;
+        .supabase-editor__field span,
+        .supabase-editor__field legend {
+          font-size: inherit;
+          letter-spacing: inherit;
+          text-transform: inherit;
+          color: inherit;
+        }
+        .supabase-editor__field legend {
+          padding: 0;
+        }
+        .supabase-editor__field input,
+        .supabase-editor__field textarea,
+        .supabase-editor__field select {
+          padding: 11px 14px;
+          border-radius: 12px;
           border: 1px solid rgba(0, 0, 0, 0.12);
-          background: #ffffff;
+          background: #f9f9fd;
           font-size: 13px;
           color: #1f2024;
+          transition: border-color 0.2s ease, background 0.2s ease;
         }
-        .supabase-editor__textarea {
-          min-height: 120px;
-          resize: vertical;
+        .supabase-editor__field input:focus,
+        .supabase-editor__field textarea:focus,
+        .supabase-editor__field select:focus {
+          outline: none;
+          border-color: rgba(36, 119, 70, 0.4);
+          background: #ffffff;
         }
-        .supabase-editor__richtext {
+        .supabase-editor__field--title {
+          flex-basis: 100%;
+        }
+        .supabase-editor__field--title input {
+          font-size: 22px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+        }
+        .supabase-editor__field--categories {
+          border: none;
+          padding: 0;
+          margin: 0;
+          min-width: 260px;
+        }
+        .supabase-editor__field--categories .supabase-editor__categories {
           display: flex;
-          flex-direction: column;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .supabase-editor__categories label {
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          border-radius: 999px;
+          padding: 6px 12px;
+          font-size: 12px;
+          text-transform: none;
+          letter-spacing: 0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #ffffff;
+          transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .supabase-editor__categories label.active {
+          border-color: rgba(36, 119, 70, 0.34);
+          background: rgba(36, 119, 70, 0.1);
+        }
+        .supabase-editor__categories input {
+          accent-color: #2b7a4a;
+        }
+        .supabase-editor__canvas .supabase-editor__richtext-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           gap: 12px;
-          flex: 1;
-          min-height: 0;
-        }
-        .supabase-editor__richtext-header {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+          padding-bottom: 8px;
         }
         .supabase-editor__richtext-header span {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #2a2c34;
         }
         .supabase-editor__richtext-header p {
           margin: 0;
-          font-size: 12px;
-          color: #5a5c62;
+          font-size: 11px;
+          color: #6e707a;
           text-transform: none;
           letter-spacing: 0;
         }
         .supabase-rich-text {
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          border-radius: 12px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 14px;
           overflow: hidden;
           flex: 1;
           display: flex;
           flex-direction: column;
+          background: #ffffff;
         }
         .supabase-rich-text .ql-toolbar {
           border: none;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         }
         .supabase-rich-text .ql-container {
           border: none;
@@ -1248,12 +1343,43 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-size: 13px;
           color: #5a5c62;
         }
+        .supabase-editor__details {
+          gap: 16px;
+        }
+        .supabase-editor__details-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 12px;
+        }
+        .supabase-editor__details-grid--wide {
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+        .supabase-editor__field textarea {
+          min-height: 120px;
+          resize: vertical;
+        }
+        .supabase-editor__textarea {
+          min-height: 160px;
+          font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+        }
+        .supabase-editor__field--checkbox {
+          flex-direction: row;
+          align-items: center;
+          gap: 10px;
+          font-size: 12px;
+          text-transform: none;
+          letter-spacing: 0.04em;
+          color: #2a2c34;
+        }
+        .supabase-editor__field--checkbox input {
+          width: 18px;
+          height: 18px;
+        }
         .supabase-editor__advanced {
-          margin-top: 8px;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 12px;
-          padding: 12px;
-          background: #ffffff;
+          border-radius: 14px;
+          padding: 14px;
+          background: #f9f9fd;
         }
         .supabase-editor__advanced summary {
           cursor: pointer;
@@ -1263,50 +1389,28 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           text-transform: uppercase;
         }
         .supabase-editor__advanced[open] {
-          background: #f5f7f9;
+          background: #f3f4fa;
         }
-        .supabase-editor__advanced label {
+        .supabase-editor__advanced .supabase-editor__field {
           margin-top: 12px;
         }
-        .supabase-editor__checkbox {
-          flex-direction: row;
-          align-items: center;
-          gap: 8px;
-          font-size: 12px;
-          text-transform: none;
-          letter-spacing: 0;
-        }
-        .supabase-editor__fieldset {
-          border: none;
-          padding: 0;
+        .supabase-editor__media h4 {
           margin: 0;
-        }
-        .supabase-editor__categories {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-        .supabase-editor__categories label {
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          border-radius: 999px;
-          padding: 6px 14px;
           font-size: 12px;
-          text-transform: none;
-          letter-spacing: 0;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: #ffffff;
-        }
-        .supabase-editor__categories label.active {
-          border-color: rgba(36, 119, 70, 0.28);
-          background: rgba(36, 119, 70, 0.08);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #5a5c62;
         }
         .supabase-editor__media ul {
           margin: 8px 0 0;
           padding-left: 16px;
           color: #5a5c62;
           font-size: 12px;
+        }
+        .supabase-editor__media code {
+          background: rgba(0, 0, 0, 0.04);
+          padding: 2px 6px;
+          border-radius: 6px;
         }
         .supabase-editor__meta {
           display: flex;
@@ -1317,29 +1421,34 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__footer {
           display: flex;
+          justify-content: flex-end;
           gap: 12px;
-          flex-shrink: 0;
+          padding-top: 10px;
+          border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
-        .supabase-panel--writer .supabase-editor__form {
-          gap: 12px;
+        .supabase-panel--writer .supabase-workspace__editor {
+          background: linear-gradient(145deg, #ffffff 0%, #eef0fa 100%);
         }
-        .supabase-panel--writer .supabase-editor__grid {
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 10px;
+        .supabase-panel--writer .supabase-editor__field {
+          font-size: 9px;
+          letter-spacing: 0.18em;
         }
-        .supabase-panel--writer .supabase-editor__form label {
-          font-size: 10px;
-          letter-spacing: 0.12em;
-        }
-        .supabase-panel--writer .supabase-editor__richtext {
-          padding-top: 4px;
+        .supabase-panel--writer .supabase-editor__field--title input {
+          font-size: 20px;
         }
         .supabase-panel--writer .supabase-editor__richtext-header span {
-          font-size: 14px;
+          font-size: 13px;
         }
         .supabase-panel--writer .supabase-editor__richtext-header p {
-          font-size: 11px;
-          color: #4a4c53;
+          font-size: 10px;
+        }
+        @media (max-width: 900px) {
+          .supabase-editor__primary-row {
+            flex-direction: column;
+          }
+          .supabase-editor__field--categories {
+            min-width: 0;
+          }
         }
         @media (max-width: 1080px) {
           .supabase-workspace {
