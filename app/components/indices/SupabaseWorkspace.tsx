@@ -159,9 +159,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
 
   const confirmDiscard = useCallback(() => {
     if (!dirtyRef.current) return true;
-    return window.confirm(
-      "Des modifications Supabase non enregistrées seront perdues. Continuer ?"
-    );
+    return window.confirm("Des modifications non enregistrées seront perdues. Continuer ?");
   }, []);
 
   const fetchArticle = useCallback(async (articleId: string) => {
@@ -172,7 +170,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
       const response = await fetch(`/api/supabase/articles/${articleId}`);
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible de charger l’article Supabase.");
+        throw new Error(payload?.error ?? "Impossible de charger l’article.");
       }
       setArticleDetail(payload.article);
       setFormState(detailToForm(payload.article));
@@ -211,7 +209,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
         const response = await fetch("/api/supabase/articles");
         const payload = await response.json();
         if (!response.ok) {
-          throw new Error(payload?.error ?? "Impossible de charger les articles Supabase.");
+          throw new Error(payload?.error ?? "Impossible de charger les articles.");
         }
         setSupabaseCategories(payload.categories);
         setPanelError(null);
@@ -421,7 +419,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
 
   const handleDelete = useCallback(async () => {
     if (!selectedArticleId) return;
-    if (!window.confirm("Supprimer définitivement cet article Supabase ?")) {
+    if (!window.confirm("Supprimer définitivement cet article ?")) {
       return;
     }
     setDeleteStatus("deleting");
@@ -456,9 +454,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
     <section className="supabase-panel">
       <header className="supabase-panel__header">
         <div>
-          <h2>Supabase CMS</h2>
+          <h2>Espace articles</h2>
           <p className="supabase-panel__subtitle">
-            Gestion des articles stockés dans la base Supabase
+            Gestion des articles et de leurs contenus
           </p>
         </div>
         <div className="supabase-panel__actions">
@@ -843,7 +841,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({ categories, error
             </>
           ) : (
             <div className="supabase-workspace__empty">
-              Sélectionnez un article Supabase pour commencer.
+              Sélectionnez un article pour commencer.
             </div>
           )}
         </div>

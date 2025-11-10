@@ -7,25 +7,24 @@ import EditorShell from "../app/components/indices/EditorShell";
 import type { SupabaseCategorySummary } from "../types/supabase";
 import { resolveWorkspaceData } from "../lib/supabase/workspace";
 
-interface Props {
+type Props = {
   supabaseCats: SupabaseCategorySummary[];
   supabaseError?: string | null;
-}
+};
 
-const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
+const AdminPage: React.FC<Props> = ({ supabaseCats, supabaseError }) => {
   const { data: session } = useSession();
-
   const sessionEmail = session?.user?.email ?? "Session non identifiée";
 
   return (
     <>
       <Head>
-        <title>Bicéphale · Éditeur</title>
+        <title>Bicéphale · Admin</title>
       </Head>
       <TopNav />
       <EditorShell
-        eyebrow="Éditeur"
-        title="Espace rédaction"
+        eyebrow="Admin"
+        title="Espace administration"
         sessionEmail={sessionEmail}
         categories={supabaseCats}
         error={supabaseError}
@@ -46,4 +45,4 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
   };
 };
 
-export default EditeurPage;
+export default AdminPage;

@@ -8,7 +8,7 @@ export default withAuth({
 })
 
 export const config = {
-  matcher: ["/editeur", "/indices", "/api/file", "/api/save-file"],
+  matcher: ["/editeur", "/admin", "/master", "/indices", "/api/file", "/api/save-file"],
 }
 
 
