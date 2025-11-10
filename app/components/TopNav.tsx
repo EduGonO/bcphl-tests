@@ -166,8 +166,8 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: flex-start;
           gap: 14px;
-          height: 48px;
-          min-height: 48px;
+          height: 42px;
+          min-height: 42px;
           flex: 1 1 280px;
           min-width: 0;
           white-space: nowrap;
@@ -187,14 +187,14 @@ const TopNav: React.FC = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          height: 48px;
-          min-height: 48px;
+          height: 42px;
+          min-height: 42px;
         }
 
         .brand-visual {
           flex-direction: row;
           flex-shrink: 0;
-          width: 48px;
+          width: 42px;
         }
 
         .brand:visited,
@@ -206,8 +206,8 @@ const TopNav: React.FC = () => {
         .brand-logo {
           display: block;
           flex-shrink: 0;
-          width: 48px;
-          height: 48px;
+          width: 42px;
+          height: 42px;
           object-fit: contain;
         }
 
@@ -225,12 +225,11 @@ const TopNav: React.FC = () => {
           justify-content: flex-end;
           flex: 0 1 auto;
           min-width: auto;
-          transition: opacity 0.2s ease, visibility 0.2s ease;
+          transition: opacity 0.25s ease;
         }
 
         .top-nav__categories--hidden {
           opacity: 0;
-          visibility: hidden;
           pointer-events: none;
         }
 
@@ -383,6 +382,10 @@ const TopNav: React.FC = () => {
           .top-nav__categories {
             flex-basis: 100%;
             justify-content: flex-start;
+            overflow: hidden;
+            max-height: 160px;
+            transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.3s ease;
+            transform: translateY(0);
           }
 
           .nav-links {
@@ -399,12 +402,14 @@ const TopNav: React.FC = () => {
           }
 
           .top-nav__categories--hidden {
-            display: none;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-8px);
           }
 
           .top-nav--compact .brand {
-            height: 44px;
-            min-height: 44px;
+            height: 42px;
+            min-height: 42px;
           }
         }
 
@@ -416,17 +421,6 @@ const TopNav: React.FC = () => {
           .brand {
             gap: 10px;
             font-size: 20px;
-          }
-
-          .brand-visual,
-          .brand-logo,
-          .brand-name {
-            height: 42px;
-            min-height: 42px;
-          }
-
-          .brand-logo {
-            width: 42px;
           }
 
           .nav-links {
