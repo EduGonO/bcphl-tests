@@ -6,6 +6,7 @@ export type SupabaseArticleSummary = {
   status: boolean;
   authoredDate: string | null;
   publishedAt: string | null;
+  updatedAt: string | null;
   preview: string | null;
   excerpt: string | null;
   headerImagePath: string | null;
