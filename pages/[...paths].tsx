@@ -268,18 +268,18 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-inner {
-          display: grid;
-          grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
-          gap: clamp(28px, 6vw, 72px);
+          display: flex;
+          width: 100%;
+          box-sizing: border-box;
           align-items: stretch;
+          gap: clamp(24px, 4vw, 48px);
+          padding-left: calc((100% - min(720px, 100%)) / 2);
+          padding-right: clamp(16px, 4vw, 40px);
         }
 
         .article-hero-inner.no-media {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .article-hero-inner.no-media .article-hero-content {
-          max-width: 640px;
+          padding-right: calc((100% - min(720px, 100%)) / 2);
+          gap: clamp(20px, 4vw, 28px);
         }
 
         .article-hero-content {
@@ -288,6 +288,9 @@ const ArticlePage: React.FC<ArtProps> = ({
           justify-content: flex-end;
           gap: clamp(18px, 4vw, 28px);
           color: #0d0d0d;
+          max-width: 720px;
+          width: 100%;
+          margin: 0;
         }
 
         .article-hero-header {
@@ -324,6 +327,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-media {
+          flex: 0 0 clamp(220px, 28vw, 360px);
           border-radius: 26px;
           background-color: rgba(255, 255, 255, 0.68);
           min-height: clamp(220px, 32vw, 380px);
@@ -419,21 +423,26 @@ const ArticlePage: React.FC<ArtProps> = ({
           letter-spacing: 0.02em;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1340px) {
           .article-hero-inner {
-            grid-template-columns: minmax(0, 1fr);
+            flex-direction: column;
+            padding-left: clamp(24px, 6vw, 48px);
+            padding-right: clamp(24px, 6vw, 48px);
           }
 
-          .article-hero-media {
-            min-height: clamp(220px, 54vw, 340px);
+          .article-hero-inner.no-media {
+            padding-right: clamp(24px, 6vw, 48px);
           }
 
           .article-hero-content {
-            order: 2;
+            margin: 0 auto;
           }
 
           .article-hero-media {
-            order: 1;
+            width: 100%;
+            flex: 0 0 auto;
+            min-height: clamp(220px, 54vw, 340px);
+            order: -1;
           }
         }
 
