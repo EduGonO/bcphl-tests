@@ -62,6 +62,14 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     media: [],
     dataFolder: 'textes/Reflexion',
   },
+  IRL: {
+    color: '#b8e0ff',
+    showInHeader: false,
+    showInDropdown: true,
+    media: [],
+    linkTo: '/IRL',
+    dataFolder: 'textes/IRL',
+  },
   'Hypothèses': {
     color: '#9880a6',
     showInHeader: false,
@@ -97,7 +105,7 @@ export const categoryConfigMap: Record<string, CategoryConfig> = {
     showInHeader: false,
     showInDropdown: false,
     media: [],
-    linkTo: '/evenements',
+    linkTo: '/IRL',
     dataFolder: 'texts/Événements',
   },
   'Evenements/À propos': {
