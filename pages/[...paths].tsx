@@ -346,20 +346,23 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-size: clamp(16px, 2.4vw, 22px);
           letter-spacing: 0.01em;
           text-align: right;
-          color: rgba(17, 17, 17, 0.78);
+          color: #111111;
         }
 
         .article-author-link {
-          color: inherit;
+          color: #111111;
           text-decoration: none;
-          border-bottom: 1px solid rgba(17, 17, 17, 0.18);
-          transition: color 0.2s ease, border-color 0.2s ease;
         }
 
         .article-author-link:hover,
         .article-author-link:focus-visible {
-          color: ${accentColor};
-          border-color: ${accentColor};
+          color: #000000;
+          outline: none;
+        }
+
+        .article-author-link:focus-visible {
+          outline: 2px solid #000000;
+          outline-offset: 2px;
         }
 
         .article-date {
