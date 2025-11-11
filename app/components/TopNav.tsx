@@ -135,13 +135,10 @@ const TopNav: React.FC = () => {
 
         .top-nav__layout {
           display: flex;
-          align-items: flex-end;
+          align-items: center;
           justify-content: space-between;
           column-gap: 48px;
-          row-gap: 16px;
-          flex-wrap: wrap;
           width: 100%;
-          align-content: flex-start;
         }
 
         .brand {
@@ -152,7 +149,7 @@ const TopNav: React.FC = () => {
           gap: 14px;
           min-height: 42px;
           block-size: auto;
-          flex: 1 1 280px;
+          flex: 0 1 auto;
           min-width: 0;
           white-space: nowrap;
           box-sizing: border-box;
@@ -169,7 +166,7 @@ const TopNav: React.FC = () => {
         .brand-visual,
         .brand-name {
           display: inline-flex;
-          align-items: flex-end;
+          align-items: center;
           justify-content: center;
           height: 42px;
           min-height: 42px;
@@ -194,7 +191,6 @@ const TopNav: React.FC = () => {
           width: 42px;
           height: 42px;
           object-fit: contain;
-          transform: translateY(1px);
         }
 
         .brand-name {
@@ -209,6 +205,7 @@ const TopNav: React.FC = () => {
         .top-nav__categories {
           display: flex;
           justify-content: flex-end;
+          align-items: center;
           flex: 0 1 auto;
           min-width: auto;
           transition: opacity 0.25s ease;
@@ -278,21 +275,9 @@ const TopNav: React.FC = () => {
           pointer-events: none;
         }
 
-        @media (max-width: 1100px) {
-          .top-nav__categories {
-            flex-basis: 100%;
-            justify-content: flex-start;
-            margin-top: 16px;
-          }
-
-          .nav-links {
-            gap: 24px;
-          }
-        }
-
         @media (max-width: 900px) {
           .brand {
-            flex: 1 1 220px;
+            flex: 0 1 220px;
           }
         }
 
@@ -305,11 +290,11 @@ const TopNav: React.FC = () => {
           .top-nav__layout {
             column-gap: 24px;
             row-gap: 12px;
+            flex-wrap: wrap;
             justify-content: center;
           }
 
           .brand {
-            flex: 0 1 auto;
             margin: 0 auto;
           }
 
