@@ -145,35 +145,30 @@ const AuthorPage = ({
           flex: 1;
           display: flex;
           flex-direction: column;
-          background: #f9f7f2;
+          background: #ffffff;
         }
 
         .author-hero {
-          padding: clamp(36px, 6vw, 80px) clamp(18px, 6vw, 80px);
-          border-bottom: 1px solid rgba(17, 17, 17, 0.06);
+          padding: clamp(40px, 6vw, 80px) clamp(20px, 7vw, 96px);
         }
 
         .author-hero-inner {
-          width: min(960px, 100%);
+          width: min(920px, 100%);
           margin: 0 auto;
           display: flex;
-          align-items: center;
-          gap: clamp(28px, 5vw, 56px);
-          padding: clamp(24px, 4vw, 48px);
-          border-radius: 32px;
-          background: #ffffff;
-          box-shadow: 0 22px 60px rgba(17, 17, 17, 0.08);
+          align-items: flex-start;
+          gap: clamp(20px, 4vw, 40px);
         }
 
         .portrait-wrapper {
-          flex: 0 0 clamp(140px, 20vw, 200px);
-          max-width: clamp(140px, 20vw, 200px);
+          flex: 0 0 clamp(110px, 15vw, 150px);
+          max-width: clamp(110px, 15vw, 150px);
         }
 
         .portrait-wrapper :global(.portrait) {
           width: 100%;
           aspect-ratio: 3 / 4;
-          border-radius: 22px;
+          background: #eae5d9;
         }
 
         :global(.portrait) {
@@ -181,7 +176,7 @@ const AuthorPage = ({
           display: block;
           border: none;
           padding: 0;
-          background: transparent;
+          background: #eae5d9;
           cursor: pointer;
         }
 
@@ -202,7 +197,7 @@ const AuthorPage = ({
         .author-summary {
           flex: 1;
           display: grid;
-          gap: clamp(12px, 2.6vw, 24px);
+          gap: clamp(10px, 2vw, 20px);
           color: #111111;
         }
 
@@ -218,7 +213,7 @@ const AuthorPage = ({
         .author-name {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: clamp(32px, 5vw, 52px);
+          font-size: clamp(30px, 4.6vw, 48px);
           line-height: 1.08;
           font-weight: 400;
           color: #0d0d0d;
@@ -234,19 +229,20 @@ const AuthorPage = ({
         .author-count {
           margin: 0;
           font-family: "InterRegular", sans-serif;
-          font-size: 15px;
-          letter-spacing: 0.08em;
+          font-size: 14px;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: rgba(17, 17, 17, 0.6);
+          color: rgba(17, 17, 17, 0.52);
         }
 
         .author-bio {
           display: grid;
-          gap: 12px;
+          gap: 10px;
           font-family: "InterRegular", sans-serif;
-          font-size: 16px;
-          line-height: 1.68;
-          color: rgba(17, 17, 17, 0.82);
+          font-size: 15px;
+          line-height: 1.65;
+          color: rgba(17, 17, 17, 0.78);
+          max-width: 58ch;
         }
 
         .bio-paragraph {
