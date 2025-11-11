@@ -145,24 +145,25 @@ const AuthorPage = ({
           flex: 1;
           display: flex;
           flex-direction: column;
-          background: #ffffff;
         }
 
         .author-hero {
           padding: clamp(40px, 6vw, 80px) clamp(20px, 7vw, 96px);
+          background: #f5f0e6;
         }
 
         .author-hero-inner {
           width: min(920px, 100%);
           margin: 0 auto;
-          display: flex;
-          align-items: flex-start;
-          gap: clamp(20px, 4vw, 40px);
+          display: grid;
+          grid-template-columns: clamp(96px, 24vw, 148px) minmax(0, 1fr);
+          align-items: start;
+          gap: clamp(18px, 4vw, 36px);
         }
 
         .portrait-wrapper {
-          flex: 0 0 clamp(110px, 15vw, 150px);
-          max-width: clamp(110px, 15vw, 150px);
+          width: clamp(96px, 24vw, 148px);
+          max-width: clamp(96px, 24vw, 148px);
         }
 
         .portrait-wrapper :global(.portrait) {
@@ -195,10 +196,10 @@ const AuthorPage = ({
         }
 
         .author-summary {
-          flex: 1;
           display: grid;
-          gap: clamp(10px, 2vw, 20px);
+          gap: clamp(8px, 2vw, 18px);
           color: #111111;
+          max-width: min(620px, 100%);
         }
 
         .author-overline {
@@ -251,33 +252,13 @@ const AuthorPage = ({
 
         .author-articles {
           background: #ffffff;
-          padding: clamp(48px, 8vw, 96px) clamp(24px, 7vw, 96px) clamp(72px, 10vw, 120px);
+          padding: clamp(44px, 7vw, 80px) clamp(24px, 7vw, 96px) clamp(48px, 9vw, 92px);
+          border-top: 1px solid rgba(125, 111, 83, 0.18);
         }
 
         .author-articles-inner {
           width: min(1200px, 100%);
           margin: 0 auto;
-        }
-
-        @media (max-width: 1080px) {
-          .author-hero-inner {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-          }
-
-          .portrait-wrapper {
-            max-width: clamp(160px, 48vw, 260px);
-            width: 100%;
-          }
-
-          .author-summary {
-            text-align: center;
-          }
-
-          .author-role {
-            margin: -4px 0 0;
-          }
         }
 
         @media (max-width: 720px) {
@@ -289,12 +270,28 @@ const AuthorPage = ({
             padding: clamp(36px, 12vw, 72px) clamp(18px, 8vw, 36px);
           }
 
+          .author-hero-inner {
+            grid-template-columns: clamp(88px, 32vw, 124px) minmax(0, 1fr);
+            gap: clamp(16px, 6vw, 24px);
+          }
+
+          .portrait-wrapper {
+            width: clamp(88px, 32vw, 124px);
+            max-width: clamp(88px, 32vw, 124px);
+          }
+
           .author-articles {
             padding: clamp(40px, 12vw, 80px) clamp(16px, 8vw, 36px) clamp(64px, 12vw, 96px);
           }
 
           .author-bio {
             font-size: 16px;
+          }
+        }
+
+        @media (max-width: 520px) {
+          .author-hero-inner {
+            grid-template-columns: clamp(84px, 28vw, 112px) minmax(0, 1fr);
           }
         }
       `}</style>

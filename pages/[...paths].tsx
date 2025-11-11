@@ -354,6 +354,10 @@ const ArticlePage: React.FC<ArtProps> = ({
           text-decoration: none;
         }
 
+        .article-author-link:visited {
+          color: #111111;
+        }
+
         .article-author-link:hover,
         .article-author-link:focus-visible {
           color: #000000;
