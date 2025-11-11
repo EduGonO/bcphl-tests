@@ -46,6 +46,8 @@ const AuthorPage = ({
     ? `Découvrez le profil de ${authorName} et retrouvez ses articles publiés dans Bicéphale.`
     : `Retrouvez les articles de ${authorName} publiés dans Bicéphale.`;
 
+  const hasTeamMember = Boolean(teamMember);
+
   return (
     <>
       <Head>
@@ -66,7 +68,9 @@ const AuthorPage = ({
 
           <div className="author-area">
             <section className="author-hero">
-              <div className="author-hero-inner">
+              <div
+                className={`author-hero-inner${hasTeamMember ? "" : " no-team-member"}`}
+              >
                 {teamMember && (
                   <div className="portrait-wrapper">
                     <Portrait
@@ -78,7 +82,7 @@ const AuthorPage = ({
                   </div>
                 )}
 
-                <div className="author-summary">
+                <div className={`author-summary${hasTeamMember ? "" : " solo"}`}>
                   <p className="author-overline">Profil auteur</p>
                   <h1 className="author-name">{authorName}</h1>
                   {teamMember?.role && <p className="author-role">{teamMember.role}</p>}
@@ -100,7 +104,7 @@ const AuthorPage = ({
                       ))
                     ) : (
                       <p className="bio-paragraph">
-                        Cette page rassemble toutes les publications de {authorName} sur Bicéphale.
+                        Découvrez la voix de {authorName} à travers les publications rassemblées ci-dessous.
                       </p>
                     )}
                   </div>
@@ -120,7 +124,7 @@ const AuthorPage = ({
           </div>
         </main>
 
-        <Footer footerColor="#0c0c0c" />
+        <Footer footerColor="#0c0c0c" marginTop="0" />
       </div>
 
       <style jsx>{`
@@ -159,6 +163,20 @@ const AuthorPage = ({
           grid-template-columns: clamp(96px, 24vw, 148px) minmax(0, 1fr);
           align-items: start;
           gap: clamp(18px, 4vw, 36px);
+        }
+
+        .author-hero-inner.no-team-member {
+          grid-template-columns: minmax(0, 1fr);
+          justify-items: center;
+          text-align: center;
+        }
+
+        .author-hero-inner.no-team-member .author-summary {
+          justify-items: center;
+        }
+
+        .author-hero-inner.no-team-member .author-bio {
+          text-align: center;
         }
 
         .portrait-wrapper {
@@ -200,6 +218,10 @@ const AuthorPage = ({
           gap: clamp(8px, 2vw, 18px);
           color: #111111;
           max-width: min(620px, 100%);
+        }
+
+        .author-summary.solo {
+          max-width: min(540px, 100%);
         }
 
         .author-overline {
@@ -244,6 +266,10 @@ const AuthorPage = ({
           line-height: 1.65;
           color: rgba(17, 17, 17, 0.78);
           max-width: 58ch;
+        }
+
+        .author-summary.solo .author-bio {
+          max-width: 48ch;
         }
 
         .bio-paragraph {
