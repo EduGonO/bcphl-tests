@@ -138,15 +138,7 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: space-between;
           column-gap: 48px;
-          flex-wrap: wrap;
           width: 100%;
-          height: 42px;
-          min-height: 42px;
-          max-height: 42px;
-          block-size: 42px;
-          min-block-size: 42px;
-          max-block-size: 42px;
-          align-content: center;
         }
 
         .brand {
@@ -155,13 +147,9 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: flex-start;
           gap: 14px;
-          height: 42px;
           min-height: 42px;
-          max-height: 42px;
-          block-size: 42px;
-          min-block-size: 42px;
-          max-block-size: 42px;
-          flex: 1 1 280px;
+          block-size: auto;
+          flex: 0 1 auto;
           min-width: 0;
           white-space: nowrap;
           box-sizing: border-box;
@@ -217,6 +205,7 @@ const TopNav: React.FC = () => {
         .top-nav__categories {
           display: flex;
           justify-content: flex-end;
+          align-items: center;
           flex: 0 1 auto;
           min-width: auto;
           transition: opacity 0.25s ease;
@@ -286,21 +275,9 @@ const TopNav: React.FC = () => {
           pointer-events: none;
         }
 
-        @media (max-width: 1100px) {
-          .top-nav__categories {
-            flex-basis: 100%;
-            justify-content: flex-start;
-            margin-top: 16px;
-          }
-
-          .nav-links {
-            gap: 24px;
-          }
-        }
-
         @media (max-width: 900px) {
           .brand {
-            flex: 1 1 220px;
+            flex: 0 1 220px;
           }
         }
 
@@ -312,11 +289,12 @@ const TopNav: React.FC = () => {
 
           .top-nav__layout {
             column-gap: 24px;
+            row-gap: 12px;
+            flex-wrap: wrap;
             justify-content: center;
           }
 
           .brand {
-            flex: 0 1 auto;
             margin: 0 auto;
           }
 
