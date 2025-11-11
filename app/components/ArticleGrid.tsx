@@ -8,6 +8,7 @@ interface ArticleGridProps {
   categories: Category[]
   titleFont?: string
   headerImages?: Record<string, string>
+  heading?: string
 }
 
 const ArticleGrid: React.FC<ArticleGridProps> = ({
@@ -15,9 +16,10 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   categories,
   titleFont = 'GayaRegular',
   headerImages = {},
+  heading = 'À lire également',
 }) => (
   <section className="article-grid">
-    <h2 className="heading">À lire également</h2>
+    <h2 className="heading">{heading}</h2>
     <div className="grid-container">
       {articles.map((article, idx) => {
         const categorySegment = article.categorySlug || article.category
