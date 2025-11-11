@@ -135,18 +135,13 @@ const TopNav: React.FC = () => {
 
         .top-nav__layout {
           display: flex;
-          align-items: center;
+          align-items: flex-end;
           justify-content: space-between;
           column-gap: 48px;
+          row-gap: 16px;
           flex-wrap: wrap;
           width: 100%;
-          height: 42px;
-          min-height: 42px;
-          max-height: 42px;
-          block-size: 42px;
-          min-block-size: 42px;
-          max-block-size: 42px;
-          align-content: center;
+          align-content: flex-start;
         }
 
         .brand {
@@ -155,12 +150,8 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: flex-start;
           gap: 14px;
-          height: 42px;
           min-height: 42px;
-          max-height: 42px;
-          block-size: 42px;
-          min-block-size: 42px;
-          max-block-size: 42px;
+          block-size: auto;
           flex: 1 1 280px;
           min-width: 0;
           white-space: nowrap;
@@ -178,7 +169,7 @@ const TopNav: React.FC = () => {
         .brand-visual,
         .brand-name {
           display: inline-flex;
-          align-items: center;
+          align-items: flex-end;
           justify-content: center;
           height: 42px;
           min-height: 42px;
@@ -203,6 +194,7 @@ const TopNav: React.FC = () => {
           width: 42px;
           height: 42px;
           object-fit: contain;
+          transform: translateY(1px);
         }
 
         .brand-name {
@@ -312,6 +304,7 @@ const TopNav: React.FC = () => {
 
           .top-nav__layout {
             column-gap: 24px;
+            row-gap: 12px;
             justify-content: center;
           }
 
