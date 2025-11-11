@@ -1,95 +1,20 @@
 import Head from "next/head";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import Footer from "../app/components/Footer";
+import Portrait from "../app/components/Portrait";
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import TopNav from "../app/components/TopNav";
 import { getArticleData } from "../lib/articleService";
-import teamMembersData from "../data/team.json";
 import { Article } from "../types";
-import type { TeamMember } from "../types/bios";
-
-type TeamMemberWithPortraits = TeamMember & {
-  portraits: {
-    primary: string;
-    secondary: string;
-  };
-};
-
-const teamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[])
-  .map((member) => {
-    const base = (member.portraitBase ?? member.slug).toLowerCase();
-    return {
-      ...member,
-      portraits: {
-        primary: `/bios/${base}-1.jpg`,
-        secondary: `/bios/${base}-2.jpg`,
-      },
-    };
-  })
-  .sort((a, b) => a.rank - b.rank);
-
-type PortraitProps = {
-  name: string;
-  primarySrc: string;
-  secondarySrc: string;
-  priority?: boolean;
-  className?: string;
-};
+import { getTeamMembers } from "../lib/team";
 
 interface BiosPageProps {
   articles: Article[];
 }
 
-const Portrait = ({
-  name,
-  primarySrc,
-  secondarySrc,
-  priority,
-  className,
-}: PortraitProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const showAlt = useCallback(() => setIsHovered(true), []);
-  const hideAlt = useCallback(() => setIsHovered(false), []);
-  const toggleAlt = useCallback(() => setIsHovered((current) => !current), []);
-
-  const loading = priority ? "eager" : "lazy";
-
-  return (
-    <button
-      type="button"
-      className={`portrait ${className ?? ""}`.trim()}
-      aria-label={`Portrait de ${name}`}
-      onMouseEnter={showAlt}
-      onMouseLeave={hideAlt}
-      onFocus={showAlt}
-      onBlur={hideAlt}
-      onClick={toggleAlt}
-    >
-      <img
-        src={primarySrc}
-        alt={`Portrait de ${name}`}
-        className="portrait-img primary"
-        style={{ opacity: isHovered ? 0 : 1 }}
-        draggable={false}
-        loading={loading}
-        decoding="async"
-      />
-      <img
-        src={secondarySrc}
-        alt=""
-        className="portrait-img secondary"
-        style={{ opacity: isHovered ? 1 : 0 }}
-        aria-hidden="true"
-        draggable={false}
-        loading={loading}
-        decoding="async"
-      />
-    </button>
-  );
-};
+const teamMembers = getTeamMembers();
 
 const BiosPage = ({ articles }: BiosPageProps) => {
   const [query, setQuery] = useState("");

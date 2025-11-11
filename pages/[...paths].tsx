@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from "react";
 import Script from "next/script";
 import Head from "next/head";
+import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import TopNav from "../app/components/TopNav";
 import Footer from "../app/components/Footer";
@@ -10,6 +11,7 @@ import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import { findArticleRecord, getArticleData } from "../lib/articleService";
 import { Article, Category } from "../types";
 import { mdToHtml } from "../lib/markdown";
+import { slugify } from "../lib/slug";
 
 /* ----- getServerSideProps --------------------------------------- */
 
@@ -139,6 +141,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         backgroundPosition: "center",
       }
     : undefined;
+  const authorSlug = slugify(author);
 
   return (
     <>
@@ -173,7 +176,15 @@ const ArticlePage: React.FC<ArtProps> = ({
                   <div className="article-hero-content">
                     <div className="article-hero-header">
                       <h1 className="article-title">{title}</h1>
-                      {author && <p className="article-author">{author}</p>}
+                      {author && authorSlug ? (
+                        <p className="article-author">
+                          <Link href={`/auteurs/${authorSlug}`} className="article-author-link">
+                            {author}
+                          </Link>
+                        </p>
+                      ) : (
+                        author && <p className="article-author">{author}</p>
+                      )}
                     </div>
                     {formattedDate && (
                       <time className="article-date" dateTime={date}>
@@ -335,7 +346,27 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-size: clamp(16px, 2.4vw, 22px);
           letter-spacing: 0.01em;
           text-align: right;
-          color: rgba(17, 17, 17, 0.78);
+          color: #111111;
+        }
+
+        .article-author-link {
+          color: #111111;
+          text-decoration: none;
+        }
+
+        .article-author-link:visited {
+          color: #111111;
+        }
+
+        .article-author-link:hover,
+        .article-author-link:focus-visible {
+          color: #000000;
+          outline: none;
+        }
+
+        .article-author-link:focus-visible {
+          outline: 2px solid #000000;
+          outline-offset: 2px;
         }
 
         .article-date {
