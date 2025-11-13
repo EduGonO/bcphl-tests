@@ -138,6 +138,9 @@ const RedesignSearchSidebar = ({
     setActiveSection(null);
   };
 
+  const hideSearchSection = isOpen && activeSection !== "search";
+  const hideNewsletterSection = isOpen && activeSection !== "newsletter";
+
   return (
     <div className={`search-drawer-rail ${isOpen ? "open" : ""}`}>
       <aside className={`search-drawer ${isOpen ? "open" : ""}`}>
@@ -145,6 +148,8 @@ const RedesignSearchSidebar = ({
           className={`drawer-section ${
             isOpen && activeSection === "search" ? "open" : ""
           }`}
+          hidden={hideSearchSection}
+          aria-hidden={hideSearchSection}
         >
           <button
             type="button"
@@ -152,8 +157,16 @@ const RedesignSearchSidebar = ({
             onClick={() => handleToggleSection("search")}
             aria-expanded={isOpen && activeSection === "search"}
             aria-controls="search-panel"
-            tabIndex={isOpen && activeSection === "search" ? -1 : 0}
-            aria-hidden={isOpen && activeSection === "search"}
+            tabIndex={
+              hideSearchSection
+                ? -1
+                : isOpen && activeSection === "search"
+                ? -1
+                : 0
+            }
+            aria-hidden={
+              hideSearchSection || (isOpen && activeSection === "search")
+            }
           >
             <span className="drawer-toggle-label">Recherche</span>
           </button>
@@ -286,6 +299,8 @@ const RedesignSearchSidebar = ({
           className={`drawer-section ${
             isOpen && activeSection === "newsletter" ? "open" : ""
           }`}
+          hidden={hideNewsletterSection}
+          aria-hidden={hideNewsletterSection}
         >
           <button
             type="button"
@@ -293,8 +308,16 @@ const RedesignSearchSidebar = ({
             onClick={() => handleToggleSection("newsletter")}
             aria-expanded={isOpen && activeSection === "newsletter"}
             aria-controls="newsletter-panel"
-            tabIndex={isOpen && activeSection === "newsletter" ? -1 : 0}
-            aria-hidden={isOpen && activeSection === "newsletter"}
+            tabIndex={
+              hideNewsletterSection
+                ? -1
+                : isOpen && activeSection === "newsletter"
+                ? -1
+                : 0
+            }
+            aria-hidden={
+              hideNewsletterSection || (isOpen && activeSection === "newsletter")
+            }
           >
             <span className="drawer-toggle-label">Newsletter</span>
           </button>
@@ -368,6 +391,9 @@ const RedesignSearchSidebar = ({
           width: 320px;
           min-height: var(--drawer-height);
           height: auto;
+        }
+        .search-drawer.open .drawer-section:not(.open) {
+          display: none;
         }
         .drawer-section {
           position: relative;
@@ -680,6 +706,9 @@ const RedesignSearchSidebar = ({
             align-self: stretch;
             padding-bottom: 0;
           }
+          .search-drawer.open {
+            min-height: auto;
+          }
         }
         @media (max-width: 700px) {
           .search-drawer-rail {
@@ -697,6 +726,8 @@ const RedesignSearchSidebar = ({
             width: 100%;
             max-height: none;
             flex-direction: column;
+            min-height: auto;
+            height: auto;
           }
           .drawer-section {
             width: 50%;
