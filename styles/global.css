@@ -48,3 +48,16 @@ body {
   font-family: 'InterRegular', Arial, sans-serif;
   font-synthesis: none;
 }
+
+a,
+a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover,
+a:focus,
+a:active {
+  color: inherit;
+  text-decoration: none;
+}

@@ -134,13 +134,6 @@ const ArticlePage: React.FC<ArtProps> = ({
 
   const heroImage = headerImage || (media && media.length > 0 ? media[0] : "");
   const hasHeroImage = Boolean(heroImage);
-  const heroMediaStyle = hasHeroImage
-    ? {
-        backgroundImage: `url(${heroImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }
-    : undefined;
   const authorSlug = slugify(author);
 
   return (
@@ -193,11 +186,9 @@ const ArticlePage: React.FC<ArtProps> = ({
                     )}
                   </div>
                   {hasHeroImage ? (
-                    <div
-                      className="article-hero-media"
-                      style={heroMediaStyle}
-                      aria-hidden="true"
-                    />
+                    <div className="article-hero-media" aria-hidden="true">
+                      <img src={heroImage} alt="" loading="lazy" />
+                    </div>
                   ) : (
                     <>
                       {/** Placeholder hero media intentionally commented out for future reuse.
@@ -286,38 +277,28 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-inner {
-          display: flex;
-          width: 100%;
+          display: grid;
+          width: min(1180px, 100%);
           box-sizing: border-box;
-          align-items: stretch;
           gap: clamp(24px, 4vw, 48px);
-          padding-left: calc(
-            (100% - min(var(--article-max-width), 100%)) / 2
-          );
-          padding-right: clamp(16px, 4vw, 40px);
+          padding: 0 clamp(24px, 6vw, 64px);
+          margin: 0 auto;
         }
 
         .article-hero-inner.no-media {
           gap: clamp(20px, 4vw, 28px);
           justify-content: center;
-          width: min(
-            calc(var(--article-max-width) + var(--article-horizontal-padding) * 2),
-            100%
-          );
-          margin: 0 auto;
-          padding: 0 var(--article-horizontal-padding);
         }
 
         .article-hero-content {
           display: flex;
           flex-direction: column;
-          justify-content: flex-end;
+          justify-content: flex-start;
           gap: clamp(18px, 4vw, 28px);
           color: #0d0d0d;
-          flex: 1 1 var(--article-max-width);
-          max-width: var(--article-max-width);
+          max-width: min(var(--article-max-width), 640px);
           width: 100%;
-          margin: 0;
+          margin: 0 auto;
         }
 
         .article-hero-inner.no-media .article-hero-content {
@@ -356,17 +337,20 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-author-link:visited {
           color: #111111;
+          text-decoration: none;
         }
 
         .article-author-link:hover,
         .article-author-link:focus-visible {
           color: #000000;
+          text-decoration: none;
           outline: none;
         }
 
         .article-author-link:focus-visible {
           outline: 2px solid #000000;
           outline-offset: 2px;
+          text-decoration: none;
         }
 
         .article-date {
@@ -378,14 +362,51 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-media {
-          flex: 0 0 clamp(220px, 28vw, 360px);
-          border-radius: 26px;
+          border-radius: 8px;
           background-color: rgba(255, 255, 255, 0.68);
-          min-height: clamp(220px, 32vw, 380px);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-          background-repeat: no-repeat;
-          background-size: cover;
-          background-position: center;
+          max-width: min(100%, 520px);
+          justify-self: center;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          align-self: center;
+        }
+
+        .article-hero-media img {
+          display: block;
+          width: auto;
+          height: auto;
+          max-width: 100%;
+          max-height: min(70vh, 640px);
+          border-radius: inherit;
+        }
+
+        @media (min-width: 960px) {
+          .article-hero-inner {
+            grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
+            align-items: stretch;
+            gap: clamp(24px, 4vw, 56px);
+          }
+
+          .article-hero-inner.no-media {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
+          .article-hero-content {
+            justify-content: center;
+            margin: 0;
+          }
+
+          .article-hero-inner.no-media .article-hero-content {
+            margin: 0 auto;
+          }
+
+          .article-hero-media {
+            max-width: 420px;
+            justify-self: end;
+          }
         }
 
         .article-body-wrapper {
@@ -475,26 +496,19 @@ const ArticlePage: React.FC<ArtProps> = ({
           letter-spacing: 0.02em;
         }
 
-        @media (max-width: 1340px) {
-          .article-hero-inner {
-            flex-direction: column;
-            width: 100%;
-            padding: 0 var(--article-horizontal-padding);
-          }
-
-          .article-hero-inner.no-media {
-            width: 100%;
-          }
-
+        @media (max-width: 959px) {
           .article-hero-content {
             margin: 0 auto;
           }
 
           .article-hero-media {
-            width: 100%;
-            flex: 0 0 auto;
-            min-height: clamp(220px, 54vw, 340px);
             order: -1;
+            width: 100%;
+          }
+
+          .article-hero-media img {
+            max-height: min(72vw, 560px);
+            width: auto;
           }
         }
 
