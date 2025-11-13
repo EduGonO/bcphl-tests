@@ -768,6 +768,7 @@ const RedesignSearchSidebar = ({
           }
           .search-drawer.open .drawer-section {
             width: 100%;
+            background: transparent;
           }
           .drawer-toggle {
             min-height: 72px;
@@ -778,7 +779,9 @@ const RedesignSearchSidebar = ({
             padding: 0;
           }
           .search-drawer.open .drawer-body {
-            padding: 24px 20px 28px;
+            background: transparent;
+            border-top: none;
+            padding: 24px 20px 24px;
           }
           .drawer-text {
             font-size: 15px;
