@@ -383,6 +383,12 @@ const ArticlePage: React.FC<ArtProps> = ({
           border-radius: inherit;
         }
 
+        @media (min-width: 720px) {
+          .article-hero-media {
+            max-width: min(100%, 400px);
+          }
+        }
+
         @media (min-width: 960px) {
           .article-hero-inner {
             grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
@@ -404,7 +410,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           }
 
           .article-hero-media {
-            max-width: 420px;
+            max-width: 360px;
             justify-self: end;
           }
         }
