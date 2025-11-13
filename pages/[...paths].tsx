@@ -363,22 +363,30 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-hero-media {
           border-radius: 8px;
-          background-color: rgba(255, 255, 255, 0.68);
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-          width: min(100%, 520px);
+          background-color: transparent;
+          box-shadow: none;
+          max-width: min(100%, 520px);
           justify-self: center;
           overflow: hidden;
           display: flex;
           align-items: center;
           justify-content: center;
+          align-self: center;
         }
 
         .article-hero-media img {
           display: block;
-          width: 100%;
+          width: auto;
           height: auto;
+          max-width: 100%;
           max-height: min(70vh, 640px);
           border-radius: inherit;
+        }
+
+        @media (min-width: 720px) {
+          .article-hero-media {
+            max-width: min(100%, 400px);
+          }
         }
 
         @media (min-width: 960px) {
@@ -402,8 +410,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           }
 
           .article-hero-media {
-            width: 100%;
-            max-width: 420px;
+            max-width: 360px;
             justify-self: end;
           }
         }
@@ -501,8 +508,13 @@ const ArticlePage: React.FC<ArtProps> = ({
           }
 
           .article-hero-media {
-            width: 100%;
             order: -1;
+            width: 100%;
+          }
+
+          .article-hero-media img {
+            max-height: min(72vw, 560px);
+            width: auto;
           }
 
           .article-hero-media img {
