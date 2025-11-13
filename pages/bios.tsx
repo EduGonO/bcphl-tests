@@ -76,33 +76,34 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                           />
                         </div>
                       </article>
-                      <div
-                        className={`member-bio${isSelected ? " open" : ""}`}
-                        id={biographyId}
-                        role="region"
-                        aria-label={`Biographie de ${member.name}`}
-                        aria-live={isSelected ? "polite" : undefined}
-                        aria-hidden={!isSelected}
-                      >
-                        <div className="member-bio-inner">
-                          <header className="member-heading">
-                            <h2>{member.name}</h2>
-                            {member.role && <p className="role">{member.role}</p>}
-                          </header>
-                          {member.bio.map((paragraph, bioIndex) => (
-                            <ReactMarkdown
-                              key={`${member.slug}-bio-${bioIndex}`}
-                              components={{
-                                p: ({ node, ...props }) => (
-                                  <p className="bio-paragraph" {...props} />
-                                ),
-                              }}
-                            >
-                              {paragraph}
-                            </ReactMarkdown>
-                          ))}
+                      {isSelected && (
+                        <div
+                          className="member-bio"
+                          id={biographyId}
+                          role="region"
+                          aria-label={`Biographie de ${member.name}`}
+                          aria-live="polite"
+                        >
+                          <div className="member-bio-inner">
+                            <header className="member-heading">
+                              <h2>{member.name}</h2>
+                              {member.role && <p className="role">{member.role}</p>}
+                            </header>
+                            {member.bio.map((paragraph, bioIndex) => (
+                              <ReactMarkdown
+                                key={`${member.slug}-bio-${bioIndex}`}
+                                components={{
+                                  p: ({ node, ...props }) => (
+                                    <p className="bio-paragraph" {...props} />
+                                  ),
+                                }}
+                              >
+                                {paragraph}
+                              </ReactMarkdown>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </Fragment>
                   );
                 })}
@@ -165,13 +166,15 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           font-weight: 400;
         }
         .team-grid {
+          --portrait-grid-gap: clamp(0.65rem, 2.4vw, 1.1rem);
           display: grid;
           grid-template-columns: repeat(
             auto-fit,
-            minmax(min(45vw, clamp(140px, 16vw, 190px)), 1fr)
+            minmax(clamp(140px, 16vw, 190px), 1fr)
           );
           grid-auto-flow: row dense;
-          gap: clamp(1rem, 3vw, 1.75rem);
+          column-gap: var(--portrait-grid-gap);
+          row-gap: var(--portrait-grid-gap);
           align-items: start;
         }
         .member-card {
@@ -219,18 +222,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         }
         .member-bio {
           grid-column: 1 / -1;
-          overflow: hidden;
-          max-height: 0;
-          opacity: 0;
-          pointer-events: none;
-          transition: max-height 260ms ease, opacity 200ms ease, margin 200ms ease;
-          margin: 0;
-        }
-        .member-bio.open {
-          max-height: 2000px;
-          opacity: 1;
-          pointer-events: auto;
-          margin: clamp(0.35rem, 2vw, 0.75rem) 0 0;
+          animation: bio-reveal 220ms ease;
         }
         .member-bio-inner {
           border: 2px solid #bcb3a3;
@@ -273,8 +265,13 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           .team-grid {
             grid-template-columns: repeat(
               auto-fit,
-              minmax(min(45vw, 170px), 1fr)
+              minmax(clamp(130px, 22vw, 170px), 1fr)
             );
+          }
+        }
+        @media (max-width: 520px) {
+          .team-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
         }
         @media (max-width: 720px) {
@@ -297,6 +294,16 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           }
           .member-bio {
             transition: none;
+          }
+        }
+        @keyframes bio-reveal {
+          from {
+            opacity: 0;
+            transform: translateY(-8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
           }
         }
       `}</style>
