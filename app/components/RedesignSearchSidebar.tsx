@@ -29,7 +29,11 @@ const RedesignSearchSidebar = ({
   articles = [],
   resultLimit = 6,
 }: RedesignSearchSidebarProps) => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<
+    "search" | "newsletter" | null
+  >(null);
+
+  const isOpen = activeSection !== null;
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -126,188 +130,228 @@ const RedesignSearchSidebar = ({
 
   const hasQuery = queryTokens.length > 0;
 
-  const handleToggleOpen = () => {
-    setDrawerOpen(true);
+  const handleToggleSection = (section: "search" | "newsletter") => {
+    setActiveSection((current) => (current === section ? null : section));
   };
 
   const handleClose = () => {
-    setDrawerOpen(false);
+    setActiveSection(null);
   };
 
-  return (
-    <div className={`search-drawer-rail ${drawerOpen ? "open" : ""}`}>
-      <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
-      <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
-        <button
-          type="button"
-          className="drawer-toggle"
-          onClick={handleToggleOpen}
-          aria-expanded={drawerOpen}
-          aria-controls="search-panel"
-          tabIndex={drawerOpen ? -1 : 0}
-          aria-hidden={drawerOpen}
-        >
-          <span className="drawer-toggle-label">Recherche</span>
-        </button>
-        <div className="drawer-body" id="search-panel" aria-hidden={!drawerOpen}>
-          <div className="drawer-header">
-            <h3>Recherche</h3>
-            <button
-              type="button"
-              className="drawer-close"
-              onClick={handleClose}
-              aria-label="Réduire la recherche"
-            >
-              Fermer
-            </button>
-          </div>
-          <label className="drawer-label" htmlFor="search-input">
-            {searchLabel}
-          </label>
-          <input
-            id="search-input"
-            className="drawer-input"
-            type="text"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={placeholder}
-            tabIndex={drawerOpen ? 0 : -1}
-          />
-          {query.trim() && (
-            <button
-              type="button"
-              className="clear-button"
-              onClick={() => onQueryChange("")}
-              tabIndex={drawerOpen ? 0 : -1}
-            >
-              {clearLabel}
-            </button>
-          )}
-          {hasQuery && (
-            <div className="search-results-wrapper">
-              <p className="search-results-label" id="search-results-heading">
-                {totalResults > 0
-                  ? `Résultats (${totalResults})`
-                  : "Aucun résultat"}
-              </p>
-              {searchResults.length > 0 ? (
-                <ul
-                  className="search-results"
-                  role="list"
-                  aria-labelledby="search-results-heading"
-                >
-                  {searchResults.map((article) => {
-                    const categorySegment = article.categorySlug || article.category;
-                    const linkHref = `/${categorySegment}/${article.slug}`;
-                    const formattedDate = formatResultDate(article.date);
-                    const showDate = Boolean(formattedDate);
-                    const showAuthor = Boolean(article.author);
-                    const showCategory = Boolean(article.category || article.categorySlug);
+  const hideSearchSection = isOpen && activeSection !== "search";
+  const hideNewsletterSection = isOpen && activeSection !== "newsletter";
 
-                    return (
-                      <li
-                        key={`${categorySegment}-${article.slug}`}
-                        className="search-result-item"
-                      >
-                        <Link
-                          href={linkHref}
-                          className="search-result-link"
-                          onClick={handleClose}
-                        >
-                          <span className="search-result-title">
-                            {article.title}
-                          </span>
-                          <span className="search-result-meta">
-                            {showAuthor && (
-                              <span className="search-result-author">
-                                {article.author}
-                              </span>
-                            )}
-                            {showAuthor && showDate && (
-                              <span
-                                className="search-result-separator"
-                                aria-hidden="true"
-                              >
-                                ·
-                              </span>
-                            )}
-                            {showDate && (
-                              <time
-                                className="search-result-date"
-                                dateTime={article.date}
-                              >
-                                {formattedDate}
-                              </time>
-                            )}
-                            {(showAuthor || showDate) && showCategory && (
-                              <span
-                                className="search-result-separator"
-                                aria-hidden="true"
-                              >
-                                ·
-                              </span>
-                            )}
-                            {showCategory && (
-                              <span className="search-result-category">
-                                {article.category || article.categorySlug}
-                              </span>
-                            )}
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="search-no-results">
-                  Aucun article ne correspond à votre recherche pour le moment.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-      <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
-        <button
-          type="button"
-          className="drawer-toggle"
-          onClick={handleToggleOpen}
-          aria-expanded={drawerOpen}
-          aria-controls="newsletter-panel"
-          tabIndex={drawerOpen ? -1 : 0}
-          aria-hidden={drawerOpen}
-        >
-          <span className="drawer-toggle-label">Newsletter</span>
-        </button>
+  return (
+    <div className={`search-drawer-rail ${isOpen ? "open" : ""}`}>
+      <aside className={`search-drawer ${isOpen ? "open" : ""}`}>
         <div
-          className="drawer-body drawer-body-newsletter"
-          id="newsletter-panel"
-          aria-hidden={!drawerOpen}
+          className={`drawer-section ${
+            isOpen && activeSection === "search" ? "open" : ""
+          }`}
+          hidden={hideSearchSection}
+          aria-hidden={hideSearchSection}
         >
-          <div className="drawer-header">
-            <h3>Newsletter</h3>
-            <button
-              type="button"
-              className="drawer-close"
-              onClick={handleClose}
-              aria-label="Réduire la newsletter"
-            >
-              Fermer
-            </button>
-          </div>
-          <p className="drawer-text">
-            Recevez nos dernières publications et événements directement dans
-            votre boîte mail.
-          </p>
-          <Link
-            href={newsletterHref}
-            className="drawer-newsletter-button"
-            tabIndex={drawerOpen ? 0 : -1}
+          <button
+            type="button"
+            className="drawer-toggle"
+            onClick={() => handleToggleSection("search")}
+            aria-expanded={isOpen && activeSection === "search"}
+            aria-controls="search-panel"
+            tabIndex={
+              hideSearchSection
+                ? -1
+                : isOpen && activeSection === "search"
+                ? -1
+                : 0
+            }
+            aria-hidden={
+              hideSearchSection || (isOpen && activeSection === "search")
+            }
           >
-            {newsletterCta}
-          </Link>
+            <span className="drawer-toggle-label">Recherche</span>
+          </button>
+          <div
+            className="drawer-body"
+            id="search-panel"
+            aria-hidden={!(isOpen && activeSection === "search")}
+          >
+            <div className="drawer-header">
+              <h3>Recherche</h3>
+              <button
+                type="button"
+                className="drawer-close"
+                onClick={handleClose}
+                aria-label="Réduire la recherche"
+              >
+                Fermer
+              </button>
+            </div>
+            <label className="drawer-label" htmlFor="search-input">
+              {searchLabel}
+            </label>
+            <input
+              id="search-input"
+              className="drawer-input"
+              type="text"
+              value={query}
+              onChange={(event) => onQueryChange(event.target.value)}
+              placeholder={placeholder}
+              tabIndex={isOpen && activeSection === "search" ? 0 : -1}
+            />
+            {query.trim() && (
+              <button
+                type="button"
+                className="clear-button"
+                onClick={() => onQueryChange("")}
+                tabIndex={isOpen && activeSection === "search" ? 0 : -1}
+              >
+                {clearLabel}
+              </button>
+            )}
+            {hasQuery && (
+              <div className="search-results-wrapper">
+                <p className="search-results-label" id="search-results-heading">
+                  {totalResults > 0
+                    ? `Résultats (${totalResults})`
+                    : "Aucun résultat"}
+                </p>
+                {searchResults.length > 0 ? (
+                  <ul
+                    className="search-results"
+                    role="list"
+                    aria-labelledby="search-results-heading"
+                  >
+                    {searchResults.map((article) => {
+                      const categorySegment =
+                        article.categorySlug || article.category;
+                      const linkHref = `/${categorySegment}/${article.slug}`;
+                      const formattedDate = formatResultDate(article.date);
+                      const showDate = Boolean(formattedDate);
+                      const showAuthor = Boolean(article.author);
+                      const showCategory = Boolean(
+                        article.category || article.categorySlug
+                      );
+
+                      return (
+                        <li
+                          key={`${categorySegment}-${article.slug}`}
+                          className="search-result-item"
+                        >
+                          <Link
+                            href={linkHref}
+                            className="search-result-link"
+                            onClick={handleClose}
+                          >
+                            <span className="search-result-title">
+                              {article.title}
+                            </span>
+                            <span className="search-result-meta">
+                              {showAuthor && (
+                                <span className="search-result-author">
+                                  {article.author}
+                                </span>
+                              )}
+                              {showAuthor && showDate && (
+                                <span
+                                  className="search-result-separator"
+                                  aria-hidden="true"
+                                >
+                                  ·
+                                </span>
+                              )}
+                              {showDate && (
+                                <time
+                                  className="search-result-date"
+                                  dateTime={article.date}
+                                >
+                                  {formattedDate}
+                                </time>
+                              )}
+                              {(showAuthor || showDate) && showCategory && (
+                                <span
+                                  className="search-result-separator"
+                                  aria-hidden="true"
+                                >
+                                  ·
+                                </span>
+                              )}
+                              {showCategory && (
+                                <span className="search-result-category">
+                                  {article.category || article.categorySlug}
+                                </span>
+                              )}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="search-no-results">
+                    Aucun article ne correspond à votre recherche pour le moment.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+        <div
+          className={`drawer-section ${
+            isOpen && activeSection === "newsletter" ? "open" : ""
+          }`}
+          hidden={hideNewsletterSection}
+          aria-hidden={hideNewsletterSection}
+        >
+          <button
+            type="button"
+            className="drawer-toggle"
+            onClick={() => handleToggleSection("newsletter")}
+            aria-expanded={isOpen && activeSection === "newsletter"}
+            aria-controls="newsletter-panel"
+            tabIndex={
+              hideNewsletterSection
+                ? -1
+                : isOpen && activeSection === "newsletter"
+                ? -1
+                : 0
+            }
+            aria-hidden={
+              hideNewsletterSection || (isOpen && activeSection === "newsletter")
+            }
+          >
+            <span className="drawer-toggle-label">Newsletter</span>
+          </button>
+          <div
+            className="drawer-body drawer-body-newsletter"
+            id="newsletter-panel"
+            aria-hidden={!(isOpen && activeSection === "newsletter")}
+          >
+            <div className="drawer-header">
+              <h3>Newsletter</h3>
+              <button
+                type="button"
+                className="drawer-close"
+                onClick={handleClose}
+                aria-label="Réduire la newsletter"
+              >
+                Fermer
+              </button>
+            </div>
+            <p className="drawer-text">
+              Recevez nos dernières publications et événements directement dans
+              votre boîte mail.
+            </p>
+            <Link
+              href={newsletterHref}
+              className="drawer-newsletter-button"
+              tabIndex={isOpen && activeSection === "newsletter" ? 0 : -1}
+            >
+              <span className="drawer-newsletter-button-label">
+                {newsletterCta}
+              </span>
+            </Link>
+          </div>
+        </div>
       </aside>
 
       <style jsx>{`
@@ -350,6 +394,9 @@ const RedesignSearchSidebar = ({
           min-height: var(--drawer-height);
           height: auto;
         }
+        .search-drawer.open .drawer-section:not(.open) {
+          display: none;
+        }
         .drawer-section {
           position: relative;
           display: grid;
@@ -362,6 +409,7 @@ const RedesignSearchSidebar = ({
         .drawer-section.open {
           background: #f5e7ea;
           min-height: auto;
+          grid-template-rows: auto;
         }
         .drawer-section + .drawer-section {
           border-top: 1px solid rgba(17, 17, 17, 0.18);
@@ -412,6 +460,8 @@ const RedesignSearchSidebar = ({
           opacity: 0;
           transform: translateX(-12px);
           pointer-events: none;
+          min-height: 0;
+          height: 0;
         }
         .drawer-body {
           position: relative;
@@ -624,28 +674,48 @@ const RedesignSearchSidebar = ({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 247, 250, 0.92);
-          color: #2c1c23;
+          position: relative;
+          padding: 0;
+          border: none;
+          background: transparent;
+          text-decoration: none;
+          align-self: flex-start;
+          max-width: 100%;
+        }
+        .drawer-newsletter-button:focus-visible {
+          outline: none;
+        }
+        .drawer-newsletter-button-label {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
+          padding: 12px 22px;
+          border-radius: 2px;
           text-transform: uppercase;
           letter-spacing: 0.12em;
           font-family: "InterMedium", sans-serif;
-          font-size: 13px;
-          padding: 12px 26px;
-          border: 1px solid rgba(44, 28, 35, 0.6);
-          border-radius: 999px;
-          cursor: pointer;
-          transition: background 0.2s ease, color 0.2s ease,
-            box-shadow 0.2s ease, border-color 0.2s ease;
-          text-decoration: none;
-          align-self: flex-start;
-          box-shadow: 0 8px 24px rgba(44, 28, 35, 0.12);
-        }
-        .drawer-newsletter-button:hover,
-        .drawer-newsletter-button:focus-visible {
-          background: #2c1c23;
+          font-size: 12px;
+          font-weight: 600;
+          line-height: 1;
           color: #fff7fa;
-          border-color: #2c1c23;
-          box-shadow: 0 10px 28px rgba(44, 28, 35, 0.24);
+          background: #2c1c23;
+          border: 1px solid #2c1c23;
+          transition: background 0.2s ease, border-color 0.2s ease,
+            color 0.2s ease;
+          min-width: 0;
+          white-space: nowrap;
+          cursor: pointer;
+        }
+        .drawer-newsletter-button:hover .drawer-newsletter-button-label,
+        .drawer-newsletter-button:focus-visible .drawer-newsletter-button-label {
+          background: #3c2b31;
+          border-color: #3c2b31;
+        }
+        .drawer-newsletter-button:focus-visible .drawer-newsletter-button-label {
+          outline: 2px solid rgba(195, 174, 182, 0.8);
+          outline-offset: 2px;
+        }
         }
         @media (max-width: 960px) {
           .search-drawer-rail {
@@ -661,23 +731,36 @@ const RedesignSearchSidebar = ({
             align-self: stretch;
             padding-bottom: 0;
           }
+          .search-drawer.open {
+            min-height: auto;
+          }
         }
         @media (max-width: 700px) {
           .search-drawer-rail {
             width: 100%;
           }
           .search-drawer {
+            --drawer-collapsed-height: 72px;
             width: 100%;
             border-right: none;
             border-bottom: 1px solid #c3aeb6;
             flex-direction: row;
             overflow: hidden;
             max-height: 72px;
+            height: var(--drawer-collapsed-height);
+            min-height: var(--drawer-collapsed-height);
           }
           .search-drawer.open {
             width: 100%;
             max-height: none;
             flex-direction: column;
+            min-height: auto;
+            height: auto;
+            background: transparent;
+            border-bottom: none;
+          }
+          .search-drawer:not(.open) .drawer-section {
+            min-height: var(--drawer-collapsed-height);
           }
           .drawer-section {
             width: 50%;
@@ -685,6 +768,7 @@ const RedesignSearchSidebar = ({
           }
           .search-drawer.open .drawer-section {
             width: 100%;
+            background: transparent;
           }
           .drawer-toggle {
             min-height: 72px;
@@ -695,15 +779,15 @@ const RedesignSearchSidebar = ({
             padding: 0;
           }
           .search-drawer.open .drawer-body {
-            padding: 24px 20px 28px;
+            background: transparent;
+            border-top: none;
+            padding: 24px 20px 24px;
           }
           .drawer-text {
             font-size: 15px;
           }
           .drawer-newsletter-button {
-            width: 100%;
             justify-content: center;
-            font-size: 13px;
           }
           .search-results {
             max-height: 200px;
