@@ -363,8 +363,8 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-hero-media {
           border-radius: 8px;
-          background-color: rgba(255, 255, 255, 0.68);
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+          background-color: transparent;
+          box-shadow: none;
           max-width: min(100%, 520px);
           justify-self: center;
           overflow: hidden;
