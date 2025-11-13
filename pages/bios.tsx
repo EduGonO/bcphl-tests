@@ -26,11 +26,13 @@ const BiosPage = ({ articles }: BiosPageProps) => {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [renderedSlug, setRenderedSlug] = useState<string | null>(null);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+  const [isAnimatingIn, setIsAnimatingIn] = useState(false);
 
   useEffect(() => {
     if (selectedSlug) {
       setRenderedSlug(selectedSlug);
       setIsAnimatingOut(false);
+      setIsAnimatingIn(false);
       return;
     }
 
@@ -43,12 +45,46 @@ const BiosPage = ({ articles }: BiosPageProps) => {
       if (mediaQuery.matches) {
         setRenderedSlug(null);
         setIsAnimatingOut(false);
+        setIsAnimatingIn(false);
         return;
       }
     }
 
+    setIsAnimatingIn(false);
     setIsAnimatingOut(true);
   }, [selectedSlug, renderedSlug]);
+
+  useEffect(() => {
+    if (!renderedSlug || renderedSlug !== selectedSlug) {
+      return;
+    }
+
+    if (typeof window === "undefined" || typeof window.requestAnimationFrame !== "function") {
+      setIsAnimatingIn(true);
+      return;
+    }
+
+    let rafOne: number | null = null;
+    let rafTwo: number | null = null;
+
+    const startEnter = () => {
+      setIsAnimatingIn(true);
+    };
+
+    rafOne = window.requestAnimationFrame(() => {
+      rafTwo = window.requestAnimationFrame(startEnter);
+    });
+
+    return () => {
+      if (rafOne !== null) {
+        window.cancelAnimationFrame(rafOne);
+      }
+      if (rafTwo !== null) {
+        window.cancelAnimationFrame(rafTwo);
+      }
+      setIsAnimatingIn(false);
+    };
+  }, [renderedSlug, selectedSlug]);
 
   const handleSelectMember = (slug: string) => {
     setSelectedSlug((current) => (current === slug ? null : slug));
@@ -108,7 +144,9 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                   const bioState = shouldRenderBio
                     ? isAnimatingOut
                       ? "leaving"
-                      : "entering"
+                      : isAnimatingIn
+                      ? "entering"
+                      : "pre-enter"
                     : null;
 
                   return (
@@ -294,6 +332,9 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           opacity: 1;
           transform: translateY(0);
           pointer-events: auto;
+        }
+        .member-bio.is-pre-enter {
+          pointer-events: none;
         }
         .member-bio.is-leaving {
           max-height: 0;
