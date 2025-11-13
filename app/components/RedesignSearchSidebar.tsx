@@ -756,6 +756,8 @@ const RedesignSearchSidebar = ({
             flex-direction: column;
             min-height: auto;
             height: auto;
+            background: transparent;
+            border-bottom: none;
           }
           .search-drawer:not(.open) .drawer-section {
             min-height: var(--drawer-collapsed-height);
