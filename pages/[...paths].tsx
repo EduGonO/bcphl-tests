@@ -287,14 +287,11 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-hero-inner {
           display: grid;
-          width: 100%;
+          width: min(1180px, 100%);
           box-sizing: border-box;
           gap: clamp(24px, 4vw, 48px);
-          padding: 0 var(--article-horizontal-padding);
+          padding: 0 clamp(24px, 6vw, 64px);
           margin: 0 auto;
-          max-width: calc(
-            var(--article-max-width) + var(--article-horizontal-padding) * 2
-          );
         }
 
         .article-hero-inner.no-media {
@@ -308,7 +305,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           justify-content: flex-start;
           gap: clamp(18px, 4vw, 28px);
           color: #0d0d0d;
-          max-width: var(--article-max-width);
+          max-width: min(var(--article-max-width), 640px);
           width: 100%;
           margin: 0 auto;
         }
@@ -374,47 +371,44 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-media {
-          border-radius: 26px;
+          border-radius: 8px;
           background-color: rgba(255, 255, 255, 0.68);
           min-height: clamp(220px, 52vw, 360px);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
           background-repeat: no-repeat;
           background-size: cover;
           background-position: center;
-          width: min(100%, clamp(260px, 88vw, 480px));
+          width: min(100%, 480px);
           justify-self: center;
           aspect-ratio: 4 / 3;
+          overflow: hidden;
         }
 
         @media (min-width: 960px) {
           .article-hero-inner {
-            grid-template-columns: minmax(0, var(--article-max-width)) clamp(220px, 28vw, 360px);
-            align-items: center;
-            padding-left: calc(
-              (100% - min(var(--article-max-width), 100%)) / 2
-            );
-            padding-right: clamp(16px, 4vw, 40px);
-            max-width: none;
+            grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
+            align-items: stretch;
+            gap: clamp(24px, 4vw, 56px);
           }
 
           .article-hero-inner.no-media {
-            grid-template-columns: minmax(0, var(--article-max-width));
-            padding: 0 var(--article-horizontal-padding);
-            margin: 0 auto;
-            max-width: calc(
-              var(--article-max-width) + var(--article-horizontal-padding) * 2
-            );
+            grid-template-columns: minmax(0, 1fr);
           }
 
           .article-hero-content {
-            justify-content: flex-end;
+            justify-content: center;
             margin: 0;
           }
 
+          .article-hero-inner.no-media .article-hero-content {
+            margin: 0 auto;
+          }
+
           .article-hero-media {
-            width: auto;
-            min-height: clamp(240px, 32vw, 420px);
-            justify-self: stretch;
+            width: 100%;
+            max-width: 420px;
+            min-height: clamp(260px, 30vw, 420px);
+            justify-self: end;
           }
         }
 
@@ -505,25 +499,14 @@ const ArticlePage: React.FC<ArtProps> = ({
           letter-spacing: 0.02em;
         }
 
-        @media (max-width: 1340px) {
-          .article-hero-inner {
-            flex-direction: column;
-            width: 100%;
-            padding: 0 var(--article-horizontal-padding);
-          }
-
-          .article-hero-inner.no-media {
-            width: 100%;
-          }
-
+        @media (max-width: 959px) {
           .article-hero-content {
             margin: 0 auto;
           }
 
           .article-hero-media {
             width: 100%;
-            flex: 0 0 auto;
-            min-height: clamp(220px, 54vw, 340px);
+            min-height: clamp(200px, 60vw, 340px);
             order: -1;
           }
         }
