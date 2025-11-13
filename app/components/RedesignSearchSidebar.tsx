@@ -346,7 +346,9 @@ const RedesignSearchSidebar = ({
               className="drawer-newsletter-button"
               tabIndex={isOpen && activeSection === "newsletter" ? 0 : -1}
             >
-              {newsletterCta}
+              <span className="drawer-newsletter-button-label">
+                {newsletterCta}
+              </span>
             </Link>
           </div>
         </div>
@@ -669,29 +671,49 @@ const RedesignSearchSidebar = ({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          background: #2c1c23;
-          color: #fff7fa;
+          position: relative;
+          padding: 0;
+          border: none;
+          background: transparent;
+          text-decoration: none;
+          align-self: flex-start;
+        }
+        .drawer-newsletter-button:focus-visible {
+          outline: none;
+        }
+        .drawer-newsletter-button-label {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 13px 30px;
+          border-radius: 999px;
           text-transform: uppercase;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.16em;
           font-family: "InterMedium", sans-serif;
           font-size: 13px;
           font-weight: 600;
-          padding: 12px 28px;
-          border: 1px solid #2c1c23;
-          border-radius: 999px;
+          line-height: 1.1;
+          color: #fff7fa;
+          background: linear-gradient(135deg, #2c1c23 0%, #12070c 100%);
+          border: 1px solid transparent;
+          box-shadow: 0 12px 28px rgba(44, 28, 35, 0.32);
+          transition: transform 0.2s ease, box-shadow 0.2s ease,
+            background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+          min-width: 0;
           cursor: pointer;
-          transition: background 0.2s ease, color 0.2s ease,
-            box-shadow 0.2s ease, border-color 0.2s ease;
-          text-decoration: none;
-          align-self: flex-start;
-          box-shadow: 0 10px 28px rgba(44, 28, 35, 0.24);
         }
-        .drawer-newsletter-button:hover,
-        .drawer-newsletter-button:focus-visible {
-          background: #fff7fa;
+        .drawer-newsletter-button:hover .drawer-newsletter-button-label,
+        .drawer-newsletter-button:focus-visible .drawer-newsletter-button-label {
+          transform: translateY(-1px);
+          box-shadow: 0 14px 34px rgba(44, 28, 35, 0.38);
+          background: linear-gradient(135deg, #fff7fa 0%, #f0dce2 100%);
+          border-color: rgba(44, 28, 35, 0.5);
           color: #2c1c23;
-          border-color: #2c1c23;
-          box-shadow: 0 12px 32px rgba(44, 28, 35, 0.28);
+        }
+        .drawer-newsletter-button:active .drawer-newsletter-button-label {
+          transform: translateY(0);
+          box-shadow: 0 8px 18px rgba(44, 28, 35, 0.24);
+        }
         }
         @media (max-width: 960px) {
           .search-drawer-rail {
@@ -754,7 +776,10 @@ const RedesignSearchSidebar = ({
           .drawer-newsletter-button {
             width: 100%;
             justify-content: center;
-            font-size: 13px;
+          }
+          .drawer-newsletter-button-label {
+            width: 100%;
+            text-align: center;
           }
           .search-results {
             max-height: 200px;
