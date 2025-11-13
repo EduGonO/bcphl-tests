@@ -356,17 +356,20 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-author-link:visited {
           color: #111111;
+          text-decoration: none;
         }
 
         .article-author-link:hover,
         .article-author-link:focus-visible {
           color: #000000;
+          text-decoration: none;
           outline: none;
         }
 
         .article-author-link:focus-visible {
           outline: 2px solid #000000;
           outline-offset: 2px;
+          text-decoration: none;
         }
 
         .article-date {
