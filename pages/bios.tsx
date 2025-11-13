@@ -2,7 +2,9 @@ import Head from "next/head";
 import {
   Fragment,
   useEffect,
+  useRef,
   useState,
+  type CSSProperties,
   type TransitionEvent as ReactTransitionEvent,
 } from "react";
 import ReactMarkdown from "react-markdown";
@@ -27,6 +29,37 @@ const BiosPage = ({ articles }: BiosPageProps) => {
   const [renderedSlug, setRenderedSlug] = useState<string | null>(null);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const [isAnimatingIn, setIsAnimatingIn] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [bioHeights, setBioHeights] = useState<Record<string, number>>({});
+  const bioRefs = useRef(new Map<string, HTMLDivElement>());
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
+
+    updatePreference();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updatePreference);
+      return () => {
+        mediaQuery.removeEventListener("change", updatePreference);
+      };
+    }
+
+    mediaQuery.addListener(updatePreference);
+    return () => {
+      mediaQuery.removeListener(updatePreference);
+    };
+  }, []);
 
   useEffect(() => {
     if (selectedSlug) {
@@ -40,22 +73,103 @@ const BiosPage = ({ articles }: BiosPageProps) => {
       return;
     }
 
-    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
-      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-      if (mediaQuery.matches) {
-        setRenderedSlug(null);
-        setIsAnimatingOut(false);
-        setIsAnimatingIn(false);
-        return;
-      }
+    if (prefersReducedMotion) {
+      setRenderedSlug(null);
+      setIsAnimatingOut(false);
+      setIsAnimatingIn(false);
+      return;
     }
 
     setIsAnimatingIn(false);
     setIsAnimatingOut(true);
-  }, [selectedSlug, renderedSlug]);
+  }, [selectedSlug, renderedSlug, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!renderedSlug) {
+      return;
+    }
+
+    const bioNode = bioRefs.current.get(renderedSlug);
+
+    if (!bioNode) {
+      return;
+    }
+
+    const measure = () => {
+      const measuredHeight = bioNode.scrollHeight;
+
+      setBioHeights((previous) => {
+        if (previous[renderedSlug] === measuredHeight) {
+          return previous;
+        }
+
+        return {
+          ...previous,
+          [renderedSlug]: measuredHeight,
+        };
+      });
+    };
+
+    measure();
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let frame: number | null = null;
+    const hasAnimationFrame =
+      typeof window.requestAnimationFrame === "function" &&
+      typeof window.cancelAnimationFrame === "function";
+
+    const scheduleMeasure = () => {
+      if (!hasAnimationFrame) {
+        measure();
+        return;
+      }
+
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        measure();
+      });
+    };
+
+    const handleResize = () => {
+      scheduleMeasure();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    let observer: ResizeObserver | null = null;
+
+    if (typeof window.ResizeObserver === "function") {
+      observer = new window.ResizeObserver(scheduleMeasure);
+      observer.observe(bioNode);
+    }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+
+      if (frame !== null && hasAnimationFrame) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [renderedSlug]);
 
   useEffect(() => {
     if (!renderedSlug || renderedSlug !== selectedSlug) {
+      return;
+    }
+
+    if (prefersReducedMotion) {
+      setIsAnimatingIn(true);
       return;
     }
 
@@ -84,7 +198,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
       }
       setIsAnimatingIn(false);
     };
-  }, [renderedSlug, selectedSlug]);
+  }, [renderedSlug, selectedSlug, prefersReducedMotion]);
 
   const handleSelectMember = (slug: string) => {
     setSelectedSlug((current) => (current === slug ? null : slug));
@@ -148,6 +262,22 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                       ? "entering"
                       : "pre-enter"
                     : null;
+                  const measuredHeight = bioHeights[member.slug];
+                  const bioStyles: CSSProperties = {};
+
+                  if (!prefersReducedMotion) {
+                    if (
+                      bioState === "entering" &&
+                      typeof measuredHeight === "number"
+                    ) {
+                      bioStyles.maxHeight = `${measuredHeight}px`;
+                    } else if (
+                      bioState === "leaving" ||
+                      bioState === "pre-enter"
+                    ) {
+                      bioStyles.maxHeight = "0px";
+                    }
+                  }
 
                   return (
                     <Fragment key={member.slug}>
@@ -174,6 +304,14 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                           aria-label={`Biographie de ${member.name}`}
                           aria-live="polite"
                           data-state={bioState ?? undefined}
+                          ref={(node) => {
+                            if (node) {
+                              bioRefs.current.set(member.slug, node);
+                            } else {
+                              bioRefs.current.delete(member.slug);
+                            }
+                          }}
+                          style={bioStyles}
                           onTransitionEnd={(event) =>
                             handleBioTransitionEnd(member.slug, event)
                           }
@@ -274,7 +412,8 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         .member-card {
           display: flex;
           justify-content: center;
-          transition: transform 180ms ease, filter 180ms ease;
+          transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+            filter 260ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         .member-card.is-selected {
           transform: translateY(-2px);
@@ -322,13 +461,12 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           transform: translateY(-12px);
           pointer-events: none;
           transition:
-            max-height 360ms cubic-bezier(0.33, 1, 0.68, 1),
-            opacity 240ms ease,
-            transform 280ms ease;
+            max-height 480ms cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+            transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
           will-change: max-height, opacity, transform;
         }
         .member-bio.is-entering {
-          max-height: 1200px;
           opacity: 1;
           transform: translateY(0);
           pointer-events: auto;
@@ -337,9 +475,8 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           pointer-events: none;
         }
         .member-bio.is-leaving {
-          max-height: 0;
           opacity: 0;
-          transform: translateY(-16px);
+          transform: translateY(-14px);
           pointer-events: auto;
         }
         .member-bio-inner {
