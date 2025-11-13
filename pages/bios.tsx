@@ -1,5 +1,10 @@
 import Head from "next/head";
-import { Fragment, useEffect, useState } from "react";
+import {
+  Fragment,
+  useEffect,
+  useState,
+  type TransitionEvent as ReactTransitionEvent,
+} from "react";
 import ReactMarkdown from "react-markdown";
 
 import Footer from "../app/components/Footer";
@@ -49,7 +54,14 @@ const BiosPage = ({ articles }: BiosPageProps) => {
     setSelectedSlug((current) => (current === slug ? null : slug));
   };
 
-  const handleBioAnimationEnd = (slug: string) => {
+  const handleBioTransitionEnd = (
+    slug: string,
+    event: ReactTransitionEvent<HTMLDivElement>
+  ) => {
+    if (event.propertyName !== "max-height") {
+      return;
+    }
+
     if (isAnimatingOut && renderedSlug === slug) {
       setRenderedSlug(null);
       setIsAnimatingOut(false);
@@ -124,7 +136,9 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                           aria-label={`Biographie de ${member.name}`}
                           aria-live="polite"
                           data-state={bioState ?? undefined}
-                          onAnimationEnd={() => handleBioAnimationEnd(member.slug)}
+                          onTransitionEnd={(event) =>
+                            handleBioTransitionEnd(member.slug, event)
+                          }
                         >
                           <div className="member-bio-inner">
                             <header className="member-heading">
@@ -264,16 +278,27 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         }
         .member-bio {
           grid-column: 1 / -1;
+          overflow: hidden;
+          max-height: 0;
           opacity: 0;
-          transform: translateY(-8px);
+          transform: translateY(-12px);
           pointer-events: none;
+          transition:
+            max-height 360ms cubic-bezier(0.33, 1, 0.68, 1),
+            opacity 240ms ease,
+            transform 280ms ease;
+          will-change: max-height, opacity, transform;
         }
         .member-bio.is-entering {
-          animation: bio-reveal 220ms ease forwards;
+          max-height: 1200px;
+          opacity: 1;
+          transform: translateY(0);
           pointer-events: auto;
         }
         .member-bio.is-leaving {
-          animation: bio-dismiss 200ms ease forwards;
+          max-height: 0;
+          opacity: 0;
+          transform: translateY(-16px);
           pointer-events: auto;
         }
         .member-bio-inner {
@@ -345,30 +370,11 @@ const BiosPage = ({ articles }: BiosPageProps) => {
             transition: none;
           }
           .member-bio {
-            animation: none !important;
+            transition: none;
+            max-height: none;
             opacity: 1;
             transform: none;
             pointer-events: auto;
-          }
-        }
-        @keyframes bio-reveal {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes bio-dismiss {
-          from {
-            opacity: 1;
-            transform: translateY(0);
-          }
-          to {
-            opacity: 0;
-            transform: translateY(-8px);
           }
         }
       `}</style>
