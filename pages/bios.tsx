@@ -1,5 +1,12 @@
 import Head from "next/head";
-import { useState } from "react";
+import {
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type TransitionEvent as ReactTransitionEvent,
+} from "react";
 import ReactMarkdown from "react-markdown";
 
 import Footer from "../app/components/Footer";
@@ -18,6 +25,198 @@ const teamMembers = getTeamMembers();
 
 const BiosPage = ({ articles }: BiosPageProps) => {
   const [query, setQuery] = useState("");
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [renderedSlug, setRenderedSlug] = useState<string | null>(null);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+  const [isAnimatingIn, setIsAnimatingIn] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [bioHeights, setBioHeights] = useState<Record<string, number>>({});
+  const bioRefs = useRef(new Map<string, HTMLDivElement>());
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
+
+    updatePreference();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updatePreference);
+      return () => {
+        mediaQuery.removeEventListener("change", updatePreference);
+      };
+    }
+
+    mediaQuery.addListener(updatePreference);
+    return () => {
+      mediaQuery.removeListener(updatePreference);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedSlug) {
+      setRenderedSlug(selectedSlug);
+      setIsAnimatingOut(false);
+      setIsAnimatingIn(false);
+      return;
+    }
+
+    if (!renderedSlug) {
+      return;
+    }
+
+    if (prefersReducedMotion) {
+      setRenderedSlug(null);
+      setIsAnimatingOut(false);
+      setIsAnimatingIn(false);
+      return;
+    }
+
+    setIsAnimatingIn(false);
+    setIsAnimatingOut(true);
+  }, [selectedSlug, renderedSlug, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!renderedSlug) {
+      return;
+    }
+
+    const bioNode = bioRefs.current.get(renderedSlug);
+
+    if (!bioNode) {
+      return;
+    }
+
+    const measure = () => {
+      const measuredHeight = bioNode.scrollHeight;
+
+      setBioHeights((previous) => {
+        if (previous[renderedSlug] === measuredHeight) {
+          return previous;
+        }
+
+        return {
+          ...previous,
+          [renderedSlug]: measuredHeight,
+        };
+      });
+    };
+
+    measure();
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let frame: number | null = null;
+    const hasAnimationFrame =
+      typeof window.requestAnimationFrame === "function" &&
+      typeof window.cancelAnimationFrame === "function";
+
+    const scheduleMeasure = () => {
+      if (!hasAnimationFrame) {
+        measure();
+        return;
+      }
+
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        measure();
+      });
+    };
+
+    const handleResize = () => {
+      scheduleMeasure();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    let observer: ResizeObserver | null = null;
+
+    if (typeof window.ResizeObserver === "function") {
+      observer = new window.ResizeObserver(scheduleMeasure);
+      observer.observe(bioNode);
+    }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+
+      if (frame !== null && hasAnimationFrame) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [renderedSlug]);
+
+  useEffect(() => {
+    if (!renderedSlug || renderedSlug !== selectedSlug) {
+      return;
+    }
+
+    if (prefersReducedMotion) {
+      setIsAnimatingIn(true);
+      return;
+    }
+
+    if (typeof window === "undefined" || typeof window.requestAnimationFrame !== "function") {
+      setIsAnimatingIn(true);
+      return;
+    }
+
+    let rafOne: number | null = null;
+    let rafTwo: number | null = null;
+
+    const startEnter = () => {
+      setIsAnimatingIn(true);
+    };
+
+    rafOne = window.requestAnimationFrame(() => {
+      rafTwo = window.requestAnimationFrame(startEnter);
+    });
+
+    return () => {
+      if (rafOne !== null) {
+        window.cancelAnimationFrame(rafOne);
+      }
+      if (rafTwo !== null) {
+        window.cancelAnimationFrame(rafTwo);
+      }
+      setIsAnimatingIn(false);
+    };
+  }, [renderedSlug, selectedSlug, prefersReducedMotion]);
+
+  const handleSelectMember = (slug: string) => {
+    setSelectedSlug((current) => (current === slug ? null : slug));
+  };
+
+  const handleBioTransitionEnd = (
+    slug: string,
+    event: ReactTransitionEvent<HTMLDivElement>
+  ) => {
+    if (event.propertyName !== "max-height") {
+      return;
+    }
+
+    if (isAnimatingOut && renderedSlug === slug) {
+      setRenderedSlug(null);
+      setIsAnimatingOut(false);
+    }
+  };
   return (
     <>
       <Head>
@@ -51,37 +250,95 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                   Toutes ces activités reposent sur l’engagement actif et infaillible de ses adhérents.
                 </p>
               </header>
-              <section className="team" aria-label="Membres de l&apos;équipe Bicéphale">
-                {teamMembers.map((member, index) => (
-                  <article className="member" key={member.slug}>
-                    <div className="portrait-wrapper">
-                      <Portrait
-                        name={member.name}
-                        primarySrc={member.portraits.primary}
-                        secondarySrc={member.portraits.secondary}
-                        priority={index < 2}
-                      />
-                    </div>
-                    <div className="member-text">
-                      <header className="member-heading">
-                        <h2>{member.name}</h2>
-                        {member.role && <p className="role">{member.role}</p>}
-                      </header>
-                      {member.bio.map((paragraph, bioIndex) => (
-                        <ReactMarkdown
-                          key={`${member.slug}-bio-${bioIndex}`}
-                          components={{
-                            p: ({ node, ...props }) => (
-                              <p className="bio-paragraph" {...props} />
-                            ),
+              <section className="team-grid" aria-label="Membres de l&apos;équipe Bicéphale">
+                {teamMembers.map((member, index) => {
+                  const isSelected = selectedSlug === member.slug;
+                  const shouldRenderBio = renderedSlug === member.slug;
+                  const biographyId = `bio-${member.slug}`;
+                  const bioState = shouldRenderBio
+                    ? isAnimatingOut
+                      ? "leaving"
+                      : isAnimatingIn
+                      ? "entering"
+                      : "pre-enter"
+                    : null;
+                  const measuredHeight = bioHeights[member.slug];
+                  const bioStyles: CSSProperties = {};
+
+                  if (!prefersReducedMotion) {
+                    if (
+                      bioState === "entering" &&
+                      typeof measuredHeight === "number"
+                    ) {
+                      bioStyles.maxHeight = `${measuredHeight}px`;
+                    } else if (
+                      bioState === "leaving" ||
+                      bioState === "pre-enter"
+                    ) {
+                      bioStyles.maxHeight = "0px";
+                    }
+                  }
+
+                  return (
+                    <Fragment key={member.slug}>
+                      <article className={`member-card${isSelected ? " is-selected" : ""}`}>
+                        <div className="portrait-wrapper">
+                          <Portrait
+                            name={member.name}
+                            primarySrc={member.portraits.primary}
+                            secondarySrc={member.portraits.secondary}
+                            priority={index < 2}
+                            onSelect={() => handleSelectMember(member.slug)}
+                            ariaExpanded={isSelected}
+                            ariaControls={biographyId}
+                          />
+                        </div>
+                      </article>
+                      {shouldRenderBio && (
+                        <div
+                          className={`member-bio${
+                            bioState ? ` is-${bioState}` : ""
+                          }`}
+                          id={biographyId}
+                          role="region"
+                          aria-label={`Biographie de ${member.name}`}
+                          aria-live="polite"
+                          data-state={bioState ?? undefined}
+                          ref={(node) => {
+                            if (node) {
+                              bioRefs.current.set(member.slug, node);
+                            } else {
+                              bioRefs.current.delete(member.slug);
+                            }
                           }}
+                          style={bioStyles}
+                          onTransitionEnd={(event) =>
+                            handleBioTransitionEnd(member.slug, event)
+                          }
                         >
-                          {paragraph}
-                        </ReactMarkdown>
-                      ))}
-                    </div>
-                  </article>
-                ))}
+                          <div className="member-bio-inner">
+                            <header className="member-heading">
+                              <h2>{member.name}</h2>
+                              {member.role && <p className="role">{member.role}</p>}
+                            </header>
+                            {member.bio.map((paragraph, bioIndex) => (
+                              <ReactMarkdown
+                                key={`${member.slug}-bio-${bioIndex}`}
+                                components={{
+                                  p: ({ node, ...props }) => (
+                                    <p className="bio-paragraph" {...props} />
+                                  ),
+                                }}
+                              >
+                                {paragraph}
+                              </ReactMarkdown>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </section>
             </section>
           </div>
@@ -113,7 +370,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           padding: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 6vw, 4.5rem);
         }
         .bios {
-          width: min(920px, 100%);
+          width: min(1120px, 100%);
           display: grid;
           gap: clamp(2.5rem, 7vw, 4.5rem);
           color: #1f1f1f;
@@ -140,21 +397,30 @@ const BiosPage = ({ articles }: BiosPageProps) => {
             "Segoe UI", sans-serif;
           font-weight: 400;
         }
-        .team {
-          display: flex;
-          flex-direction: column;
-          gap: clamp(2rem, 5vw, 3rem);
+        .team-grid {
+          --portrait-grid-gap: clamp(0.65rem, 2.4vw, 1.1rem);
+          display: grid;
+          grid-template-columns: repeat(
+            auto-fit,
+            minmax(clamp(140px, 16vw, 190px), 1fr)
+          );
+          grid-auto-flow: row dense;
+          column-gap: var(--portrait-grid-gap);
+          row-gap: var(--portrait-grid-gap);
+          align-items: start;
         }
-        .member {
+        .member-card {
           display: flex;
-          align-items: flex-start;
-          gap: clamp(1.5rem, 4vw, 2.5rem);
-          border-top: 2px solid #bcb3a3;
-          padding-top: clamp(1.25rem, 3vw, 2rem);
+          justify-content: center;
+          transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+            filter 260ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .member-card.is-selected {
+          transform: translateY(-2px);
+          filter: drop-shadow(0 10px 24px rgba(28, 22, 19, 0.14));
         }
         .portrait-wrapper {
-          flex: 0 0 auto;
-          width: clamp(120px, 14vw, 160px);
+          width: 100%;
         }
         :global(.portrait) {
           position: relative;
@@ -180,23 +446,57 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           object-fit: cover;
           transition: opacity 180ms ease;
         }
-        .member-text {
-          flex: 1 1 0;
+        .role {
+          margin: 0;
+          font-size: 0.8rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-family: "InterMedium", sans-serif;
+        }
+        .member-bio {
+          grid-column: 1 / -1;
+          overflow: hidden;
+          max-height: 0;
+          opacity: 0;
+          transform: translateY(-12px);
+          pointer-events: none;
+          transition:
+            max-height 480ms cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+            transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: max-height, opacity, transform;
+        }
+        .member-bio.is-entering {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+        .member-bio.is-pre-enter {
+          pointer-events: none;
+        }
+        .member-bio.is-leaving {
+          opacity: 0;
+          transform: translateY(-14px);
+          pointer-events: auto;
+        }
+        .member-bio-inner {
+          border: 2px solid #bcb3a3;
+          background: rgba(236, 228, 212, 0.55);
+          padding: clamp(1.5rem, 3vw, 2.5rem);
           display: grid;
-          gap: 0.85rem;
+          gap: 0.9rem;
           font-size: 1rem;
           line-height: 1.6;
           font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
             "Segoe UI", sans-serif;
-          font-weight: 400;
         }
-        .member-text :global(.bio-paragraph) {
+        .member-bio-inner :global(.bio-paragraph) {
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
             "Segoe UI", sans-serif;
           font-weight: 400;
         }
-        .member-text :global(.bio-paragraph + .bio-paragraph) {
+        .member-bio-inner :global(.bio-paragraph + .bio-paragraph) {
           margin-top: 0.85rem;
         }
         .member-heading {
@@ -211,24 +511,22 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           letter-spacing: 0.04em;
           font-weight: 400;
         }
-        .role {
-          margin: 0;
-          font-size: 0.9rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          font-family: "InterMedium", sans-serif;
-        }
         @media (max-width: 960px) {
           .main-area {
             padding: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 6vw, 3rem);
           }
         }
         @media (max-width: 860px) {
-          .member {
-            flex-direction: column;
+          .team-grid {
+            grid-template-columns: repeat(
+              auto-fit,
+              minmax(clamp(130px, 22vw, 170px), 1fr)
+            );
           }
-          .portrait-wrapper {
-            width: clamp(140px, 45vw, 200px);
+        }
+        @media (max-width: 520px) {
+          .team-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
         }
         @media (max-width: 720px) {
@@ -238,10 +536,23 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           .main-area {
             padding: clamp(2rem, 7vw, 3rem) clamp(1.25rem, 7vw, 2.5rem);
           }
+          .bios {
+            gap: clamp(2rem, 6vw, 3.5rem);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           :global(.portrait-img) {
             transition-duration: 0.01ms !important;
+          }
+          .member-card {
+            transition: none;
+          }
+          .member-bio {
+            transition: none;
+            max-height: none;
+            opacity: 1;
+            transform: none;
+            pointer-events: auto;
           }
         }
       `}</style>

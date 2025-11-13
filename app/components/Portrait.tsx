@@ -6,6 +6,9 @@ type PortraitProps = {
   secondarySrc: string;
   priority?: boolean;
   className?: string;
+  onSelect?: () => void;
+  ariaExpanded?: boolean;
+  ariaControls?: string;
 };
 
 const Portrait = ({
@@ -14,12 +17,22 @@ const Portrait = ({
   secondarySrc,
   priority,
   className,
+  onSelect,
+  ariaExpanded,
+  ariaControls,
 }: PortraitProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const showAlt = useCallback(() => setIsHovered(true), []);
   const hideAlt = useCallback(() => setIsHovered(false), []);
   const toggleAlt = useCallback(() => setIsHovered((current) => !current), []);
+
+  const handleClick = useCallback(() => {
+    toggleAlt();
+    if (onSelect) {
+      onSelect();
+    }
+  }, [onSelect, toggleAlt]);
 
   const loading = priority ? "eager" : "lazy";
 
@@ -32,7 +45,9 @@ const Portrait = ({
       onMouseLeave={hideAlt}
       onFocus={showAlt}
       onBlur={hideAlt}
-      onClick={toggleAlt}
+      onClick={handleClick}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
     >
       <img
         src={primarySrc}
