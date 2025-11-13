@@ -29,7 +29,11 @@ const RedesignSearchSidebar = ({
   articles = [],
   resultLimit = 6,
 }: RedesignSearchSidebarProps) => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<
+    "search" | "newsletter" | null
+  >(null);
+
+  const isOpen = activeSection !== null;
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -126,188 +130,203 @@ const RedesignSearchSidebar = ({
 
   const hasQuery = queryTokens.length > 0;
 
-  const handleToggleOpen = () => {
-    setDrawerOpen(true);
+  const handleToggleSection = (section: "search" | "newsletter") => {
+    setActiveSection((current) => (current === section ? null : section));
   };
 
   const handleClose = () => {
-    setDrawerOpen(false);
+    setActiveSection(null);
   };
 
   return (
-    <div className={`search-drawer-rail ${drawerOpen ? "open" : ""}`}>
-      <aside className={`search-drawer ${drawerOpen ? "open" : ""}`}>
-      <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
-        <button
-          type="button"
-          className="drawer-toggle"
-          onClick={handleToggleOpen}
-          aria-expanded={drawerOpen}
-          aria-controls="search-panel"
-          tabIndex={drawerOpen ? -1 : 0}
-          aria-hidden={drawerOpen}
-        >
-          <span className="drawer-toggle-label">Recherche</span>
-        </button>
-        <div className="drawer-body" id="search-panel" aria-hidden={!drawerOpen}>
-          <div className="drawer-header">
-            <h3>Recherche</h3>
-            <button
-              type="button"
-              className="drawer-close"
-              onClick={handleClose}
-              aria-label="Réduire la recherche"
-            >
-              Fermer
-            </button>
-          </div>
-          <label className="drawer-label" htmlFor="search-input">
-            {searchLabel}
-          </label>
-          <input
-            id="search-input"
-            className="drawer-input"
-            type="text"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={placeholder}
-            tabIndex={drawerOpen ? 0 : -1}
-          />
-          {query.trim() && (
-            <button
-              type="button"
-              className="clear-button"
-              onClick={() => onQueryChange("")}
-              tabIndex={drawerOpen ? 0 : -1}
-            >
-              {clearLabel}
-            </button>
-          )}
-          {hasQuery && (
-            <div className="search-results-wrapper">
-              <p className="search-results-label" id="search-results-heading">
-                {totalResults > 0
-                  ? `Résultats (${totalResults})`
-                  : "Aucun résultat"}
-              </p>
-              {searchResults.length > 0 ? (
-                <ul
-                  className="search-results"
-                  role="list"
-                  aria-labelledby="search-results-heading"
-                >
-                  {searchResults.map((article) => {
-                    const categorySegment = article.categorySlug || article.category;
-                    const linkHref = `/${categorySegment}/${article.slug}`;
-                    const formattedDate = formatResultDate(article.date);
-                    const showDate = Boolean(formattedDate);
-                    const showAuthor = Boolean(article.author);
-                    const showCategory = Boolean(article.category || article.categorySlug);
-
-                    return (
-                      <li
-                        key={`${categorySegment}-${article.slug}`}
-                        className="search-result-item"
-                      >
-                        <Link
-                          href={linkHref}
-                          className="search-result-link"
-                          onClick={handleClose}
-                        >
-                          <span className="search-result-title">
-                            {article.title}
-                          </span>
-                          <span className="search-result-meta">
-                            {showAuthor && (
-                              <span className="search-result-author">
-                                {article.author}
-                              </span>
-                            )}
-                            {showAuthor && showDate && (
-                              <span
-                                className="search-result-separator"
-                                aria-hidden="true"
-                              >
-                                ·
-                              </span>
-                            )}
-                            {showDate && (
-                              <time
-                                className="search-result-date"
-                                dateTime={article.date}
-                              >
-                                {formattedDate}
-                              </time>
-                            )}
-                            {(showAuthor || showDate) && showCategory && (
-                              <span
-                                className="search-result-separator"
-                                aria-hidden="true"
-                              >
-                                ·
-                              </span>
-                            )}
-                            {showCategory && (
-                              <span className="search-result-category">
-                                {article.category || article.categorySlug}
-                              </span>
-                            )}
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="search-no-results">
-                  Aucun article ne correspond à votre recherche pour le moment.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-      <div className={`drawer-section ${drawerOpen ? "open" : ""}`}>
-        <button
-          type="button"
-          className="drawer-toggle"
-          onClick={handleToggleOpen}
-          aria-expanded={drawerOpen}
-          aria-controls="newsletter-panel"
-          tabIndex={drawerOpen ? -1 : 0}
-          aria-hidden={drawerOpen}
-        >
-          <span className="drawer-toggle-label">Newsletter</span>
-        </button>
+    <div className={`search-drawer-rail ${isOpen ? "open" : ""}`}>
+      <aside className={`search-drawer ${isOpen ? "open" : ""}`}>
         <div
-          className="drawer-body drawer-body-newsletter"
-          id="newsletter-panel"
-          aria-hidden={!drawerOpen}
+          className={`drawer-section ${
+            isOpen && activeSection === "search" ? "open" : ""
+          }`}
         >
-          <div className="drawer-header">
-            <h3>Newsletter</h3>
-            <button
-              type="button"
-              className="drawer-close"
-              onClick={handleClose}
-              aria-label="Réduire la newsletter"
-            >
-              Fermer
-            </button>
-          </div>
-          <p className="drawer-text">
-            Recevez nos dernières publications et événements directement dans
-            votre boîte mail.
-          </p>
-          <Link
-            href={newsletterHref}
-            className="drawer-newsletter-button"
-            tabIndex={drawerOpen ? 0 : -1}
+          <button
+            type="button"
+            className="drawer-toggle"
+            onClick={() => handleToggleSection("search")}
+            aria-expanded={isOpen && activeSection === "search"}
+            aria-controls="search-panel"
+            tabIndex={isOpen && activeSection === "search" ? -1 : 0}
+            aria-hidden={isOpen && activeSection === "search"}
           >
-            {newsletterCta}
-          </Link>
+            <span className="drawer-toggle-label">Recherche</span>
+          </button>
+          <div
+            className="drawer-body"
+            id="search-panel"
+            aria-hidden={!(isOpen && activeSection === "search")}
+          >
+            <div className="drawer-header">
+              <h3>Recherche</h3>
+              <button
+                type="button"
+                className="drawer-close"
+                onClick={handleClose}
+                aria-label="Réduire la recherche"
+              >
+                Fermer
+              </button>
+            </div>
+            <label className="drawer-label" htmlFor="search-input">
+              {searchLabel}
+            </label>
+            <input
+              id="search-input"
+              className="drawer-input"
+              type="text"
+              value={query}
+              onChange={(event) => onQueryChange(event.target.value)}
+              placeholder={placeholder}
+              tabIndex={isOpen && activeSection === "search" ? 0 : -1}
+            />
+            {query.trim() && (
+              <button
+                type="button"
+                className="clear-button"
+                onClick={() => onQueryChange("")}
+                tabIndex={isOpen && activeSection === "search" ? 0 : -1}
+              >
+                {clearLabel}
+              </button>
+            )}
+            {hasQuery && (
+              <div className="search-results-wrapper">
+                <p className="search-results-label" id="search-results-heading">
+                  {totalResults > 0
+                    ? `Résultats (${totalResults})`
+                    : "Aucun résultat"}
+                </p>
+                {searchResults.length > 0 ? (
+                  <ul
+                    className="search-results"
+                    role="list"
+                    aria-labelledby="search-results-heading"
+                  >
+                    {searchResults.map((article) => {
+                      const categorySegment =
+                        article.categorySlug || article.category;
+                      const linkHref = `/${categorySegment}/${article.slug}`;
+                      const formattedDate = formatResultDate(article.date);
+                      const showDate = Boolean(formattedDate);
+                      const showAuthor = Boolean(article.author);
+                      const showCategory = Boolean(
+                        article.category || article.categorySlug
+                      );
+
+                      return (
+                        <li
+                          key={`${categorySegment}-${article.slug}`}
+                          className="search-result-item"
+                        >
+                          <Link
+                            href={linkHref}
+                            className="search-result-link"
+                            onClick={handleClose}
+                          >
+                            <span className="search-result-title">
+                              {article.title}
+                            </span>
+                            <span className="search-result-meta">
+                              {showAuthor && (
+                                <span className="search-result-author">
+                                  {article.author}
+                                </span>
+                              )}
+                              {showAuthor && showDate && (
+                                <span
+                                  className="search-result-separator"
+                                  aria-hidden="true"
+                                >
+                                  ·
+                                </span>
+                              )}
+                              {showDate && (
+                                <time
+                                  className="search-result-date"
+                                  dateTime={article.date}
+                                >
+                                  {formattedDate}
+                                </time>
+                              )}
+                              {(showAuthor || showDate) && showCategory && (
+                                <span
+                                  className="search-result-separator"
+                                  aria-hidden="true"
+                                >
+                                  ·
+                                </span>
+                              )}
+                              {showCategory && (
+                                <span className="search-result-category">
+                                  {article.category || article.categorySlug}
+                                </span>
+                              )}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="search-no-results">
+                    Aucun article ne correspond à votre recherche pour le moment.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+        <div
+          className={`drawer-section ${
+            isOpen && activeSection === "newsletter" ? "open" : ""
+          }`}
+        >
+          <button
+            type="button"
+            className="drawer-toggle"
+            onClick={() => handleToggleSection("newsletter")}
+            aria-expanded={isOpen && activeSection === "newsletter"}
+            aria-controls="newsletter-panel"
+            tabIndex={isOpen && activeSection === "newsletter" ? -1 : 0}
+            aria-hidden={isOpen && activeSection === "newsletter"}
+          >
+            <span className="drawer-toggle-label">Newsletter</span>
+          </button>
+          <div
+            className="drawer-body drawer-body-newsletter"
+            id="newsletter-panel"
+            aria-hidden={!(isOpen && activeSection === "newsletter")}
+          >
+            <div className="drawer-header">
+              <h3>Newsletter</h3>
+              <button
+                type="button"
+                className="drawer-close"
+                onClick={handleClose}
+                aria-label="Réduire la newsletter"
+              >
+                Fermer
+              </button>
+            </div>
+            <p className="drawer-text">
+              Recevez nos dernières publications et événements directement dans
+              votre boîte mail.
+            </p>
+            <Link
+              href={newsletterHref}
+              className="drawer-newsletter-button"
+              tabIndex={isOpen && activeSection === "newsletter" ? 0 : -1}
+            >
+              {newsletterCta}
+            </Link>
+          </div>
+        </div>
       </aside>
 
       <style jsx>{`
