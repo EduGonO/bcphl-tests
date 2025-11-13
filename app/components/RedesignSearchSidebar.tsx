@@ -409,6 +409,7 @@ const RedesignSearchSidebar = ({
         .drawer-section.open {
           background: #f5e7ea;
           min-height: auto;
+          grid-template-rows: auto;
         }
         .drawer-section + .drawer-section {
           border-top: 1px solid rgba(17, 17, 17, 0.18);
@@ -459,6 +460,8 @@ const RedesignSearchSidebar = ({
           opacity: 0;
           transform: translateX(-12px);
           pointer-events: none;
+          min-height: 0;
+          height: 0;
         }
         .drawer-body {
           position: relative;
