@@ -168,10 +168,10 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           display: grid;
           grid-template-columns: repeat(
             auto-fit,
-            minmax(clamp(140px, 16vw, 190px), 1fr)
+            minmax(min(45vw, clamp(140px, 16vw, 190px)), 1fr)
           );
           grid-auto-flow: row dense;
-          gap: clamp(1.5rem, 4vw, 2.25rem);
+          gap: clamp(1rem, 3vw, 1.75rem);
           align-items: start;
         }
         .member-card {
@@ -230,7 +230,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           max-height: 2000px;
           opacity: 1;
           pointer-events: auto;
-          margin: clamp(0.5rem, 2vw, 1rem) 0 0;
+          margin: clamp(0.35rem, 2vw, 0.75rem) 0 0;
         }
         .member-bio-inner {
           border: 2px solid #bcb3a3;
@@ -273,7 +273,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           .team-grid {
             grid-template-columns: repeat(
               auto-fit,
-              minmax(clamp(130px, 40vw, 180px), 1fr)
+              minmax(min(45vw, 170px), 1fr)
             );
           }
         }
