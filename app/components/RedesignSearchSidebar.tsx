@@ -677,6 +677,7 @@ const RedesignSearchSidebar = ({
           background: transparent;
           text-decoration: none;
           align-self: flex-start;
+          max-width: 100%;
         }
         .drawer-newsletter-button:focus-visible {
           outline: none;
@@ -685,12 +686,13 @@ const RedesignSearchSidebar = ({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 14px 28px;
-          border-radius: 3px;
+          box-sizing: border-box;
+          padding: 12px 22px;
+          border-radius: 2px;
           text-transform: uppercase;
-          letter-spacing: 0.14em;
+          letter-spacing: 0.12em;
           font-family: "InterMedium", sans-serif;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
           line-height: 1;
           color: #fff7fa;
@@ -771,12 +773,7 @@ const RedesignSearchSidebar = ({
             font-size: 15px;
           }
           .drawer-newsletter-button {
-            width: 100%;
             justify-content: center;
-          }
-          .drawer-newsletter-button-label {
-            width: 100%;
-            text-align: center;
           }
           .search-results {
             max-height: 200px;
