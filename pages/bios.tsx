@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import Footer from "../app/components/Footer";
@@ -18,6 +18,11 @@ const teamMembers = getTeamMembers();
 
 const BiosPage = ({ articles }: BiosPageProps) => {
   const [query, setQuery] = useState("");
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+
+  const handleSelectMember = (slug: string) => {
+    setSelectedSlug((current) => (current === slug ? null : slug));
+  };
   return (
     <>
       <Head>
@@ -51,37 +56,60 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                   Toutes ces activités reposent sur l’engagement actif et infaillible de ses adhérents.
                 </p>
               </header>
-              <section className="team" aria-label="Membres de l&apos;équipe Bicéphale">
-                {teamMembers.map((member, index) => (
-                  <article className="member" key={member.slug}>
-                    <div className="portrait-wrapper">
-                      <Portrait
-                        name={member.name}
-                        primarySrc={member.portraits.primary}
-                        secondarySrc={member.portraits.secondary}
-                        priority={index < 2}
-                      />
-                    </div>
-                    <div className="member-text">
-                      <header className="member-heading">
-                        <h2>{member.name}</h2>
-                        {member.role && <p className="role">{member.role}</p>}
-                      </header>
-                      {member.bio.map((paragraph, bioIndex) => (
-                        <ReactMarkdown
-                          key={`${member.slug}-bio-${bioIndex}`}
-                          components={{
-                            p: ({ node, ...props }) => (
-                              <p className="bio-paragraph" {...props} />
-                            ),
-                          }}
-                        >
-                          {paragraph}
-                        </ReactMarkdown>
-                      ))}
-                    </div>
-                  </article>
-                ))}
+              <section className="team-grid" aria-label="Membres de l&apos;équipe Bicéphale">
+                {teamMembers.map((member, index) => {
+                  const isSelected = selectedSlug === member.slug;
+                  const biographyId = `bio-${member.slug}`;
+
+                  return (
+                    <Fragment key={member.slug}>
+                      <article className={`member-card${isSelected ? " is-selected" : ""}`}>
+                        <div className="portrait-wrapper">
+                          <Portrait
+                            name={member.name}
+                            primarySrc={member.portraits.primary}
+                            secondarySrc={member.portraits.secondary}
+                            priority={index < 2}
+                            onSelect={() => handleSelectMember(member.slug)}
+                            ariaExpanded={isSelected}
+                            ariaControls={biographyId}
+                          />
+                        </div>
+                        <div className="member-card-text">
+                          <p className="member-name">{member.name}</p>
+                          {member.role && <p className="role">{member.role}</p>}
+                        </div>
+                      </article>
+                      <div
+                        className={`member-bio${isSelected ? " open" : ""}`}
+                        id={biographyId}
+                        role="region"
+                        aria-label={`Biographie de ${member.name}`}
+                        aria-live={isSelected ? "polite" : undefined}
+                        aria-hidden={!isSelected}
+                      >
+                        <div className="member-bio-inner">
+                          <header className="member-heading">
+                            <h2>{member.name}</h2>
+                            {member.role && <p className="role">{member.role}</p>}
+                          </header>
+                          {member.bio.map((paragraph, bioIndex) => (
+                            <ReactMarkdown
+                              key={`${member.slug}-bio-${bioIndex}`}
+                              components={{
+                                p: ({ node, ...props }) => (
+                                  <p className="bio-paragraph" {...props} />
+                                ),
+                              }}
+                            >
+                              {paragraph}
+                            </ReactMarkdown>
+                          ))}
+                        </div>
+                      </div>
+                    </Fragment>
+                  );
+                })}
               </section>
             </section>
           </div>
@@ -113,7 +141,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           padding: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 6vw, 4.5rem);
         }
         .bios {
-          width: min(920px, 100%);
+          width: min(1120px, 100%);
           display: grid;
           gap: clamp(2.5rem, 7vw, 4.5rem);
           color: #1f1f1f;
@@ -140,21 +168,28 @@ const BiosPage = ({ articles }: BiosPageProps) => {
             "Segoe UI", sans-serif;
           font-weight: 400;
         }
-        .team {
-          display: flex;
-          flex-direction: column;
-          gap: clamp(2rem, 5vw, 3rem);
+        .team-grid {
+          display: grid;
+          grid-template-columns: repeat(
+            auto-fit,
+            minmax(clamp(140px, 16vw, 190px), 1fr)
+          );
+          gap: clamp(1.5rem, 4vw, 2.25rem);
+          align-items: start;
         }
-        .member {
-          display: flex;
-          align-items: flex-start;
-          gap: clamp(1.5rem, 4vw, 2.5rem);
-          border-top: 2px solid #bcb3a3;
-          padding-top: clamp(1.25rem, 3vw, 2rem);
+        .member-card {
+          display: grid;
+          gap: 0.75rem;
+          justify-items: center;
+          text-align: center;
+          transition: transform 180ms ease, filter 180ms ease;
+        }
+        .member-card.is-selected {
+          transform: translateY(-2px);
+          filter: drop-shadow(0 10px 24px rgba(28, 22, 19, 0.14));
         }
         .portrait-wrapper {
-          flex: 0 0 auto;
-          width: clamp(120px, 14vw, 160px);
+          width: 100%;
         }
         :global(.portrait) {
           position: relative;
@@ -180,23 +215,59 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           object-fit: cover;
           transition: opacity 180ms ease;
         }
-        .member-text {
-          flex: 1 1 0;
+        .member-card-text {
           display: grid;
-          gap: 0.85rem;
+          gap: 0.3rem;
+          font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
+            "Segoe UI", sans-serif;
+        }
+        .member-name {
+          margin: 0;
+          font-size: clamp(1rem, 2vw, 1.15rem);
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+        .role {
+          margin: 0;
+          font-size: 0.8rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-family: "InterMedium", sans-serif;
+        }
+        .member-bio {
+          grid-column: 1 / -1;
+          overflow: hidden;
+          max-height: 0;
+          opacity: 0;
+          pointer-events: none;
+          transition: max-height 260ms ease, opacity 200ms ease, margin 200ms ease;
+          margin: 0;
+        }
+        .member-bio.open {
+          max-height: 2000px;
+          opacity: 1;
+          pointer-events: auto;
+          margin: clamp(0.5rem, 2vw, 1rem) 0 0;
+        }
+        .member-bio-inner {
+          border: 2px solid #bcb3a3;
+          background: rgba(236, 228, 212, 0.55);
+          padding: clamp(1.5rem, 3vw, 2.5rem);
+          display: grid;
+          gap: 0.9rem;
           font-size: 1rem;
           line-height: 1.6;
           font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
             "Segoe UI", sans-serif;
-          font-weight: 400;
         }
-        .member-text :global(.bio-paragraph) {
+        .member-bio-inner :global(.bio-paragraph) {
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
             "Segoe UI", sans-serif;
           font-weight: 400;
         }
-        .member-text :global(.bio-paragraph + .bio-paragraph) {
+        .member-bio-inner :global(.bio-paragraph + .bio-paragraph) {
           margin-top: 0.85rem;
         }
         .member-heading {
@@ -211,24 +282,17 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           letter-spacing: 0.04em;
           font-weight: 400;
         }
-        .role {
-          margin: 0;
-          font-size: 0.9rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          font-family: "InterMedium", sans-serif;
-        }
         @media (max-width: 960px) {
           .main-area {
             padding: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 6vw, 3rem);
           }
         }
         @media (max-width: 860px) {
-          .member {
-            flex-direction: column;
-          }
-          .portrait-wrapper {
-            width: clamp(140px, 45vw, 200px);
+          .team-grid {
+            grid-template-columns: repeat(
+              auto-fit,
+              minmax(clamp(130px, 40vw, 180px), 1fr)
+            );
           }
         }
         @media (max-width: 720px) {
@@ -238,10 +302,19 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           .main-area {
             padding: clamp(2rem, 7vw, 3rem) clamp(1.25rem, 7vw, 2.5rem);
           }
+          .bios {
+            gap: clamp(2rem, 6vw, 3.5rem);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           :global(.portrait-img) {
             transition-duration: 0.01ms !important;
+          }
+          .member-card {
+            transition: none;
+          }
+          .member-bio {
+            transition: none;
           }
         }
       `}</style>
