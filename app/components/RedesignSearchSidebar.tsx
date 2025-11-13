@@ -669,28 +669,29 @@ const RedesignSearchSidebar = ({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 247, 250, 0.92);
-          color: #2c1c23;
+          background: #2c1c23;
+          color: #fff7fa;
           text-transform: uppercase;
           letter-spacing: 0.12em;
           font-family: "InterMedium", sans-serif;
           font-size: 13px;
-          padding: 12px 26px;
-          border: 1px solid rgba(44, 28, 35, 0.6);
+          font-weight: 600;
+          padding: 12px 28px;
+          border: 1px solid #2c1c23;
           border-radius: 999px;
           cursor: pointer;
           transition: background 0.2s ease, color 0.2s ease,
             box-shadow 0.2s ease, border-color 0.2s ease;
           text-decoration: none;
           align-self: flex-start;
-          box-shadow: 0 8px 24px rgba(44, 28, 35, 0.12);
+          box-shadow: 0 10px 28px rgba(44, 28, 35, 0.24);
         }
         .drawer-newsletter-button:hover,
         .drawer-newsletter-button:focus-visible {
-          background: #2c1c23;
-          color: #fff7fa;
+          background: #fff7fa;
+          color: #2c1c23;
           border-color: #2c1c23;
-          box-shadow: 0 10px 28px rgba(44, 28, 35, 0.24);
+          box-shadow: 0 12px 32px rgba(44, 28, 35, 0.28);
         }
         @media (max-width: 960px) {
           .search-drawer-rail {
