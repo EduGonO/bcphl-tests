@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import Footer from "../app/components/Footer";
@@ -19,9 +19,41 @@ const teamMembers = getTeamMembers();
 const BiosPage = ({ articles }: BiosPageProps) => {
   const [query, setQuery] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [renderedSlug, setRenderedSlug] = useState<string | null>(null);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
+  useEffect(() => {
+    if (selectedSlug) {
+      setRenderedSlug(selectedSlug);
+      setIsAnimatingOut(false);
+      return;
+    }
+
+    if (!renderedSlug) {
+      return;
+    }
+
+    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      if (mediaQuery.matches) {
+        setRenderedSlug(null);
+        setIsAnimatingOut(false);
+        return;
+      }
+    }
+
+    setIsAnimatingOut(true);
+  }, [selectedSlug, renderedSlug]);
 
   const handleSelectMember = (slug: string) => {
     setSelectedSlug((current) => (current === slug ? null : slug));
+  };
+
+  const handleBioAnimationEnd = (slug: string) => {
+    if (isAnimatingOut && renderedSlug === slug) {
+      setRenderedSlug(null);
+      setIsAnimatingOut(false);
+    }
   };
   return (
     <>
@@ -59,7 +91,13 @@ const BiosPage = ({ articles }: BiosPageProps) => {
               <section className="team-grid" aria-label="Membres de l&apos;équipe Bicéphale">
                 {teamMembers.map((member, index) => {
                   const isSelected = selectedSlug === member.slug;
+                  const shouldRenderBio = renderedSlug === member.slug;
                   const biographyId = `bio-${member.slug}`;
+                  const bioState = shouldRenderBio
+                    ? isAnimatingOut
+                      ? "leaving"
+                      : "entering"
+                    : null;
 
                   return (
                     <Fragment key={member.slug}>
@@ -76,13 +114,17 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                           />
                         </div>
                       </article>
-                      {isSelected && (
+                      {shouldRenderBio && (
                         <div
-                          className="member-bio"
+                          className={`member-bio${
+                            bioState ? ` is-${bioState}` : ""
+                          }`}
                           id={biographyId}
                           role="region"
                           aria-label={`Biographie de ${member.name}`}
                           aria-live="polite"
+                          data-state={bioState ?? undefined}
+                          onAnimationEnd={() => handleBioAnimationEnd(member.slug)}
                         >
                           <div className="member-bio-inner">
                             <header className="member-heading">
@@ -222,7 +264,17 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         }
         .member-bio {
           grid-column: 1 / -1;
-          animation: bio-reveal 220ms ease;
+          opacity: 0;
+          transform: translateY(-8px);
+          pointer-events: none;
+        }
+        .member-bio.is-entering {
+          animation: bio-reveal 220ms ease forwards;
+          pointer-events: auto;
+        }
+        .member-bio.is-leaving {
+          animation: bio-dismiss 200ms ease forwards;
+          pointer-events: auto;
         }
         .member-bio-inner {
           border: 2px solid #bcb3a3;
@@ -293,7 +345,10 @@ const BiosPage = ({ articles }: BiosPageProps) => {
             transition: none;
           }
           .member-bio {
-            transition: none;
+            animation: none !important;
+            opacity: 1;
+            transform: none;
+            pointer-events: auto;
           }
         }
         @keyframes bio-reveal {
@@ -304,6 +359,16 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        @keyframes bio-dismiss {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-8px);
           }
         }
       `}</style>
