@@ -685,34 +685,31 @@ const RedesignSearchSidebar = ({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 13px 30px;
-          border-radius: 999px;
+          padding: 14px 28px;
+          border-radius: 3px;
           text-transform: uppercase;
-          letter-spacing: 0.16em;
+          letter-spacing: 0.14em;
           font-family: "InterMedium", sans-serif;
           font-size: 13px;
           font-weight: 600;
-          line-height: 1.1;
+          line-height: 1;
           color: #fff7fa;
-          background: linear-gradient(135deg, #2c1c23 0%, #12070c 100%);
-          border: 1px solid transparent;
-          box-shadow: 0 12px 28px rgba(44, 28, 35, 0.32);
-          transition: transform 0.2s ease, box-shadow 0.2s ease,
-            background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+          background: #2c1c23;
+          border: 1px solid #2c1c23;
+          transition: background 0.2s ease, border-color 0.2s ease,
+            color 0.2s ease;
           min-width: 0;
+          white-space: nowrap;
           cursor: pointer;
         }
         .drawer-newsletter-button:hover .drawer-newsletter-button-label,
         .drawer-newsletter-button:focus-visible .drawer-newsletter-button-label {
-          transform: translateY(-1px);
-          box-shadow: 0 14px 34px rgba(44, 28, 35, 0.38);
-          background: linear-gradient(135deg, #fff7fa 0%, #f0dce2 100%);
-          border-color: rgba(44, 28, 35, 0.5);
-          color: #2c1c23;
+          background: #3c2b31;
+          border-color: #3c2b31;
         }
-        .drawer-newsletter-button:active .drawer-newsletter-button-label {
-          transform: translateY(0);
-          box-shadow: 0 8px 18px rgba(44, 28, 35, 0.24);
+        .drawer-newsletter-button:focus-visible .drawer-newsletter-button-label {
+          outline: 2px solid rgba(195, 174, 182, 0.8);
+          outline-offset: 2px;
         }
         }
         @media (max-width: 960px) {
