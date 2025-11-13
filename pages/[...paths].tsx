@@ -516,6 +516,10 @@ const ArticlePage: React.FC<ArtProps> = ({
             max-height: min(72vw, 560px);
             width: auto;
           }
+
+          .article-hero-media img {
+            max-height: min(72vw, 560px);
+          }
         }
 
         @media (max-width: 720px) {
