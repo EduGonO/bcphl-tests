@@ -286,38 +286,31 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-inner {
-          display: flex;
+          display: grid;
           width: 100%;
           box-sizing: border-box;
-          align-items: stretch;
           gap: clamp(24px, 4vw, 48px);
-          padding-left: calc(
-            (100% - min(var(--article-max-width), 100%)) / 2
+          padding: 0 var(--article-horizontal-padding);
+          margin: 0 auto;
+          max-width: calc(
+            var(--article-max-width) + var(--article-horizontal-padding) * 2
           );
-          padding-right: clamp(16px, 4vw, 40px);
         }
 
         .article-hero-inner.no-media {
           gap: clamp(20px, 4vw, 28px);
           justify-content: center;
-          width: min(
-            calc(var(--article-max-width) + var(--article-horizontal-padding) * 2),
-            100%
-          );
-          margin: 0 auto;
-          padding: 0 var(--article-horizontal-padding);
         }
 
         .article-hero-content {
           display: flex;
           flex-direction: column;
-          justify-content: flex-end;
+          justify-content: flex-start;
           gap: clamp(18px, 4vw, 28px);
           color: #0d0d0d;
-          flex: 1 1 var(--article-max-width);
           max-width: var(--article-max-width);
           width: 100%;
-          margin: 0;
+          margin: 0 auto;
         }
 
         .article-hero-inner.no-media .article-hero-content {
@@ -381,14 +374,48 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-media {
-          flex: 0 0 clamp(220px, 28vw, 360px);
           border-radius: 26px;
           background-color: rgba(255, 255, 255, 0.68);
-          min-height: clamp(220px, 32vw, 380px);
+          min-height: clamp(220px, 52vw, 360px);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
           background-repeat: no-repeat;
           background-size: cover;
           background-position: center;
+          width: min(100%, clamp(260px, 88vw, 480px));
+          justify-self: center;
+          aspect-ratio: 4 / 3;
+        }
+
+        @media (min-width: 960px) {
+          .article-hero-inner {
+            grid-template-columns: minmax(0, var(--article-max-width)) clamp(220px, 28vw, 360px);
+            align-items: center;
+            padding-left: calc(
+              (100% - min(var(--article-max-width), 100%)) / 2
+            );
+            padding-right: clamp(16px, 4vw, 40px);
+            max-width: none;
+          }
+
+          .article-hero-inner.no-media {
+            grid-template-columns: minmax(0, var(--article-max-width));
+            padding: 0 var(--article-horizontal-padding);
+            margin: 0 auto;
+            max-width: calc(
+              var(--article-max-width) + var(--article-horizontal-padding) * 2
+            );
+          }
+
+          .article-hero-content {
+            justify-content: flex-end;
+            margin: 0;
+          }
+
+          .article-hero-media {
+            width: auto;
+            min-height: clamp(240px, 32vw, 420px);
+            justify-self: stretch;
+          }
         }
 
         .article-body-wrapper {
