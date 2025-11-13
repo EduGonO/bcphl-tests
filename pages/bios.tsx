@@ -75,10 +75,6 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                             ariaControls={biographyId}
                           />
                         </div>
-                        <div className="member-card-text">
-                          <p className="member-name">{member.name}</p>
-                          {member.role && <p className="role">{member.role}</p>}
-                        </div>
                       </article>
                       <div
                         className={`member-bio${isSelected ? " open" : ""}`}
@@ -174,14 +170,13 @@ const BiosPage = ({ articles }: BiosPageProps) => {
             auto-fit,
             minmax(clamp(140px, 16vw, 190px), 1fr)
           );
+          grid-auto-flow: row dense;
           gap: clamp(1.5rem, 4vw, 2.25rem);
           align-items: start;
         }
         .member-card {
-          display: grid;
-          gap: 0.75rem;
-          justify-items: center;
-          text-align: center;
+          display: flex;
+          justify-content: center;
           transition: transform 180ms ease, filter 180ms ease;
         }
         .member-card.is-selected {
@@ -214,19 +209,6 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           height: 100%;
           object-fit: cover;
           transition: opacity 180ms ease;
-        }
-        .member-card-text {
-          display: grid;
-          gap: 0.3rem;
-          font-family: -apple-system, BlinkMacSystemFont, "Inter", "InterRegular",
-            "Segoe UI", sans-serif;
-        }
-        .member-name {
-          margin: 0;
-          font-size: clamp(1rem, 2vw, 1.15rem);
-          font-weight: 600;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
         }
         .role {
           margin: 0;
