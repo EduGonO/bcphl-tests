@@ -134,13 +134,6 @@ const ArticlePage: React.FC<ArtProps> = ({
 
   const heroImage = headerImage || (media && media.length > 0 ? media[0] : "");
   const hasHeroImage = Boolean(heroImage);
-  const heroMediaStyle = hasHeroImage
-    ? {
-        backgroundImage: `url(${heroImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }
-    : undefined;
   const authorSlug = slugify(author);
 
   return (
@@ -193,11 +186,9 @@ const ArticlePage: React.FC<ArtProps> = ({
                     )}
                   </div>
                   {hasHeroImage ? (
-                    <div
-                      className="article-hero-media"
-                      style={heroMediaStyle}
-                      aria-hidden="true"
-                    />
+                    <div className="article-hero-media" aria-hidden="true">
+                      <img src={heroImage} alt="" loading="lazy" />
+                    </div>
                   ) : (
                     <>
                       {/** Placeholder hero media intentionally commented out for future reuse.
@@ -373,15 +364,21 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-hero-media {
           border-radius: 8px;
           background-color: rgba(255, 255, 255, 0.68);
-          min-height: clamp(220px, 52vw, 360px);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-          background-repeat: no-repeat;
-          background-size: cover;
-          background-position: center;
-          width: min(100%, 480px);
+          width: min(100%, 520px);
           justify-self: center;
-          aspect-ratio: 4 / 3;
           overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .article-hero-media img {
+          display: block;
+          width: 100%;
+          height: auto;
+          max-height: min(70vh, 640px);
+          border-radius: inherit;
         }
 
         @media (min-width: 960px) {
@@ -407,7 +404,6 @@ const ArticlePage: React.FC<ArtProps> = ({
           .article-hero-media {
             width: 100%;
             max-width: 420px;
-            min-height: clamp(260px, 30vw, 420px);
             justify-self: end;
           }
         }
@@ -506,8 +502,11 @@ const ArticlePage: React.FC<ArtProps> = ({
 
           .article-hero-media {
             width: 100%;
-            min-height: clamp(200px, 60vw, 340px);
             order: -1;
+          }
+
+          .article-hero-media img {
+            max-height: min(72vw, 560px);
           }
         }
 
