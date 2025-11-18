@@ -203,8 +203,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
               <div className="columns">
                 <section className="column column-featured">
                   <header className="column-header">
-                    <h2>réflexion</h2>
-                    <span className="column-count">{reflexionArticles.length}</span>
+                    <h2>
+                      <Link href="/Reflexion">réflexion</Link>
+                    </h2>
                   </header>
                   <div className="column-content">
                     {reflexionArticles.map((article) => (
@@ -220,8 +221,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
                 <section className="column column-events">
                   <header className="column-header">
-                    <h2>création</h2>
-                    <span className="column-count">{creationArticles.length}</span>
+                    <h2>
+                      <Link href="/Creation">création</Link>
+                    </h2>
                   </header>
                   <div className="column-content">
                     {creationArticles.map((article) => (
@@ -395,11 +397,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .column-featured .column-header {
           color: #111111;
         }
-        .column-featured .column-count {
-          border: 1px solid rgba(17, 17, 17, 0.28);
-          background: rgba(255, 255, 255, 0.5);
-          color: #111111;
-        }
         .column-events {
           background: #f2f2f2;
           color: #111111;
@@ -407,15 +404,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .column-events .column-header {
           color: #111111;
         }
-        .column-events .column-count {
-          border: 1px solid rgba(17, 17, 17, 0.28);
-          background: rgba(255, 255, 255, 0.62);
-          color: #111111;
-        }
         .column-header {
           display: flex;
-          align-items: baseline;
-          justify-content: space-between;
+          align-items: center;
+          justify-content: flex-start;
           gap: 16px;
           text-transform: uppercase;
           font-family: "GayaRegular", serif;
@@ -427,14 +419,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .column-header h2 {
           margin: 0;
           font-size: 20px;
-        }
-        .column-count {
-          font-family: "InterMedium", sans-serif;
-          font-size: 13px;
-          padding: 4px 12px;
-          border-radius: 16px;
-          border: 1px solid rgba(17, 17, 17, 0.36);
-          background: rgba(255, 255, 255, 0.6);
         }
         .column-content {
           overflow-y: auto;
