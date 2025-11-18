@@ -116,7 +116,6 @@ const CategoryLandingPage = ({
             <div className="single-column">
               <header className="column-header">
                 <h2>{columnTitle}</h2>
-                <span className="column-count">{filteredArticles.length}</span>
               </header>
               <div className="column-content">
                 {filteredArticles.map((article) => (
@@ -252,10 +251,6 @@ const CategoryLandingPage = ({
         .column-header h2 {
           margin: 0;
           font-size: clamp(2.1rem, 4.2vw, 2.9rem);
-        }
-        .column-count {
-          font-size: 14px;
-          color: rgba(17, 17, 17, 0.72);
         }
         .column-content {
           display: grid;
