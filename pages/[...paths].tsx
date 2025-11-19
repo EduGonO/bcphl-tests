@@ -472,7 +472,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-body :global(blockquote + blockquote) {
-          margin-top: 0;
+          margin-top: -2.4em;
         }
 
         .article-body :global(blockquote p) {
