@@ -205,34 +205,15 @@ const TopNav: React.FC = () => {
         }
 
         .nav-link {
-          position: relative;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 6px;
           color: #111;
           text-decoration: none;
-          transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-          padding: 8px 16px;
-          border-radius: 999px;
-          overflow: visible;
-        }
-
-        .nav-link::after {
-          content: "";
-          position: absolute;
-          left: 14px;
-          right: 14px;
-          bottom: 4px;
-          height: 2px;
-          border-radius: 999px;
-          background: currentColor;
-          opacity: 0;
-          transform: scaleX(0);
-          transform-origin: center;
-          transition: transform 0.18s ease, opacity 0.18s ease;
-          pointer-events: none;
-          z-index: 1;
+          padding: 6px 0;
+          border-bottom: 2px solid transparent;
+          transition: color 0.18s ease, border-color 0.18s ease;
         }
 
         .nav-link:visited {
@@ -241,28 +222,13 @@ const TopNav: React.FC = () => {
 
         .nav-link:hover,
         .nav-link:focus-visible {
-          color: #3a3a3a;
-          background: rgba(17, 17, 17, 0.08);
-        }
-
-        .nav-link:hover::after,
-        .nav-link:focus-visible::after {
-          opacity: 1;
-          transform: scaleX(1);
+          color: #1c1c1c;
+          border-bottom-color: currentColor;
         }
 
         .nav-link--active {
           font-family: "InterSemiBold", sans-serif;
-          color: #111;
-          background: rgba(17, 17, 17, 0.12);
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-        }
-
-        .nav-link--active::after {
-          opacity: 1;
-          transform: scaleX(1);
-          bottom: 6px;
-          height: 3px;
+          border-bottom-color: #111;
         }
 
         .nav-link.disabled {
