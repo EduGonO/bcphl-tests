@@ -217,6 +217,22 @@ const TopNav: React.FC = () => {
           border-radius: 999px;
         }
 
+        .nav-link::after {
+          content: "";
+          position: absolute;
+          left: 16px;
+          right: 16px;
+          bottom: 4px;
+          height: 2px;
+          border-radius: 999px;
+          background: rgba(17, 17, 17, 0.5);
+          opacity: 0;
+          transform: scaleX(0.6);
+          transform-origin: center;
+          transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+          pointer-events: none;
+        }
+
         .nav-link:visited {
           color: #111;
         }
@@ -227,6 +243,12 @@ const TopNav: React.FC = () => {
           background: rgba(17, 17, 17, 0.08);
         }
 
+        .nav-link:hover::after,
+        .nav-link:focus-visible::after {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+
         .nav-link--active {
           font-family: "InterSemiBold", sans-serif;
           color: #111;
@@ -235,14 +257,11 @@ const TopNav: React.FC = () => {
         }
 
         .nav-link--active::after {
-          content: "";
-          position: absolute;
-          left: 16px;
-          right: 16px;
+          opacity: 1;
+          transform: scaleX(1);
           bottom: 6px;
           height: 3px;
-          border-radius: 999px;
-          background: rgba(17, 17, 17, 0.6);
+          background: rgba(17, 17, 17, 0.65);
         }
 
         .nav-link.disabled {
