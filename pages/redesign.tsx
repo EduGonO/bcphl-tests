@@ -192,10 +192,12 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     : undefined
                 }
               >
+                {/*
                 <img
                   src="/media/home_image.jpeg"
                   alt="Illustration de la revue Bicéphale"
                 />
+                */}
               </div>
             </section>
 
