@@ -78,10 +78,11 @@ const TopNav: React.FC = () => {
     >
       <div className="top-nav__layout">
         <Link href="/" className="brand" aria-label="Accueil Bicéphale">
-          <span className="brand-visual">
-            <img src="/media/logo.png" alt="Bicéphale" className="brand-logo" />
-          </span>
-          <span className="brand-name">Bicéphale</span>
+          <img
+            src="/logo-rectangle_bicephale_rvb.svg"
+            alt="Bicéphale"
+            className="brand-logo brand-logo--wide"
+          />
         </Link>
         <div
           className={`top-nav__categories${
@@ -146,7 +147,6 @@ const TopNav: React.FC = () => {
           flex-direction: row;
           align-items: center;
           justify-content: flex-start;
-          gap: 14px;
           min-height: 42px;
           block-size: auto;
           flex: 0 1 auto;
@@ -154,29 +154,9 @@ const TopNav: React.FC = () => {
           white-space: nowrap;
           box-sizing: border-box;
           padding: 0;
-          font-family: "GayaRegular", serif;
-          font-size: 22px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
           color: #0d0d0d;
           text-decoration: none;
           line-height: 1;
-        }
-
-        .brand-visual,
-        .brand-name {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          height: 42px;
-          min-height: 42px;
-          max-height: 42px;
-        }
-
-        .brand-visual {
-          flex-direction: row;
-          flex-shrink: 0;
-          width: 42px;
         }
 
         .brand:visited,
@@ -188,18 +168,14 @@ const TopNav: React.FC = () => {
         .brand-logo {
           display: block;
           flex-shrink: 0;
-          width: 42px;
           height: 42px;
+          max-height: 42px;
+          width: auto;
           object-fit: contain;
         }
 
-        .brand-name {
-          font-family: "GayaRegular", serif;
-          font-size: 22px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: #0d0d0d;
-          line-height: 1;
+        .brand-logo--wide {
+          max-width: min(300px, 45vw);
         }
 
         .top-nav__categories {
