@@ -464,35 +464,15 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-body :global(blockquote) {
-          position: relative;
-          margin: 2.8em 0;
-          padding: 32px 36px 28px 48px;
-          border-radius: 16px;
-          background: #ffffff;
-          box-shadow: 0 16px 40px rgba(17, 17, 17, 0.08);
+          margin: 2.4em 0;
+          padding: 0 0 0 18px;
+          border-left: 3px solid ${accentColor};
           font-style: italic;
-          color: #0f0f0f;
+          color: #111111;
         }
 
-        .article-body :global(blockquote::before) {
-          content: "“";
-          position: absolute;
-          top: 12px;
-          left: 18px;
-          font-family: "GayaRegular", serif;
-          font-size: 48px;
-          line-height: 1;
-          color: ${accentColor};
-          opacity: 0.65;
-        }
-
-        .article-body :global(blockquote::after) {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: 16px;
-          border: 1px solid ${hexToRgba(articleColor, 0.35)};
-          pointer-events: none;
+        .article-body :global(blockquote + blockquote) {
+          margin-top: 0;
         }
 
         .article-body :global(blockquote p) {
@@ -502,7 +482,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-body :global(blockquote p + p) {
-          margin-top: 0.4em;
+          margin-top: 0.5em;
         }
 
         .article-body :global(img) {
