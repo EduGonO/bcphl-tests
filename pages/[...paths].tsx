@@ -465,11 +465,24 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-body :global(blockquote) {
           margin: 2.4em 0;
-          padding: 20px 28px 20px 32px;
-          border-left: 4px solid ${accentColor};
-          background: ${hexToRgba(articleColor, 0.16)};
-          border-radius: 6px;
+          padding: 0 0 0 18px;
+          border-left: 3px solid ${accentColor};
           font-style: italic;
+          color: #111111;
+        }
+
+        .article-body :global(blockquote + blockquote) {
+          margin-top: -2.4em;
+        }
+
+        .article-body :global(blockquote p) {
+          margin: 0;
+          font-size: 20px;
+          line-height: 1.6;
+        }
+
+        .article-body :global(blockquote p + p) {
+          margin-top: 0.5em;
         }
 
         .article-body :global(img) {
