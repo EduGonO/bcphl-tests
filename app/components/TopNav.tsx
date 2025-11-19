@@ -215,22 +215,24 @@ const TopNav: React.FC = () => {
           transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
           padding: 8px 16px;
           border-radius: 999px;
+          overflow: visible;
         }
 
         .nav-link::after {
           content: "";
           position: absolute;
-          left: 16px;
-          right: 16px;
+          left: 14px;
+          right: 14px;
           bottom: 4px;
           height: 2px;
           border-radius: 999px;
-          background: rgba(17, 17, 17, 0.5);
+          background: currentColor;
           opacity: 0;
-          transform: scaleX(0.6);
+          transform: scaleX(0);
           transform-origin: center;
-          transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+          transition: transform 0.18s ease, opacity 0.18s ease;
           pointer-events: none;
+          z-index: 1;
         }
 
         .nav-link:visited {
@@ -261,7 +263,6 @@ const TopNav: React.FC = () => {
           transform: scaleX(1);
           bottom: 6px;
           height: 3px;
-          background: rgba(17, 17, 17, 0.65);
         }
 
         .nav-link.disabled {
