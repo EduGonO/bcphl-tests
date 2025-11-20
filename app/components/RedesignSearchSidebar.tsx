@@ -516,7 +516,8 @@ const RedesignSearchSidebar = ({
           color: #2c1c23;
         }
         .drawer-close {
-          --drawer-close-accent: rgba(44, 28, 35, 0.52);
+          --drawer-close-accent: rgba(44, 28, 35, 0.68);
+          position: relative;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -539,13 +540,18 @@ const RedesignSearchSidebar = ({
           border-color: #2c1c23;
         }
         .drawer-close-icon {
+          position: absolute;
+          inset: 50%;
+          transform: translate(-50%, -50%);
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-size: 22px;
+          font-size: 24px;
           line-height: 1;
-          width: 1.1em;
-          height: 1.1em;
+          width: 1.25em;
+          height: 1.25em;
+          color: var(--drawer-close-accent);
+          pointer-events: none;
         }
         .drawer-label {
           font-size: 14px;

@@ -135,6 +135,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     [sortedArticles, normalizedQuery]
   );
 
+  const handleHoverStart = (action: "about" | "follow") => {
+    setHoveredAction(action);
+  };
+
+  const handleHoverEnd = (action: "about" | "follow") => {
+    setHoveredAction((current) => (current === action ? null : current));
+  };
+
   return (
     <>
       <Head>
@@ -179,10 +187,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     className={`intro-action ${
                       hoveredAction === "about" ? "is-hovered" : ""
                     }`}
-                    onPointerEnter={() => setHoveredAction("about")}
-                    onPointerLeave={() => setHoveredAction((current) =>
-                      current === "about" ? null : current
-                    )}
+                    onPointerEnter={() => handleHoverStart("about")}
+                    onPointerMove={() => handleHoverStart("about")}
+                    onMouseEnter={() => handleHoverStart("about")}
+                    onPointerLeave={() => handleHoverEnd("about")}
+                    onMouseLeave={() => handleHoverEnd("about")}
                   >
                     <span className="intro-action-pill featured">À propos</span>
                   </Link>
@@ -193,10 +202,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     }`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onPointerEnter={() => setHoveredAction("follow")}
-                    onPointerLeave={() => setHoveredAction((current) =>
-                      current === "follow" ? null : current
-                    )}
+                    onPointerEnter={() => handleHoverStart("follow")}
+                    onPointerMove={() => handleHoverStart("follow")}
+                    onMouseEnter={() => handleHoverStart("follow")}
+                    onPointerLeave={() => handleHoverEnd("follow")}
+                    onMouseLeave={() => handleHoverEnd("follow")}
                   >
                     <span className="intro-action-pill event">Nous suivre</span>
                   </Link>
