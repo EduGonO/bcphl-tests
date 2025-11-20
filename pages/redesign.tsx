@@ -15,6 +15,9 @@ interface RedesignProps {
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
   const [introHeight, setIntroHeight] = useState<number | null>(null);
+  const [hoveredAction, setHoveredAction] = useState<"about" | "follow" | null>(
+    null
+  );
   const introCopyRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -171,14 +174,29 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                   </p>
                 </div>
                 <div className="intro-actions">
-                  <Link href="/bios" className="intro-action">
+                  <Link
+                    href="/bios"
+                    className={`intro-action ${
+                      hoveredAction === "about" ? "is-hovered" : ""
+                    }`}
+                    onPointerEnter={() => setHoveredAction("about")}
+                    onPointerLeave={() => setHoveredAction((current) =>
+                      current === "about" ? null : current
+                    )}
+                  >
                     <span className="intro-action-pill featured">À propos</span>
                   </Link>
                   <Link
                     href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
-                    className="intro-action"
+                    className={`intro-action ${
+                      hoveredAction === "follow" ? "is-hovered" : ""
+                    }`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onPointerEnter={() => setHoveredAction("follow")}
+                    onPointerLeave={() => setHoveredAction((current) =>
+                      current === "follow" ? null : current
+                    )}
                   >
                     <span className="intro-action-pill event">Nous suivre</span>
                   </Link>
@@ -345,7 +363,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action:hover::after,
         .intro-action:focus-visible::after,
-        .intro-action:active::after {
+        .intro-action:active::after,
+        .intro-action.is-hovered::after {
           opacity: 1;
           transform: scaleX(1);
         }
@@ -378,17 +397,20 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action:hover .intro-action-pill,
         .intro-action:focus-visible .intro-action-pill,
-        .intro-action:active .intro-action-pill {
+        .intro-action:active .intro-action-pill,
+        .intro-action.is-hovered .intro-action-pill {
           transform: translateY(-1px);
         }
         .intro-action:hover .intro-action-pill.featured,
         .intro-action:focus-visible .intro-action-pill.featured,
-        .intro-action:active .intro-action-pill.featured {
+        .intro-action:active .intro-action-pill.featured,
+        .intro-action.is-hovered .intro-action-pill.featured {
           background: #b2b2ec;
         }
         .intro-action:hover .intro-action-pill.event,
         .intro-action:focus-visible .intro-action-pill.event,
-        .intro-action:active .intro-action-pill.event {
+        .intro-action:active .intro-action-pill.event,
+        .intro-action.is-hovered .intro-action-pill.event {
           background: #029c58;
           color: #111111;
         }
