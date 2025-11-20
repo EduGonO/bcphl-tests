@@ -211,12 +211,10 @@ const TopNav: React.FC = () => {
           justify-content: center;
           gap: 6px;
           color: #111;
-          text-decoration: underline;
-          text-decoration-color: transparent;
-          text-decoration-thickness: 2px;
-          text-underline-offset: 10px;
+          text-decoration: none;
           padding: 6px 0;
-          transition: color 0.18s ease, text-decoration-color 0.18s ease;
+          border-bottom: 2px solid transparent;
+          transition: color 0.18s ease, border-color 0.18s ease;
         }
 
         .nav-link:visited {
@@ -226,13 +224,13 @@ const TopNav: React.FC = () => {
         .nav-link:hover,
         .nav-link:focus-visible {
           color: #0a0a0a;
-          text-decoration-color: currentColor;
+          border-color: currentColor;
         }
 
         .nav-link--active {
           font-family: "InterSemiBold", sans-serif;
-          text-decoration-color: #0a0a0a;
-          text-decoration-thickness: 3px;
+          border-color: #0a0a0a;
+          border-bottom-width: 3px;
         }
 
         .nav-link.disabled {
@@ -324,21 +322,6 @@ const TopNav: React.FC = () => {
             width: 100%;
             text-align: center;
           }
-        }
-      `}</style>
-      <style jsx global>{`
-        .top-nav .brand,
-        .top-nav .brand:visited,
-        .top-nav .brand:hover,
-        .top-nav .brand:focus-visible,
-        .top-nav .brand:active,
-        .top-nav .nav-link,
-        .top-nav .nav-link:visited,
-        .top-nav .nav-link:hover,
-        .top-nav .nav-link:focus-visible,
-        .top-nav .nav-link:active {
-          color: #0d0d0d;
-          text-decoration: none;
         }
       `}</style>
     </header>
