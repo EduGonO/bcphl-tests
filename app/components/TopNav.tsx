@@ -78,10 +78,11 @@ const TopNav: React.FC = () => {
     >
       <div className="top-nav__layout">
         <Link href="/" className="brand" aria-label="Accueil Bicéphale">
-          <span className="brand-visual">
-            <img src="/media/logo.png" alt="Bicéphale" className="brand-logo" />
-          </span>
-          <span className="brand-name">Bicéphale</span>
+          <img
+            src="/logo-rectangle_bicephale_rvb.svg"
+            alt="Bicéphale"
+            className="brand-logo brand-logo--wide"
+          />
         </Link>
         <div
           className={`top-nav__categories${
@@ -108,6 +109,7 @@ const TopNav: React.FC = () => {
                 <Link
                   key={link.label}
                   href={link.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={`nav-link${isActive ? " nav-link--active" : ""}`}
                 >
                   {link.label}
@@ -146,7 +148,6 @@ const TopNav: React.FC = () => {
           flex-direction: row;
           align-items: center;
           justify-content: flex-start;
-          gap: 14px;
           min-height: 42px;
           block-size: auto;
           flex: 0 1 auto;
@@ -154,29 +155,9 @@ const TopNav: React.FC = () => {
           white-space: nowrap;
           box-sizing: border-box;
           padding: 0;
-          font-family: "GayaRegular", serif;
-          font-size: 22px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
           color: #0d0d0d;
           text-decoration: none;
           line-height: 1;
-        }
-
-        .brand-visual,
-        .brand-name {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          height: 42px;
-          min-height: 42px;
-          max-height: 42px;
-        }
-
-        .brand-visual {
-          flex-direction: row;
-          flex-shrink: 0;
-          width: 42px;
         }
 
         .brand:visited,
@@ -188,18 +169,14 @@ const TopNav: React.FC = () => {
         .brand-logo {
           display: block;
           flex-shrink: 0;
-          width: 42px;
           height: 42px;
+          max-height: 42px;
+          width: auto;
           object-fit: contain;
         }
 
-        .brand-name {
-          font-family: "GayaRegular", serif;
-          font-size: 22px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: #0d0d0d;
-          line-height: 1;
+        .brand-logo--wide {
+          max-width: min(300px, 45vw);
         }
 
         .top-nav__categories {
@@ -229,16 +206,15 @@ const TopNav: React.FC = () => {
         }
 
         .nav-link {
-          position: relative;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 6px;
           color: #111;
           text-decoration: none;
-          transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-          padding: 8px 16px;
-          border-radius: 999px;
+          padding: 6px 0;
+          border-bottom: 2px solid transparent;
+          transition: color 0.18s ease, border-color 0.18s ease;
         }
 
         .nav-link:visited {
@@ -247,26 +223,14 @@ const TopNav: React.FC = () => {
 
         .nav-link:hover,
         .nav-link:focus-visible {
-          color: #3a3a3a;
-          background: rgba(17, 17, 17, 0.08);
+          color: #0a0a0a;
+          border-color: currentColor;
         }
 
         .nav-link--active {
           font-family: "InterSemiBold", sans-serif;
-          color: #111;
-          background: rgba(17, 17, 17, 0.12);
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-        }
-
-        .nav-link--active::after {
-          content: "";
-          position: absolute;
-          left: 16px;
-          right: 16px;
-          bottom: 6px;
-          height: 3px;
-          border-radius: 999px;
-          background: rgba(17, 17, 17, 0.6);
+          border-color: #0a0a0a;
+          border-bottom-width: 3px;
         }
 
         .nav-link.disabled {
@@ -358,21 +322,6 @@ const TopNav: React.FC = () => {
             width: 100%;
             text-align: center;
           }
-        }
-      `}</style>
-      <style jsx global>{`
-        .top-nav .brand,
-        .top-nav .brand:visited,
-        .top-nav .brand:hover,
-        .top-nav .brand:focus-visible,
-        .top-nav .brand:active,
-        .top-nav .nav-link,
-        .top-nav .nav-link:visited,
-        .top-nav .nav-link:hover,
-        .top-nav .nav-link:focus-visible,
-        .top-nav .nav-link:active {
-          color: #0d0d0d;
-          text-decoration: none;
         }
       `}</style>
     </header>

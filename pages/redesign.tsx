@@ -322,9 +322,30 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           margin: 8px 0 0;
         }
         .intro-action {
+          position: relative;
           display: inline-flex;
           text-decoration: none;
           color: #111111;
+        }
+        .intro-action::after {
+          content: "";
+          position: absolute;
+          left: 8px;
+          right: 8px;
+          bottom: -2px;
+          height: 2px;
+          border-radius: 999px;
+          background: rgba(17, 17, 17, 0.45);
+          opacity: 0;
+          transform: scaleX(0.5);
+          transform-origin: center;
+          transition: transform 0.18s ease, opacity 0.18s ease;
+          pointer-events: none;
+        }
+        .intro-action:hover::after,
+        .intro-action:focus-visible::after {
+          opacity: 1;
+          transform: scaleX(1);
         }
         .intro-action:visited {
           color: inherit;
