@@ -1,25 +1,27 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useMemo } from "react";
+import React from "react";
 
-import { NAV_LINKS } from "../../config/navLinks";
+const NAV_ITEMS = [
+  { label: "Reflexión", href: "/Reflexion" },
+  { label: "Création", href: "/Creation" },
+  { label: "IRL", href: "/IRL" },
+  { label: "À propos", href: "/bios" },
+];
 
 const normalizePath = (path: string) => {
   const cleaned = (path || "/").split(/[?#]/)[0];
   if (cleaned === "/") return "/";
 
   const trimmed = cleaned.replace(/\/+$/, "");
-  const withLeadingSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
 
-  return withLeadingSlash.toLowerCase();
+  return withSlash.toLowerCase();
 };
 
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const currentPath = useMemo(
-    () => normalizePath(router.asPath || router.pathname || "/"),
-    [router.asPath, router.pathname],
-  );
+  const currentPath = normalizePath(router.asPath || router.pathname || "/");
 
   return (
     <header className="top-nav">
@@ -29,19 +31,19 @@ const TopNav: React.FC = () => {
         </Link>
 
         <nav className="top-nav__links" aria-label="Navigation principale">
-          {NAV_LINKS.map((link) => {
-            const linkPath = normalizePath(link.href);
+          {NAV_ITEMS.map(({ label, href }) => {
+            const linkPath = normalizePath(href);
             const isActive =
               currentPath === linkPath || currentPath.startsWith(`${linkPath}/`);
 
             return (
               <Link
-                key={link.label}
-                href={link.href}
+                key={label}
+                href={href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " is-active" : ""}`}
               >
-                {link.label}
+                {label}
               </Link>
             );
           })}
@@ -54,12 +56,18 @@ const TopNav: React.FC = () => {
           top: 0;
           z-index: 60;
           width: 100%;
-          padding: 16px 24px;
-          background: #fff;
+          background: #ffffff;
           border-bottom: 1px solid #b9b0a3;
+          display: flex;
+          justify-content: center;
         }
 
         .top-nav__inner {
+          width: 100%;
+          max-width: 1120px;
+          margin: 0 auto;
+          padding: 14px 20px;
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -74,7 +82,7 @@ const TopNav: React.FC = () => {
 
         .top-nav__brand img {
           display: block;
-          height: 42px;
+          height: 44px;
           width: auto;
         }
 
@@ -83,8 +91,9 @@ const TopNav: React.FC = () => {
           flex-direction: row;
           align-items: center;
           justify-content: center;
-          gap: 24px;
+          gap: clamp(16px, 4vw, 28px);
           flex-wrap: nowrap;
+          white-space: nowrap;
           font-family: "InterMedium", sans-serif;
           font-size: 16px;
         }
@@ -94,7 +103,7 @@ const TopNav: React.FC = () => {
           text-decoration: none;
           padding-bottom: 6px;
           border-bottom: 2px solid transparent;
-          transition: color 0.15s ease, border-color 0.15s ease;
+          transition: color 120ms ease, border-color 120ms ease;
         }
 
         .top-nav__link:hover,
@@ -109,14 +118,11 @@ const TopNav: React.FC = () => {
         }
 
         @media (min-width: 768px) {
-          .top-nav {
-            padding: 18px 48px;
-          }
-
           .top-nav__inner {
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
+            padding: 16px 28px;
           }
 
           .top-nav__brand {
