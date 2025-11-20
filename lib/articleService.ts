@@ -1,4 +1,8 @@
-import type { SupabaseArticleDetail, SupabaseArticleRelation, SupabaseCategorySummary } from "../types/supabase";
+import type {
+  SupabaseArticleDetail,
+  SupabaseArticleRelation,
+  SupabaseCategorySummary,
+} from "../types/supabase";
 import { Article, Category } from "../types";
 import {
   categoryConfigMap,
@@ -33,6 +37,12 @@ type ArticleCollection = {
 
 type DetailCache = Map<string, Promise<SupabaseArticleDetail | null>>;
 
+type ArticleSummaryWithCategory = {
+  summary: SupabaseCategorySummary["articles"][number];
+  categorySlug: string;
+  categoryName: string;
+};
+
 const configSlugMap = new Map<string, string>();
 Object.keys(categoryConfigMap).forEach((name) => {
   const slug = categoryToSlug(name);
@@ -49,6 +59,17 @@ const ensureSupabaseClient = () => {
   }
   return client;
 };
+
+const CACHE_TTL_MS = (() => {
+  const parsed = Number(process.env.ARTICLE_CACHE_TTL_MS);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  return 5 * 60 * 1000; // 5 minutes by default
+})();
+
+let cachedCollectionPromise: Promise<ArticleCollection> | null = null;
+let cacheExpiresAt = 0;
 
 const fetchArticleDetail = async (
   articleId: string,
@@ -241,7 +262,37 @@ const mapArticleCategories = (
   return mapped;
 };
 
-const ensureCollection = async (): Promise<ArticleCollection> => {
+const buildArticleSummaries = (
+  supabaseCategories: SupabaseCategorySummary[],
+  categoriesById: Map<string, Category>,
+  categoriesBySlug: Map<string, Category>
+): ArticleSummaryWithCategory[] => {
+  const summaries: ArticleSummaryWithCategory[] = [];
+
+  supabaseCategories.forEach((categorySummary) => {
+    const categoryMeta =
+      categoriesById.get(categorySummary.id) ||
+      categoriesBySlug.get((categorySummary.slug || "").toLowerCase());
+
+    const categorySlug =
+      categoryMeta?.slug ||
+      categorySummary.slug ||
+      categoryToSlug(categorySummary.name);
+    const categoryName = categoryMeta?.name || categorySummary.name || categorySlug;
+
+    categorySummary.articles.forEach((summary) => {
+      if (!summary.status) {
+        return;
+      }
+
+      summaries.push({ summary, categorySlug, categoryName });
+    });
+  });
+
+  return summaries;
+};
+
+const loadCollection = async (): Promise<ArticleCollection> => {
   const supabase = ensureSupabaseClient();
   const supabaseCategories = await loadSupabaseCategorySummaries(supabase);
 
@@ -251,75 +302,103 @@ const ensureCollection = async (): Promise<ArticleCollection> => {
     categories.map((category) => [category.slug.toLowerCase(), category])
   );
 
-  const records: ArticleRecord[] = [];
-  const seenKeys = new Set<string>();
+  const summaries = buildArticleSummaries(
+    supabaseCategories,
+    categoriesById,
+    categoriesBySlug
+  );
+
+  const articleIds = Array.from(new Set(summaries.map(({ summary }) => summary.id)));
   const detailCache: DetailCache = new Map();
 
-  for (const categorySummary of supabaseCategories) {
-    const categoryMeta =
-      categoriesById.get(categorySummary.id) ||
-      categoriesBySlug.get((categorySummary.slug || "").toLowerCase());
+  const detailResults = await Promise.all(
+    articleIds.map((articleId) =>
+      fetchArticleDetail(articleId, supabase, detailCache).catch(() => null)
+    )
+  );
 
-    const categorySlug = categoryMeta?.slug || categorySummary.slug || categoryToSlug(categorySummary.name);
-    const categoryName = categoryMeta?.name || categorySummary.name || categorySlug;
-
-    for (const summary of categorySummary.articles) {
-      if (!summary.status) {
-        continue;
-      }
-
-      const detail = await fetchArticleDetail(summary.id, supabase, detailCache);
-      if (!detail || !detail.status) {
-        continue;
-      }
-
-      const recordKey = `${detail.id}::${categorySlug.toLowerCase()}`;
-      if (seenKeys.has(recordKey)) {
-        continue;
-      }
-      seenKeys.add(recordKey);
-
-      const media = resolveMedia(detail);
-      const headerImage = resolveHeaderImage(summary, detail, media);
-      const articleCategories = mapArticleCategories(
-        detail,
-        categoriesById,
-        categoriesBySlug
-      );
-
-      const article: Article = {
-        id: detail.id,
-        title: detail.title,
-        slug: detail.slug,
-        category: categoryName,
-        categorySlug,
-        date: resolveDate(summary, detail),
-        author: detail.authorName ?? "",
-        preview: resolvePreview(summary, detail),
-        media,
-        headerImage,
-      };
-
-      const record: ArticleRecord = {
-        article,
-        body: detail.bodyMarkdown ?? "",
-        bodyHtml: detail.bodyHtml,
-        supabaseId: detail.id,
-        articleCategories,
-        relatedArticles: detail.relatedArticles,
-        publicBasePath: "",
-        sourceType: SOURCE_TYPE,
-      };
-
-      records.push(record);
+  const detailsById = new Map<string, SupabaseArticleDetail>();
+  detailResults.forEach((detail, index) => {
+    const id = articleIds[index];
+    if (detail && detail.status) {
+      detailsById.set(id, detail);
     }
-  }
+  });
+
+  const records: ArticleRecord[] = [];
+  const seenKeys = new Set<string>();
+
+  summaries.forEach(({ summary, categoryName, categorySlug }) => {
+    const detail = detailsById.get(summary.id);
+    if (!detail) {
+      return;
+    }
+
+    const recordKey = `${detail.id}::${categorySlug.toLowerCase()}`;
+    if (seenKeys.has(recordKey)) {
+      return;
+    }
+    seenKeys.add(recordKey);
+
+    const media = resolveMedia(detail);
+    const headerImage = resolveHeaderImage(summary, detail, media);
+    const articleCategories = mapArticleCategories(
+      detail,
+      categoriesById,
+      categoriesBySlug
+    );
+
+    const article: Article = {
+      id: detail.id,
+      title: detail.title,
+      slug: detail.slug,
+      category: categoryName,
+      categorySlug,
+      date: resolveDate(summary, detail),
+      author: detail.authorName ?? "",
+      preview: resolvePreview(summary, detail),
+      media,
+      headerImage,
+    };
+
+    const record: ArticleRecord = {
+      article,
+      body: detail.bodyMarkdown ?? "",
+      bodyHtml: detail.bodyHtml,
+      supabaseId: detail.id,
+      articleCategories,
+      relatedArticles: detail.relatedArticles,
+      publicBasePath: "",
+      sourceType: SOURCE_TYPE,
+    };
+
+    records.push(record);
+  });
 
   return { records, categories };
 };
 
+const getCachedCollection = async (): Promise<ArticleCollection> => {
+  if (cachedCollectionPromise && Date.now() < cacheExpiresAt) {
+    return cachedCollectionPromise;
+  }
+
+  const pendingCollection = loadCollection();
+  cachedCollectionPromise = pendingCollection;
+  cacheExpiresAt = Date.now() + CACHE_TTL_MS;
+
+  pendingCollection.catch(() => {
+    if (cachedCollectionPromise === pendingCollection) {
+      cachedCollectionPromise = null;
+      cacheExpiresAt = 0;
+    }
+  });
+
+  return pendingCollection;
+};
+
 export const getArticleRecords = async (): Promise<ArticleRecord[]> => {
-  const collection = await ensureCollection();
+  const collection = await getCachedCollection();
   return collection.records;
 };
 
@@ -345,10 +424,11 @@ export async function getArticleData(): Promise<{
   articles: Article[];
   categories: Category[];
 }> {
-  const { records, categories } = await ensureCollection();
+  const { records, categories } = await getCachedCollection();
   return { articles: records.map((record) => record.article), categories };
 }
 
 export const clearArticleCache = () => {
-  // Intentionally left blank; the Supabase-backed loader fetches fresh data per request.
+  cachedCollectionPromise = null;
+  cacheExpiresAt = 0;
 };
