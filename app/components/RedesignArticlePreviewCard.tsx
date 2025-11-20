@@ -73,7 +73,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           width: 100%;
           aspect-ratio: 3 / 2;
           max-height: 200px;
-          border-radius: 16px;
+          border-radius: 3px;
           background-color: rgba(255, 255, 255, 0.28);
           background-position: center;
           background-repeat: no-repeat;

@@ -517,7 +517,7 @@ const RedesignSearchSidebar = ({
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
           letter-spacing: 0.12em;
-          font-size: 11px;
+          font-size: 14px;
           padding: 6px 16px;
           cursor: pointer;
           color: #2c1c23;

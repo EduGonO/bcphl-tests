@@ -371,20 +371,23 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action-pill.event {
           background: #03b262;
-          color: #ffffff;
+          color: #111111;
         }
         .intro-action:hover .intro-action-pill,
-        .intro-action:focus-visible .intro-action-pill {
+        .intro-action:focus-visible .intro-action-pill,
+        .intro-action:active .intro-action-pill {
           transform: translateY(-1px);
         }
         .intro-action:hover .intro-action-pill.featured,
-        .intro-action:focus-visible .intro-action-pill.featured {
+        .intro-action:focus-visible .intro-action-pill.featured,
+        .intro-action:active .intro-action-pill.featured {
           background: #b2b2ec;
         }
         .intro-action:hover .intro-action-pill.event,
-        .intro-action:focus-visible .intro-action-pill.event {
+        .intro-action:focus-visible .intro-action-pill.event,
+        .intro-action:active .intro-action-pill.event {
           background: #029c58;
-          color: #ffffff;
+          color: #111111;
         }
         .intro-action:focus-visible .intro-action-pill {
           outline: 2px solid rgba(17, 17, 17, 0.4);
