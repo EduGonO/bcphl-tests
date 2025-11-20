@@ -172,7 +172,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 </div>
                 <div className="intro-actions">
                   <Link href="/bios" className="intro-action">
-                    <span className="intro-action-pill featured">manifeste</span>
+                    <span className="intro-action-pill featured">À propos</span>
                   </Link>
                   <Link
                     href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
@@ -180,7 +180,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span className="intro-action-pill event">nous suivre</span>
+                    <span className="intro-action-pill event">Nous suivre</span>
                   </Link>
                 </div>
               </div>
@@ -362,18 +362,29 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           border-radius: 999px;
           line-height: 1.1;
           min-height: 30px;
-          transition: transform 0.2s ease;
+          transition: transform 0.2s ease, background-color 0.2s ease,
+            color 0.2s ease;
           color: #111111;
         }
         .intro-action-pill.featured {
           background: #c1c1f0;
         }
         .intro-action-pill.event {
-          background: #f4f0ae;
+          background: #03b262;
+          color: #ffffff;
         }
         .intro-action:hover .intro-action-pill,
         .intro-action:focus-visible .intro-action-pill {
           transform: translateY(-1px);
+        }
+        .intro-action:hover .intro-action-pill.featured,
+        .intro-action:focus-visible .intro-action-pill.featured {
+          background: #b2b2ec;
+        }
+        .intro-action:hover .intro-action-pill.event,
+        .intro-action:focus-visible .intro-action-pill.event {
+          background: #029c58;
+          color: #ffffff;
         }
         .intro-action:focus-visible .intro-action-pill {
           outline: 2px solid rgba(17, 17, 17, 0.4);

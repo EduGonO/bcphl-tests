@@ -183,7 +183,7 @@ const RedesignSearchSidebar = ({
                 onClick={handleClose}
                 aria-label="Réduire la recherche"
               >
-                Fermer
+                ×
               </button>
             </div>
             <label className="drawer-label" htmlFor="search-input">
@@ -334,7 +334,7 @@ const RedesignSearchSidebar = ({
                 onClick={handleClose}
                 aria-label="Réduire la newsletter"
               >
-                Fermer
+                ×
               </button>
             </div>
             <p className="drawer-text">

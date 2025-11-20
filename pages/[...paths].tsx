@@ -362,7 +362,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-hero-media {
-          border-radius: 8px;
+          border-radius: 4px;
           background-color: transparent;
           box-shadow: none;
           max-width: min(100%, 520px);
