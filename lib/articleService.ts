@@ -11,7 +11,7 @@ import {
 } from "../config/categoryColors";
 import { getSupabaseServerClient } from "./supabase/serverClient";
 import {
-  loadSupabaseArticleDetail,
+  loadSupabaseArticleDetails,
   loadSupabaseCategorySummaries,
 } from "./supabase/content";
 
@@ -39,8 +39,6 @@ type ArticleCollectionResult = {
   collection: ArticleCollection;
   version: number;
 };
-
-type DetailCache = Map<string, Promise<SupabaseArticleDetail | null>>;
 
 type ArticleSummaryWithCategory = {
   summary: SupabaseCategorySummary["articles"][number];
@@ -89,22 +87,6 @@ let lastVersionCheckAt = 0;
 const parseTimestamp = (input: string | null | undefined): number => {
   const timestamp = Date.parse(input ?? "");
   return Number.isFinite(timestamp) ? timestamp : 0;
-};
-
-const fetchArticleDetail = async (
-  articleId: string,
-  supabase = ensureSupabaseClient(),
-  cache?: DetailCache
-): Promise<SupabaseArticleDetail | null> => {
-  const targetCache = cache ?? new Map<string, Promise<SupabaseArticleDetail | null>>();
-
-  let detailPromise = targetCache.get(articleId);
-  if (!detailPromise) {
-    detailPromise = loadSupabaseArticleDetail(supabase, articleId);
-    targetCache.set(articleId, detailPromise);
-  }
-
-  return detailPromise.then((detail) => detail ?? null);
 };
 
 const buildStoragePublicUrl = (bucket: string, rawPath?: string | null): string => {
@@ -384,17 +366,12 @@ const loadCollection = async (
   );
 
   const articleIds = Array.from(new Set(summaries.map(({ summary }) => summary.id)));
-  const detailCache: DetailCache = new Map();
 
-  const detailResults = await Promise.all(
-    articleIds.map((articleId) =>
-      fetchArticleDetail(articleId, supabase, detailCache).catch(() => null)
-    )
-  );
+  const batchedDetails = await loadSupabaseArticleDetails(supabase, articleIds);
 
   const detailsById = new Map<string, SupabaseArticleDetail>();
-  detailResults.forEach((detail, index) => {
-    const id = articleIds[index];
+  articleIds.forEach((id) => {
+    const detail = batchedDetails.get(id);
     if (detail && detail.status) {
       detailsById.set(id, detail);
     }
