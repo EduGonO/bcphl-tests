@@ -35,6 +35,11 @@ type ArticleCollection = {
   categories: Category[];
 };
 
+type ArticleCollectionResult = {
+  collection: ArticleCollection;
+  version: number;
+};
+
 type DetailCache = Map<string, Promise<SupabaseArticleDetail | null>>;
 
 type ArticleSummaryWithCategory = {
@@ -68,8 +73,23 @@ const CACHE_TTL_MS = (() => {
   return 5 * 60 * 1000; // 5 minutes by default
 })();
 
-let cachedCollectionPromise: Promise<ArticleCollection> | null = null;
+const VERSION_CHECK_INTERVAL_MS = (() => {
+  const parsed = Number(process.env.ARTICLE_CACHE_VERSION_CHECK_MS);
+  if (Number.isFinite(parsed) && parsed >= 0) {
+    return parsed;
+  }
+  return 0; // default to checking freshness on every request
+})();
+
+let cachedCollectionPromise: Promise<ArticleCollectionResult> | null = null;
 let cacheExpiresAt = 0;
+let cachedCollectionVersion = 0;
+let lastVersionCheckAt = 0;
+
+const parseTimestamp = (input: string | null | undefined): number => {
+  const timestamp = Date.parse(input ?? "");
+  return Number.isFinite(timestamp) ? timestamp : 0;
+};
 
 const fetchArticleDetail = async (
   articleId: string,
@@ -292,8 +312,63 @@ const buildArticleSummaries = (
   return summaries;
 };
 
-const loadCollection = async (): Promise<ArticleCollection> => {
-  const supabase = ensureSupabaseClient();
+const loadLatestContentVersion = async (
+  supabase = ensureSupabaseClient()
+): Promise<number> => {
+  const [articleResult, linkResult] = await Promise.all([
+    supabase
+      .from("bicephale_articles")
+      .select("updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("bicephale_article_categories")
+      .select("updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const articleTimestamp = articleResult.data?.updated_at
+    ? parseTimestamp(String(articleResult.data.updated_at))
+    : 0;
+  const linkTimestamp = linkResult.data?.updated_at
+    ? parseTimestamp(String(linkResult.data.updated_at))
+    : 0;
+
+  return Math.max(articleTimestamp, linkTimestamp, 0);
+};
+
+const computeCollectionVersion = (
+  summaries: ArticleSummaryWithCategory[],
+  detailsById: Map<string, SupabaseArticleDetail>
+): number => {
+  let version = 0;
+
+  summaries.forEach(({ summary }) => {
+    version = Math.max(
+      version,
+      parseTimestamp(summary.updatedAt),
+      parseTimestamp(summary.publishedAt)
+    );
+  });
+
+  detailsById.forEach((detail) => {
+    version = Math.max(
+      version,
+      parseTimestamp(detail.updatedAt),
+      parseTimestamp(detail.createdAt),
+      parseTimestamp(detail.publishedAt)
+    );
+  });
+
+  return version || Date.now();
+};
+
+const loadCollection = async (
+  supabase = ensureSupabaseClient()
+): Promise<ArticleCollectionResult> => {
   const supabaseCategories = await loadSupabaseCategorySummaries(supabase);
 
   const categories = supabaseCategories.map(resolveCategoryMeta);
@@ -375,26 +450,53 @@ const loadCollection = async (): Promise<ArticleCollection> => {
     records.push(record);
   });
 
-  return { records, categories };
+  const collection = { records, categories };
+  const version = computeCollectionVersion(summaries, detailsById);
+
+  return { collection, version };
 };
 
 const getCachedCollection = async (): Promise<ArticleCollection> => {
-  if (cachedCollectionPromise && Date.now() < cacheExpiresAt) {
-    return cachedCollectionPromise;
+  const now = Date.now();
+  const supabase = ensureSupabaseClient();
+  const hasValidCache = cachedCollectionPromise && now < cacheExpiresAt;
+
+  if (hasValidCache && now - lastVersionCheckAt < VERSION_CHECK_INTERVAL_MS) {
+    const { collection } = await cachedCollectionPromise!;
+    return collection;
   }
 
-  const pendingCollection = loadCollection();
+  if (hasValidCache) {
+    try {
+      const latestVersion = await loadLatestContentVersion(supabase);
+      lastVersionCheckAt = now;
+      if (latestVersion <= cachedCollectionVersion) {
+        const { collection } = await cachedCollectionPromise!;
+        return collection;
+      }
+    } catch (err) {
+      // If freshness check fails, fall back to cached data to avoid user-facing errors.
+      const { collection } = await cachedCollectionPromise!;
+      return collection;
+    }
+  }
+
+  const pendingCollection = loadCollection(supabase);
   cachedCollectionPromise = pendingCollection;
-  cacheExpiresAt = Date.now() + CACHE_TTL_MS;
+  cacheExpiresAt = now + CACHE_TTL_MS;
 
   pendingCollection.catch(() => {
     if (cachedCollectionPromise === pendingCollection) {
       cachedCollectionPromise = null;
       cacheExpiresAt = 0;
+      cachedCollectionVersion = 0;
     }
   });
 
-  return pendingCollection;
+  const { collection, version } = await pendingCollection;
+  cachedCollectionVersion = version;
+
+  return collection;
 };
 
 export const getArticleRecords = async (): Promise<ArticleRecord[]> => {
@@ -431,4 +533,6 @@ export async function getArticleData(): Promise<{
 export const clearArticleCache = () => {
   cachedCollectionPromise = null;
   cacheExpiresAt = 0;
+  cachedCollectionVersion = 0;
+  lastVersionCheckAt = 0;
 };
