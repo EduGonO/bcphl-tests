@@ -323,6 +323,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           gap: 18px;
           margin: 8px 0 0;
+          pointer-events: auto;
         }
         .intro-action {
           position: relative;
@@ -330,6 +331,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-decoration: none;
           color: #111111;
           cursor: pointer;
+          pointer-events: auto;
+          z-index: 1;
         }
         .intro-action::after {
           content: "";
@@ -371,6 +374,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             color 0.2s ease;
           color: #111111;
           cursor: pointer;
+          pointer-events: auto;
         }
         .intro-action-pill.featured {
           background: #c1c1f0;

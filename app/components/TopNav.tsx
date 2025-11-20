@@ -123,7 +123,7 @@ const TopNav: React.FC = () => {
         .top-nav {
           position: sticky;
           top: 0;
-          z-index: 50;
+          z-index: 60;
           display: flex;
           flex-direction: column;
           gap: 20px;
@@ -133,6 +133,8 @@ const TopNav: React.FC = () => {
           backdrop-filter: blur(14px);
           -webkit-backdrop-filter: blur(14px);
           transition: padding 0.25s ease;
+          pointer-events: auto;
+          isolation: isolate;
         }
 
         .top-nav__layout {
@@ -203,6 +205,7 @@ const TopNav: React.FC = () => {
           font-size: 16px;
           text-transform: uppercase;
           white-space: nowrap;
+          pointer-events: auto;
         }
 
         .nav-link {
@@ -215,6 +218,7 @@ const TopNav: React.FC = () => {
           padding: 6px 0;
           border-bottom: 2px solid transparent;
           transition: color 0.18s ease, border-color 0.18s ease;
+          pointer-events: auto;
         }
 
         .nav-link:visited {
