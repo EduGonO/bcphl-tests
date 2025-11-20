@@ -183,7 +183,7 @@ const RedesignSearchSidebar = ({
                 onClick={handleClose}
                 aria-label="Réduire la recherche"
               >
-                Fermer
+                ×
               </button>
             </div>
             <label className="drawer-label" htmlFor="search-input">
@@ -334,7 +334,7 @@ const RedesignSearchSidebar = ({
                 onClick={handleClose}
                 aria-label="Réduire la newsletter"
               >
-                Fermer
+                ×
               </button>
             </div>
             <p className="drawer-text">
@@ -513,20 +513,25 @@ const RedesignSearchSidebar = ({
         }
         .drawer-close {
           background: none;
-          border: 1px solid rgba(44, 28, 35, 0.4);
+          border: 1px solid rgba(44, 28, 35, 0.5);
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
           letter-spacing: 0.12em;
-          font-size: 11px;
+          font-size: 14px;
           padding: 6px 16px;
           cursor: pointer;
           color: #2c1c23;
-          transition: background 0.2s ease, color 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease,
+            border-color 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
         .drawer-close:hover,
         .drawer-close:focus-visible {
           background: #2c1c23;
           color: #fff7fa;
+          border-color: #2c1c23;
         }
         .drawer-label {
           font-size: 14px;
