@@ -326,6 +326,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: inline-flex;
           text-decoration: none;
           color: #111111;
+          cursor: pointer;
         }
         .intro-action::after {
           content: "";
@@ -343,7 +344,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           pointer-events: none;
         }
         .intro-action:hover::after,
-        .intro-action:focus-visible::after {
+        .intro-action:focus-visible::after,
+        .intro-action:active::after {
           opacity: 1;
           transform: scaleX(1);
         }
@@ -365,6 +367,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           transition: transform 0.2s ease, background-color 0.2s ease,
             color 0.2s ease;
           color: #111111;
+          cursor: pointer;
         }
         .intro-action-pill.featured {
           background: #c1c1f0;

@@ -183,7 +183,9 @@ const RedesignSearchSidebar = ({
                 onClick={handleClose}
                 aria-label="Réduire la recherche"
               >
-                ×
+                <span className="drawer-close-icon" aria-hidden="true">
+                  ×
+                </span>
               </button>
             </div>
             <label className="drawer-label" htmlFor="search-input">
@@ -334,7 +336,9 @@ const RedesignSearchSidebar = ({
                 onClick={handleClose}
                 aria-label="Réduire la newsletter"
               >
-                ×
+                <span className="drawer-close-icon" aria-hidden="true">
+                  ×
+                </span>
               </button>
             </div>
             <p className="drawer-text">
@@ -512,21 +516,34 @@ const RedesignSearchSidebar = ({
           color: #2c1c23;
         }
         .drawer-close {
+          --drawer-close-accent: rgba(44, 28, 35, 0.4);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           background: none;
-          border: 1px solid rgba(44, 28, 35, 0.4);
+          border: 1px solid var(--drawer-close-accent);
           text-transform: uppercase;
           font-family: "InterMedium", sans-serif;
           letter-spacing: 0.12em;
           font-size: 14px;
           padding: 6px 16px;
           cursor: pointer;
-          color: #2c1c23;
-          transition: background 0.2s ease, color 0.2s ease;
+          color: var(--drawer-close-accent);
+          transition: background 0.2s ease, color 0.2s ease,
+            border-color 0.2s ease;
         }
         .drawer-close:hover,
         .drawer-close:focus-visible {
           background: #2c1c23;
           color: #fff7fa;
+          border-color: #2c1c23;
+        }
+        .drawer-close-icon {
+          display: inline-block;
+          font-size: 20px;
+          line-height: 1;
+          transform: scale(1.25);
+          transform-origin: center;
         }
         .drawer-label {
           font-size: 14px;
