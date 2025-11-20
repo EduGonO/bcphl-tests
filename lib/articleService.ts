@@ -83,6 +83,7 @@ let cachedCollectionPromise: Promise<ArticleCollectionResult> | null = null;
 let cacheExpiresAt = 0;
 let cachedCollectionVersion = 0;
 let lastVersionCheckAt = 0;
+const hydratedDetailCache = new Map<string, ArticleRecord>();
 
 const parseTimestamp = (input: string | null | undefined): number => {
   const timestamp = Date.parse(input ?? "");
@@ -367,7 +368,10 @@ const loadCollection = async (
 
   const articleIds = Array.from(new Set(summaries.map(({ summary }) => summary.id)));
 
-  const batchedDetails = await loadSupabaseArticleDetails(supabase, articleIds);
+  const batchedDetails = await loadSupabaseArticleDetails(supabase, articleIds, {
+    includeBody: false,
+    includeRelations: false,
+  });
 
   const detailsById = new Map<string, SupabaseArticleDetail>();
   articleIds.forEach((id) => {
@@ -472,6 +476,7 @@ const getCachedCollection = async (): Promise<ArticleCollection> => {
 
   const { collection, version } = await pendingCollection;
   cachedCollectionVersion = version;
+  hydratedDetailCache.clear();
 
   return collection;
 };
@@ -489,7 +494,7 @@ export const findArticleRecord = async (
   const normalizedSlug = slug.toLowerCase();
   const records = await getArticleRecords();
 
-  return records.find((record) => {
+  const baseRecord = records.find((record) => {
     const categorySlug = record.article.categorySlug.toLowerCase();
     const categoryName = record.article.category.toLowerCase();
     const slugMatches = record.article.slug.toLowerCase() === normalizedSlug;
@@ -497,6 +502,64 @@ export const findArticleRecord = async (
       categorySlug === normalizedCategory || categoryName === normalizedCategory;
     return slugMatches && categoryMatches;
   });
+
+  if (!baseRecord) {
+    return undefined;
+  }
+
+  const cacheKey = `${cachedCollectionVersion}:${baseRecord.supabaseId}`;
+  const cachedDetail = hydratedDetailCache.get(cacheKey);
+  if (cachedDetail) {
+    return cachedDetail;
+  }
+
+  const supabase = ensureSupabaseClient();
+  const detailMap = await loadSupabaseArticleDetails(supabase, [
+    baseRecord.supabaseId,
+  ]);
+  const detail = detailMap.get(baseRecord.supabaseId);
+  if (!detail || !detail.status) {
+    return baseRecord;
+  }
+
+  const media = resolveMedia(detail);
+  const headerImage = resolveHeaderImage(
+    {
+      headerImagePath: detail.headerImagePath,
+    },
+    detail,
+    media
+  );
+
+  const hydratedRecord: ArticleRecord = {
+    ...baseRecord,
+    article: {
+      ...baseRecord.article,
+      date: resolveDate(
+        {
+          publishedAt: detail.publishedAt,
+          authoredDate: detail.authoredDate,
+          updatedAt: detail.updatedAt,
+        },
+        detail
+      ),
+      preview: resolvePreview(
+        {
+          preview: baseRecord.article.preview,
+          excerpt: detail.excerpt,
+        },
+        detail
+      ),
+      media,
+      headerImage,
+    },
+    body: detail.bodyMarkdown ?? "",
+    bodyHtml: detail.bodyHtml,
+    relatedArticles: detail.relatedArticles,
+  };
+
+  hydratedDetailCache.set(cacheKey, hydratedRecord);
+  return hydratedRecord;
 };
 
 export async function getArticleData(): Promise<{
@@ -512,4 +575,5 @@ export const clearArticleCache = () => {
   cacheExpiresAt = 0;
   cachedCollectionVersion = 0;
   lastVersionCheckAt = 0;
+  hydratedDetailCache.clear();
 };

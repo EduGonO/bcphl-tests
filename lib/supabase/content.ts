@@ -192,22 +192,62 @@ export const loadSupabaseArticleDetail = async (
   return mapArticleDetailRow(data);
 };
 
+type ArticleDetailLoadOptions = {
+  includeBody?: boolean;
+  includeRelations?: boolean;
+  includeMedia?: boolean;
+};
+
 export const loadSupabaseArticleDetails = async (
   supabase: ServerSupabaseClient,
-  ids: string[]
+  ids: string[],
+  options: ArticleDetailLoadOptions = {}
 ): Promise<Map<string, SupabaseArticleDetail>> => {
   if (!ids.length) {
     return new Map();
   }
 
+  const { includeBody = true, includeRelations = true, includeMedia = true } = options;
+
+  const baseFields = [
+    "id",
+    "slug",
+    "title",
+    "author_name",
+    "status",
+    "authored_date",
+    "published_at",
+    "preview",
+    "excerpt",
+    "header_image_path",
+  ];
+
+  if (includeBody) {
+    baseFields.push("body_markdown", "body_json", "body_html");
+  }
+
+  baseFields.push("created_at", "updated_at");
+
+  const selectEntries = [
+    baseFields.join(", "),
+    "categories:bicephale_article_categories!bicephale_article_categories_article_id_fkey ( sort_order, category:bicephale_categories ( id, slug, name, color, sort_order ) )",
+  ];
+
+  if (includeRelations) {
+    selectEntries.push(
+      "relations:bicephale_article_relations!bicephale_article_relations_source_article_id_fkey ( sort_order, related:bicephale_articles!bicephale_article_relations_related_article_id_fkey ( id, slug, title, status ) )"
+    );
+  }
+
+  if (includeMedia) {
+    selectEntries.push(
+      "media:bicephale_article_media ( id, storage_bucket, storage_path, caption, credit, alt_text, is_header, sort_order )"
+    );
+  }
+
   const { data, error } = await supabase
     .from("bicephale_articles")
-    .select(
-      `id, slug, title, author_name, status, authored_date, published_at, preview, excerpt, header_image_path, body_markdown, body_json, body_html, created_at, updated_at,
-       categories:bicephale_article_categories!bicephale_article_categories_article_id_fkey ( sort_order, category:bicephale_categories ( id, slug, name, color, sort_order ) ),
-       relations:bicephale_article_relations!bicephale_article_relations_source_article_id_fkey ( sort_order, related:bicephale_articles!bicephale_article_relations_related_article_id_fkey ( id, slug, title, status ) ),
-       media:bicephale_article_media ( id, storage_bucket, storage_path, caption, credit, alt_text, is_header, sort_order )`
-    )
+    .select(selectEntries.join(",\n       "))
     .in("id", ids);
 
   if (error) {
@@ -217,6 +257,17 @@ export const loadSupabaseArticleDetails = async (
   const map = new Map<string, SupabaseArticleDetail>();
   data?.forEach((row) => {
     const detail = mapArticleDetailRow(row);
+    if (!includeBody) {
+      detail.bodyMarkdown = "";
+      detail.bodyJson = null;
+      detail.bodyHtml = null;
+    }
+    if (!includeRelations) {
+      detail.relatedArticles = [];
+    }
+    if (!includeMedia) {
+      detail.media = [];
+    }
     map.set(detail.id, detail);
   });
 
