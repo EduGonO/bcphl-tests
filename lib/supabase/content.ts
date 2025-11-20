@@ -24,6 +24,77 @@ const mapArticleSummary = (
   sortOrder,
 });
 
+const mapArticleDetailRow = (data: Record<string, any>): SupabaseArticleDetail => {
+  const categories = Array.isArray(data.categories)
+    ? data.categories
+        .filter((entry: any) => Boolean(entry?.category))
+        .map((entry: any) => ({
+          id: String(entry.category.id),
+          slug: String(entry.category.slug),
+          name: String(entry.category.name),
+          color: String(entry.category.color ?? "#607d8b"),
+          sortOrder: (entry.category.sort_order as number | null) ?? 0,
+          linkSortOrder: (entry.sort_order as number | null) ?? 0,
+        }))
+    : [];
+
+  const relatedArticles = Array.isArray(data.relations)
+    ? data.relations
+        .filter((entry: any) => Boolean(entry?.related))
+        .map((entry: any) => ({
+          relatedId: String(entry.related.id),
+          relatedSlug: String(entry.related.slug),
+          title: String(entry.related.title ?? ""),
+          status: Boolean(entry.related.status),
+          sortOrder: (entry.sort_order as number | null) ?? 0,
+        }))
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+    : [];
+
+  const media = Array.isArray(data.media)
+    ? data.media
+        .map((entry: any) => ({
+          id: String(entry.id),
+          storageBucket: String(entry.storage_bucket ?? "article-media"),
+          storagePath: String(entry.storage_path ?? ""),
+          caption: entry.caption ?? null,
+          credit: entry.credit ?? null,
+          altText: entry.alt_text ?? null,
+          isHeader: Boolean(entry.is_header),
+          sortOrder: (entry.sort_order as number | null) ?? 0,
+        }))
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+    : [];
+
+  return {
+    id: String(data.id),
+    slug: String(data.slug),
+    title: String(data.title ?? ""),
+    authorName: data.author_name ? String(data.author_name) : null,
+    status: Boolean(data.status),
+    authoredDate: data.authored_date ? String(data.authored_date) : null,
+    publishedAt: data.published_at ? String(data.published_at) : null,
+    preview: data.preview ?? null,
+    excerpt: data.excerpt ?? null,
+    headerImagePath: data.header_image_path ?? null,
+    bodyMarkdown: String(data.body_markdown ?? ""),
+    bodyJson: data.body_json ? JSON.stringify(data.body_json, null, 2) : null,
+    bodyHtml: data.body_html ?? null,
+    categories: categories
+      .slice()
+      .sort((a, b) => {
+        const orderDiff = a.linkSortOrder - b.linkSortOrder;
+        if (orderDiff !== 0) return orderDiff;
+        return a.sortOrder - b.sortOrder;
+      })
+      .map(({ linkSortOrder: _linkSortOrder, ...rest }) => rest),
+    relatedArticles,
+    media,
+    createdAt: String(data.created_at),
+    updatedAt: String(data.updated_at),
+  };
+};
+
 export const loadSupabaseCategorySummaries = async (
   supabase: ServerSupabaseClient
 ): Promise<SupabaseCategorySummary[]> => {
@@ -118,76 +189,89 @@ export const loadSupabaseArticleDetail = async (
     return null;
   }
 
-  const categories = Array.isArray(data.categories)
-    ? data.categories
-        .filter((entry: any) => Boolean(entry?.category))
-        .map((entry: any) => ({
-          id: String(entry.category.id),
-          slug: String(entry.category.slug),
-          name: String(entry.category.name),
-          color: String(entry.category.color ?? "#607d8b"),
-          sortOrder: (entry.category.sort_order as number | null) ?? 0,
-          linkSortOrder: (entry.sort_order as number | null) ?? 0,
-        }))
-    : [];
+  return mapArticleDetailRow(data);
+};
 
-  const relatedArticles = Array.isArray(data.relations)
-    ? data.relations
-        .filter((entry: any) => Boolean(entry?.related))
-        .map((entry: any) => ({
-          relatedId: String(entry.related.id),
-          relatedSlug: String(entry.related.slug),
-          title: String(entry.related.title ?? ""),
-          status: Boolean(entry.related.status),
-          sortOrder: (entry.sort_order as number | null) ?? 0,
-        }))
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-    : [];
+type ArticleDetailLoadOptions = {
+  includeBody?: boolean;
+  includeRelations?: boolean;
+  includeMedia?: boolean;
+};
 
-  const media = Array.isArray(data.media)
-    ? data.media
-        .map((entry: any) => ({
-          id: String(entry.id),
-          storageBucket: String(entry.storage_bucket ?? "article-media"),
-          storagePath: String(entry.storage_path ?? ""),
-          caption: entry.caption ?? null,
-          credit: entry.credit ?? null,
-          altText: entry.alt_text ?? null,
-          isHeader: Boolean(entry.is_header),
-          sortOrder: (entry.sort_order as number | null) ?? 0,
-        }))
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-    : [];
+export const loadSupabaseArticleDetails = async (
+  supabase: ServerSupabaseClient,
+  ids: string[],
+  options: ArticleDetailLoadOptions = {}
+): Promise<Map<string, SupabaseArticleDetail>> => {
+  if (!ids.length) {
+    return new Map();
+  }
 
-  const detail: SupabaseArticleDetail = {
-    id: String(data.id),
-    slug: String(data.slug),
-    title: String(data.title ?? ""),
-    authorName: data.author_name ? String(data.author_name) : null,
-    status: Boolean(data.status),
-    authoredDate: data.authored_date ? String(data.authored_date) : null,
-    publishedAt: data.published_at ? String(data.published_at) : null,
-    preview: data.preview ?? null,
-    excerpt: data.excerpt ?? null,
-    headerImagePath: data.header_image_path ?? null,
-    bodyMarkdown: String(data.body_markdown ?? ""),
-    bodyJson: data.body_json ? JSON.stringify(data.body_json, null, 2) : null,
-    bodyHtml: data.body_html ?? null,
-    categories: categories
-      .slice()
-      .sort((a, b) => {
-        const orderDiff = a.linkSortOrder - b.linkSortOrder;
-        if (orderDiff !== 0) return orderDiff;
-        return a.sortOrder - b.sortOrder;
-      })
-      .map(({ linkSortOrder: _linkSortOrder, ...rest }) => rest),
-    relatedArticles,
-    media,
-    createdAt: String(data.created_at),
-    updatedAt: String(data.updated_at),
-  };
+  const { includeBody = true, includeRelations = true, includeMedia = true } = options;
 
-  return detail;
+  const baseFields = [
+    "id",
+    "slug",
+    "title",
+    "author_name",
+    "status",
+    "authored_date",
+    "published_at",
+    "preview",
+    "excerpt",
+    "header_image_path",
+  ];
+
+  if (includeBody) {
+    baseFields.push("body_markdown", "body_json", "body_html");
+  }
+
+  baseFields.push("created_at", "updated_at");
+
+  const selectEntries = [
+    baseFields.join(", "),
+    "categories:bicephale_article_categories!bicephale_article_categories_article_id_fkey ( sort_order, category:bicephale_categories ( id, slug, name, color, sort_order ) )",
+  ];
+
+  if (includeRelations) {
+    selectEntries.push(
+      "relations:bicephale_article_relations!bicephale_article_relations_source_article_id_fkey ( sort_order, related:bicephale_articles!bicephale_article_relations_related_article_id_fkey ( id, slug, title, status ) )"
+    );
+  }
+
+  if (includeMedia) {
+    selectEntries.push(
+      "media:bicephale_article_media ( id, storage_bucket, storage_path, caption, credit, alt_text, is_header, sort_order )"
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("bicephale_articles")
+    .select(selectEntries.join(",\n       "))
+    .in("id", ids);
+
+  if (error) {
+    throw error;
+  }
+
+  const map = new Map<string, SupabaseArticleDetail>();
+  data?.forEach((row) => {
+    const detail = mapArticleDetailRow(row);
+    if (!includeBody) {
+      detail.bodyMarkdown = "";
+      detail.bodyJson = null;
+      detail.bodyHtml = null;
+    }
+    if (!includeRelations) {
+      detail.relatedArticles = [];
+    }
+    if (!includeMedia) {
+      detail.media = [];
+    }
+    map.set(detail.id, detail);
+  });
+
+  return map;
 };
 
 export const formatSupabaseError = (error: PostgrestError | Error | unknown): string => {
