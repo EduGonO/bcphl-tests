@@ -109,6 +109,7 @@ const TopNav: React.FC = () => {
                 <Link
                   key={link.label}
                   href={link.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={`nav-link${isActive ? " nav-link--active" : ""}`}
                 >
                   {link.label}
@@ -210,10 +211,12 @@ const TopNav: React.FC = () => {
           justify-content: center;
           gap: 6px;
           color: #111;
-          text-decoration: none;
+          text-decoration: underline;
+          text-decoration-color: transparent;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 10px;
           padding: 6px 0;
-          border-bottom: 2px solid transparent;
-          transition: color 0.18s ease, border-color 0.18s ease;
+          transition: color 0.18s ease, text-decoration-color 0.18s ease;
         }
 
         .nav-link:visited {
@@ -222,13 +225,14 @@ const TopNav: React.FC = () => {
 
         .nav-link:hover,
         .nav-link:focus-visible {
-          color: #1c1c1c;
-          border-bottom-color: currentColor;
+          color: #0a0a0a;
+          text-decoration-color: currentColor;
         }
 
         .nav-link--active {
           font-family: "InterSemiBold", sans-serif;
-          border-bottom-color: #111;
+          text-decoration-color: #0a0a0a;
+          text-decoration-thickness: 3px;
         }
 
         .nav-link.disabled {
