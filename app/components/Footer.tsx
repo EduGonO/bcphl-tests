@@ -1,13 +1,12 @@
 // /app/components/Footer.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 
 interface FooterProps {
   footerColor?: string;
   marginTop?: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '40px' }) => {
+const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
   const [newsletterOpen, setNewsletterOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -21,16 +20,9 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '4
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [newsletterOpen]);
 
-  const toRGBA = (hex: string, alpha: number) => {
-    const h = hex.replace('#', '');
-    const r = parseInt(h.slice(0, 2), 16);
-    const g = parseInt(h.slice(2, 4), 16);
-    const b = parseInt(h.slice(4, 6), 16);
-    return `rgba(${r},${g},${b},${alpha})`;
-  };
-
-  const bgColor = toRGBA(footerColor, 0.32);
-  const btn = { background: footerColor, color: '#fff', border: 'none', borderRadius: '4px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' };
+  const textColor = '#fff';
+  const backgroundColor = '#000';
+  const btn = { background: textColor, color: backgroundColor, border: 'none', borderRadius: '4px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' };
 
   return (
     <>
@@ -103,11 +95,11 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '4
 
       <style jsx>{`
         .footer {
-          background: ${bgColor};
-          color: ${footerColor};
+          background: ${backgroundColor};
+          color: ${textColor};
           padding: 30px 15px;
           margin-top: ${marginTop};
-          font-family: -apple-system, InterRegular, sans-serif;
+          font-family: 'Inter', 'InterRegular', sans-serif;
           font-size: 14px;
           position: relative;
           z-index: 5;
@@ -132,22 +124,22 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '4
 }
 
         .footer-col a {
-          color: ${footerColor};
+          color: ${textColor};
           text-decoration: none;
         }
         .footer-heading {
           font-size: 18px;
           margin-bottom: 8px;
           font-weight: 300;
-          color: ${footerColor};
+          color: ${textColor};
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
         }
         .footer-text {
           font-size: 14px;
           margin: 0 0 8px;
           line-height: 1.4;
-          color: ${footerColor};
-          font-family: -apple-system, InterRegular, sans-serif;
+          color: ${textColor};
+          font-family: 'Inter', 'InterRegular', sans-serif;
         }
         .social-row {
           display: flex;
@@ -162,7 +154,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '4
         .footer-list li {
           margin-bottom: 6px;
           font-size: 14px;
-          font-family: -apple-system, InterRegular, sans-serif;
+          font-family: 'Inter', 'InterRegular', sans-serif;
         }
         /* Logo full width at bottom */
         .footer-brand {
@@ -174,7 +166,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '4
           justify-content: center;
           padding-top: 16px;
           gap: 10px;
-          border-top: 1px solid rgba(0,0,0,0.1);
+          border-top: 1px solid rgba(255,255,255,0.2);
         }
         .footer-brand img {
           max-height: 40px;
@@ -184,7 +176,7 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '4
         .footer-brand p {
           margin: 0;
           font-size: 12px;
-          color: ${footerColor};
+          color: ${textColor};
         }
         /* Overlay */
         .overlay {
@@ -228,8 +220,8 @@ const Footer: React.FC<FooterProps> = ({ footerColor = '#607d8b', marginTop = '4
           padding: 8px;
           font-size: 12px;
           cursor: pointer;
-          background: ${footerColor};
-          color: #fff;
+          background: ${textColor};
+          color: ${backgroundColor};
           border: none;
           border-radius: 4px;
         }
