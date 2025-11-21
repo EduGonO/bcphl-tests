@@ -116,6 +116,15 @@ const buildStoragePublicUrl = (bucket: string, rawPath?: string | null): string 
         if (fileId) {
           const normalizedId = fileId.trim();
           if (normalizedId) {
+            const hasPdfHint =
+              /\.pdf($|\?)/i.test(url.pathname) ||
+              /\.pdf($|\?)/i.test(url.search) ||
+              /\.pdf($|\?)/i.test(url.hash);
+
+            if (hasPdfHint) {
+              return `https://drive.google.com/thumbnail?id=${normalizedId}&sz=w2000`;
+            }
+
             return `https://drive.usercontent.google.com/uc?id=${normalizedId}&export=view`;
           }
         }
