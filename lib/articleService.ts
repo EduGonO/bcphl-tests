@@ -101,6 +101,38 @@ const buildStoragePublicUrl = (bucket: string, rawPath?: string | null): string 
   }
 
   if (/^https?:\/\//i.test(path)) {
+    try {
+      const url = new URL(path);
+      const host = url.hostname.toLowerCase();
+
+      if (
+        host === "drive.google.com" ||
+        host === "drive.usercontent.google.com" ||
+        host === "lh3.googleusercontent.com"
+      ) {
+        const fileIdFromPath = url.pathname.match(/\/d\/([^/]+)/)?.[1];
+        const fileId = fileIdFromPath || url.searchParams.get("id");
+
+        if (fileId) {
+          const normalizedId = fileId.trim();
+          if (normalizedId) {
+            const hasPdfHint =
+              /\.pdf($|\?)/i.test(url.pathname) ||
+              /\.pdf($|\?)/i.test(url.search) ||
+              /\.pdf($|\?)/i.test(url.hash);
+
+            if (host === "drive.google.com" || hasPdfHint) {
+              return `https://drive.google.com/thumbnail?authuser=0&id=${normalizedId}&sz=w2000`;
+            }
+
+            return `https://drive.usercontent.google.com/uc?id=${normalizedId}&export=view`;
+          }
+        }
+      }
+    } catch {
+      // fall back to returning the original path below
+    }
+
     return path;
   }
 
