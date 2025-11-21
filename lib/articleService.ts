@@ -121,8 +121,8 @@ const buildStoragePublicUrl = (bucket: string, rawPath?: string | null): string 
               /\.pdf($|\?)/i.test(url.search) ||
               /\.pdf($|\?)/i.test(url.hash);
 
-            if (hasPdfHint) {
-              return `https://drive.google.com/thumbnail?id=${normalizedId}&sz=w2000`;
+            if (host === "drive.google.com" || hasPdfHint) {
+              return `https://drive.google.com/thumbnail?authuser=0&id=${normalizedId}&sz=w2000`;
             }
 
             return `https://drive.usercontent.google.com/uc?id=${normalizedId}&export=view`;
