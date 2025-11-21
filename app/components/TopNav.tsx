@@ -2,26 +2,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 
-const NAV_ITEMS = [
-  { label: "Reflexión", href: "/Reflexion" },
-  { label: "Création", href: "/Creation" },
-  { label: "IRL", href: "/IRL" },
-  { label: "À propos", href: "/bios" },
-];
-
-const normalizePath = (path: string) => {
-  const cleaned = (path || "/").split(/[?#]/)[0];
-  if (cleaned === "/") return "/";
-
-  const trimmed = cleaned.replace(/\/+$/, "");
-  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-
-  return withSlash.toLowerCase();
-};
-
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const currentPath = normalizePath(router.asPath || router.pathname || "/");
+  const currentPath = (router.asPath || router.pathname || "/").split(/[?#]/)[0];
+
+  const isActive = (href: string) =>
+    currentPath === href || currentPath.startsWith(`${href}/`);
 
   return (
     <header className="top-nav">
@@ -31,22 +17,34 @@ const TopNav: React.FC = () => {
         </Link>
 
         <nav className="top-nav__links" aria-label="Navigation principale">
-          {NAV_ITEMS.map(({ label, href }) => {
-            const linkPath = normalizePath(href);
-            const isActive =
-              currentPath === linkPath || currentPath.startsWith(`${linkPath}/`);
-
-            return (
-              <Link
-                key={label}
-                href={href}
-                aria-current={isActive ? "page" : undefined}
-                className={`top-nav__link${isActive ? " is-active" : ""}`}
-              >
-                {label}
-              </Link>
-            );
-          })}
+          <Link
+            href="/Reflexion"
+            aria-current={isActive("/Reflexion") ? "page" : undefined}
+            className={`top-nav__link${isActive("/Reflexion") ? " is-active" : ""}`}
+          >
+            Reflexión
+          </Link>
+          <Link
+            href="/Creation"
+            aria-current={isActive("/Creation") ? "page" : undefined}
+            className={`top-nav__link${isActive("/Creation") ? " is-active" : ""}`}
+          >
+            Création
+          </Link>
+          <Link
+            href="/IRL"
+            aria-current={isActive("/IRL") ? "page" : undefined}
+            className={`top-nav__link${isActive("/IRL") ? " is-active" : ""}`}
+          >
+            IRL
+          </Link>
+          <Link
+            href="/bios"
+            aria-current={isActive("/bios") ? "page" : undefined}
+            className={`top-nav__link${isActive("/bios") ? " is-active" : ""}`}
+          >
+            À propos
+          </Link>
         </nav>
       </div>
 
@@ -64,9 +62,9 @@ const TopNav: React.FC = () => {
 
         .top-nav__inner {
           width: 100%;
-          max-width: 1120px;
+          max-width: 1200px;
           margin: 0 auto;
-          padding: 14px 20px;
+          padding: 14px 24px;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
@@ -82,7 +80,7 @@ const TopNav: React.FC = () => {
 
         .top-nav__brand img {
           display: block;
-          height: 44px;
+          height: 48px;
           width: auto;
         }
 
@@ -122,7 +120,7 @@ const TopNav: React.FC = () => {
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 28px;
+            padding: 16px 32px;
           }
 
           .top-nav__brand {
