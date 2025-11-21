@@ -97,14 +97,14 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview-title {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: 22px;
+          font-size: 44px;
           line-height: 1.2;
           color: #111111;
         }
         .article-preview-author {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: 15px;
+          font-size: 28px;
           line-height: 1.2;
           text-align: right;
           color: rgba(17, 17, 17, 0.8);
@@ -112,9 +112,9 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview-date {
           font-family: "GayaRegular", serif;
-          font-size: 12px;
+          font-size: 20px;
           letter-spacing: 0.08em;
-          color: rgba(17, 17, 17, 0.72);
+          color: #000000;
           margin: 0 0 6px;
         }
         .article-preview-text {
