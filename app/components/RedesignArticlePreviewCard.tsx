@@ -21,7 +21,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   const formattedDate = formatDate(article.date);
   const categorySegment = article.categorySlug || article.category;
   const linkHref = `/${categorySegment}/${article.slug}`;
-  const linkLabel = variant === "creation" ? "découvrir" : "en lire";
+  const linkLabel = variant === "creation" ? "découvrir" : "Lire";
 
   return (
     <Link href={linkHref} className={`article-preview ${variant}`} role="article">
@@ -57,6 +57,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           transition: transform 0.2s ease, box-shadow 0.2s ease;
           text-decoration: none;
           color: inherit;
+          cursor: pointer;
         }
         .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
@@ -68,23 +69,23 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview:focus-visible {
           transform: translateY(-2px);
           box-shadow: 0 8px 18px rgba(17, 17, 17, 0.12);
+          background: rgba(255, 255, 255, 0.86);
         }
         .article-preview-media {
           width: 100%;
-          aspect-ratio: 3 / 2;
+          height: 200px;
           max-height: 200px;
           border-radius: 3px;
-          background-color: rgba(255, 255, 255, 0.28);
-          background-position: center;
+          background-position: left center;
           background-repeat: no-repeat;
-          background-size: cover;
-          box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.06);
+          background-size: auto 100%;
+          background-color: transparent;
         }
         .article-preview-body {
           display: flex;
           flex-direction: column;
           font-family: "InterRegular", sans-serif;
-          color: #191919;
+          color: #000000;
         }
         .article-preview-header {
           display: flex;
@@ -95,31 +96,30 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview-title {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: 22px;
+          font-size: 44px;
           line-height: 1.2;
-          color: #111111;
+          color: #000000;
         }
         .article-preview-author {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: 15px;
+          font-size: 28px;
           line-height: 1.2;
           text-align: right;
-          color: rgba(17, 17, 17, 0.8);
-          letter-spacing: 0.01em;
+          color: #000000;
+          letter-spacing: normal;
         }
         .article-preview-date {
-          font-family: "InterRegular", sans-serif;
-          font-size: 12px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: rgba(17, 17, 17, 0.72);
+          font-family: "GayaRegular", serif;
+          font-size: 20px;
+          color: #000000;
           margin: 0 0 6px;
+          letter-spacing: normal;
         }
         .article-preview-text {
           font-size: 15px;
           line-height: 1.5;
-          color: rgba(17, 17, 17, 0.9);
+          color: #000000;
           margin-bottom: 8px;
         }
         .article-preview-text :global(p) {
@@ -160,9 +160,6 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         @media (max-width: 720px) {
           .article-preview {
             padding: 20px 20px 24px;
-          }
-          .article-preview-title {
-            font-size: 20px;
           }
         }
       `}</style>
