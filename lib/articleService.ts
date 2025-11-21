@@ -105,12 +105,19 @@ const buildStoragePublicUrl = (bucket: string, rawPath?: string | null): string 
       const url = new URL(path);
       const host = url.hostname.toLowerCase();
 
-      if (host === "drive.google.com") {
+      if (
+        host === "drive.google.com" ||
+        host === "drive.usercontent.google.com" ||
+        host === "lh3.googleusercontent.com"
+      ) {
         const fileIdFromPath = url.pathname.match(/\/d\/([^/]+)/)?.[1];
         const fileId = fileIdFromPath || url.searchParams.get("id");
 
         if (fileId) {
-          return `https://drive.google.com/uc?export=view&id=${fileId}`;
+          const normalizedId = fileId.trim();
+          if (normalizedId) {
+            return `https://drive.usercontent.google.com/uc?id=${normalizedId}&export=view`;
+          }
         }
       }
     } catch {
