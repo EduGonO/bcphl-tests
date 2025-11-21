@@ -75,9 +75,9 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           max-height: 200px;
           border-radius: 3px;
           background-color: rgba(255, 255, 255, 0.28);
-          background-position: center;
+          background-position: left center;
           background-repeat: no-repeat;
-          background-size: cover;
+          background-size: contain;
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.06);
         }
         .article-preview-body {
@@ -109,7 +109,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           letter-spacing: 0.01em;
         }
         .article-preview-date {
-          font-family: "InterRegular", sans-serif;
+          font-family: "GayaRegular", serif;
           font-size: 12px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
