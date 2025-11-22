@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
@@ -16,6 +17,11 @@ const toRgba = (hex: string, alpha: number) => {
   const g = (intVal >> 8) & 255;
   const b = intVal & 255;
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const normalizePath = (raw: string) => {
+  const cleaned = raw.split(/[?#]/)[0].replace(/\/+$/, "");
+  return cleaned ? cleaned.toLowerCase() : "/";
 };
 
 const NAV_LINKS = [
@@ -46,36 +52,34 @@ const NAV_LINKS = [
 ];
 
 const TopNav: React.FC = () => {
-  const { asPath, pathname } = useRouter();
-  const [hydratedPath, setHydratedPath] = React.useState<string>("");
+  const router = useRouter();
+  const [currentPath, setCurrentPath] = React.useState<string>(() => {
+    const fromRouter = router.asPath || router.pathname || "";
+    const fromWindow =
+      typeof window !== "undefined" ? window.location?.pathname || "" : "";
+    return normalizePath(fromRouter || fromWindow || "/");
+  });
 
   React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const livePath = window.location.pathname || "/";
-    setHydratedPath(livePath);
-  }, []);
-
-  const normalizedPath = React.useMemo(() => {
-    const rawPath =
-      (typeof window !== "undefined" && window.location?.pathname) ||
-      asPath ||
-      pathname ||
-      hydratedPath ||
-      "/";
-    const cleaned = rawPath.split(/[?#]/)[0].replace(/\/+$/, "");
-    return cleaned ? cleaned.toLowerCase() : "/";
-  }, [asPath, pathname, hydratedPath]);
+    const fromRouter = router.asPath || router.pathname || "";
+    const fromWindow =
+      typeof window !== "undefined" ? window.location?.pathname || "" : "";
+    const nextPath = normalizePath(fromRouter || fromWindow || "/");
+    setCurrentPath(nextPath);
+  }, [router.asPath, router.pathname]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
       <div className="top-nav__inner">
         <Link href="/" className="top-nav__logo" aria-label="Accueil Bicéphale">
-          <img
+          <Image
             src="/logo-rectangle_bicephale_rvb.svg"
             alt="Bicéphale"
             width={240}
             height={64}
-            loading="eager"
+            priority
+            sizes="(max-width: 720px) 70vw, 240px"
+            className="top-nav__logo-img"
           />
         </Link>
         <nav className="top-nav__links">
@@ -83,8 +87,8 @@ const TopNav: React.FC = () => {
             const hrefLower = link.href.toLowerCase();
             const isActive =
               hrefLower === "/"
-                ? normalizedPath === "/"
-                : normalizedPath === hrefLower || normalizedPath.startsWith(`${hrefLower}/`);
+                ? currentPath === "/"
+                : currentPath === hrefLower || currentPath.startsWith(`${hrefLower}/`);
 
             return (
               <Link
@@ -144,7 +148,7 @@ const TopNav: React.FC = () => {
           padding: 6px 0;
         }
 
-        .top-nav__logo img {
+        .top-nav__logo-img {
           display: block;
           width: 100%;
           height: auto;
@@ -218,7 +222,7 @@ const TopNav: React.FC = () => {
             gap: clamp(12px, 4vw, 20px);
           }
 
-          .top-nav__logo img {
+          .top-nav__logo-img {
             height: 56px;
           }
         }
