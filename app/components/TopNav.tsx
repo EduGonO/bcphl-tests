@@ -70,9 +70,9 @@ const TopNav: React.FC = () => {
         }
 
         .top-nav__inner {
-          width: min(1120px, 100%);
-          max-width: 1120px;
-          padding: 14px clamp(16px, 4vw, 26px);
+          width: min(1080px, 100%);
+          max-width: 1080px;
+          padding: 14px clamp(16px, 4vw, 24px);
           margin: 0 auto;
           display: flex;
           align-items: center;
@@ -82,18 +82,19 @@ const TopNav: React.FC = () => {
 
         .top-nav__logo {
           flex: 0 0 auto;
+          flex-shrink: 0;
           display: inline-flex;
           align-items: center;
           justify-content: flex-start;
           text-decoration: none;
-          min-width: 140px;
-          max-width: 220px;
-          padding: 4px 0;
+          min-width: 150px;
+          max-width: 230px;
+          padding: 6px 0;
         }
 
         .top-nav__logo img {
           display: block;
-          height: 56px;
+          height: 60px;
           width: auto;
           max-width: 100%;
           object-fit: contain;
@@ -105,6 +106,7 @@ const TopNav: React.FC = () => {
           justify-content: space-between;
           gap: clamp(14px, 3vw, 32px);
           flex: 1 1 auto;
+          flex-wrap: nowrap;
         }
 
         .top-nav__link {
@@ -116,7 +118,7 @@ const TopNav: React.FC = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 10px 20px;
+          padding: 9px 18px;
           border-radius: 999px;
           transition:
             background-color 0.18s ease,
@@ -135,6 +137,7 @@ const TopNav: React.FC = () => {
 
         .top-nav__link--active {
           color: #0f0f0f;
+          padding: 12px 24px;
         }
 
         @media (max-width: 720px) {
@@ -153,6 +156,10 @@ const TopNav: React.FC = () => {
             width: 100%;
             justify-content: center;
             gap: clamp(12px, 4vw, 20px);
+          }
+
+          .top-nav__logo img {
+            height: 54px;
           }
         }
       `}</style>
