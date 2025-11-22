@@ -84,7 +84,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview-body {
           display: flex;
           flex-direction: column;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           color: #000000;
         }
         .article-preview-header {
@@ -133,7 +133,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           align-self: flex-start;
           align-items: center;
           justify-content: center;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
           padding: 6px 16px;

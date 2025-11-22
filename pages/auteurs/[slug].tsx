@@ -229,7 +229,7 @@ const AuthorPage = ({
           font-size: 14px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           color: rgba(17, 17, 17, 0.6);
         }
 
@@ -244,14 +244,14 @@ const AuthorPage = ({
 
         .author-role {
           margin: -6px 0 0;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 15px;
           color: rgba(17, 17, 17, 0.62);
         }
 
         .author-count {
           margin: 0;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           letter-spacing: 0.12em;
           text-transform: uppercase;
@@ -261,7 +261,7 @@ const AuthorPage = ({
         .author-bio {
           display: grid;
           gap: 10px;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 15px;
           line-height: 1.65;
           color: rgba(17, 17, 17, 0.78);

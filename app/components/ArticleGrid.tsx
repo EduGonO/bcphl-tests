@@ -136,7 +136,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         border-radius: 2px;
         margin-bottom: 4px;
         font-weight: 400;
-        font-family: -apple-system, InterRegular, sans-serif;
+        font-family: -apple-system, EnbyGertrude, sans-serif;
       }
       .heading {
         font-family: ${titleFont}, Georgia, serif;
@@ -158,13 +158,13 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         font-size: 14px;
         line-height: 1.2;
         color: #333;
-        font-family: -apple-system, InterRegular, sans-serif;
+        font-family: -apple-system, EnbyGertrude, sans-serif;
       }
       .meta {
         font-size: 14px;
         margin: 0 0 8px;
         color: #666;
-        font-family: -apple-system, InterRegular, sans-serif;
+        font-family: -apple-system, EnbyGertrude, sans-serif;
       }
     `}</style>
   </section>

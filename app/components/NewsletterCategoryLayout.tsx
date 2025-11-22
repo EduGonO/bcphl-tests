@@ -85,7 +85,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           margin: 0 auto;
           padding: 24px 16px 34px 26px;
           box-sizing: border-box;
-          font-family: Inter, sans-serif;
+          font-family: EnbyGertrude, sans-serif;
         }
         @media(min-width:768px) {
           .ncl { flex-direction: row; min-width:0; }
@@ -130,7 +130,7 @@ const NewsletterCategoryLayout: React.FC<Props> = ({
           font-size: 14px;
           border: 1px solid #ccc;
           border-radius: 4px;
-          font-family: Inter, sans-serif;
+          font-family: EnbyGertrude, sans-serif;
           outline: none;
           transition: border-color 0.2s;
           min-width: 0;

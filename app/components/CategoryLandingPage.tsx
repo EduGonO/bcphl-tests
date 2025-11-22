@@ -174,7 +174,7 @@ const CategoryLandingPage = ({
           width: 100%;
         }
         .intro-text {
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           color: #211f18;
           line-height: 1.56;
           font-size: 16px;
@@ -228,7 +228,7 @@ const CategoryLandingPage = ({
           border-radius: 999px;
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 12px;
         }
         .intro-action-pill.featured {

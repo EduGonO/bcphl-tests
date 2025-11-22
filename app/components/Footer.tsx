@@ -99,7 +99,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           color: ${textColor};
           padding: 30px 15px;
           margin-top: ${marginTop};
-          font-family: 'Inter', 'InterRegular', sans-serif;
+        font-family: 'EnbyGertrude', sans-serif;
           font-size: 14px;
           position: relative;
           z-index: 5;
@@ -139,7 +139,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           margin: 0 0 8px;
           line-height: 1.4;
           color: ${textColor};
-          font-family: 'Inter', 'InterRegular', sans-serif;
+        font-family: 'EnbyGertrude', sans-serif;
         }
         .social-row {
           display: flex;
@@ -154,7 +154,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         .footer-list li {
           margin-bottom: 6px;
           font-size: 14px;
-          font-family: 'Inter', 'InterRegular', sans-serif;
+        font-family: 'EnbyGertrude', sans-serif;
         }
         /* Logo full width at bottom */
         .footer-brand {

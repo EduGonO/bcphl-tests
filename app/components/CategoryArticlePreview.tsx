@@ -134,7 +134,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           padding-left: 10px;
           opacity: 0.69;
           text-decoration: none;
-          font-family: -apple-system, InterRegular, sans-serif;
+          font-family: -apple-system, EnbyGertrude, sans-serif;
           transition: opacity 0.2s;
         }
         .see-more:hover {
@@ -146,7 +146,7 @@ const CategoryArticlePreview: React.FC<Props> = ({
           padding-left: 10px;
           opacity: 0.9;
           text-decoration: underline;
-          font-family: -apple-system, InterRegular, sans-serif;
+          font-family: -apple-system, EnbyGertrude, sans-serif;
           transition: opacity 0.2s;
         }
       `}</style>

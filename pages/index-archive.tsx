@@ -27,8 +27,8 @@ const IndexArchive: React.FC<HomeProps> = ({ articles, categories }) => {
   const [layout, setLayout] = useState<"vertical" | "horizontal">("horizontal");
   const [bodyFontSize, setBodyFontSize] = useState<number>(16);
   const [bodyFont, setBodyFont] = useState<
-    "InterRegular" | "AvenirNextCondensed"
-  >("InterRegular");
+    "EnbyGertrude" | "AvenirNextCondensed"
+  >("EnbyGertrude");
   const [titleFont, setTitleFont] = useState<"RecoletaMedium" | "GayaRegular">(
     "GayaRegular"
   );

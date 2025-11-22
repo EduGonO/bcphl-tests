@@ -91,7 +91,7 @@ const CategoryArticleGrid: React.FC<Props> = ({
         color: #666;
         margin-top: 2px;
         font-weight: 500;
-        font-family: InterRegular, sans-serif;
+        font-family: EnbyGertrude, sans-serif;
       }
       a:hover .title {
         text-decoration: underline;

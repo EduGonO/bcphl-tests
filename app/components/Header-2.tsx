@@ -358,7 +358,7 @@ const Header: React.FC<HeaderProps> = ({ categories, onCategoryChange }) => {
 /* ── header shell ─────────────────────────────────────── */
 .header{
   width:100%;background:transparent;position:fixed;top:0;left:0;right:0;z-index:1000;
-  font-family:-apple-system,InterRegular,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif;
+  font-family:-apple-system,EnbyGertrude,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif;
   transition:all .2s ease
 }
 .header.scrolled{

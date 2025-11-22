@@ -601,7 +601,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-body {
           max-width: 720px;
           margin: 0 auto;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 18px;
           line-height: 1.68;
           color: #111111;

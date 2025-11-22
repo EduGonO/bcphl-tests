@@ -5,8 +5,8 @@ type DebugOverlayProps = {
   onToggleLayout: () => void;
   bodyFontSize: number;
   onBodyFontSizeChange: (size: number) => void;
-  bodyFont: 'InterRegular' | 'AvenirNextCondensed';
-  onBodyFontChange: (font: 'InterRegular' | 'AvenirNextCondensed') => void;
+  bodyFont: 'EnbyGertrude' | 'AvenirNextCondensed';
+  onBodyFontChange: (font: 'EnbyGertrude' | 'AvenirNextCondensed') => void;
   titleFont: 'RecoletaMedium' | 'GayaRegular';
   onTitleFontChange: (font: 'RecoletaMedium' | 'GayaRegular') => void;
   imagePreview: boolean;
@@ -78,10 +78,10 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({
         <select
           value={bodyFont}
           onChange={(e) =>
-            onBodyFontChange(e.target.value as 'InterRegular' | 'AvenirNextCondensed')
+            onBodyFontChange(e.target.value as 'EnbyGertrude' | 'AvenirNextCondensed')
           }
         >
-          <option value="InterRegular">Inter Regular</option>
+          <option value="EnbyGertrude">Enby Gertrude</option>
           <option value="AvenirNextCondensed">AvenirNextCondensed</option>
         </select>
       </div>
