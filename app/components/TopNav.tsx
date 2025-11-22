@@ -2,11 +2,47 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 
+const toRgba = (hex: string, alpha: number) => {
+  const normalized = hex.replace("#", "");
+  const full =
+    normalized.length === 3
+      ? normalized
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : normalized;
+  const intVal = parseInt(full, 16);
+  const r = (intVal >> 16) & 255;
+  const g = (intVal >> 8) & 255;
+  const b = intVal & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const NAV_LINKS = [
-  { label: "Réflexion", href: "/Reflexion", activeColor: "#c7b5f4" },
-  { label: "Création", href: "/Creation", activeColor: "#e8b583" },
-  { label: "IRL", href: "/IRL", activeColor: "#bdd6c5" },
-  { label: "À propos", href: "/bios", activeColor: "#d6c6e0" },
+  {
+    label: "Réflexion",
+    href: "/Reflexion",
+    activeColor: "#c7b5f4",
+    hoverColor: toRgba("#c7b5f4", 0.5),
+  },
+  {
+    label: "Création",
+    href: "/Creation",
+    activeColor: "#e8b583",
+    hoverColor: toRgba("#e8b583", 0.5),
+  },
+  {
+    label: "IRL",
+    href: "/IRL",
+    activeColor: "#bdd6c5",
+    hoverColor: toRgba("#bdd6c5", 0.5),
+  },
+  {
+    label: "À propos",
+    href: "/bios",
+    activeColor: "#d6c6e0",
+    hoverColor: toRgba("#d6c6e0", 0.5),
+  },
 ];
 
 const TopNav: React.FC = () => {
@@ -44,7 +80,10 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
-                style={isActive ? { backgroundColor: link.activeColor } : undefined}
+                style={{
+                  ["--active-color" as const]: link.activeColor,
+                  ["--hover-color" as const]: link.hoverColor,
+                }}
               >
                 {link.label}
               </Link>
@@ -87,17 +126,18 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: flex-start;
           text-decoration: none;
-          min-width: 150px;
-          max-width: 230px;
+          width: 100%;
+          max-width: 240px;
           padding: 6px 0;
         }
 
         .top-nav__logo img {
           display: block;
-          height: 60px;
-          width: auto;
+          width: 230px;
+          height: auto;
           max-width: 100%;
           object-fit: contain;
+          opacity: 1;
         }
 
         .top-nav__links {
@@ -126,6 +166,7 @@ const TopNav: React.FC = () => {
             text-decoration 0.18s ease;
           white-space: nowrap;
           line-height: 1.1;
+          background-color: transparent;
         }
 
         .top-nav__link:hover,
@@ -133,11 +174,13 @@ const TopNav: React.FC = () => {
           text-decoration: underline;
           text-decoration-thickness: 2px;
           text-underline-offset: 6px;
+          background-color: var(--hover-color, rgba(0, 0, 0, 0.1));
         }
 
         .top-nav__link--active {
           color: #0f0f0f;
           padding: 12px 24px;
+          background-color: var(--active-color, transparent);
         }
 
         @media (max-width: 720px) {
