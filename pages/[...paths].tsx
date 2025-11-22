@@ -558,7 +558,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           .related-sidebar {
             position: sticky;
             top: clamp(72px, 12vh, 132px);
-            padding-right: 16px;
+            padding-right: 24px;
           }
         }
 
