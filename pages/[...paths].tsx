@@ -176,12 +176,12 @@ const ArticlePage: React.FC<ArtProps> = ({
                       ) : (
                         author && <p className="article-author">{author}</p>
                       )}
+                      {formattedDate && (
+                        <time className="article-date" dateTime={date}>
+                          {formattedDate}
+                        </time>
+                      )}
                     </div>
-                    {formattedDate && (
-                      <time className="article-date" dateTime={date}>
-                        {formattedDate}
-                      </time>
-                    )}
                   </div>
                   {hasHeroImage ? (
                     <div className="article-hero-media" aria-hidden="true">
@@ -339,7 +339,8 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-hero-header {
           display: flex;
           flex-direction: column;
-          gap: clamp(10px, 2vw, 16px);
+          gap: clamp(8px, 2vw, 14px);
+          align-items: flex-start;
         }
 
         .article-title {
@@ -350,6 +351,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-weight: 400;
           color: #000000;
           text-align: left;
+          width: 100%;
         }
 
         .article-author {
@@ -357,8 +359,10 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-family: "GayaRegular", serif;
           font-size: clamp(26px, 5vw, 42px);
           letter-spacing: normal;
-          text-align: left;
+          text-align: right;
           color: #000000;
+          width: 100%;
+          align-self: flex-end;
         }
 
         .article-author-link {
@@ -390,6 +394,9 @@ const ArticlePage: React.FC<ArtProps> = ({
           letter-spacing: normal;
           text-transform: none;
           color: #000000;
+          text-align: left;
+          width: 100%;
+          display: block;
         }
 
         .article-hero-media {
@@ -415,15 +422,8 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         @media (min-width: 840px) {
-          .article-hero-header {
-            flex-direction: row;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: clamp(16px, 3vw, 32px);
-          }
-
           .article-author {
-            text-align: right;
+            align-self: flex-end;
           }
         }
 
@@ -591,7 +591,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           padding: 0;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 18px;
         }
 
         .related-link {
