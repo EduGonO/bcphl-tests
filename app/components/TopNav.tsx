@@ -36,7 +36,11 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
-                style={isActive ? { backgroundColor: link.activeColor } : undefined}
+                style={
+                  isActive
+                    ? ({ "--active-color": link.activeColor } as React.CSSProperties)
+                    : undefined
+                }
               >
                 {link.label}
               </Link>
@@ -63,13 +67,13 @@ const TopNav: React.FC = () => {
 
         .top-nav__inner {
           width: 100%;
-          max-width: 1024px;
-          padding: 14px clamp(14px, 3vw, 24px);
+          max-width: 960px;
+          padding: 12px clamp(14px, 3vw, 22px);
           margin: 0 auto;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: clamp(12px, 3vw, 28px);
+          gap: clamp(10px, 2.6vw, 24px);
         }
 
         .top-nav__logo {
@@ -78,10 +82,11 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: flex-start;
           text-decoration: none;
+          max-width: 100%;
         }
 
         .top-nav__logo img {
-          height: 50px;
+          height: clamp(42px, 5vw, 54px);
           width: auto;
           display: block;
         }
@@ -89,20 +94,21 @@ const TopNav: React.FC = () => {
         .top-nav__links {
           display: flex;
           align-items: center;
-          justify-content: space-evenly;
-          gap: clamp(14px, 3vw, 32px);
-          flex: 1 1 auto;
+          justify-content: center;
+          gap: clamp(12px, 2.6vw, 26px);
+          flex: 0 1 auto;
         }
 
         .top-nav__link {
           font-family: "EnbyGertrude", sans-serif;
-          font-size: 24px;
+          font-size: clamp(18px, 3.4vw, 24px);
           font-weight: 400;
           color: #0f0f0f;
           text-decoration: none;
-          padding: 9px 18px;
+          padding: clamp(7px, 1.4vw, 9px) clamp(14px, 3vw, 20px);
           border-radius: 999px;
-          transition: background-color 0.15s ease, color 0.15s ease, text-decoration 0.15s ease;
+          transition: background-color 0.15s ease, color 0.15s ease,
+            text-decoration 0.15s ease, box-shadow 0.2s ease;
           white-space: nowrap;
         }
 
@@ -114,6 +120,10 @@ const TopNav: React.FC = () => {
 
         .top-nav__link--active {
           color: #0f0f0f;
+          background: var(--active-color);
+          border-radius: 18px 18px 20px 20px;
+          box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+            0 2px 6px rgba(0, 0, 0, 0.12);
         }
 
         @media (max-width: 720px) {
@@ -131,7 +141,7 @@ const TopNav: React.FC = () => {
           .top-nav__links {
             width: 100%;
             justify-content: center;
-            gap: clamp(12px, 4vw, 20px);
+            gap: clamp(10px, 4vw, 20px);
           }
         }
       `}</style>
