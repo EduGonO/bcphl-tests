@@ -50,10 +50,14 @@ const createMarkdownPreview = (source: string): string => {
     const preview = sentences
       .slice(0, 2)
       .join(" ")
+      .trim()
+      .slice(0, 170)
       .trim();
 
-    if (preview.length >= 12) {
-      return preview;
+    if (preview) {
+      return preview.endsWith(".") || preview.endsWith("!") || preview.endsWith("?")
+        ? preview
+        : `${preview}…`;
     }
   }
 
@@ -78,7 +82,7 @@ const buildPreviewSnippet = (article: ArticleWithBody): string => {
   }
 
   const markdownSource =
-    article.bodyMarkdown || article.body || (article as any).bodyMarkdown || article.content;
+    (article as any).bodyMarkdown || (article as any).body || (article as any).content;
 
   if (markdownSource && typeof markdownSource === "string") {
     const markdownPreview = createMarkdownPreview(markdownSource);
@@ -87,7 +91,7 @@ const buildPreviewSnippet = (article: ArticleWithBody): string => {
     }
   }
 
-  const htmlSource = article.bodyHtml || (article as any).bodyHtml;
+  const htmlSource = (article as any).bodyHtml;
   if (htmlSource && typeof htmlSource === "string") {
     const text = stripHtmlTags(htmlSource);
     const htmlPreview = createMarkdownPreview(text);

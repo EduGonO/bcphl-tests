@@ -6,10 +6,19 @@ import RedesignArticlePreviewCard from "../app/components/RedesignArticlePreview
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import TopNav from "../app/components/TopNav";
 import { Article } from "../types";
-import { getArticleData } from "../lib/articleService";
+import { getArticleRecords } from "../lib/articleService";
+
+type ArticleWithBody = Article & {
+  body?: string;
+  bodyHtml?: string | null;
+  bodyMarkdown?: string;
+  content?: string;
+  publicBasePath?: string;
+  public_path?: string;
+};
 
 interface RedesignProps {
-  articles: Article[];
+  articles: ArticleWithBody[];
 }
 
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
@@ -102,7 +111,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
   const normalizedQuery = query.trim().toLowerCase();
 
-  const matchesQuery = (article: Article) => {
+  const matchesQuery = (article: ArticleWithBody) => {
     if (!normalizedQuery) return true;
     const haystack = [article.title, article.author, article.preview]
       .filter(Boolean)
@@ -115,7 +124,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     return [...articles].sort((a, b) => parseDate(b.date) - parseDate(a.date));
   }, [articles]);
 
-  const getCategorySlug = (article: Article) =>
+  const getCategorySlug = (article: ArticleWithBody) =>
     (article.categorySlug || article.category)?.toLowerCase();
 
   const featuredArticles = useMemo(
@@ -138,7 +147,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     [sortedArticles, normalizedQuery]
   );
 
-  const getVariant = (article: Article) => {
+  const getVariant = (article: ArticleWithBody) => {
     const category = getCategorySlug(article);
     if (category === "creation") return "creation" as const;
     if (category === "irl") return "irl" as const;
@@ -614,7 +623,17 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 };
 
 export async function getServerSideProps() {
-  const { articles } = await getArticleData();
+  const records = await getArticleRecords();
+  const articles: ArticleWithBody[] = records.map((record) => ({
+    ...record.article,
+    body: record.body,
+    bodyHtml: record.bodyHtml,
+    bodyMarkdown: record.body,
+    content: record.body,
+    publicBasePath: record.publicBasePath,
+    public_path: record.publicBasePath,
+  }));
+
   return { props: { articles } };
 }
 
