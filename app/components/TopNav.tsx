@@ -70,9 +70,9 @@ const TopNav: React.FC = () => {
         }
 
         .top-nav__inner {
-          width: 100%;
-          max-width: 1200px;
-          padding: 14px clamp(18px, 4vw, 28px);
+          width: min(1120px, 100%);
+          max-width: 1120px;
+          padding: 14px clamp(16px, 4vw, 26px);
           margin: 0 auto;
           display: flex;
           align-items: center;
@@ -86,13 +86,14 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: flex-start;
           text-decoration: none;
-          min-width: 160px;
+          min-width: 140px;
         }
 
         .top-nav__logo img {
           height: 50px;
           width: auto;
           display: block;
+          max-width: 100%;
         }
 
         .top-nav__links {
@@ -109,13 +110,12 @@ const TopNav: React.FC = () => {
           font-weight: 400;
           color: #0f0f0f;
           text-decoration: none;
-          padding: 9px 18px;
+          padding: 11px 22px;
           border-radius: 999px;
           transition:
             background-color 0.18s ease,
             color 0.18s ease,
-            text-decoration 0.18s ease,
-            box-shadow 0.18s ease;
+            text-decoration 0.18s ease;
           white-space: nowrap;
         }
 
@@ -128,7 +128,6 @@ const TopNav: React.FC = () => {
 
         .top-nav__link--active {
           color: #0f0f0f;
-          box-shadow: 0 8px 18px rgba(17, 15, 15, 0.12);
         }
 
         @media (max-width: 720px) {
