@@ -161,11 +161,23 @@ const ArticlePage: React.FC<ArtProps> = ({
   const authorSlug = slugify(author);
 
   const createMarkdownPreview = (source: string): string => {
-    const cleaned = source
-      .replace(/^#{1,6}\s.*?\n+/, "")
-      .replace(/^\s*!\[[^\]]*]\([^)]+\)\s*$/gm, "")
+    const filteredLines = source
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(
+        (line) =>
+          line &&
+          !/^>+/.test(line) &&
+          !/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line) &&
+          !/^\s*!\[[^\]]*]:/.test(line)
+      )
+      .slice(0, 4);
+
+    const cleaned = filteredLines
+      .map((line) => line.replace(/^#{1,6}\s*/, ""))
+      .join(" ")
       .replace(/!\[[^\]]*]\([^)]+\)/g, "")
-      .replace(/\n{2,}/g, "\n")
+      .replace(/\s{2,}/g, " ")
       .trim();
 
     if (!cleaned) {
@@ -178,7 +190,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .slice(0, 2)
         .join(" ")
         .trim()
-        .slice(0, 180)
+        .slice(0, 170)
         .trim();
 
       if (preview) {
@@ -188,7 +200,7 @@ const ArticlePage: React.FC<ArtProps> = ({
       }
     }
 
-    const fallback = cleaned.slice(0, 140).trim();
+    const fallback = cleaned.slice(0, 150).trim();
     return fallback ? `${fallback}…` : "";
   };
 
@@ -748,6 +760,10 @@ const ArticlePage: React.FC<ArtProps> = ({
           color: #000000;
           text-align: left;
           line-height: 1.4;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
         }
 
         .related-link:hover .related-title,
