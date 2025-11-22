@@ -115,25 +115,35 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     return [...articles].sort((a, b) => parseDate(b.date) - parseDate(a.date));
   }, [articles]);
 
-  const reflexionArticles = useMemo(
+  const getCategorySlug = (article: Article) =>
+    (article.categorySlug || article.category)?.toLowerCase();
+
+  const featuredArticles = useMemo(
+    () =>
+      sortedArticles.filter((article) => {
+        const category = getCategorySlug(article);
+        return (
+          (category === "reflexion" || category === "creation") &&
+          matchesQuery(article)
+        );
+      }),
+    [sortedArticles, normalizedQuery]
+  );
+
+  const irlArticles = useMemo(
     () =>
       sortedArticles.filter(
-        (article) =>
-          (article.categorySlug || article.category)?.toLowerCase() === "reflexion" &&
-          matchesQuery(article)
+        (article) => getCategorySlug(article) === "irl" && matchesQuery(article)
       ),
     [sortedArticles, normalizedQuery]
   );
 
-  const creationArticles = useMemo(
-    () =>
-      sortedArticles.filter(
-        (article) =>
-          (article.categorySlug || article.category)?.toLowerCase() === "creation" &&
-          matchesQuery(article)
-      ),
-    [sortedArticles, normalizedQuery]
-  );
+  const getVariant = (article: Article) => {
+    const category = getCategorySlug(article);
+    if (category === "creation") return "creation" as const;
+    if (category === "irl") return "irl" as const;
+    return "reflexion" as const;
+  };
 
   const handleHoverStart = (action: "about" | "follow") => {
     setHoveredAction(action);
@@ -216,7 +226,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 className="intro-visual"
                 style={
                   introHeight !== null
-                    ? { height: Math.min(introHeight, 420) }
+                    ? { height: Math.min(introHeight, 360) }
                     : undefined
                 }
               >
@@ -233,16 +243,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
               <div className="columns">
                 <section className="column column-featured">
                   <header className="column-header">
-                    <h2>
-                      <Link href="/Reflexion">réflexion</Link>
-                    </h2>
+                    <h2>à la une</h2>
                   </header>
                   <div className="column-content">
-                    {reflexionArticles.map((article) => (
+                    {featuredArticles.map((article) => (
                       <RedesignArticlePreviewCard
                         key={article.slug}
                         article={article}
-                        variant="reflexion"
+                        variant={getVariant(article)}
                         formatDate={formatDate}
                       />
                     ))}
@@ -252,15 +260,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 <section className="column column-events">
                   <header className="column-header">
                     <h2>
-                      <Link href="/Creation">création</Link>
+                      <Link href="/IRL">nos événements</Link>
                     </h2>
                   </header>
                   <div className="column-content">
-                    {creationArticles.map((article) => (
+                    {irlArticles.map((article) => (
                       <RedesignArticlePreviewCard
                         key={article.slug}
                         article={article}
-                        variant="creation"
+                        variant="irl"
                         formatDate={formatDate}
                       />
                     ))}
@@ -295,17 +303,17 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 52px;
+          gap: 40px;
           background: #e4e4e4;
         }
         .intro {
           display: grid;
           grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
           grid-template-areas: "copy visual";
-          gap: clamp(28px, 6vw, 64px);
+          gap: clamp(20px, 5vw, 44px);
           align-items: flex-start;
           justify-items: stretch;
-          padding: 48px clamp(24px, 7vw, 88px) 0;
+          padding: 32px clamp(24px, 7vw, 88px) 0;
           max-width: 1200px;
           margin: 0 auto;
         }
@@ -313,7 +321,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           grid-area: copy;
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 16px;
           max-width: 560px;
           margin: 0 auto;
           width: 100%;
@@ -322,11 +330,11 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-text {
           font-family: "EnbyGertrude", sans-serif;
           color: #211f18;
-          line-height: 1.56;
+          line-height: 1.48;
           font-size: 16px;
         }
         .intro-text p {
-          margin: 0 0 16px;
+          margin: 0 0 12px;
         }
         .intro-text em {
           font-style: italic;
@@ -347,7 +355,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-actions {
           display: flex;
           gap: 18px;
-          margin: 8px 0 0;
+          margin: 4px 0 0;
         }
         .intro-action {
           position: relative;
@@ -483,21 +491,21 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           gap: 16px;
           text-transform: uppercase;
           font-family: "GayaRegular", serif;
-          letter-spacing: 0.18em;
+          letter-spacing: normal;
           color: #2b2720;
           padding: 32px 32px 0;
           margin-bottom: 16px;
         }
         .column-header h2 {
           margin: 0;
-          font-size: 20px;
+          font-size: 22px;
         }
         .column-content {
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           gap: 24px;
-          max-height: clamp(420px, 60vh, 640px);
+          max-height: clamp(560px, 70vh, 860px);
         }
         .column-featured :global(.article-preview),
         .column-events :global(.article-preview) {
