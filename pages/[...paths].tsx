@@ -134,27 +134,8 @@ const ArticlePage: React.FC<ArtProps> = ({
   const hasHeroImage = Boolean(heroImage);
   const authorSlug = slugify(author);
 
-  const buildPreviewSnippet = (article: Article): string => {
-    const primaryPreview =
-      article.preview?.trim() ||
-      (article as any).previewText?.trim() ||
-      (article as any).excerpt?.trim();
-
-    if (primaryPreview) {
-      return primaryPreview;
-    }
-
-    const bodySource =
-      (article as any).bodyMarkdown ||
-      (article as any).body ||
-      (article as any).content ||
-      "";
-
-    if (!bodySource || typeof bodySource !== "string") {
-      return "";
-    }
-
-    const cleaned = bodySource
+  const createMarkdownPreview = (source: string): string => {
+    const cleaned = source
       .replace(/^#{1,6}\s.*?\n+/, "")
       .replace(/^\s*!\[[^\]]*]\([^)]+\)\s*$/gm, "")
       .replace(/!\[[^\]]*]\([^)]+\)/g, "")
@@ -176,6 +157,49 @@ const ArticlePage: React.FC<ArtProps> = ({
     }
 
     return preview;
+  };
+
+  const stripHtmlTags = (html: string): string => {
+    return html
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  };
+
+  const buildPreviewSnippet = (article: Article): string => {
+    const primaryPreview =
+      article.preview?.trim() ||
+      (article as any).previewText?.trim() ||
+      (article as any).excerpt?.trim();
+
+    if (primaryPreview) {
+      return primaryPreview;
+    }
+
+    const markdownSource =
+      (article as any).bodyMarkdown ||
+      (article as any).body ||
+      (article as any).content;
+
+    if (markdownSource && typeof markdownSource === "string") {
+      const markdownPreview = createMarkdownPreview(markdownSource);
+      if (markdownPreview) {
+        return markdownPreview;
+      }
+    }
+
+    const htmlSource = (article as any).bodyHtml;
+    if (htmlSource && typeof htmlSource === "string") {
+      const text = stripHtmlTags(htmlSource);
+      const htmlPreview = createMarkdownPreview(text);
+      if (htmlPreview) {
+        return htmlPreview;
+      }
+    }
+
+    return article.title?.trim() || "";
   };
 
   return (
@@ -490,6 +514,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           .related-sidebar {
             position: sticky;
             top: clamp(72px, 12vh, 132px);
+            padding-right: clamp(12px, 2vw, 18px);
           }
         }
 
