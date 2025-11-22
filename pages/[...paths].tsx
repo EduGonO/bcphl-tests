@@ -432,10 +432,6 @@ const ArticlePage: React.FC<ArtProps> = ({
             grid-template-columns: minmax(0, 2.6fr) minmax(280px, 1fr);
           }
 
-          .article {
-            border-right: 1px solid rgba(17, 17, 17, 0.08);
-          }
-
           .related-sidebar {
             position: sticky;
             top: clamp(72px, 12vh, 132px);
@@ -596,16 +592,6 @@ const ArticlePage: React.FC<ArtProps> = ({
           display: flex;
           flex-direction: column;
           gap: 12px;
-        }
-
-        .related-item {
-          border-bottom: 1px solid rgba(17, 17, 17, 0.12);
-          padding-bottom: 10px;
-        }
-
-        .related-item:last-of-type {
-          border-bottom: none;
-          padding-bottom: 0;
         }
 
         .related-link {
