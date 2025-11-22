@@ -1,328 +1,152 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 
-import { NAV_LINKS } from "../../config/navLinks";
+const NAV_LINKS = [
+  { label: "Réflexion", href: "/Reflexion", activeColor: "#c7b5f4" },
+  { label: "Création", href: "/Creation", activeColor: "#e8b583" },
+  { label: "IRL", href: "/IRL", activeColor: "#bdd6c5" },
+  { label: "À propos", href: "/bios", activeColor: "#d6c6e0" },
+];
 
 const TopNav: React.FC = () => {
-  const router = useRouter();
-  const [isMobileViewport, setIsMobileViewport] = useState(false);
-  const [isCompact, setIsCompact] = useState(false);
+  const { asPath, pathname } = useRouter();
+  const [hydratedPath, setHydratedPath] = React.useState<string>("");
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobileViewport(window.innerWidth <= 720);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    setHydratedPath(window.location.pathname || "/");
   }, []);
 
-  useEffect(() => {
-    if (!isMobileViewport) {
-      setIsCompact(false);
-      return;
-    }
-
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    const updateCompact = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > lastScrollY + 6 && currentScrollY > 40) {
-        setIsCompact(true);
-      } else if (currentScrollY < lastScrollY - 6 || currentScrollY <= 40) {
-        setIsCompact(false);
-      }
-
-      lastScrollY = currentScrollY;
-      ticking = false;
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateCompact);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [isMobileViewport]);
-
-  const isCategoriesVisible = !(isMobileViewport && isCompact);
-  const normalizedPath = useMemo(() => {
-    const path = router.asPath ?? router.pathname;
-    const normalized = path.split(/[?#]/)[0].toLowerCase();
-
-    if (normalized.endsWith("/") && normalized !== "/") {
-      return normalized.slice(0, -1);
-    }
-
-    return normalized;
-  }, [router.asPath, router.pathname]);
+  const normalizedPath = React.useMemo(() => {
+    const rawPath = asPath || pathname || hydratedPath || "/";
+    const cleaned = rawPath.split(/[?#]/)[0].replace(/\/+$/, "");
+    return cleaned ? cleaned.toLowerCase() : "/";
+  }, [asPath, pathname, hydratedPath]);
 
   return (
-    <header
-      className={`top-nav${isCompact ? " top-nav--compact" : ""}${
-        isMobileViewport ? " top-nav--mobile" : ""
-      }`}
-    >
-      <div className="top-nav__layout">
-        <Link href="/" className="brand" aria-label="Accueil Bicéphale">
-          <img
-            src="/logo-rectangle_bicephale_rvb.svg"
-            alt="Bicéphale"
-            className="brand-logo brand-logo--wide"
-          />
+    <header className="top-nav" aria-label="Navigation principale">
+      <div className="top-nav__inner">
+        <Link href="/" className="top-nav__logo" aria-label="Accueil Bicéphale">
+          <img src="/logo-rectangle_bicephale_rvb.svg" alt="Bicéphale" />
         </Link>
-        <div
-          className={`top-nav__categories${
-            isCategoriesVisible ? "" : " top-nav__categories--hidden"
-          }`}
-        >
-          <nav className="nav-links">
-            {NAV_LINKS.map((link) => {
-              if (link.disabled) {
-                return (
-                  <span key={link.label} className="nav-link disabled" aria-disabled="true">
-                    {link.label}
-                  </span>
-                );
-              }
+        <nav className="top-nav__links">
+          {NAV_LINKS.map((link) => {
+            const hrefLower = link.href.toLowerCase();
+            const isActive =
+              hrefLower === "/"
+                ? normalizedPath === "/"
+                : normalizedPath === hrefLower || normalizedPath.startsWith(`${hrefLower}/`);
 
-              const hrefLower = link.href.toLowerCase();
-              const isActive =
-                hrefLower === "/"
-                  ? normalizedPath === "/"
-                  : normalizedPath === hrefLower || normalizedPath.startsWith(`${hrefLower}/`);
-
-              return (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`nav-link${isActive ? " nav-link--active" : ""}`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
+                style={isActive ? { backgroundColor: link.activeColor } : undefined}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
       <style jsx>{`
+        .top-nav,
+        .top-nav * {
+          box-sizing: border-box;
+        }
+
         .top-nav {
           position: sticky;
           top: 0;
-          z-index: 50;
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 24px 48px 18px;
+          z-index: 10;
+          width: 100%;
+          background: #ffffff;
           border-bottom: 1px solid #b9b0a3;
-          background: rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          transition: padding 0.25s ease;
+          display: flex;
+          justify-content: center;
         }
 
-        .top-nav__layout {
+        .top-nav__inner {
+          width: 100%;
+          max-width: 1200px;
+          padding: 14px clamp(18px, 4vw, 28px);
+          margin: 0 auto;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          column-gap: 48px;
-          width: 100%;
+          gap: clamp(12px, 3vw, 28px);
         }
 
-        .brand {
-          display: flex;
-          flex-direction: row;
+        .top-nav__logo {
+          flex: 0 0 auto;
+          display: inline-flex;
           align-items: center;
           justify-content: flex-start;
-          min-height: 42px;
-          block-size: auto;
-          flex: 0 1 auto;
-          min-width: 0;
-          white-space: nowrap;
-          box-sizing: border-box;
-          padding: 0;
-          color: #0d0d0d;
           text-decoration: none;
-          line-height: 1;
+          min-width: 160px;
         }
 
-        .brand:visited,
-        .brand:hover,
-        .brand:focus-visible {
-          color: #0d0d0d;
-        }
-
-        .brand-logo {
-          display: block;
-          flex-shrink: 0;
-          height: 42px;
-          max-height: 42px;
+        .top-nav__logo img {
+          height: 50px;
           width: auto;
-          object-fit: contain;
+          display: block;
         }
 
-        .brand-logo--wide {
-          max-width: min(300px, 45vw);
-        }
-
-        .top-nav__categories {
+        .top-nav__links {
           display: flex;
-          justify-content: flex-end;
           align-items: center;
-          flex: 0 1 auto;
-          min-width: auto;
-          transition: opacity 0.25s ease;
-          margin-top: 0;
+          justify-content: space-between;
+          gap: clamp(14px, 3vw, 32px);
+          flex: 1 1 auto;
         }
 
-        .top-nav__categories--hidden {
-          opacity: 0;
-          pointer-events: none;
-          margin-top: 0;
-        }
-
-        .nav-links {
-          display: inline-flex;
-          align-items: center;
-          gap: 30px;
+        .top-nav__link {
           font-family: "EnbyGertrude", sans-serif;
-          font-size: 16px;
-          font-weight: 500;
-          text-transform: uppercase;
+          font-size: 24px;
+          font-weight: 400;
+          color: #0f0f0f;
+          text-decoration: none;
+          padding: 9px 18px;
+          border-radius: 999px;
+          transition:
+            background-color 0.18s ease,
+            color 0.18s ease,
+            text-decoration 0.18s ease,
+            box-shadow 0.18s ease;
           white-space: nowrap;
         }
 
-        .nav-link {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          color: #111;
-          text-decoration: none;
-          padding: 6px 0;
-          border-bottom: 2px solid transparent;
-          transition: color 0.18s ease, border-color 0.18s ease;
+        .top-nav__link:hover,
+        .top-nav__link:focus-visible {
+          text-decoration: underline;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 6px;
         }
 
-        .nav-link:visited {
-          color: #111;
-        }
-
-        .nav-link:hover,
-        .nav-link:focus-visible {
-          color: #0a0a0a;
-          border-color: currentColor;
-        }
-
-        .nav-link--active {
-          font-family: "EnbyGertrude", sans-serif;
-          font-weight: 600;
-          border-color: #0a0a0a;
-          border-bottom-width: 3px;
-        }
-
-        .nav-link.disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-          pointer-events: none;
-        }
-
-        @media (max-width: 900px) {
-          .brand {
-            flex: 0 1 220px;
-          }
+        .top-nav__link--active {
+          color: #0f0f0f;
+          box-shadow: 0 8px 18px rgba(17, 15, 15, 0.12);
         }
 
         @media (max-width: 720px) {
-          .top-nav {
-            padding: 18px 24px 14px;
-            gap: 16px;
-          }
-
-          .top-nav__layout {
-            column-gap: 24px;
-            row-gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-          }
-
-          .brand {
-            margin: 0 auto;
-          }
-
-          .top-nav__categories {
-            flex-basis: 100%;
-            justify-content: center;
-            overflow: hidden;
-            max-height: 160px;
-            transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.3s ease;
-            transform: translateY(0);
-            margin-top: 12px;
-          }
-
-          .nav-links {
-            gap: 20px;
-          }
-
-          .top-nav--compact {
-            padding: 12px 20px 10px;
-            border-bottom-color: rgba(185, 176, 163, 0.6);
-          }
-
-          .top-nav__categories--hidden {
-            max-height: 0;
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-
-          .top-nav--compact .brand {
-            height: 42px;
-            min-height: 42px;
-          }
-        }
-
-        @media (max-width: 420px) {
-          .top-nav {
-            padding: 16px 18px 10px;
-          }
-
-          .brand {
+          .top-nav__inner {
+            flex-direction: column;
+            align-items: center;
             gap: 10px;
-            font-size: 20px;
           }
 
-          .nav-links {
-            gap: 16px;
-            font-size: 15px;
-          }
-
-          .top-nav__session {
+          .top-nav__logo {
             width: 100%;
-            justify-content: space-between;
+            justify-content: center;
           }
 
-          .top-nav__session {
-            flex-wrap: wrap;
-            row-gap: 12px;
-          }
-
-          .top-nav__signout {
+          .top-nav__links {
             width: 100%;
-            text-align: center;
+            justify-content: center;
+            gap: clamp(12px, 4vw, 20px);
           }
         }
       `}</style>
