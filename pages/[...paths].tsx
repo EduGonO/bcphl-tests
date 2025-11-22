@@ -12,6 +12,12 @@ import { Article, Category } from "../types";
 import { mdToHtml } from "../lib/markdown";
 import { slugify } from "../lib/slug";
 
+type ArticleWithBody = Article & {
+  body?: string;
+  bodyHtml?: string | null;
+  publicBasePath?: string;
+};
+
 /* ----- getServerSideProps --------------------------------------- */
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
@@ -41,6 +47,26 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
         (article.categorySlug || article.category).toLowerCase() === normalizedCategorySlug)
   );
 
+  const hydratedGridArticles = await Promise.all(
+    gridArticles.map(async (article) => {
+      const detail = await findArticleRecord(
+        article.categorySlug || article.category,
+        article.slug
+      );
+
+      if (detail) {
+        return {
+          ...article,
+          body: detail.body,
+          bodyHtml: detail.bodyHtml,
+          publicBasePath: detail.publicBasePath,
+        } as ArticleWithBody;
+      }
+
+      return article as ArticleWithBody;
+    })
+  );
+
   return {
     props: {
       title: record.article.title,
@@ -51,7 +77,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       category: record.article.category,
       categorySlug: record.article.categorySlug,
       content: contentHtml,
-      gridArticles,
+      gridArticles: hydratedGridArticles,
       categories,
       searchArticles,
     },
@@ -69,7 +95,7 @@ interface ArtProps {
   category: string;
   categorySlug: string;
   content: string;
-  gridArticles: Article[];
+  gridArticles: ArticleWithBody[];
   categories: Category[];
   searchArticles: Article[];
 }
@@ -168,7 +194,7 @@ const ArticlePage: React.FC<ArtProps> = ({
       .trim();
   };
 
-  const buildPreviewSnippet = (article: Article): string => {
+  const buildPreviewSnippet = (article: ArticleWithBody): string => {
     const primaryPreview = article.preview?.trim();
 
     if (primaryPreview) {
