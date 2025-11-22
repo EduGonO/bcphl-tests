@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 import { Article } from "../../types";
 import { getArticleMediaStyle } from "../../lib/articleMedia";
+import { mdToHtml } from "../../lib/markdown";
 
 type PreviewVariant = "reflexion" | "creation" | "irl";
 
@@ -10,18 +10,130 @@ interface RedesignArticlePreviewCardProps {
   article: Article;
   variant: PreviewVariant;
   formatDate: (value: string) => string;
+  ctaLabel?: string;
+  ctaBackground?: string;
 }
+
+type ArticleWithBody = Article & {
+  body?: string;
+  bodyHtml?: string | null;
+  publicBasePath?: string;
+  bodyMarkdown?: string;
+  content?: string;
+  public_path?: string;
+};
+
+const createMarkdownPreview = (source: string): string => {
+  const filteredLines = source
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line || /^>+/.test(line) || /^&gt;+/i.test(line)) return false;
+      if (/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line)) return false;
+      if (/^\s*!\[[^\]]*]:/.test(line)) return false;
+      if (/^_+/.test(line)) return false;
+
+      const normalized = line.replace(/^[-*_`#>\s]+/, "").trim();
+      return Boolean(normalized);
+    })
+    .slice(0, 4);
+
+  const cleaned = filteredLines
+    .map((line) => line.replace(/^#{1,6}\s*/, ""))
+    .join("\n")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  if (!cleaned) {
+    return "";
+  }
+
+  const sentences = cleaned.match(/[^.!?]+[.!?]/g);
+  if (sentences && sentences.length > 0) {
+    const preview = sentences
+      .slice(0, 2)
+      .join(" ")
+      .trim()
+      .slice(0, 170)
+      .trim();
+
+    if (preview) {
+      return preview.endsWith(".") || preview.endsWith("!") || preview.endsWith("?")
+        ? preview
+        : `${preview}…`;
+    }
+  }
+
+  const fallback = cleaned.slice(0, 150).trim();
+  return fallback ? `${fallback}…` : "";
+};
+
+const stripHtmlTags = (html: string): string => {
+  return html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+};
+
+const buildPreviewSnippet = (article: ArticleWithBody): string => {
+  const primaryPreview = article.preview?.trim();
+
+  if (primaryPreview) {
+    return primaryPreview;
+  }
+
+  const markdownSource =
+    (article as any).bodyMarkdown || (article as any).body || (article as any).content;
+
+  if (markdownSource && typeof markdownSource === "string") {
+    const markdownPreview = createMarkdownPreview(markdownSource);
+    if (markdownPreview) {
+      return markdownPreview;
+    }
+  }
+
+  const htmlSource = (article as any).bodyHtml;
+  if (htmlSource && typeof htmlSource === "string") {
+    const text = stripHtmlTags(htmlSource);
+    const htmlPreview = createMarkdownPreview(text);
+    if (htmlPreview) {
+      return htmlPreview;
+    }
+  }
+
+  return "";
+};
 
 const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   article,
   variant,
   formatDate,
+  ctaLabel,
+  ctaBackground,
 }) => {
   const mediaStyle = getArticleMediaStyle(article);
   const formattedDate = formatDate(article.date);
   const categorySegment = article.categorySlug || article.category;
   const linkHref = `/${categorySegment}/${article.slug}`;
-  const linkLabel = variant === "creation" ? "découvrir" : "Lire";
+  const linkLabel = ctaLabel || (variant === "creation" ? "découvrir" : "Lire");
+
+  const previewHtml = useMemo(() => {
+    const snippet = buildPreviewSnippet(article as ArticleWithBody);
+    if (!snippet) {
+      return "";
+    }
+
+    const basePath = (article as any).publicBasePath || (article as any).public_path;
+
+    try {
+      return mdToHtml(snippet, basePath);
+    } catch (error) {
+      return snippet;
+    }
+  }, [article]);
 
   return (
     <Link href={linkHref} className={`article-preview ${variant}`} role="article">
@@ -38,12 +150,18 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             {formattedDate}
           </time>
         )}
-        {article.preview && (
-          <div className="article-preview-text">
-            <ReactMarkdown>{article.preview}</ReactMarkdown>
-          </div>
+        {previewHtml && (
+          <div
+            className="article-preview-text"
+            dangerouslySetInnerHTML={{ __html: previewHtml }}
+          />
         )}
-        <span className={`article-preview-cta ${variant}`}>{linkLabel}</span>
+        <span
+          className={`article-preview-cta ${variant}`}
+          style={ctaBackground ? { background: ctaBackground } : undefined}
+        >
+          {linkLabel}
+        </span>
       </div>
       <style jsx>{`
         .article-preview {
@@ -121,6 +239,10 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           line-height: 1.5;
           color: #000000;
           margin-bottom: 8px;
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         .article-preview-text :global(p) {
           margin: 0;
@@ -142,11 +264,11 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           margin-top: 0;
         }
         .article-preview-cta.reflexion {
-          background: #c1c1f0;
+          background: #c1c1f4;
           color: #111111;
         }
         .article-preview-cta.creation {
-          background: #f4f0ae;
+          background: #f4f0a7;
           color: #111111;
         }
         .article-preview-cta.irl {
