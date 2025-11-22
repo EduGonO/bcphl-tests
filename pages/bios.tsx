@@ -364,7 +364,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         }
         .main-area {
           flex: 1;
-          background: #f9f7f2;
+          background: #ffffff;
           display: flex;
           justify-content: center;
           padding: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 6vw, 4.5rem);
@@ -374,7 +374,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           display: grid;
           gap: clamp(2.5rem, 7vw, 4.5rem);
           color: #1f1f1f;
-          font-family: -apple-system, BlinkMacSystemFont, "EnbyGertrude",
+          font-family: "EnbyGertrude", -apple-system, BlinkMacSystemFont,
             "Segoe UI", sans-serif;
           font-weight: 400;
           font-synthesis: none;
@@ -393,7 +393,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           margin: 0;
           font-size: clamp(1.05rem, 2vw, 1.25rem);
           line-height: 1.55;
-          font-family: -apple-system, BlinkMacSystemFont, "EnbyGertrude",
+          font-family: "EnbyGertrude", -apple-system, BlinkMacSystemFont,
             "Segoe UI", sans-serif;
           font-weight: 400;
         }
@@ -481,18 +481,18 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         }
         .member-bio-inner {
           border: 2px solid #bcb3a3;
-          background: rgba(236, 228, 212, 0.55);
+          background: #ffffff;
           padding: clamp(1.5rem, 3vw, 2.5rem);
           display: grid;
           gap: 0.9rem;
           font-size: 1rem;
           line-height: 1.6;
-          font-family: -apple-system, BlinkMacSystemFont, "EnbyGertrude",
+          font-family: "EnbyGertrude", -apple-system, BlinkMacSystemFont,
             "Segoe UI", sans-serif;
         }
         .member-bio-inner :global(.bio-paragraph) {
           margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "EnbyGertrude",
+          font-family: "EnbyGertrude", -apple-system, BlinkMacSystemFont,
             "Segoe UI", sans-serif;
           font-weight: 400;
         }
