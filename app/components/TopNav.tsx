@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
@@ -55,15 +56,22 @@ const TopNav: React.FC = () => {
   const getCurrentPath = React.useCallback(
     (value?: string) => {
       if (value) return normalizePath(value);
+      if (router.asPath) return normalizePath(router.asPath);
+      if (router.pathname) return normalizePath(router.pathname);
       if (typeof window !== "undefined" && window.location?.pathname) {
         return normalizePath(window.location.pathname);
       }
-      return normalizePath(router.asPath || router.pathname || "/");
+      return "/";
     },
     [router.asPath, router.pathname]
   );
 
-  const [currentPath, setCurrentPath] = React.useState<string>(() => getCurrentPath());
+  const [currentPath, setCurrentPath] = React.useState<string>(() => {
+    if (typeof window !== "undefined" && window.location?.pathname) {
+      return normalizePath(window.location.pathname);
+    }
+    return getCurrentPath();
+  });
 
   React.useEffect(() => {
     if (!router.isReady) return;
@@ -85,14 +93,14 @@ const TopNav: React.FC = () => {
     <header className="top-nav" aria-label="Navigation principale">
       <div className="top-nav__inner">
         <Link href="/" className="top-nav__logo" aria-label="Accueil Bicéphale">
-          <img
+          <Image
             src="/logo-rectangle_bicephale_rvb.svg"
             alt="Bicéphale"
             className="top-nav__logo-img"
             width={240}
             height={64}
-            loading="eager"
-            decoding="async"
+            priority
+            sizes="(max-width: 720px) 70vw, 240px"
           />
         </Link>
         <nav className="top-nav__links">
