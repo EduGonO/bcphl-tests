@@ -52,19 +52,25 @@ const NAV_LINKS = [
 
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const [currentPath, setCurrentPath] = React.useState<string>(() => {
-    const fromRouter = router.asPath || router.pathname || "";
-    const fromWindow =
-      typeof window !== "undefined" ? window.location?.pathname || "" : "";
-    return normalizePath(fromRouter || fromWindow || "/");
-  });
+  const getPath = React.useCallback(() => {
+    if (typeof window !== "undefined") {
+      return normalizePath(window.location?.pathname || "");
+    }
+    if (router?.asPath) {
+      return normalizePath(router.asPath);
+    }
+    return normalizePath(router?.pathname || "/");
+  }, [router?.asPath, router?.pathname]);
+
+  const [currentPath, setCurrentPath] = React.useState<string>(() => getPath());
 
   React.useEffect(() => {
-    const updatePath = () => {
-      const fromRouter = router.asPath || router.pathname || "";
-      const fromWindow =
-        typeof window !== "undefined" ? window.location?.pathname || "" : "";
-      setCurrentPath(normalizePath(fromRouter || fromWindow || "/"));
+    const updatePath = (url?: string) => {
+      if (url) {
+        setCurrentPath(normalizePath(url));
+      } else {
+        setCurrentPath(getPath());
+      }
     };
 
     updatePath();
@@ -73,7 +79,7 @@ const TopNav: React.FC = () => {
     return () => {
       router.events?.off("routeChangeComplete", updatePath);
     };
-  }, [router.asPath, router.pathname, router.events]);
+  }, [getPath, router.events]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -86,6 +92,7 @@ const TopNav: React.FC = () => {
             width={240}
             height={64}
             loading="eager"
+            decoding="async"
           />
         </Link>
         <nav className="top-nav__links">
