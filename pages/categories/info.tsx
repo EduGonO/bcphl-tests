@@ -155,7 +155,7 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: -1px;
-          font-family: GayaRegular, -apple-system, InterRegular, sans-serif;
+          font-family: GayaRegular, -apple-system, EnbyGertrude, sans-serif;
         }
         
         /* About Page Specific Styles */
@@ -247,7 +247,7 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
           font-weight: 500;
           letter-spacing: 1px;
           text-transform: uppercase;
-          font-family: GayaRegular, -apple-system, InterRegular, sans-serif;
+          font-family: GayaRegular, -apple-system, EnbyGertrude, sans-serif;
         }
         
         .text-fragment {
@@ -299,7 +299,7 @@ export default function ImageCritiquePage({ articles, categories }: ImageCritiqu
         .glitch-text {
           font-size: 4rem;
           font-weight: 400;
-          font-family: GayaRegular, InterRegular;
+          font-family: GayaRegular, EnbyGertrude;
           text-transform: uppercase;
           letter-spacing: 0.5rem;
           position: relative;

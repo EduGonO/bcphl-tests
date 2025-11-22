@@ -199,8 +199,9 @@ const TopNav: React.FC = () => {
           display: inline-flex;
           align-items: center;
           gap: 30px;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 16px;
+          font-weight: 500;
           text-transform: uppercase;
           white-space: nowrap;
         }
@@ -228,7 +229,8 @@ const TopNav: React.FC = () => {
         }
 
         .nav-link--active {
-          font-family: "InterSemiBold", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
+          font-weight: 600;
           border-color: #0a0a0a;
           border-bottom-width: 3px;
         }

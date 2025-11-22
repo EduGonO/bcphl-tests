@@ -192,7 +192,7 @@ aria-label={`Lire ${article.title}`}
           background-color: white;
           display: flex;
           padding: 0;
-          font-family: 'Inter', sans-serif;
+          font-family: 'EnbyGertrude', sans-serif;
           position: relative;
           margin-left: 1.5rem;
         }

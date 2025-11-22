@@ -423,7 +423,7 @@ const RedesignSearchSidebar = ({
           border-bottom: 1px solid rgba(17, 17, 17, 0.18);
           cursor: pointer;
           text-transform: uppercase;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 15px;
           letter-spacing: 0.08em;
           color: #0d0d0d;
@@ -515,7 +515,7 @@ const RedesignSearchSidebar = ({
           background: none;
           border: 1px solid rgba(44, 28, 35, 0.5);
           text-transform: uppercase;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           letter-spacing: 0.12em;
           font-size: 14px;
           padding: 6px 16px;
@@ -535,7 +535,7 @@ const RedesignSearchSidebar = ({
         }
         .drawer-label {
           font-size: 14px;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           text-transform: uppercase;
           letter-spacing: 0.12em;
           color: #5b3f47;
@@ -545,7 +545,7 @@ const RedesignSearchSidebar = ({
           border: 1px solid #bfa9b2;
           padding: 12px;
           font-size: 16px;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
         }
         .clear-button {
           align-self: flex-start;
@@ -554,7 +554,7 @@ const RedesignSearchSidebar = ({
           padding: 6px 18px;
           text-transform: uppercase;
           font-size: 13px;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           cursor: pointer;
           color: #2c1c23;
         }
@@ -572,7 +572,7 @@ const RedesignSearchSidebar = ({
         .search-results-label {
           margin: 0;
           font-size: 13px;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: rgba(44, 28, 35, 0.72);
@@ -632,14 +632,14 @@ const RedesignSearchSidebar = ({
           align-items: center;
           column-gap: 6px;
           row-gap: 8px;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 12px;
           letter-spacing: 0.04em;
           text-transform: uppercase;
           color: rgba(44, 28, 35, 0.72);
         }
         .search-result-author {
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
         }
         .search-result-date {
           font-style: normal;
@@ -652,7 +652,7 @@ const RedesignSearchSidebar = ({
           background: rgba(44, 28, 35, 0.08);
           border: 1px solid rgba(44, 28, 35, 0.16);
           border-radius: 999px;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           letter-spacing: 0.1em;
           color: #2c1c23;
         }
@@ -661,7 +661,7 @@ const RedesignSearchSidebar = ({
         }
         .search-no-results {
           margin: 0;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           line-height: 1.5;
           color: rgba(44, 28, 35, 0.68);
@@ -670,7 +670,7 @@ const RedesignSearchSidebar = ({
           margin: 0;
           font-size: 14px;
           line-height: 1.6;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           color: #3c2b31;
           word-break: break-word;
           hyphens: auto;
@@ -699,7 +699,7 @@ const RedesignSearchSidebar = ({
           border-radius: 2px;
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          font-family: "InterMedium", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 12px;
           font-weight: 600;
           line-height: 1;

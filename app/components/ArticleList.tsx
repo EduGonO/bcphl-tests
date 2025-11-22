@@ -114,12 +114,12 @@ const ArticleList: React.FC<ArticleListProps> = ({
         font-size: 14px;
         line-height: 1.2;
         color: #333;
-        font-family: -apple-system, InterRegular, sans-serif;
+        font-family: -apple-system, EnbyGertrude, sans-serif;
       }
       .meta {
         font-size: 14px;
         color: #666;
-        font-family: -apple-system, InterRegular, sans-serif;
+        font-family: -apple-system, EnbyGertrude, sans-serif;
       }
     `}</style>
   </section>

@@ -320,7 +320,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           padding: 0 8px;
         }
         .intro-text {
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           color: #211f18;
           line-height: 1.56;
           font-size: 16px;
@@ -386,7 +386,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           align-items: center;
           justify-content: center;
           align-self: flex-start;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
           padding: 6px 16px;
