@@ -1,11 +1,20 @@
 import Head from "next/head";
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
-import { getArticleData } from "../lib/articleService";
+import { findArticleRecord, getArticleRecords } from "../lib/articleService";
 import { Article } from "../types";
 
 interface CreationPageProps {
   articles: Article[];
 }
+
+type ArticleWithBody = Article & {
+  body?: string;
+  bodyHtml?: string | null;
+  bodyMarkdown?: string;
+  content?: string;
+  publicBasePath?: string;
+  public_path?: string;
+};
 
 /*
 To restore the introduction section, re-enable the ReactNode import from "react"
@@ -47,14 +56,38 @@ const CreationPage = ({ articles }: CreationPageProps) => {
 };
 
 export async function getServerSideProps() {
-  const { articles } = await getArticleData();
+  const records = await getArticleRecords();
+
+  const categoryRecords = records.filter(
+    (record) =>
+      (record.article.categorySlug || record.article.category).toLowerCase() ===
+      "creation"
+  );
+
+  const articles: ArticleWithBody[] = await Promise.all(
+    categoryRecords.map(async (record) => {
+      const hydrated =
+        (await findArticleRecord(
+          record.article.categorySlug || record.article.category,
+          record.article.slug
+        )) || record;
+
+      const publicPath = hydrated.publicBasePath || record.publicBasePath || "";
+
+      return {
+        ...hydrated.article,
+        body: hydrated.body,
+        bodyHtml: hydrated.bodyHtml,
+        bodyMarkdown: hydrated.body,
+        content: hydrated.body,
+        publicBasePath: publicPath,
+        public_path: publicPath,
+      };
+    })
+  );
+
   return {
-    props: {
-      articles: articles.filter(
-        (article) =>
-          (article.categorySlug || article.category).toLowerCase() === "creation"
-      ),
-    },
+    props: { articles },
   };
 }
 
