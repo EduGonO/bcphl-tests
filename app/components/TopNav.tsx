@@ -2,7 +2,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 
-import { NAV_LINKS } from "../../config/navLinks";
+const NAV_LINKS = [
+  { label: "Réflexion", href: "/Reflexion" },
+  { label: "Création", href: "/Creation" },
+  { label: "IRL", href: "/IRL" },
+  { label: "À propos", href: "/bios" },
+];
 
 const TopNav: React.FC = () => {
   const { asPath } = useRouter();
@@ -16,12 +21,12 @@ const TopNav: React.FC = () => {
   }, [asPath]);
 
   return (
-    <header className="top-nav">
+    <header className="top-nav" aria-label="Navigation principale">
       <div className="top-nav__inner">
         <Link href="/" className="top-nav__logo" aria-label="Accueil Bicéphale">
           <img src="/logo-rectangle_bicephale_rvb.svg" alt="Bicéphale" />
         </Link>
-        <nav className="top-nav__links" aria-label="Navigation principale">
+        <nav className="top-nav__links">
           {NAV_LINKS.map((link) => {
             const hrefLower = link.href.toLowerCase();
             const isActive =
@@ -44,17 +49,22 @@ const TopNav: React.FC = () => {
       </div>
       <style jsx>{`
         .top-nav {
+          position: sticky;
+          top: 0;
+          z-index: 10;
           width: 100%;
-          padding: 20px 32px;
-          border-bottom: 1px solid #b9b0a3;
           background: #ffffff;
+          border-bottom: 1px solid #b9b0a3;
+          padding: 16px 20px;
         }
 
         .top-nav__inner {
+          max-width: 1200px;
+          margin: 0 auto;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 32px;
+          gap: 24px;
           width: 100%;
         }
 
@@ -74,8 +84,10 @@ const TopNav: React.FC = () => {
         .top-nav__links {
           display: flex;
           flex: 1;
-          justify-content: space-between;
+          justify-content: space-evenly;
+          align-items: center;
           gap: 12px;
+          min-width: 0;
         }
 
         .top-nav__link {
@@ -86,26 +98,20 @@ const TopNav: React.FC = () => {
           text-decoration: none;
           padding: 10px 18px;
           border-radius: 999px;
-          transition: background-color 0.2s ease, color 0.2s ease;
+          transition: background-color 0.15s ease, color 0.15s ease, text-decoration 0.15s ease;
           white-space: nowrap;
         }
 
         .top-nav__link:hover,
         .top-nav__link:focus-visible {
-          background-color: #efe7d8;
-          color: #0a0a0a;
+          text-decoration: underline;
         }
 
         .top-nav__link--active {
           background-color: #d7c6a4;
-          color: #0a0a0a;
         }
 
         @media (max-width: 720px) {
-          .top-nav {
-            padding: 18px 20px;
-          }
-
           .top-nav__inner {
             flex-direction: column;
             align-items: center;
@@ -118,7 +124,7 @@ const TopNav: React.FC = () => {
 
           .top-nav__links {
             width: 100%;
-            justify-content: space-between;
+            justify-content: space-evenly;
           }
         }
       `}</style>
