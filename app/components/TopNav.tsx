@@ -81,9 +81,9 @@ const TopNav: React.FC = () => {
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
                 style={{
-                  ["--active-color" as const]: link.activeColor,
-                  ["--hover-color" as const]: link.hoverColor,
-                }}
+                  "--active-color": link.activeColor,
+                  "--hover-color": link.hoverColor,
+                } as React.CSSProperties}
               >
                 {link.label}
               </Link>
@@ -126,16 +126,18 @@ const TopNav: React.FC = () => {
           align-items: center;
           justify-content: flex-start;
           text-decoration: none;
-          width: 100%;
+          width: auto;
           max-width: 240px;
+          min-width: 160px;
           padding: 6px 0;
         }
 
         .top-nav__logo img {
           display: block;
-          width: 230px;
+          width: 220px;
           height: auto;
           max-width: 100%;
+          max-height: 64px;
           object-fit: contain;
           opacity: 1;
         }
@@ -158,7 +160,7 @@ const TopNav: React.FC = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 9px 18px;
+          padding: 12px 22px;
           border-radius: 999px;
           transition:
             background-color 0.18s ease,
@@ -169,8 +171,8 @@ const TopNav: React.FC = () => {
           background-color: transparent;
         }
 
-        .top-nav__link:hover,
-        .top-nav__link:focus-visible {
+        .top-nav__link:hover:not(.top-nav__link--active),
+        .top-nav__link:focus-visible:not(.top-nav__link--active) {
           text-decoration: underline;
           text-decoration-thickness: 2px;
           text-underline-offset: 6px;
@@ -179,7 +181,6 @@ const TopNav: React.FC = () => {
 
         .top-nav__link--active {
           color: #0f0f0f;
-          padding: 12px 24px;
           background-color: var(--active-color, transparent);
         }
 
@@ -202,7 +203,8 @@ const TopNav: React.FC = () => {
           }
 
           .top-nav__logo img {
-            height: 54px;
+            height: 56px;
+            width: auto;
           }
         }
       `}</style>
