@@ -238,7 +238,9 @@ const ArticlePage: React.FC<ArtProps> = ({
                               className="related-link"
                             >
                               <span className="related-title">{article.title}</span>
-                              {article.author && <span className="related-author">Par {article.author}</span>}
+                              {article.author && (
+                                <span className="related-author">{article.author}</span>
+                              )}
                               {formattedRelatedDate && (
                                 <span className="related-date">{formattedRelatedDate}</span>
                               )}
@@ -574,13 +576,13 @@ const ArticlePage: React.FC<ArtProps> = ({
         .related-subheading {
           margin: 0;
           align-self: flex-start;
-          font-family: "InterRegular", sans-serif;
+          font-family: "EnbyGertrude", sans-serif;
           font-size: 24px;
           font-weight: 400;
           color: #000000;
           letter-spacing: 0.01em;
-          padding: 6px 0;
-          background: transparent;
+          padding: 6px 12px;
+          background: ${accentColor};
           text-decoration: underline;
         }
 
@@ -637,7 +639,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .related-preview {
-          font-family: "InterRegular", "EnbyGertrude", serif;
+          font-family: "EnbyGertrude", serif;
           font-size: 14px;
           font-weight: 400;
           color: #000000;
