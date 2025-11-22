@@ -240,18 +240,15 @@ const BiosPage = ({ articles }: BiosPageProps) => {
             <section className="bios" aria-label="Équipe Bicéphale">
               <header className="masthead">
                 <p>
-                  Depuis 2020, l&apos;association Brigade d&apos;Interventions contributives développe des actions culturelles visant à créer des
-                  espaces d&apos;expression et de réflexion partagée entre les arts.
+                  Depuis 2020, l&apos;association Brigade d&apos;Interventions contributives développe des actions culturelles visant à créer des espaces d&apos;expression et de réflexion
+                  partagée entre les arts. L&apos;association B.I.C organise les soirées Bicéphales, performances de textes contemporains incarnées sous un dispositif cabaret et des
+                  expositions (Ex-tension des frontières (2020), Tech Care (2024), Temps de Jou(i)r (2024), Bicéphale (2026)...).
                 </p>
                 <p>
-                  L&apos;association B.I.C organise les soirées Bicéphales, performances de textes contemporains incarnées sous un dispositif cabaret et
-                  des expositions (Ex-tension des frontières (2020), Tech Care (2024), Temps de Jou(i)r (2024), Bicéphale (2026)...). Par la voix et le corps des
-                  textes des auteurs et autrices contemporaines, les soirées bicéphales incluent une transdisciplinarité des pratiques artistiques et répondent à un besoin de
-                  rencontre immédiate et de proximité entre les artistes vivants et leurs publics (ex. Le cabaret surréaliste contemporain).
-                </p>
-                <p>
-                  Avec la revue Bicéphale, en ligne et papier, l&apos;association B.I.C entend donner à lire les textes des soirées et ouvrir un espace critique sur la création
-                  contemporaine et les transformations induites par le numérique.
+                  Par la voix et le corps des textes des auteurs et autrices contemporaines, les soirées bicéphales incluent une transdisciplinarité des pratiques artistiques et
+                  répondent à un besoin de rencontre immédiate et de proximité entre les artistes vivants et leurs publics (ex. Le cabaret surréaliste contemporain). Avec la revue
+                  Bicéphale, en ligne et papier, l&apos;association B.I.C entend donner à lire les textes des soirées et ouvrir un espace critique sur la création contemporaine et les
+                  transformations induites par le numérique.
                 </p>
                 <h2 className="team-title">L&apos;équipe Bicéphale</h2>
               </header>
@@ -397,12 +394,11 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           font-weight: 400;
         }
         .team-title {
-          margin: 0;
+          margin: clamp(2.25rem, 5vw, 3rem) 0 clamp(1rem, 3vw, 1.6rem);
           font-size: clamp(2rem, 5vw, 2.75rem);
           font-family: "GayaRegular", serif;
           font-weight: 900;
           letter-spacing: 0.05em;
-          text-transform: uppercase;
         }
         .team-grid {
           --portrait-grid-gap: clamp(0.65rem, 2.4vw, 1.1rem);
