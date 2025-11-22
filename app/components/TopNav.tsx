@@ -52,34 +52,33 @@ const NAV_LINKS = [
 
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const getPath = React.useCallback(() => {
-    if (typeof window !== "undefined") {
-      return normalizePath(window.location?.pathname || "");
+  const [currentPath, setCurrentPath] = React.useState<string>(() => {
+    const initial = router.asPath || router.pathname || "/";
+    if (typeof window !== "undefined" && window.location?.pathname) {
+      return normalizePath(window.location.pathname);
     }
-    if (router?.asPath) {
-      return normalizePath(router.asPath);
-    }
-    return normalizePath(router?.pathname || "/");
-  }, [router?.asPath, router?.pathname]);
-
-  const [currentPath, setCurrentPath] = React.useState<string>(() => getPath());
+    return normalizePath(initial);
+  });
 
   React.useEffect(() => {
-    const updatePath = (url?: string) => {
-      if (url) {
-        setCurrentPath(normalizePath(url));
-      } else {
-        setCurrentPath(getPath());
-      }
-    };
+    if (!router.isReady) return;
 
-    updatePath();
-    router.events?.on("routeChangeComplete", updatePath);
+    const nextPath = normalizePath(
+      router.asPath ||
+        (typeof window !== "undefined" ? window.location.pathname : router.pathname || "/"),
+    );
+
+    setCurrentPath(nextPath);
+
+    const handleRoute = (url: string) => setCurrentPath(normalizePath(url));
+    router.events?.on("routeChangeComplete", handleRoute);
+    router.events?.on("hashChangeComplete", handleRoute);
 
     return () => {
-      router.events?.off("routeChangeComplete", updatePath);
+      router.events?.off("routeChangeComplete", handleRoute);
+      router.events?.off("hashChangeComplete", handleRoute);
     };
-  }, [getPath, router.events]);
+  }, [router.asPath, router.events, router.isReady, router.pathname]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -145,7 +144,7 @@ const TopNav: React.FC = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: clamp(12px, 3vw, 28px);
+          gap: clamp(18px, 4vw, 36px);
         }
 
         .top-nav__logo {
@@ -173,8 +172,8 @@ const TopNav: React.FC = () => {
         .top-nav__links {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: clamp(14px, 3vw, 32px);
+          justify-content: space-evenly;
+          gap: clamp(18px, 4vw, 36px);
           flex: 1 1 auto;
           flex-wrap: nowrap;
         }
