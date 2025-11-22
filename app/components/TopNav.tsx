@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useMemo } from "react";
+import React from "react";
 
 const NAV_LINKS = [
   { label: "Réflexion", href: "/Reflexion" },
@@ -11,14 +11,10 @@ const NAV_LINKS = [
 
 const TopNav: React.FC = () => {
   const { asPath } = useRouter();
-
-  const normalizedPath = useMemo(() => {
-    const path = (asPath || "/").split(/[?#]/)[0].toLowerCase();
-    if (path !== "/" && path.endsWith("/")) {
-      return path.slice(0, -1);
-    }
-    return path;
-  }, [asPath]);
+  const normalizedPath = (asPath || "/")
+    .split(/[?#]/)[0]
+    .replace(/\/+$/, "")
+    .toLowerCase() || "/";
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -55,17 +51,18 @@ const TopNav: React.FC = () => {
           width: 100%;
           background: #ffffff;
           border-bottom: 1px solid #b9b0a3;
-          padding: 16px 20px;
+          display: flex;
+          justify-content: center;
         }
 
         .top-nav__inner {
-          max-width: 1200px;
+          width: min(1120px, 100%);
+          padding: 14px clamp(16px, 4vw, 28px);
           margin: 0 auto;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 24px;
-          width: 100%;
+          gap: clamp(12px, 3vw, 28px);
         }
 
         .top-nav__logo {
@@ -76,18 +73,16 @@ const TopNav: React.FC = () => {
         }
 
         .top-nav__logo img {
-          height: 48px;
+          height: 50px;
           width: auto;
           display: block;
         }
 
         .top-nav__links {
           display: flex;
-          flex: 1;
-          justify-content: space-evenly;
           align-items: center;
-          gap: 12px;
-          min-width: 0;
+          justify-content: center;
+          gap: clamp(12px, 3vw, 28px);
         }
 
         .top-nav__link {
@@ -96,7 +91,7 @@ const TopNav: React.FC = () => {
           font-weight: 400;
           color: #0f0f0f;
           text-decoration: none;
-          padding: 10px 18px;
+          padding: 9px 18px;
           border-radius: 999px;
           transition: background-color 0.15s ease, color 0.15s ease, text-decoration 0.15s ease;
           white-space: nowrap;
@@ -105,6 +100,7 @@ const TopNav: React.FC = () => {
         .top-nav__link:hover,
         .top-nav__link:focus-visible {
           text-decoration: underline;
+          text-underline-offset: 4px;
         }
 
         .top-nav__link--active {
@@ -115,16 +111,15 @@ const TopNav: React.FC = () => {
           .top-nav__inner {
             flex-direction: column;
             align-items: center;
-            gap: 16px;
           }
 
           .top-nav__logo {
+            width: 100%;
             justify-content: center;
           }
 
           .top-nav__links {
             width: 100%;
-            justify-content: space-evenly;
           }
         }
       `}</style>
