@@ -51,11 +51,17 @@ const TopNav: React.FC = () => {
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
-    setHydratedPath(window.location.pathname || "/");
+    const livePath = window.location.pathname || "/";
+    setHydratedPath(livePath);
   }, []);
 
   const normalizedPath = React.useMemo(() => {
-    const rawPath = asPath || pathname || hydratedPath || "/";
+    const rawPath =
+      (typeof window !== "undefined" && window.location?.pathname) ||
+      asPath ||
+      pathname ||
+      hydratedPath ||
+      "/";
     const cleaned = rawPath.split(/[?#]/)[0].replace(/\/+$/, "");
     return cleaned ? cleaned.toLowerCase() : "/";
   }, [asPath, pathname, hydratedPath]);
@@ -64,7 +70,13 @@ const TopNav: React.FC = () => {
     <header className="top-nav" aria-label="Navigation principale">
       <div className="top-nav__inner">
         <Link href="/" className="top-nav__logo" aria-label="Accueil Bicéphale">
-          <img src="/logo-rectangle_bicephale_rvb.svg" alt="Bicéphale" />
+          <img
+            src="/logo-rectangle_bicephale_rvb.svg"
+            alt="Bicéphale"
+            width={240}
+            height={64}
+            loading="eager"
+          />
         </Link>
         <nav className="top-nav__links">
           {NAV_LINKS.map((link) => {
@@ -127,16 +139,15 @@ const TopNav: React.FC = () => {
           justify-content: flex-start;
           text-decoration: none;
           width: auto;
-          max-width: 240px;
+          max-width: clamp(180px, 24vw, 240px);
           min-width: 160px;
           padding: 6px 0;
         }
 
         .top-nav__logo img {
           display: block;
-          width: 220px;
+          width: 100%;
           height: auto;
-          max-width: 100%;
           max-height: 64px;
           object-fit: contain;
           opacity: 1;
@@ -171,8 +182,8 @@ const TopNav: React.FC = () => {
           background-color: transparent;
         }
 
-        .top-nav__link:hover:not(.top-nav__link--active),
-        .top-nav__link:focus-visible:not(.top-nav__link--active) {
+        .top-nav__link:hover,
+        .top-nav__link:focus-visible {
           text-decoration: underline;
           text-decoration-thickness: 2px;
           text-underline-offset: 6px;
@@ -181,6 +192,11 @@ const TopNav: React.FC = () => {
 
         .top-nav__link--active {
           color: #0f0f0f;
+          background-color: var(--active-color, transparent);
+        }
+
+        .top-nav__link--active:hover,
+        .top-nav__link--active:focus-visible {
           background-color: var(--active-color, transparent);
         }
 
@@ -204,7 +220,6 @@ const TopNav: React.FC = () => {
 
           .top-nav__logo img {
             height: 56px;
-            width: auto;
           }
         }
       `}</style>
