@@ -15,9 +15,6 @@ interface RedesignProps {
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
   const [introHeight, setIntroHeight] = useState<number | null>(null);
-  const [hoveredAction, setHoveredAction] = useState<"about" | "follow" | null>(
-    null
-  );
   const introCopyRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -135,14 +132,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     [sortedArticles, normalizedQuery]
   );
 
-  const handleHoverStart = (action: "about" | "follow") => {
-    setHoveredAction(action);
-  };
-
-  const handleHoverEnd = (action: "about" | "follow") => {
-    setHoveredAction((current) => (current === action ? null : current));
-  };
-
   return (
     <>
       <Head>
@@ -184,29 +173,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 <div className="intro-actions">
                   <Link
                     href="/bios"
-                    className={`intro-action ${
-                      hoveredAction === "about" ? "is-hovered" : ""
-                    }`}
-                    onPointerEnter={() => handleHoverStart("about")}
-                    onPointerMove={() => handleHoverStart("about")}
-                    onMouseEnter={() => handleHoverStart("about")}
-                    onPointerLeave={() => handleHoverEnd("about")}
-                    onMouseLeave={() => handleHoverEnd("about")}
+                    className="intro-action"
                   >
                     <span className="intro-action-pill featured">À propos</span>
                   </Link>
                   <Link
                     href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
-                    className={`intro-action ${
-                      hoveredAction === "follow" ? "is-hovered" : ""
-                    }`}
+                    className="intro-action"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onPointerEnter={() => handleHoverStart("follow")}
-                    onPointerMove={() => handleHoverStart("follow")}
-                    onMouseEnter={() => handleHoverStart("follow")}
-                    onPointerLeave={() => handleHoverEnd("follow")}
-                    onMouseLeave={() => handleHoverEnd("follow")}
                   >
                     <span className="intro-action-pill event">Nous suivre</span>
                   </Link>
@@ -348,6 +323,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           gap: 18px;
           margin: 8px 0 0;
+          pointer-events: auto;
         }
         .intro-action {
           position: relative;
@@ -355,6 +331,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           text-decoration: none;
           color: #111111;
           cursor: pointer;
+          pointer-events: auto;
+          z-index: 1;
         }
         .intro-action::after {
           content: "";
@@ -373,8 +351,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action:hover::after,
         .intro-action:focus-visible::after,
-        .intro-action:active::after,
-        .intro-action.is-hovered::after {
+        .intro-action:active::after {
           opacity: 1;
           transform: scaleX(1);
         }
@@ -397,6 +374,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             color 0.2s ease;
           color: #111111;
           cursor: pointer;
+          pointer-events: auto;
         }
         .intro-action-pill.featured {
           background: #c1c1f0;
@@ -407,20 +385,17 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action:hover .intro-action-pill,
         .intro-action:focus-visible .intro-action-pill,
-        .intro-action:active .intro-action-pill,
-        .intro-action.is-hovered .intro-action-pill {
+        .intro-action:active .intro-action-pill {
           transform: translateY(-1px);
         }
         .intro-action:hover .intro-action-pill.featured,
         .intro-action:focus-visible .intro-action-pill.featured,
-        .intro-action:active .intro-action-pill.featured,
-        .intro-action.is-hovered .intro-action-pill.featured {
+        .intro-action:active .intro-action-pill.featured {
           background: #b2b2ec;
         }
         .intro-action:hover .intro-action-pill.event,
         .intro-action:focus-visible .intro-action-pill.event,
-        .intro-action:active .intro-action-pill.event,
-        .intro-action.is-hovered .intro-action-pill.event {
+        .intro-action:active .intro-action-pill.event {
           background: #029c58;
           color: #111111;
         }
