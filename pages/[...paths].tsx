@@ -134,6 +134,50 @@ const ArticlePage: React.FC<ArtProps> = ({
   const hasHeroImage = Boolean(heroImage);
   const authorSlug = slugify(author);
 
+  const buildPreviewSnippet = (article: Article): string => {
+    const primaryPreview =
+      article.preview?.trim() ||
+      (article as any).previewText?.trim() ||
+      (article as any).excerpt?.trim();
+
+    if (primaryPreview) {
+      return primaryPreview;
+    }
+
+    const bodySource =
+      (article as any).bodyMarkdown ||
+      (article as any).body ||
+      (article as any).content ||
+      "";
+
+    if (!bodySource || typeof bodySource !== "string") {
+      return "";
+    }
+
+    const cleaned = bodySource
+      .replace(/^#{1,6}\s.*?\n+/, "")
+      .replace(/^\s*!\[[^\]]*]\([^)]+\)\s*$/gm, "")
+      .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+      .replace(/\n{2,}/g, "\n")
+      .trim();
+
+    if (!cleaned) {
+      return "";
+    }
+
+    const min = 160;
+    const max = 240;
+    const slice = cleaned.slice(min, max);
+    const relEnd = slice.search(/[.!?](?:\s|\n)/);
+    const cut = relEnd !== -1 ? min + relEnd + 1 : Math.min(cleaned.length, 200);
+    let preview = cleaned.slice(0, cut).trim();
+    if (relEnd === -1 && cut < cleaned.length) {
+      preview += "…";
+    }
+
+    return preview;
+  };
+
   return (
     <>
       <Head>
@@ -231,6 +275,14 @@ const ArticlePage: React.FC<ArtProps> = ({
                               })
                             : "";
 
+                        const previewSnippet = buildPreviewSnippet(article);
+                        const previewHtml = previewSnippet
+                          ? mdToHtml(
+                              previewSnippet,
+                              (article as any).publicBasePath || (article as any).public_path
+                            )
+                          : "";
+
                         return (
                           <li className="related-item" key={`${categorySegment}-${article.slug}`}>
                             <Link
@@ -244,8 +296,11 @@ const ArticlePage: React.FC<ArtProps> = ({
                               {formattedRelatedDate && (
                                 <span className="related-date">{formattedRelatedDate}</span>
                               )}
-                              {article.preview && (
-                                <span className="related-preview">{article.preview}</span>
+                              {previewHtml && (
+                                <span
+                                  className="related-preview"
+                                  dangerouslySetInnerHTML={{ __html: previewHtml }}
+                                />
                               )}
                             </Link>
                           </li>
