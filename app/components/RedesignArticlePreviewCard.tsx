@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 import { Article } from "../../types";
 import { getArticleMediaStyle } from "../../lib/articleMedia";
+import { mdToHtml } from "../../lib/markdown";
 
 type PreviewVariant = "reflexion" | "creation" | "irl";
 
@@ -11,6 +11,93 @@ interface RedesignArticlePreviewCardProps {
   variant: PreviewVariant;
   formatDate: (value: string) => string;
 }
+
+type ArticleWithBody = Article & {
+  body?: string;
+  bodyHtml?: string | null;
+  publicBasePath?: string;
+  bodyMarkdown?: string;
+  content?: string;
+  public_path?: string;
+};
+
+const createMarkdownPreview = (source: string): string => {
+  const filteredLines = source
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(
+      (line) =>
+        line &&
+        !/^>+/.test(line) &&
+        !/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line) &&
+        !/^\s*!\[[^\]]*]:/.test(line)
+    )
+    .slice(0, 4);
+
+  const cleaned = filteredLines
+    .map((line) => line.replace(/^#{1,6}\s*/, ""))
+    .join(" ")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  if (!cleaned) {
+    return "";
+  }
+
+  const sentences = cleaned.match(/[^.!?]+[.!?]/g);
+  if (sentences && sentences.length > 0) {
+    const preview = sentences
+      .slice(0, 2)
+      .join(" ")
+      .trim();
+
+    if (preview.length >= 12) {
+      return preview;
+    }
+  }
+
+  const fallback = cleaned.slice(0, 150).trim();
+  return fallback ? `${fallback}…` : "";
+};
+
+const stripHtmlTags = (html: string): string => {
+  return html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+};
+
+const buildPreviewSnippet = (article: ArticleWithBody): string => {
+  const primaryPreview = article.preview?.trim();
+
+  if (primaryPreview) {
+    return primaryPreview;
+  }
+
+  const markdownSource =
+    article.bodyMarkdown || article.body || (article as any).bodyMarkdown || article.content;
+
+  if (markdownSource && typeof markdownSource === "string") {
+    const markdownPreview = createMarkdownPreview(markdownSource);
+    if (markdownPreview) {
+      return markdownPreview;
+    }
+  }
+
+  const htmlSource = article.bodyHtml || (article as any).bodyHtml;
+  if (htmlSource && typeof htmlSource === "string") {
+    const text = stripHtmlTags(htmlSource);
+    const htmlPreview = createMarkdownPreview(text);
+    if (htmlPreview) {
+      return htmlPreview;
+    }
+  }
+
+  return "";
+};
 
 const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   article,
@@ -22,6 +109,21 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   const categorySegment = article.categorySlug || article.category;
   const linkHref = `/${categorySegment}/${article.slug}`;
   const linkLabel = variant === "creation" ? "découvrir" : "Lire";
+
+  const previewHtml = useMemo(() => {
+    const snippet = buildPreviewSnippet(article as ArticleWithBody);
+    if (!snippet) {
+      return "";
+    }
+
+    const basePath = (article as any).publicBasePath || (article as any).public_path;
+
+    try {
+      return mdToHtml(snippet, basePath);
+    } catch (error) {
+      return snippet;
+    }
+  }, [article]);
 
   return (
     <Link href={linkHref} className={`article-preview ${variant}`} role="article">
@@ -38,10 +140,11 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             {formattedDate}
           </time>
         )}
-        {article.preview && (
-          <div className="article-preview-text">
-            <ReactMarkdown>{article.preview}</ReactMarkdown>
-          </div>
+        {previewHtml && (
+          <div
+            className="article-preview-text"
+            dangerouslySetInnerHTML={{ __html: previewHtml }}
+          />
         )}
         <span className={`article-preview-cta ${variant}`}>{linkLabel}</span>
       </div>

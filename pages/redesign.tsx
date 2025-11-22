@@ -489,23 +489,23 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           align-items: center;
           justify-content: flex-start;
           gap: 16px;
-          text-transform: uppercase;
           font-family: "GayaRegular", serif;
-          letter-spacing: normal;
+          letter-spacing: 0.01em;
           color: #2b2720;
           padding: 32px 32px 0;
           margin-bottom: 16px;
         }
         .column-header h2 {
           margin: 0;
-          font-size: 22px;
+          font-size: 24px;
+          text-transform: lowercase;
         }
         .column-content {
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           gap: 24px;
-          max-height: clamp(560px, 70vh, 860px);
+          max-height: clamp(640px, 75vh, 980px);
         }
         .column-featured :global(.article-preview),
         .column-events :global(.article-preview) {
