@@ -63,20 +63,33 @@ const TopNav: React.FC = () => {
   React.useEffect(() => {
     if (!router.isReady) return;
 
-    const nextPath = normalizePath(
-      router.asPath ||
-        (typeof window !== "undefined" ? window.location.pathname : router.pathname || "/"),
-    );
+    const resolvePath = (url?: string) => {
+      if (url) {
+        try {
+          const base = typeof window !== "undefined" ? window.location.origin : "http://localhost";
+          return normalizePath(new URL(url, base).pathname);
+        } catch {
+          return normalizePath(url);
+        }
+      }
 
-    setCurrentPath(nextPath);
+      if (typeof window !== "undefined" && window.location?.pathname) {
+        return normalizePath(window.location.pathname);
+      }
 
-    const handleRoute = (url: string) => setCurrentPath(normalizePath(url));
-    router.events?.on("routeChangeComplete", handleRoute);
-    router.events?.on("hashChangeComplete", handleRoute);
+      return normalizePath(router.asPath || router.pathname || "/");
+    };
+
+    const applyPath = (url?: string) => setCurrentPath(resolvePath(url));
+
+    applyPath(router.asPath);
+
+    router.events?.on("routeChangeComplete", applyPath);
+    router.events?.on("hashChangeComplete", applyPath);
 
     return () => {
-      router.events?.off("routeChangeComplete", handleRoute);
-      router.events?.off("hashChangeComplete", handleRoute);
+      router.events?.off("routeChangeComplete", applyPath);
+      router.events?.off("hashChangeComplete", applyPath);
     };
   }, [router.asPath, router.events, router.isReady, router.pathname]);
 
@@ -141,10 +154,10 @@ const TopNav: React.FC = () => {
           max-width: 1080px;
           padding: 14px clamp(16px, 4vw, 24px);
           margin: 0 auto;
-          display: flex;
+          display: grid;
+          grid-template-columns: auto 1fr;
           align-items: center;
-          justify-content: space-between;
-          gap: clamp(18px, 4vw, 36px);
+          column-gap: clamp(24px, 5vw, 44px);
         }
 
         .top-nav__logo {
@@ -172,10 +185,11 @@ const TopNav: React.FC = () => {
         .top-nav__links {
           display: flex;
           align-items: center;
-          justify-content: space-evenly;
+          justify-content: space-between;
           gap: clamp(18px, 4vw, 36px);
           flex: 1 1 auto;
           flex-wrap: nowrap;
+          width: 100%;
         }
 
         .top-nav__link {
@@ -218,6 +232,7 @@ const TopNav: React.FC = () => {
 
         @media (max-width: 720px) {
           .top-nav__inner {
+            display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
