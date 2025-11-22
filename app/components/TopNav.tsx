@@ -52,46 +52,34 @@ const NAV_LINKS = [
 
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const [currentPath, setCurrentPath] = React.useState<string>(() => {
-    const initial = router.asPath || router.pathname || "/";
-    if (typeof window !== "undefined" && window.location?.pathname) {
-      return normalizePath(window.location.pathname);
-    }
-    return normalizePath(initial);
-  });
+  const getCurrentPath = React.useCallback(
+    (value?: string) => {
+      if (value) return normalizePath(value);
+      if (typeof window !== "undefined" && window.location?.pathname) {
+        return normalizePath(window.location.pathname);
+      }
+      return normalizePath(router.asPath || router.pathname || "/");
+    },
+    [router.asPath, router.pathname]
+  );
+
+  const [currentPath, setCurrentPath] = React.useState<string>(() => getCurrentPath());
 
   React.useEffect(() => {
     if (!router.isReady) return;
 
-    const resolvePath = (url?: string) => {
-      if (url) {
-        try {
-          const base = typeof window !== "undefined" ? window.location.origin : "http://localhost";
-          return normalizePath(new URL(url, base).pathname);
-        } catch {
-          return normalizePath(url);
-        }
-      }
+    const handleRouteChange = (url?: string) => setCurrentPath(getCurrentPath(url));
 
-      if (typeof window !== "undefined" && window.location?.pathname) {
-        return normalizePath(window.location.pathname);
-      }
+    handleRouteChange(router.asPath);
 
-      return normalizePath(router.asPath || router.pathname || "/");
-    };
-
-    const applyPath = (url?: string) => setCurrentPath(resolvePath(url));
-
-    applyPath(router.asPath);
-
-    router.events?.on("routeChangeComplete", applyPath);
-    router.events?.on("hashChangeComplete", applyPath);
+    router.events?.on("routeChangeComplete", handleRouteChange);
+    router.events?.on("hashChangeComplete", handleRouteChange);
 
     return () => {
-      router.events?.off("routeChangeComplete", applyPath);
-      router.events?.off("hashChangeComplete", applyPath);
+      router.events?.off("routeChangeComplete", handleRouteChange);
+      router.events?.off("hashChangeComplete", handleRouteChange);
     };
-  }, [router.asPath, router.events, router.isReady, router.pathname]);
+  }, [getCurrentPath, router.asPath, router.events, router.isReady]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -152,12 +140,12 @@ const TopNav: React.FC = () => {
         .top-nav__inner {
           width: min(1080px, 100%);
           max-width: 1080px;
-          padding: 14px clamp(16px, 4vw, 24px);
+          padding: 14px clamp(16px, 5vw, 32px);
           margin: 0 auto;
           display: grid;
           grid-template-columns: auto 1fr;
           align-items: center;
-          column-gap: clamp(24px, 5vw, 44px);
+          column-gap: clamp(36px, 8vw, 64px);
         }
 
         .top-nav__logo {
@@ -190,6 +178,7 @@ const TopNav: React.FC = () => {
           flex: 1 1 auto;
           flex-wrap: nowrap;
           width: 100%;
+          padding-right: clamp(6px, 2vw, 18px);
         }
 
         .top-nav__link {
