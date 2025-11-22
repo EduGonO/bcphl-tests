@@ -172,17 +172,24 @@ const ArticlePage: React.FC<ArtProps> = ({
       return "";
     }
 
-    const min = 160;
-    const max = 240;
-    const slice = cleaned.slice(min, max);
-    const relEnd = slice.search(/[.!?](?:\s|\n)/);
-    const cut = relEnd !== -1 ? min + relEnd + 1 : Math.min(cleaned.length, 200);
-    let preview = cleaned.slice(0, cut).trim();
-    if (relEnd === -1 && cut < cleaned.length) {
-      preview += "…";
+    const sentences = cleaned.match(/[^.!?]+[.!?]/g);
+    if (sentences && sentences.length > 0) {
+      const preview = sentences
+        .slice(0, 2)
+        .join(" ")
+        .trim()
+        .slice(0, 180)
+        .trim();
+
+      if (preview) {
+        return preview.endsWith(".") || preview.endsWith("!") || preview.endsWith("?")
+          ? preview
+          : `${preview}…`;
+      }
     }
 
-    return preview;
+    const fallback = cleaned.slice(0, 140).trim();
+    return fallback ? `${fallback}…` : "";
   };
 
   const stripHtmlTags = (html: string): string => {
