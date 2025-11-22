@@ -555,13 +555,14 @@ const ArticlePage: React.FC<ArtProps> = ({
         .related-sidebar {
           width: 100%;
           background: transparent;
-          padding: clamp(12px, 2.4vw, 18px) clamp(12px, 2.4vw, 18px);
+          padding: clamp(12px, 2vw, 16px) 0 clamp(12px, 2vw, 16px)
+            clamp(6px, 1.4vw, 12px);
           box-sizing: border-box;
         }
 
         .related-articles-inner {
-          width: min(400px, 100%);
-          margin: 0 auto;
+          width: 100%;
+          margin: 0;
           display: flex;
           flex-direction: column;
           gap: 16px;
@@ -584,6 +585,8 @@ const ArticlePage: React.FC<ArtProps> = ({
           padding: 6px 12px;
           background: ${accentColor};
           text-decoration: underline;
+          display: inline-flex;
+          border-radius: 2px;
         }
 
         .related-list {
@@ -614,6 +617,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .related-title {
+          display: block;
           font-family: "GayaRegular", serif;
           font-size: 28px;
           line-height: 1.25;
@@ -623,6 +627,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .related-author {
+          display: block;
           font-family: "GayaRegular", serif;
           font-size: 18.67px;
           font-weight: 400;
@@ -631,6 +636,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .related-date {
+          display: block;
           font-family: "GayaRegular", serif;
           font-size: 13.33px;
           font-weight: 400;
@@ -639,6 +645,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .related-preview {
+          display: block;
           font-family: "EnbyGertrude", serif;
           font-size: 14px;
           font-weight: 400;
