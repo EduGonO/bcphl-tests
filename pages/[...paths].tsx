@@ -169,10 +169,7 @@ const ArticlePage: React.FC<ArtProps> = ({
   };
 
   const buildPreviewSnippet = (article: Article): string => {
-    const primaryPreview =
-      article.preview?.trim() ||
-      (article as any).previewText?.trim() ||
-      (article as any).excerpt?.trim();
+    const primaryPreview = article.preview?.trim();
 
     if (primaryPreview) {
       return primaryPreview;
@@ -199,7 +196,7 @@ const ArticlePage: React.FC<ArtProps> = ({
       }
     }
 
-    return article.title?.trim() || "";
+    return "";
   };
 
   return (
@@ -514,7 +511,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           .related-sidebar {
             position: sticky;
             top: clamp(72px, 12vh, 132px);
-            padding-right: clamp(12px, 2vw, 18px);
+            padding-right: 10px;
           }
         }
 
