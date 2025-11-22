@@ -284,7 +284,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           display: grid;
           grid-template-columns: minmax(0, 1fr);
           align-items: start;
-          gap: clamp(16px, 3vw, 32px);
+          gap: 0;
           background: #fcfcfc;
         }
 
@@ -428,7 +428,6 @@ const ArticlePage: React.FC<ArtProps> = ({
         @media (min-width: 1024px) {
           .article-layout {
             grid-template-columns: minmax(0, 2.6fr) minmax(280px, 1fr);
-            padding-right: clamp(12px, 2vw, 24px);
           }
 
           .article {
@@ -553,8 +552,8 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .related-sidebar {
           width: 100%;
-          background: #ffffff;
-          padding: clamp(16px, 3vw, 24px) clamp(14px, 2.8vw, 24px);
+          background: transparent;
+          padding: clamp(12px, 2.4vw, 18px) clamp(12px, 2.4vw, 18px);
           box-sizing: border-box;
         }
 
@@ -580,9 +579,8 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-weight: 400;
           color: #000000;
           letter-spacing: 0.01em;
-          padding: 6px 10px;
-          background: ${hexToRgba(articleColor, 0.2)};
-          border-radius: 2px;
+          padding: 6px 0;
+          background: transparent;
           text-decoration: underline;
         }
 
@@ -639,7 +637,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .related-preview {
-          font-family: "InterRegular", sans-serif;
+          font-family: "InterRegular", "EnbyGertrude", serif;
           font-size: 14px;
           font-weight: 400;
           color: #000000;
