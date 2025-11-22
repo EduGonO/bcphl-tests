@@ -558,7 +558,6 @@ const ArticlePage: React.FC<ArtProps> = ({
           .related-sidebar {
             position: sticky;
             top: clamp(72px, 12vh, 132px);
-            padding-right: 10px;
           }
         }
 
@@ -675,8 +674,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .related-sidebar {
           width: 100%;
           background: transparent;
-          padding: clamp(12px, 2vw, 16px) 0 clamp(12px, 2vw, 16px)
-            clamp(6px, 1.4vw, 12px);
+          padding: clamp(12px, 2vw, 16px) 28px clamp(12px, 2vw, 16px) 0;
           box-sizing: border-box;
         }
 
@@ -816,7 +814,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           }
 
           .related-sidebar {
-            padding: clamp(16px, 8vw, 28px) clamp(16px, 8vw, 28px);
+            padding: clamp(16px, 8vw, 28px) 28px clamp(16px, 8vw, 28px) 28px;
           }
         }
 
