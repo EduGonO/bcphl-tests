@@ -1,328 +1,253 @@
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 
-import { NAV_LINKS } from "../../config/navLinks";
+const toRgba = (hex: string, alpha: number) => {
+  const normalized = hex.replace("#", "");
+  const full =
+    normalized.length === 3
+      ? normalized
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : normalized;
+  const intVal = parseInt(full, 16);
+  const r = (intVal >> 16) & 255;
+  const g = (intVal >> 8) & 255;
+  const b = intVal & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const normalizePath = (raw: string) => {
+  const cleaned = raw.split(/[?#]/)[0].replace(/\/+$/, "");
+  return cleaned ? cleaned.toLowerCase() : "/";
+};
+
+const NAV_LINKS = [
+  {
+    label: "Réflexion",
+    href: "/Reflexion",
+    activeColor: "#c7b5f4",
+    hoverColor: toRgba("#c7b5f4", 0.5),
+  },
+  {
+    label: "Création",
+    href: "/Creation",
+    activeColor: "#e8b583",
+    hoverColor: toRgba("#e8b583", 0.5),
+  },
+  {
+    label: "IRL",
+    href: "/IRL",
+    activeColor: "#bdd6c5",
+    hoverColor: toRgba("#bdd6c5", 0.5),
+  },
+  {
+    label: "À propos",
+    href: "/bios",
+    activeColor: "#d6c6e0",
+    hoverColor: toRgba("#d6c6e0", 0.5),
+  },
+];
 
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const [isMobileViewport, setIsMobileViewport] = useState(false);
-  const [isCompact, setIsCompact] = useState(false);
+  const getCurrentPath = React.useCallback(
+    (value?: string) => {
+      if (value) return normalizePath(value);
+      if (router.asPath) return normalizePath(router.asPath);
+      if (router.pathname) return normalizePath(router.pathname);
+      if (typeof window !== "undefined" && window.location?.pathname) {
+        return normalizePath(window.location.pathname);
+      }
+      return "/";
+    },
+    [router.asPath, router.pathname]
+  );
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobileViewport(window.innerWidth <= 720);
-    };
+  const [currentPath, setCurrentPath] = React.useState<string>(() => {
+    if (typeof window !== "undefined" && window.location?.pathname) {
+      return normalizePath(window.location.pathname);
+    }
+    return getCurrentPath();
+  });
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
+  React.useEffect(() => {
+    if (!router.isReady) return;
+
+    const handleRouteChange = (url?: string) => setCurrentPath(getCurrentPath(url));
+
+    handleRouteChange(router.asPath);
+
+    router.events?.on("routeChangeComplete", handleRouteChange);
+    router.events?.on("hashChangeComplete", handleRouteChange);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      router.events?.off("routeChangeComplete", handleRouteChange);
+      router.events?.off("hashChangeComplete", handleRouteChange);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!isMobileViewport) {
-      setIsCompact(false);
-      return;
-    }
-
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    const updateCompact = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > lastScrollY + 6 && currentScrollY > 40) {
-        setIsCompact(true);
-      } else if (currentScrollY < lastScrollY - 6 || currentScrollY <= 40) {
-        setIsCompact(false);
-      }
-
-      lastScrollY = currentScrollY;
-      ticking = false;
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateCompact);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [isMobileViewport]);
-
-  const isCategoriesVisible = !(isMobileViewport && isCompact);
-  const normalizedPath = useMemo(() => {
-    const path = router.asPath ?? router.pathname;
-    const normalized = path.split(/[?#]/)[0].toLowerCase();
-
-    if (normalized.endsWith("/") && normalized !== "/") {
-      return normalized.slice(0, -1);
-    }
-
-    return normalized;
-  }, [router.asPath, router.pathname]);
+  }, [getCurrentPath, router.asPath, router.events, router.isReady]);
 
   return (
-    <header
-      className={`top-nav${isCompact ? " top-nav--compact" : ""}${
-        isMobileViewport ? " top-nav--mobile" : ""
-      }`}
-    >
-      <div className="top-nav__layout">
-        <Link href="/" className="brand" aria-label="Accueil Bicéphale">
-          <img
+    <header className="top-nav" aria-label="Navigation principale">
+      <div className="top-nav__inner">
+        <Link href="/" className="top-nav__logo" aria-label="Accueil Bicéphale">
+          <Image
             src="/logo-rectangle_bicephale_rvb.svg"
             alt="Bicéphale"
-            className="brand-logo brand-logo--wide"
+            className="top-nav__logo-img"
+            width={240}
+            height={64}
+            priority
+            sizes="(max-width: 720px) 70vw, 240px"
           />
         </Link>
-        <div
-          className={`top-nav__categories${
-            isCategoriesVisible ? "" : " top-nav__categories--hidden"
-          }`}
-        >
-          <nav className="nav-links">
-            {NAV_LINKS.map((link) => {
-              if (link.disabled) {
-                return (
-                  <span key={link.label} className="nav-link disabled" aria-disabled="true">
-                    {link.label}
-                  </span>
-                );
-              }
+        <nav className="top-nav__links">
+          {NAV_LINKS.map((link) => {
+            const hrefLower = link.href.toLowerCase();
+            const isActive =
+              hrefLower === "/"
+                ? currentPath === "/"
+                : currentPath === hrefLower || currentPath.startsWith(`${hrefLower}/`);
 
-              const hrefLower = link.href.toLowerCase();
-              const isActive =
-                hrefLower === "/"
-                  ? normalizedPath === "/"
-                  : normalizedPath === hrefLower || normalizedPath.startsWith(`${hrefLower}/`);
-
-              return (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`nav-link${isActive ? " nav-link--active" : ""}`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
+                style={{
+                  "--active-color": link.activeColor,
+                  "--hover-color": link.hoverColor,
+                } as React.CSSProperties}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
       <style jsx>{`
+        .top-nav,
+        .top-nav * {
+          box-sizing: border-box;
+        }
+
         .top-nav {
           position: sticky;
           top: 0;
-          z-index: 50;
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 24px 48px 18px;
+          z-index: 10;
+          width: 100%;
+          background: #ffffff;
           border-bottom: 1px solid #b9b0a3;
-          background: rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          transition: padding 0.25s ease;
+          display: flex;
+          justify-content: center;
         }
 
-        .top-nav__layout {
+        .top-nav__inner {
+          width: min(1080px, 100%);
+          max-width: 1080px;
+          padding: 14px clamp(16px, 5vw, 32px);
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: auto 1fr;
+          align-items: center;
+          column-gap: clamp(36px, 8vw, 64px);
+        }
+
+        .top-nav__logo {
+          flex: 0 0 auto;
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: flex-start;
+          text-decoration: none;
+          width: auto;
+          max-width: clamp(180px, 24vw, 240px);
+          min-width: 160px;
+          padding: 6px 0;
+        }
+
+        .top-nav__logo-img {
+          display: block;
+          width: 100%;
+          height: auto;
+          max-height: 64px;
+          object-fit: contain;
+          opacity: 1;
+        }
+
+        .top-nav__links {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          column-gap: 48px;
+          gap: clamp(18px, 4vw, 36px);
+          flex: 1 1 auto;
+          flex-wrap: nowrap;
           width: 100%;
+          padding-right: clamp(6px, 2vw, 18px);
         }
 
-        .brand {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: flex-start;
-          min-height: 42px;
-          block-size: auto;
-          flex: 0 1 auto;
-          min-width: 0;
-          white-space: nowrap;
-          box-sizing: border-box;
-          padding: 0;
-          color: #0d0d0d;
-          text-decoration: none;
-          line-height: 1;
-        }
-
-        .brand:visited,
-        .brand:hover,
-        .brand:focus-visible {
-          color: #0d0d0d;
-        }
-
-        .brand-logo {
-          display: block;
-          flex-shrink: 0;
-          height: 42px;
-          max-height: 42px;
-          width: auto;
-          object-fit: contain;
-        }
-
-        .brand-logo--wide {
-          max-width: min(300px, 45vw);
-        }
-
-        .top-nav__categories {
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          flex: 0 1 auto;
-          min-width: auto;
-          transition: opacity 0.25s ease;
-          margin-top: 0;
-        }
-
-        .top-nav__categories--hidden {
-          opacity: 0;
-          pointer-events: none;
-          margin-top: 0;
-        }
-
-        .nav-links {
-          display: inline-flex;
-          align-items: center;
-          gap: 30px;
+        .top-nav__link {
           font-family: "EnbyGertrude", sans-serif;
-          font-size: 16px;
-          font-weight: 500;
-          text-transform: uppercase;
-          white-space: nowrap;
-        }
-
-        .nav-link {
+          font-size: 24px;
+          font-weight: 400;
+          color: #0f0f0f;
+          text-decoration: none;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
-          color: #111;
-          text-decoration: none;
-          padding: 6px 0;
-          border-bottom: 2px solid transparent;
-          transition: color 0.18s ease, border-color 0.18s ease;
+          padding: 12px 22px;
+          border-radius: 999px;
+          transition:
+            background-color 0.18s ease,
+            color 0.18s ease,
+            text-decoration 0.18s ease;
+          white-space: nowrap;
+          line-height: 1.1;
+          background-color: transparent;
         }
 
-        .nav-link:visited {
-          color: #111;
+        .top-nav__link:hover,
+        .top-nav__link:focus-visible {
+          text-decoration: underline;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 6px;
+          background-color: var(--hover-color, rgba(0, 0, 0, 0.1));
         }
 
-        .nav-link:hover,
-        .nav-link:focus-visible {
-          color: #0a0a0a;
-          border-color: currentColor;
+        .top-nav__link--active {
+          color: #0f0f0f;
+          background-color: var(--active-color, transparent);
         }
 
-        .nav-link--active {
-          font-family: "EnbyGertrude", sans-serif;
-          font-weight: 600;
-          border-color: #0a0a0a;
-          border-bottom-width: 3px;
-        }
-
-        .nav-link.disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-          pointer-events: none;
-        }
-
-        @media (max-width: 900px) {
-          .brand {
-            flex: 0 1 220px;
-          }
+        .top-nav__link--active:hover,
+        .top-nav__link--active:focus-visible {
+          background-color: var(--active-color, transparent);
         }
 
         @media (max-width: 720px) {
-          .top-nav {
-            padding: 18px 24px 14px;
-            gap: 16px;
-          }
-
-          .top-nav__layout {
-            column-gap: 24px;
-            row-gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-          }
-
-          .brand {
-            margin: 0 auto;
-          }
-
-          .top-nav__categories {
-            flex-basis: 100%;
-            justify-content: center;
-            overflow: hidden;
-            max-height: 160px;
-            transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.3s ease;
-            transform: translateY(0);
-            margin-top: 12px;
-          }
-
-          .nav-links {
-            gap: 20px;
-          }
-
-          .top-nav--compact {
-            padding: 12px 20px 10px;
-            border-bottom-color: rgba(185, 176, 163, 0.6);
-          }
-
-          .top-nav__categories--hidden {
-            max-height: 0;
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-
-          .top-nav--compact .brand {
-            height: 42px;
-            min-height: 42px;
-          }
-        }
-
-        @media (max-width: 420px) {
-          .top-nav {
-            padding: 16px 18px 10px;
-          }
-
-          .brand {
+          .top-nav__inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 10px;
-            font-size: 20px;
           }
 
-          .nav-links {
-            gap: 16px;
-            font-size: 15px;
-          }
-
-          .top-nav__session {
+          .top-nav__logo {
             width: 100%;
-            justify-content: space-between;
+            justify-content: center;
           }
 
-          .top-nav__session {
-            flex-wrap: wrap;
-            row-gap: 12px;
-          }
-
-          .top-nav__signout {
+          .top-nav__links {
             width: 100%;
-            text-align: center;
+            justify-content: center;
+            gap: clamp(12px, 4vw, 20px);
+          }
+
+          .top-nav__logo-img {
+            height: 56px;
           }
         }
       `}</style>
