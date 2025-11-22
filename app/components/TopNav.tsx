@@ -87,13 +87,16 @@ const TopNav: React.FC = () => {
           justify-content: flex-start;
           text-decoration: none;
           min-width: 140px;
+          max-width: 220px;
+          padding: 4px 0;
         }
 
         .top-nav__logo img {
-          height: 50px;
-          width: auto;
           display: block;
+          height: 56px;
+          width: auto;
           max-width: 100%;
+          object-fit: contain;
         }
 
         .top-nav__links {
@@ -110,13 +113,17 @@ const TopNav: React.FC = () => {
           font-weight: 400;
           color: #0f0f0f;
           text-decoration: none;
-          padding: 11px 22px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 10px 20px;
           border-radius: 999px;
           transition:
             background-color 0.18s ease,
             color 0.18s ease,
             text-decoration 0.18s ease;
           white-space: nowrap;
+          line-height: 1.1;
         }
 
         .top-nav__link:hover,
