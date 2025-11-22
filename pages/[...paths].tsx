@@ -217,7 +217,6 @@ const ArticlePage: React.FC<ArtProps> = ({
             {gridArticles.length > 0 && (
               <aside className="related-sidebar">
                 <div className="related-articles-inner">
-                  <h2 className="related-heading">Dans la même rubrique</h2>
                   <div className="related-section">
                     <h3 className="related-subheading">À lire également</h3>
                     <ul className="related-list">
@@ -239,12 +238,13 @@ const ArticlePage: React.FC<ArtProps> = ({
                               className="related-link"
                             >
                               <span className="related-title">{article.title}</span>
-                              <span className="related-meta">
-                                {article.author && <span className="related-author">Par {article.author}</span>}
-                                {formattedRelatedDate && (
-                                  <span className="related-date"> • {formattedRelatedDate}</span>
-                                )}
-                              </span>
+                              {article.author && <span className="related-author">Par {article.author}</span>}
+                              {formattedRelatedDate && (
+                                <span className="related-date">{formattedRelatedDate}</span>
+                              )}
+                              {article.preview && (
+                                <span className="related-preview">{article.preview}</span>
+                              )}
                             </Link>
                           </li>
                         );
@@ -276,7 +276,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           flex: 1;
           display: flex;
           gap: 0;
-          background: #ffffff;
+          background: #fcfcfc;
         }
 
         .article-layout {
@@ -284,25 +284,25 @@ const ArticlePage: React.FC<ArtProps> = ({
           display: grid;
           grid-template-columns: minmax(0, 1fr);
           align-items: start;
-          gap: clamp(24px, 4vw, 48px);
-          background: #ffffff;
+          gap: clamp(16px, 3vw, 32px);
+          background: #fcfcfc;
         }
 
         .article {
           --article-max-width: 760px;
           --article-horizontal-padding: clamp(28px, 7vw, 120px);
-          --article-hero-vertical-padding: clamp(18px, 4vw, 44px);
-          --article-body-padding-top: clamp(40px, 7vw, 82px);
-          --article-body-padding-bottom: clamp(32px, 6vw, 76px);
+          --article-hero-vertical-padding: clamp(14px, 3.2vw, 36px);
+          --article-body-padding-top: clamp(34px, 6vw, 72px);
+          --article-body-padding-bottom: clamp(26px, 5vw, 66px);
           display: flex;
           flex-direction: column;
           gap: 0;
-          background: #ffffff;
+          background: #fcfcfc;
         }
 
         .article-hero {
           padding: var(--article-hero-vertical-padding) 0;
-          background: transparent;
+          background: #fcfcfc;
         }
 
         .article-hero-inner {
@@ -476,7 +476,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-body-wrapper {
           padding: var(--article-body-padding-top) var(--article-horizontal-padding)
             var(--article-body-padding-bottom);
-          background: #f7f7f7;
+          background: #fcfcfc;
         }
 
         .article-body {
@@ -554,28 +554,16 @@ const ArticlePage: React.FC<ArtProps> = ({
         .related-sidebar {
           width: 100%;
           background: #ffffff;
-          padding: clamp(20px, 4vw, 32px) clamp(18px, 3.5vw, 28px);
+          padding: clamp(16px, 3vw, 24px) clamp(14px, 2.8vw, 24px);
           box-sizing: border-box;
         }
 
         .related-articles-inner {
-          width: min(420px, 100%);
+          width: min(400px, 100%);
           margin: 0 auto;
           display: flex;
           flex-direction: column;
-          gap: 18px;
-        }
-
-        .related-heading {
-          margin: 0;
-          font-family: "GayaRegular", serif;
-          font-size: 22px;
-          font-weight: 400;
-          color: #0d0d0d;
-          letter-spacing: 0.01em;
-          padding: 8px 12px;
-          background: ${hexToRgba(articleColor, 0.16)};
-          border-radius: 2px;
+          gap: 16px;
         }
 
         .related-section {
@@ -586,11 +574,16 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .related-subheading {
           margin: 0;
-          font-family: "GayaRegular", serif;
-          font-size: 18px;
+          align-self: flex-start;
+          font-family: "InterRegular", sans-serif;
+          font-size: 24px;
           font-weight: 400;
           color: #000000;
           letter-spacing: 0.01em;
+          padding: 6px 10px;
+          background: ${hexToRgba(articleColor, 0.2)};
+          border-radius: 2px;
+          text-decoration: underline;
         }
 
         .related-list {
@@ -599,12 +592,12 @@ const ArticlePage: React.FC<ArtProps> = ({
           padding: 0;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 12px;
         }
 
         .related-item {
           border-bottom: 1px solid rgba(17, 17, 17, 0.12);
-          padding-bottom: 12px;
+          padding-bottom: 10px;
         }
 
         .related-item:last-of-type {
@@ -615,27 +608,43 @@ const ArticlePage: React.FC<ArtProps> = ({
         .related-link {
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 2px;
           text-decoration: none;
           color: inherit;
         }
 
         .related-title {
           font-family: "GayaRegular", serif;
-          font-size: 18px;
-          line-height: 1.3;
+          font-size: 28px;
+          line-height: 1.25;
           font-weight: 400;
-          color: #0d0d0d;
-        }
-
-        .related-meta {
-          font-family: "InterRegular", sans-serif;
-          font-size: 14px;
-          color: rgba(17, 17, 17, 0.78);
+          color: #000000;
+          text-align: left;
         }
 
         .related-author {
-          font-weight: 600;
+          font-family: "GayaRegular", serif;
+          font-size: 18.67px;
+          font-weight: 400;
+          color: #000000;
+          text-align: right;
+        }
+
+        .related-date {
+          font-family: "GayaRegular", serif;
+          font-size: 13.33px;
+          font-weight: 400;
+          color: #000000;
+          text-align: left;
+        }
+
+        .related-preview {
+          font-family: "InterRegular", sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          color: #000000;
+          text-align: left;
+          line-height: 1.4;
         }
 
         .related-link:hover .related-title,
@@ -673,12 +682,12 @@ const ArticlePage: React.FC<ArtProps> = ({
 
           .article {
             --article-horizontal-padding: clamp(20px, 8vw, 48px);
-            --article-body-padding-top: clamp(36px, 10vw, 64px);
-            --article-body-padding-bottom: clamp(24px, 8vw, 48px);
+            --article-body-padding-top: clamp(30px, 9vw, 58px);
+            --article-body-padding-bottom: clamp(20px, 7vw, 42px);
           }
 
           .article-layout {
-            background: #ffffff;
+            background: #fcfcfc;
           }
 
           .article-body {
