@@ -38,7 +38,7 @@ export default function SignInPage() {
         callbackUrl
       });
     } catch (err) {
-      setError("An error occurred during login. Please try again.");
+      setError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
     }
@@ -47,14 +47,14 @@ export default function SignInPage() {
   return (
     <div className="page">
       <Head>
-        <title>Sign In – BICÉPHALE</title>
+        <title>Connexion – BICÉPHALE</title>
       </Head>
 
       <div className="card">
         <div className="logo-frame">
           <Image
             src="/logo-carre_bicephale_rvb.png"
-            alt="BICÉPHALE logo"
+            alt="Logo BICÉPHALE"
             fill
             sizes="160px"
             priority
@@ -65,10 +65,10 @@ export default function SignInPage() {
 
         <form onSubmit={handleCredentialsLogin}>
           <label className="input-wrapper">
-            <span>Email</span>
+            <span>E-mail</span>
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="vous@exemple.com"
               value={email}
               required
               onChange={(e) => setEmail(e.target.value)}
@@ -76,7 +76,7 @@ export default function SignInPage() {
             />
           </label>
           <label className="input-wrapper">
-            <span>Password</span>
+            <span>Mot de passe</span>
             <input
               type="password"
               placeholder="••••••••"
@@ -87,7 +87,7 @@ export default function SignInPage() {
             />
           </label>
           <button type="submit" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Connexion en cours..." : "Se connecter"}
           </button>
         </form>
       </div>
