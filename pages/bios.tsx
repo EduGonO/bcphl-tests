@@ -394,7 +394,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           font-weight: 400;
         }
         .team-title {
-          margin: clamp(2.25rem, 5vw, 3rem) 0 clamp(1rem, 3vw, 1.6rem);
+          margin: clamp(2.75rem, 6vw, 3.5rem) 0 clamp(0.5rem, 2vw, 0.9rem);
           font-size: clamp(2rem, 5vw, 2.75rem);
           font-family: "GayaRegular", serif;
           font-weight: 900;
