@@ -165,7 +165,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .split(/\r?\n/)
         .map((line) => line.trim())
         .filter((line) => {
-          if (!line || /^>+/.test(line)) return false;
+          if (!line || /^>+/.test(line) || /^&gt;+/i.test(line)) return false;
           if (/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line)) return false;
           if (/^\s*!\[[^\]]*]:/.test(line)) return false;
           if (/^_+/.test(line)) return false;
