@@ -374,7 +374,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         .bios {
           width: min(1120px, 100%);
           display: grid;
-          gap: clamp(2.5rem, 7vw, 4.5rem);
+          gap: clamp(1.75rem, 5vw, 3rem);
           color: #1f1f1f;
           font-family: "EnbyGertrude", -apple-system, BlinkMacSystemFont,
             "Segoe UI", sans-serif;
@@ -394,11 +394,11 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           font-weight: 400;
         }
         .team-title {
-          margin: clamp(2.75rem, 6vw, 3.5rem) 0 clamp(0.5rem, 2vw, 0.9rem);
+          margin: clamp(2.75rem, 6vw, 3.5rem) 0 clamp(0.1rem, 0.8vw, 0.35rem);
           font-size: clamp(2rem, 5vw, 2.75rem);
           font-family: "GayaRegular", serif;
           font-weight: 900;
-          letter-spacing: 0.05em;
+          letter-spacing: normal;
         }
         .team-grid {
           --portrait-grid-gap: clamp(0.65rem, 2.4vw, 1.1rem);
