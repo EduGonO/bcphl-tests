@@ -6,12 +6,17 @@ import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import TopNav from "../app/components/TopNav";
 import Footer from "../app/components/Footer";
-import ArticleGrid from "../app/components/ArticleGrid";
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import { findArticleRecord, getArticleData } from "../lib/articleService";
 import { Article, Category } from "../types";
 import { mdToHtml } from "../lib/markdown";
 import { slugify } from "../lib/slug";
+
+type ArticleWithBody = Article & {
+  body?: string;
+  bodyHtml?: string | null;
+  publicBasePath?: string;
+};
 
 /* ----- getServerSideProps --------------------------------------- */
 
@@ -42,6 +47,26 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
         (article.categorySlug || article.category).toLowerCase() === normalizedCategorySlug)
   );
 
+  const hydratedGridArticles = await Promise.all(
+    gridArticles.map(async (article) => {
+      const detail = await findArticleRecord(
+        article.categorySlug || article.category,
+        article.slug
+      );
+
+      if (detail) {
+        return {
+          ...article,
+          body: detail.body,
+          bodyHtml: detail.bodyHtml,
+          publicBasePath: detail.publicBasePath,
+        } as ArticleWithBody;
+      }
+
+      return article as ArticleWithBody;
+    })
+  );
+
   return {
     props: {
       title: record.article.title,
@@ -52,7 +77,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       category: record.article.category,
       categorySlug: record.article.categorySlug,
       content: contentHtml,
-      gridArticles,
+      gridArticles: hydratedGridArticles,
       categories,
       searchArticles,
     },
@@ -70,7 +95,7 @@ interface ArtProps {
   category: string;
   categorySlug: string;
   content: string;
-  gridArticles: Article[];
+  gridArticles: ArticleWithBody[];
   categories: Category[];
   searchArticles: Article[];
 }
@@ -129,12 +154,95 @@ const ArticlePage: React.FC<ArtProps> = ({
         current.name.toLowerCase() === category.toLowerCase()
     )?.color || "#d4d4d4";
 
-  const backdropColor = hexToRgba(articleColor, 0.18);
   const accentColor = hexToRgba(articleColor, 0.8);
 
   const heroImage = headerImage || (media && media.length > 0 ? media[0] : "");
   const hasHeroImage = Boolean(heroImage);
   const authorSlug = slugify(author);
+
+  const createMarkdownPreview = (source: string): string => {
+    const filteredLines = source
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(
+        (line) =>
+          line &&
+          !/^>+/.test(line) &&
+          !/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line) &&
+          !/^\s*!\[[^\]]*]:/.test(line)
+      )
+      .slice(0, 4);
+
+    const cleaned = filteredLines
+      .map((line) => line.replace(/^#{1,6}\s*/, ""))
+      .join(" ")
+      .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+
+    if (!cleaned) {
+      return "";
+    }
+
+    const sentences = cleaned.match(/[^.!?]+[.!?]/g);
+    if (sentences && sentences.length > 0) {
+      const preview = sentences
+        .slice(0, 2)
+        .join(" ")
+        .trim()
+        .slice(0, 170)
+        .trim();
+
+      if (preview) {
+        return preview.endsWith(".") || preview.endsWith("!") || preview.endsWith("?")
+          ? preview
+          : `${preview}…`;
+      }
+    }
+
+    const fallback = cleaned.slice(0, 150).trim();
+    return fallback ? `${fallback}…` : "";
+  };
+
+  const stripHtmlTags = (html: string): string => {
+    return html
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  };
+
+  const buildPreviewSnippet = (article: ArticleWithBody): string => {
+    const primaryPreview = article.preview?.trim();
+
+    if (primaryPreview) {
+      return primaryPreview;
+    }
+
+    const markdownSource =
+      (article as any).bodyMarkdown ||
+      (article as any).body ||
+      (article as any).content;
+
+    if (markdownSource && typeof markdownSource === "string") {
+      const markdownPreview = createMarkdownPreview(markdownSource);
+      if (markdownPreview) {
+        return markdownPreview;
+      }
+    }
+
+    const htmlSource = (article as any).bodyHtml;
+    if (htmlSource && typeof htmlSource === "string") {
+      const text = stripHtmlTags(htmlSource);
+      const htmlPreview = createMarkdownPreview(text);
+      if (htmlPreview) {
+        return htmlPreview;
+      }
+    }
+
+    return "";
+  };
 
   return (
     <>
@@ -164,7 +272,7 @@ const ArticlePage: React.FC<ArtProps> = ({
 
           <div className="article-layout">
             <article className="article">
-              <header className="article-hero" style={{ backgroundColor: backdropColor }}>
+              <header className="article-hero">
                 <div className={`article-hero-inner${hasHeroImage ? "" : " no-media"}`}>
                   <div className="article-hero-content">
                     <div className="article-hero-header">
@@ -178,12 +286,12 @@ const ArticlePage: React.FC<ArtProps> = ({
                       ) : (
                         author && <p className="article-author">{author}</p>
                       )}
+                      {formattedDate && (
+                        <time className="article-date" dateTime={date}>
+                          {formattedDate}
+                        </time>
+                      )}
                     </div>
-                    {formattedDate && (
-                      <time className="article-date" dateTime={date}>
-                        {formattedDate}
-                      </time>
-                    )}
                   </div>
                   {hasHeroImage ? (
                     <div className="article-hero-media" aria-hidden="true">
@@ -217,16 +325,57 @@ const ArticlePage: React.FC<ArtProps> = ({
             </article>
 
             {gridArticles.length > 0 && (
-              <section className="related-articles">
+              <aside className="related-sidebar">
                 <div className="related-articles-inner">
-                  <h2 className="related-heading">Dans la même rubrique</h2>
-                  <ArticleGrid
-                    articles={gridArticles}
-                    categories={categories}
-                    titleFont="GayaRegular"
-                  />
+                  <div className="related-section">
+                    <h3 className="related-subheading">À lire également</h3>
+                    <ul className="related-list">
+                      {gridArticles.map((article) => {
+                        const categorySegment = (article.categorySlug || article.category).toLowerCase();
+                        const formattedRelatedDate =
+                          article.date && article.date !== "Unknown Date"
+                            ? new Date(article.date).toLocaleDateString("fr-FR", {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : "";
+
+                        const previewSnippet = buildPreviewSnippet(article);
+                        const previewHtml = previewSnippet
+                          ? mdToHtml(
+                              previewSnippet,
+                              (article as any).publicBasePath || (article as any).public_path
+                            )
+                          : "";
+
+                        return (
+                          <li className="related-item" key={`${categorySegment}-${article.slug}`}>
+                            <Link
+                              href={`/${categorySegment}/${article.slug}`}
+                              className="related-link"
+                            >
+                              <span className="related-title">{article.title}</span>
+                              {article.author && (
+                                <span className="related-author">{article.author}</span>
+                              )}
+                              {formattedRelatedDate && (
+                                <span className="related-date">{formattedRelatedDate}</span>
+                              )}
+                              {previewHtml && (
+                                <span
+                                  className="related-preview"
+                                  dangerouslySetInnerHTML={{ __html: previewHtml }}
+                                />
+                              )}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
-              </section>
+              </aside>
             )}
           </div>
         </main>
@@ -250,43 +399,46 @@ const ArticlePage: React.FC<ArtProps> = ({
           flex: 1;
           display: flex;
           gap: 0;
-          background: #ffffff;
+          background: #fcfcfc;
         }
 
         .article-layout {
           flex: 1;
-          display: flex;
-          flex-direction: column;
-          background: #e8e8e8;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          align-items: start;
+          gap: 0;
+          background: #fcfcfc;
         }
 
         .article {
-          --article-max-width: 720px;
-          --article-horizontal-padding: clamp(32px, 10vw, 140px);
-          --article-hero-vertical-padding: clamp(36px, 6vw, 72px);
-          --article-body-padding-top: clamp(44px, 8vw, 92px);
-          --article-body-padding-bottom: clamp(36px, 7vw, 88px);
+          --article-max-width: 760px;
+          --article-horizontal-padding: clamp(28px, 7vw, 120px);
+          --article-hero-vertical-padding: clamp(14px, 3.2vw, 36px);
+          --article-body-padding-top: clamp(34px, 6vw, 72px);
+          --article-body-padding-bottom: clamp(26px, 5vw, 66px);
           display: flex;
           flex-direction: column;
           gap: 0;
+          background: #fcfcfc;
         }
 
         .article-hero {
           padding: var(--article-hero-vertical-padding) 0;
-          background: ${backdropColor};
+          background: #fcfcfc;
         }
 
         .article-hero-inner {
           display: grid;
-          width: min(1180px, 100%);
+          width: min(1140px, 100%);
           box-sizing: border-box;
-          gap: clamp(24px, 4vw, 48px);
-          padding: 0 clamp(24px, 6vw, 64px);
+          gap: clamp(16px, 3vw, 32px);
+          padding: 0 clamp(22px, 5vw, 60px);
           margin: 0 auto;
         }
 
         .article-hero-inner.no-media {
-          gap: clamp(20px, 4vw, 28px);
+          gap: clamp(16px, 3vw, 24px);
           justify-content: center;
         }
 
@@ -294,9 +446,9 @@ const ArticlePage: React.FC<ArtProps> = ({
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
-          gap: clamp(18px, 4vw, 28px);
+          gap: clamp(12px, 3vw, 20px);
           color: #0d0d0d;
-          max-width: min(var(--article-max-width), 640px);
+          max-width: min(var(--article-max-width), 700px);
           width: 100%;
           margin: 0 auto;
         }
@@ -308,26 +460,30 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-hero-header {
           display: flex;
           flex-direction: column;
-          gap: clamp(12px, 3vw, 20px);
+          gap: clamp(8px, 2vw, 14px);
+          align-items: flex-start;
         }
 
         .article-title {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: clamp(34px, 5.6vw, 64px);
-          line-height: 1.08;
+          font-size: clamp(42px, 7vw, 66px);
+          line-height: 1.04;
           font-weight: 400;
-          color: #111111;
+          color: #000000;
           text-align: left;
+          width: 100%;
         }
 
         .article-author {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: clamp(16px, 2.4vw, 22px);
-          letter-spacing: 0.01em;
+          font-size: clamp(26px, 5vw, 42px);
+          letter-spacing: normal;
           text-align: right;
-          color: #111111;
+          color: #000000;
+          width: 100%;
+          align-self: flex-end;
         }
 
         .article-author-link {
@@ -354,11 +510,14 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-date {
-          font-family: "InterRegular", sans-serif;
-          font-size: 13px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: rgba(17, 17, 17, 0.68);
+          font-family: "GayaRegular", serif;
+          font-size: clamp(20px, 3.6vw, 30px);
+          letter-spacing: normal;
+          text-transform: none;
+          color: #000000;
+          text-align: left;
+          width: 100%;
+          display: block;
         }
 
         .article-hero-media {
@@ -381,6 +540,24 @@ const ArticlePage: React.FC<ArtProps> = ({
           max-width: 100%;
           max-height: min(60vh, 520px);
           border-radius: inherit;
+        }
+
+        @media (min-width: 840px) {
+          .article-author {
+            align-self: flex-end;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .article-layout {
+            grid-template-columns: minmax(0, 2.6fr) minmax(280px, 1fr);
+          }
+
+          .related-sidebar {
+            position: sticky;
+            top: clamp(72px, 12vh, 132px);
+            padding-right: 10px;
+          }
         }
 
         @media (min-width: 720px) {
@@ -418,7 +595,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-body-wrapper {
           padding: var(--article-body-padding-top) var(--article-horizontal-padding)
             var(--article-body-padding-bottom);
-          background: #f9f9f9;
+          background: #fcfcfc;
         }
 
         .article-body {
@@ -493,26 +670,106 @@ const ArticlePage: React.FC<ArtProps> = ({
           box-shadow: 0 14px 30px rgba(17, 17, 17, 0.12);
         }
 
-        .related-articles {
-          padding: clamp(48px, 7vw, 92px) clamp(32px, 8vw, 96px) clamp(64px, 9vw, 120px);
-          background: #ffffff;
+        .related-sidebar {
+          width: 100%;
+          background: transparent;
+          padding: clamp(12px, 2vw, 16px) 0 clamp(12px, 2vw, 16px)
+            clamp(6px, 1.4vw, 12px);
+          box-sizing: border-box;
         }
 
         .related-articles-inner {
-          width: min(1120px, 100%);
-          margin: 0 auto;
+          width: 100%;
+          margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 32px;
+          gap: 16px;
         }
 
-        .related-heading {
+        .related-section {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .related-subheading {
           margin: 0;
+          align-self: flex-start;
+          font-family: "EnbyGertrude", sans-serif;
+          font-size: 24px;
+          font-weight: 400;
+          color: #000000;
+          letter-spacing: 0.01em;
+          padding: 6px 12px;
+          background: ${accentColor};
+          text-decoration: underline;
+          display: inline-flex;
+          border-radius: 2px;
+        }
+
+        .related-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+
+        .related-link {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .related-title {
+          display: block;
           font-family: "GayaRegular", serif;
           font-size: 28px;
+          line-height: 1.25;
           font-weight: 400;
-          color: #111111;
-          letter-spacing: 0.02em;
+          color: #000000;
+          text-align: left;
+        }
+
+        .related-author {
+          display: block;
+          font-family: "GayaRegular", serif;
+          font-size: 18.67px;
+          font-weight: 400;
+          color: #000000;
+          text-align: right;
+        }
+
+        .related-date {
+          display: block;
+          font-family: "GayaRegular", serif;
+          font-size: 13.33px;
+          font-weight: 400;
+          color: #000000;
+          text-align: left;
+        }
+
+        .related-preview {
+          display: block;
+          font-family: "EnbyGertrude", serif;
+          font-size: 14px;
+          font-weight: 400;
+          color: #000000;
+          text-align: left;
+          line-height: 1.4;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+        }
+
+        .related-link:hover .related-title,
+        .related-link:focus-visible .related-title {
+          color: #000000;
+          text-decoration: underline;
         }
 
         @media (max-width: 959px) {
@@ -535,10 +792,6 @@ const ArticlePage: React.FC<ArtProps> = ({
           .article-hero-media img {
             max-height: min(46vh, 360px);
           }
-
-          .article-hero-media img {
-            max-height: min(72vw, 560px);
-          }
         }
 
         @media (max-width: 720px) {
@@ -548,20 +801,20 @@ const ArticlePage: React.FC<ArtProps> = ({
 
           .article {
             --article-horizontal-padding: clamp(20px, 8vw, 48px);
-            --article-body-padding-top: clamp(36px, 10vw, 64px);
-            --article-body-padding-bottom: clamp(24px, 8vw, 48px);
+            --article-body-padding-top: clamp(30px, 9vw, 58px);
+            --article-body-padding-bottom: clamp(20px, 7vw, 42px);
           }
 
           .article-layout {
-            background: #f0f0f0;
+            background: #fcfcfc;
           }
 
           .article-body {
             font-size: 17px;
           }
 
-          .related-articles {
-            padding: clamp(40px, 10vw, 72px) clamp(20px, 8vw, 48px);
+          .related-sidebar {
+            padding: clamp(16px, 8vw, 28px) clamp(16px, 8vw, 28px);
           }
         }
 
