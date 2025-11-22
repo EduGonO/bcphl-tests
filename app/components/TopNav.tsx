@@ -3,10 +3,10 @@ import { useRouter } from "next/router";
 import React from "react";
 
 const NAV_LINKS = [
-  { label: "Réflexion", href: "/Reflexion" },
-  { label: "Création", href: "/Creation" },
-  { label: "IRL", href: "/IRL" },
-  { label: "À propos", href: "/bios" },
+  { label: "Réflexion", href: "/Reflexion", activeColor: "#c7b5f4" },
+  { label: "Création", href: "/Creation", activeColor: "#e8b583" },
+  { label: "IRL", href: "/IRL", activeColor: "#bdd6c5" },
+  { label: "À propos", href: "/bios", activeColor: "#d6c6e0" },
 ];
 
 const TopNav: React.FC = () => {
@@ -36,6 +36,7 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
+                style={isActive ? { backgroundColor: link.activeColor } : undefined}
               >
                 {link.label}
               </Link>
@@ -44,6 +45,11 @@ const TopNav: React.FC = () => {
         </nav>
       </div>
       <style jsx>{`
+        .top-nav,
+        .top-nav * {
+          box-sizing: border-box;
+        }
+
         .top-nav {
           position: sticky;
           top: 0;
@@ -56,8 +62,9 @@ const TopNav: React.FC = () => {
         }
 
         .top-nav__inner {
-          width: min(1120px, 100%);
-          padding: 14px clamp(16px, 4vw, 28px);
+          width: 100%;
+          max-width: 1024px;
+          padding: 14px clamp(14px, 3vw, 24px);
           margin: 0 auto;
           display: flex;
           align-items: center;
@@ -66,6 +73,7 @@ const TopNav: React.FC = () => {
         }
 
         .top-nav__logo {
+          flex: 0 0 auto;
           display: inline-flex;
           align-items: center;
           justify-content: flex-start;
@@ -81,8 +89,9 @@ const TopNav: React.FC = () => {
         .top-nav__links {
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: clamp(12px, 3vw, 28px);
+          justify-content: space-evenly;
+          gap: clamp(14px, 3vw, 32px);
+          flex: 1 1 auto;
         }
 
         .top-nav__link {
@@ -104,13 +113,14 @@ const TopNav: React.FC = () => {
         }
 
         .top-nav__link--active {
-          background-color: #d7c6a4;
+          color: #0f0f0f;
         }
 
         @media (max-width: 720px) {
           .top-nav__inner {
             flex-direction: column;
             align-items: center;
+            gap: 10px;
           }
 
           .top-nav__logo {
@@ -120,6 +130,8 @@ const TopNav: React.FC = () => {
 
           .top-nav__links {
             width: 100%;
+            justify-content: center;
+            gap: clamp(12px, 4vw, 20px);
           }
         }
       `}</style>
