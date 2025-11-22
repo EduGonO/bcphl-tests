@@ -10,6 +10,8 @@ interface RedesignArticlePreviewCardProps {
   article: Article;
   variant: PreviewVariant;
   formatDate: (value: string) => string;
+  ctaLabel?: string;
+  ctaBackground?: string;
 }
 
 type ArticleWithBody = Article & {
@@ -25,18 +27,20 @@ const createMarkdownPreview = (source: string): string => {
   const filteredLines = source
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter(
-      (line) =>
-        line &&
-        !/^>+/.test(line) &&
-        !/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line) &&
-        !/^\s*!\[[^\]]*]:/.test(line)
-    )
+    .filter((line) => {
+      if (!line || /^>+/.test(line)) return false;
+      if (/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line)) return false;
+      if (/^\s*!\[[^\]]*]:/.test(line)) return false;
+      if (/^_+/.test(line)) return false;
+
+      const normalized = line.replace(/^[-*_`#>\s]+/, "").trim();
+      return Boolean(normalized);
+    })
     .slice(0, 4);
 
   const cleaned = filteredLines
     .map((line) => line.replace(/^#{1,6}\s*/, ""))
-    .join(" ")
+    .join("\n")
     .replace(/!\[[^\]]*]\([^)]+\)/g, "")
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -107,12 +111,14 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   article,
   variant,
   formatDate,
+  ctaLabel,
+  ctaBackground,
 }) => {
   const mediaStyle = getArticleMediaStyle(article);
   const formattedDate = formatDate(article.date);
   const categorySegment = article.categorySlug || article.category;
   const linkHref = `/${categorySegment}/${article.slug}`;
-  const linkLabel = variant === "creation" ? "découvrir" : "Lire";
+  const linkLabel = ctaLabel || (variant === "creation" ? "découvrir" : "Lire");
 
   const previewHtml = useMemo(() => {
     const snippet = buildPreviewSnippet(article as ArticleWithBody);
@@ -150,7 +156,12 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             dangerouslySetInnerHTML={{ __html: previewHtml }}
           />
         )}
-        <span className={`article-preview-cta ${variant}`}>{linkLabel}</span>
+        <span
+          className={`article-preview-cta ${variant}`}
+          style={ctaBackground ? { background: ctaBackground } : undefined}
+        >
+          {linkLabel}
+        </span>
       </div>
       <style jsx>{`
         .article-preview {
@@ -228,6 +239,10 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           line-height: 1.5;
           color: #000000;
           margin-bottom: 8px;
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         .article-preview-text :global(p) {
           margin: 0;
@@ -249,11 +264,11 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           margin-top: 0;
         }
         .article-preview-cta.reflexion {
-          background: #c1c1f0;
+          background: #c1c1f4;
           color: #111111;
         }
         .article-preview-cta.creation {
-          background: #f4f0ae;
+          background: #f4f0a7;
           color: #111111;
         }
         .article-preview-cta.irl {

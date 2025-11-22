@@ -260,6 +260,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                         key={article.slug}
                         article={article}
                         variant={getVariant(article)}
+                        ctaLabel="Lire"
+                        ctaBackground="#c1c1f4"
                         formatDate={formatDate}
                       />
                     ))}
@@ -278,6 +280,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                         key={article.slug}
                         article={article}
                         variant="irl"
+                        ctaLabel="découvrir"
+                        ctaBackground="#f4f0a7"
                         formatDate={formatDate}
                       />
                     ))}
@@ -514,7 +518,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           flex-direction: column;
           gap: 24px;
-          max-height: clamp(640px, 75vh, 980px);
+          max-height: clamp(720px, 82vh, 1180px);
         }
         .column-featured :global(.article-preview),
         .column-events :global(.article-preview) {

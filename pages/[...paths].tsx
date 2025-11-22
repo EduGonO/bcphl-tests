@@ -160,25 +160,27 @@ const ArticlePage: React.FC<ArtProps> = ({
   const hasHeroImage = Boolean(heroImage);
   const authorSlug = slugify(author);
 
-  const createMarkdownPreview = (source: string): string => {
-    const filteredLines = source
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(
-        (line) =>
-          line &&
-          !/^>+/.test(line) &&
-          !/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line) &&
-          !/^\s*!\[[^\]]*]:/.test(line)
-      )
-      .slice(0, 4);
+    const createMarkdownPreview = (source: string): string => {
+      const filteredLines = source
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => {
+          if (!line || /^>+/.test(line)) return false;
+          if (/^\s*!\[[^\]]*]\([^)]+\)\s*$/.test(line)) return false;
+          if (/^\s*!\[[^\]]*]:/.test(line)) return false;
+          if (/^_+/.test(line)) return false;
 
-    const cleaned = filteredLines
-      .map((line) => line.replace(/^#{1,6}\s*/, ""))
-      .join(" ")
-      .replace(/!\[[^\]]*]\([^)]+\)/g, "")
-      .replace(/\s{2,}/g, " ")
-      .trim();
+          const normalized = line.replace(/^[-*_`#>\s]+/, "").trim();
+          return Boolean(normalized);
+        })
+        .slice(0, 4);
+
+      const cleaned = filteredLines
+        .map((line) => line.replace(/^#{1,6}\s*/, ""))
+        .join("\n")
+        .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
 
     if (!cleaned) {
       return "";
