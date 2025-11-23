@@ -104,15 +104,13 @@ const TopNav: React.FC<TopNavProps> = ({ activeCategorySlug }) => {
     [activeCategorySlug]
   );
 
-  const [pathSegment, setPathSegment] = React.useState(() =>
-    getNormalizedSegment(getCurrentPath())
+  const [activeSegment, setActiveSegment] = React.useState(() =>
+    normalizedPropSegment ?? getNormalizedSegment(getCurrentPath())
   );
-
-  const activeSegment = normalizedPropSegment ?? pathSegment;
 
   React.useEffect(() => {
     const updateFromPath = (path?: string) =>
-      setPathSegment(getNormalizedSegment(getCurrentPath(path)));
+      setActiveSegment(getNormalizedSegment(getCurrentPath(path)));
 
     updateFromPath();
 
@@ -133,7 +131,7 @@ const TopNav: React.FC<TopNavProps> = ({ activeCategorySlug }) => {
 
   React.useEffect(() => {
     if (normalizedPropSegment) {
-      setPathSegment(normalizedPropSegment);
+      setActiveSegment(normalizedPropSegment);
     }
   }, [normalizedPropSegment]);
 
@@ -162,7 +160,7 @@ const TopNav: React.FC<TopNavProps> = ({ activeCategorySlug }) => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
-                onClick={() => setPathSegment(linkSegment)}
+                onClick={() => setActiveSegment(linkSegment)}
                 style={{
                   "--active-color": link.activeColor,
                   "--hover-color": link.hoverColor,
