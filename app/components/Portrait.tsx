@@ -6,9 +6,9 @@ type PortraitProps = {
   secondarySrc: string;
   priority?: boolean;
   className?: string;
-  onSelect?: () => void;
   ariaExpanded?: boolean;
   ariaControls?: string;
+  onHoverChange?: (isHovered: boolean) => void;
 };
 
 const Portrait = ({
@@ -17,22 +17,25 @@ const Portrait = ({
   secondarySrc,
   priority,
   className,
-  onSelect,
   ariaExpanded,
   ariaControls,
+  onHoverChange,
 }: PortraitProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const showAlt = useCallback(() => setIsHovered(true), []);
-  const hideAlt = useCallback(() => setIsHovered(false), []);
-  const toggleAlt = useCallback(() => setIsHovered((current) => !current), []);
-
-  const handleClick = useCallback(() => {
-    toggleAlt();
-    if (onSelect) {
-      onSelect();
+  const showAlt = useCallback(() => {
+    setIsHovered(true);
+    if (onHoverChange) {
+      onHoverChange(true);
     }
-  }, [onSelect, toggleAlt]);
+  }, [onHoverChange]);
+
+  const hideAlt = useCallback(() => {
+    setIsHovered(false);
+    if (onHoverChange) {
+      onHoverChange(false);
+    }
+  }, [onHoverChange]);
 
   const loading = priority ? "eager" : "lazy";
 
@@ -45,7 +48,6 @@ const Portrait = ({
       onMouseLeave={hideAlt}
       onFocus={showAlt}
       onBlur={hideAlt}
-      onClick={handleClick}
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
     >

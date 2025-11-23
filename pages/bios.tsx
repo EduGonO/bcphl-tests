@@ -200,8 +200,14 @@ const BiosPage = ({ articles }: BiosPageProps) => {
     };
   }, [renderedSlug, selectedSlug, prefersReducedMotion]);
 
-  const handleSelectMember = (slug: string) => {
-    setSelectedSlug((current) => (current === slug ? null : slug));
+  const handleMemberHoverChange = (slug: string, isHovered: boolean) => {
+    setSelectedSlug((current) => {
+      if (isHovered) {
+        return slug;
+      }
+
+      return current === slug ? null : current;
+    });
   };
 
   const handleBioTransitionEnd = (
@@ -290,7 +296,9 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                             primarySrc={member.portraits.primary}
                             secondarySrc={member.portraits.secondary}
                             priority={index < 2}
-                            onSelect={() => handleSelectMember(member.slug)}
+                            onHoverChange={(isHovered) =>
+                              handleMemberHoverChange(member.slug, isHovered)
+                            }
                             ariaExpanded={isSelected}
                             ariaControls={biographyId}
                           />
