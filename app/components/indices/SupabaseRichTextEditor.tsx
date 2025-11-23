@@ -50,11 +50,20 @@ const quillFormats = [
 
 const EMPTY_HTML = "<p><br></p>";
 
+const normalizeMarkdown = (markdown: string): string => {
+  if (!markdown) return "";
+  return markdown
+    .replace(/\r\n?/g, "\n")
+    .replace(/\\+n/g, "\n")
+    .replace(/\\(?=\n)/g, "");
+};
+
 const renderMarkdownToHtml = (markdown: string): string => {
-  if (!markdown || !markdown.trim()) {
+  const normalized = normalizeMarkdown(markdown);
+  if (!normalized.trim()) {
     return "";
   }
-  return marked.parse(markdown, { breaks: true }) as string;
+  return marked.parse(normalized, { breaks: true }) as string;
 };
 
 const normalizeHtml = (html: string): string => {
@@ -79,27 +88,34 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     service.keep(["sup", "sub"]);
     service.addRule("breaks", {
       filter: "br",
-      replacement: () => "\\n",
+      replacement: () => "\n",
     });
     return service;
   }, []);
 
-  const [htmlValue, setHtmlValue] = useState<string>(() => renderMarkdownToHtml(value));
-  const lastMarkdownRef = useRef(value);
+  const initialMarkdown = useMemo(() => normalizeMarkdown(value), [value]);
+  const [htmlValue, setHtmlValue] = useState<string>(() =>
+    renderMarkdownToHtml(initialMarkdown) || EMPTY_HTML
+  );
+  const lastMarkdownRef = useRef(initialMarkdown);
 
   useEffect(() => {
-    if (value === lastMarkdownRef.current) {
+    const normalizedValue = normalizeMarkdown(value);
+    if (normalizedValue === lastMarkdownRef.current) {
       return;
     }
-    setHtmlValue(renderMarkdownToHtml(value));
-    lastMarkdownRef.current = value;
+    const rendered = renderMarkdownToHtml(normalizeMarkdown(value));
+    setHtmlValue(rendered || EMPTY_HTML);
+    lastMarkdownRef.current = normalizedValue;
   }, [value]);
 
   const handleChange = useCallback(
     (nextHtml: string) => {
       const normalized = normalizeHtml(nextHtml);
-      setHtmlValue(normalized);
-      const markdown = normalized ? turndown.turndown(normalized) : "";
+      setHtmlValue(normalized || EMPTY_HTML);
+      const markdown = normalized
+        ? normalizeMarkdown(turndown.turndown(normalized))
+        : "";
       lastMarkdownRef.current = markdown;
       onChange(markdown, normalized);
     },
