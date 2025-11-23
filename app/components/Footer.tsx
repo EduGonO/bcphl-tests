@@ -120,8 +120,8 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           z-index: 5;
         }
         .footer-inner {
-          max-width: 1024px;
-          margin: 0 auto;
+          width: 100%;
+          margin: 0;
           align-items: center;
         }
         .footer-sections {
