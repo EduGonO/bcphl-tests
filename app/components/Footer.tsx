@@ -194,6 +194,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           display: flex;
           flex-direction: column;
           gap: 16px;
+          flex-wrap: wrap;
         }
         @media (min-width: 768px) {
           .links-row {
@@ -202,15 +203,15 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           }
         }
         .newsletter-section {
-          flex: 2;
-          min-width: 260px;
+          flex: 2 1 320px;
+          min-width: 0;
         }
         .links-stack {
           display: flex;
           flex-direction: column;
           gap: 12px;
-          flex: 1;
-          min-width: 200px;
+          flex: 1 1 200px;
+          min-width: 0;
         }
         @media (min-width: 1200px) {
           .links-row {
