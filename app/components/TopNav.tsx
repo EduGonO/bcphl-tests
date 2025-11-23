@@ -20,8 +20,28 @@ const toRgba = (hex: string, alpha: number) => {
 };
 
 const normalizePath = (raw: string) => {
-  const cleaned = raw.split(/[?#]/)[0].replace(/\/+$/, "");
+  const decoded = (() => {
+    try {
+      return decodeURI(raw);
+    } catch (error) {
+      return raw;
+    }
+  })();
+
+  const cleaned = decoded.split(/[?#]/)[0].replace(/\/+$/, "");
   return cleaned ? cleaned.toLowerCase() : "/";
+};
+
+const normalizeSegment = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const getNormalizedSegment = (path: string) => {
+  const normalized = normalizePath(path);
+  const [segment] = normalized.replace(/^\/+/, "").split("/");
+  return normalizeSegment(segment || "");
 };
 
 const NAV_LINKS = [
@@ -51,43 +71,69 @@ const NAV_LINKS = [
   },
 ];
 
-const TopNav: React.FC = () => {
+interface TopNavProps {
+  activeCategorySlug?: string;
+}
+
+const TopNav: React.FC<TopNavProps> = ({ activeCategorySlug }) => {
   const router = useRouter();
+
   const getCurrentPath = React.useCallback(
-    (value?: string) => {
-      if (value) return normalizePath(value);
-      if (router.asPath) return normalizePath(router.asPath);
-      if (router.pathname) return normalizePath(router.pathname);
+    (override?: string) => {
+      if (override) return normalizePath(override);
+
       if (typeof window !== "undefined" && window.location?.pathname) {
         return normalizePath(window.location.pathname);
       }
+
+      if (router.asPath) return normalizePath(router.asPath);
+      if (router.pathname) return normalizePath(router.pathname);
       return "/";
     },
     [router.asPath, router.pathname]
   );
 
-  const [currentPath, setCurrentPath] = React.useState<string>(() => {
-    if (typeof window !== "undefined" && window.location?.pathname) {
-      return normalizePath(window.location.pathname);
-    }
-    return getCurrentPath();
-  });
+  const normalizedPropSegment = React.useMemo(
+    () =>
+      activeCategorySlug &&
+      normalizeSegment(
+        activeCategorySlug.startsWith("/")
+          ? activeCategorySlug.slice(1)
+          : activeCategorySlug
+      ),
+    [activeCategorySlug]
+  );
+
+  const [activeSegment, setActiveSegment] = React.useState(() =>
+    normalizedPropSegment ?? getNormalizedSegment(getCurrentPath())
+  );
 
   React.useEffect(() => {
+    const updateFromPath = (path?: string) =>
+      setActiveSegment(getNormalizedSegment(getCurrentPath(path)));
+
+    updateFromPath();
+
     if (!router.isReady) return;
 
-    const handleRouteChange = (url?: string) => setCurrentPath(getCurrentPath(url));
+    const handlePopState = () => updateFromPath();
 
-    handleRouteChange(router.asPath);
-
-    router.events?.on("routeChangeComplete", handleRouteChange);
-    router.events?.on("hashChangeComplete", handleRouteChange);
+    router.events?.on("routeChangeStart", updateFromPath);
+    router.events?.on("routeChangeComplete", updateFromPath);
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
-      router.events?.off("routeChangeComplete", handleRouteChange);
-      router.events?.off("hashChangeComplete", handleRouteChange);
+      router.events?.off("routeChangeStart", updateFromPath);
+      router.events?.off("routeChangeComplete", updateFromPath);
+      window.removeEventListener("popstate", handlePopState);
     };
-  }, [getCurrentPath, router.asPath, router.events, router.isReady]);
+  }, [getCurrentPath, router.events, router.isReady]);
+
+  React.useEffect(() => {
+    if (normalizedPropSegment) {
+      setActiveSegment(normalizedPropSegment);
+    }
+  }, [normalizedPropSegment]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -105,11 +151,8 @@ const TopNav: React.FC = () => {
         </Link>
         <nav className="top-nav__links">
           {NAV_LINKS.map((link) => {
-            const hrefLower = link.href.toLowerCase();
-            const isActive =
-              hrefLower === "/"
-                ? currentPath === "/"
-                : currentPath === hrefLower || currentPath.startsWith(`${hrefLower}/`);
+            const linkSegment = getNormalizedSegment(link.href);
+            const isActive = link.href === "/" ? activeSegment === "" : activeSegment === linkSegment;
 
             return (
               <Link
@@ -117,6 +160,7 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
+                onClick={() => setActiveSegment(linkSegment)}
                 style={{
                   "--active-color": link.activeColor,
                   "--hover-color": link.hoverColor,

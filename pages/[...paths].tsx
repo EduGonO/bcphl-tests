@@ -261,7 +261,7 @@ const ArticlePage: React.FC<ArtProps> = ({
       <Script src="https://hypothes.is/embed.js" strategy="afterInteractive" />
 
       <div className="page-wrapper">
-        <TopNav />
+        <TopNav activeCategorySlug={categorySlug || category} />
 
         <main className="content">
           <RedesignSearchSidebar

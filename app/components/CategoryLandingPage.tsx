@@ -77,7 +77,7 @@ const CategoryLandingPage = ({
 
   return (
     <div className="page-wrapper">
-      <TopNav />
+      <TopNav activeCategorySlug={variant} />
 
       <main className="content">
         <RedesignSearchSidebar
