@@ -20,9 +20,23 @@ const toRgba = (hex: string, alpha: number) => {
 };
 
 const normalizePath = (raw: string) => {
-  const cleaned = raw.split(/[?#]/)[0].replace(/\/+$/, "");
+  const decoded = (() => {
+    try {
+      return decodeURI(raw);
+    } catch (error) {
+      return raw;
+    }
+  })();
+
+  const cleaned = decoded.split(/[?#]/)[0].replace(/\/+$/, "");
   return cleaned ? cleaned.toLowerCase() : "/";
 };
+
+const normalizeSegment = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 
 const NAV_LINKS = [
   {
@@ -106,10 +120,15 @@ const TopNav: React.FC = () => {
         <nav className="top-nav__links">
           {NAV_LINKS.map((link) => {
             const hrefLower = link.href.toLowerCase();
+            const [linkSegment] = hrefLower.replace(/^\/+/g, "").split("/");
+            const [currentSegment] = currentPath.replace(/^\/+/g, "").split("/");
+
+            const normalizedLinkSegment = normalizeSegment(linkSegment || "");
+            const normalizedCurrentSegment = normalizeSegment(currentSegment || "");
             const isActive =
               hrefLower === "/"
                 ? currentPath === "/"
-                : currentPath === hrefLower || currentPath.startsWith(`${hrefLower}/`);
+                : normalizedCurrentSegment === normalizedLinkSegment;
 
             return (
               <Link
