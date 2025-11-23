@@ -83,8 +83,10 @@ const TopNav: React.FC = () => {
   const [currentPath, setCurrentPath] = React.useState(() => getCurrentPath());
 
   React.useEffect(() => {
-    setCurrentPath(getCurrentPath());
-  }, [getCurrentPath]);
+    if (router.isReady) {
+      setCurrentPath(getCurrentPath());
+    }
+  }, [getCurrentPath, router.isReady]);
 
   React.useEffect(() => {
     const handleRouteChangeStart = (url: string) => {
@@ -133,6 +135,7 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
+                onClick={() => setCurrentPath(getCurrentPath(link.href))}
                 style={{
                   "--active-color": link.activeColor,
                   "--hover-color": link.hoverColor,
