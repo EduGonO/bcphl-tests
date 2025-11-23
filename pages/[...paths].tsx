@@ -550,6 +550,16 @@ const ArticlePage: React.FC<ArtProps> = ({
           }
         }
 
+        @media (min-width: 720px) {
+          .article-layout {
+            grid-template-columns: minmax(0, 2.3fr) minmax(260px, 1fr);
+          }
+
+          .article-hero-media {
+            max-width: min(100%, 400px);
+          }
+        }
+
         @media (min-width: 1024px) {
           .article-layout {
             grid-template-columns: minmax(0, 2.6fr) minmax(280px, 1fr);
@@ -558,12 +568,6 @@ const ArticlePage: React.FC<ArtProps> = ({
           .related-sidebar {
             position: sticky;
             top: clamp(72px, 12vh, 132px);
-          }
-        }
-
-        @media (min-width: 720px) {
-          .article-hero-media {
-            max-width: min(100%, 400px);
           }
         }
 
