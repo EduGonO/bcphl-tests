@@ -216,10 +216,15 @@ const TopNav: React.FC = () => {
           position: absolute;
           inset: 6px 8px;
           border-radius: 999px;
-          background-color: var(--active-color, transparent);
-          opacity: 0;
-          transform: scale(0.9);
-          transition: opacity 0.2s ease, transform 0.2s ease;
+          background-color: transparent;
+          border: 2px solid var(--active-color, transparent);
+          opacity: 1;
+          transform: scale(1);
+          transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            opacity 0.2s ease,
+            transform 0.2s ease;
           z-index: -1;
           pointer-events: none;
         }
@@ -233,6 +238,7 @@ const TopNav: React.FC = () => {
 
         .top-nav__link:hover::before,
         .top-nav__link:focus-visible::before {
+          background-color: var(--hover-color, transparent);
           opacity: 1;
           transform: scale(1);
         }
@@ -244,6 +250,8 @@ const TopNav: React.FC = () => {
         .top-nav__link--active::before,
         .top-nav__link--active:hover::before,
         .top-nav__link--active:focus-visible::before {
+          background-color: var(--active-color, transparent);
+          border-color: var(--active-color, transparent);
           opacity: 1;
           transform: scale(1);
         }
