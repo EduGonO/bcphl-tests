@@ -296,6 +296,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
                             primarySrc={member.portraits.primary}
                             secondarySrc={member.portraits.secondary}
                             priority={index < 2}
+                            sizes="(min-width: 1200px) 300px, (min-width: 900px) 28vw, (min-width: 600px) 40vw, 60vw"
                             onHoverChange={(isHovered) =>
                               handleMemberHoverChange(member.slug, isHovered)
                             }

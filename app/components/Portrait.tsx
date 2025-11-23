@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useCallback, useState } from "react";
 
 type PortraitProps = {
@@ -5,6 +6,7 @@ type PortraitProps = {
   primarySrc: string;
   secondarySrc: string;
   priority?: boolean;
+  sizes?: string;
   className?: string;
   ariaExpanded?: boolean;
   ariaControls?: string;
@@ -16,6 +18,7 @@ const Portrait = ({
   primarySrc,
   secondarySrc,
   priority,
+  sizes,
   className,
   ariaExpanded,
   ariaControls,
@@ -38,6 +41,8 @@ const Portrait = ({
   }, [onHoverChange]);
 
   const loading = priority ? "eager" : "lazy";
+  const resolvedSizes =
+    sizes ?? "(min-width: 1024px) 320px, (min-width: 640px) 33vw, 50vw";
 
   return (
     <button
@@ -51,7 +56,7 @@ const Portrait = ({
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
     >
-      <img
+      <Image
         src={primarySrc}
         alt={`Portrait de ${name}`}
         className="portrait-img primary"
@@ -59,8 +64,11 @@ const Portrait = ({
         draggable={false}
         loading={loading}
         decoding="async"
+        fill
+        sizes={resolvedSizes}
+        priority={priority}
       />
-      <img
+      <Image
         src={secondarySrc}
         alt=""
         className="portrait-img secondary"
@@ -69,6 +77,9 @@ const Portrait = ({
         draggable={false}
         loading={loading}
         decoding="async"
+        fill
+        sizes={resolvedSizes}
+        priority={priority}
       />
     </button>
   );
