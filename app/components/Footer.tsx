@@ -22,7 +22,6 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
 
   const textColor = '#fff';
   const backgroundColor = '#000';
-  const btn = { background: textColor, color: backgroundColor, border: 'none', borderRadius: '4px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' };
 
   return (
     <>
@@ -40,48 +39,62 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
       <footer className="footer">
         <div className="footer-inner">
           <div className="footer-sections">
-            {/* 1. Rester en lien(s) */}
-            <div className="footer-col">
-              <h4 className="footer-heading">Rester en lien(s)</h4>
-              <p className="footer-text">Abonnez-vous à la lettre d’information des Bicéphale</p>
-              <a
-                href="https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF"
-                target="_blank"
-                rel="noopener"
-                style={btn}
-              >
-                S’abonner
-              </a>
-              <p className="footer-text" style={{ marginTop: '12px' }}>Suivez-nous</p>
-              <div className="social-row">
-                {/* SVG icons here */}
-              </div>
-            </div>
-
-            {/* 2. Contribuer */}
-            <div className="footer-col">
-              <h4 className="footer-heading">Contribuer</h4>
-              <ul className="footer-list">
-                <li><a href="mailto:revue@bicephale.org">Nous contacter</a></li>
-                <li><a href="https://www.helloasso.com/associations/brigade-d-interventions-contributives/formulaires/1" target="_blank" rel="noopener">Nous soutenir</a></li>
-                <li><a href="https://web.hypothes.is/" target="_blank" rel="noopener">Commenter avec Hypothesis</a></li>
-                {/*<li><Link href="/indices"><a>Plan du site</a></Link></li>*/}
-                <li><a>Mentions légales</a></li>
-              </ul>
-            </div>
-
-            {/* 3. Brigade d'intervention */}
-            <div className="footer-col">
+            {/* 1. Soutien */}
+            <div className="footer-col support-col">
+              <p className="section-label">Nous soutenir</p>
               <h4 className="footer-heading">Brigade d’Interventions Contributives</h4>
               <p className="footer-text">La revue Bicéphale est propulsée par la Brigade d’Interventions Contributives.</p>
               <a
+                className="support-button"
                 href="https://www.helloasso.com/associations/brigade-d-interventions-contributives/formulaires/1"
                 target="_blank"
                 rel="noopener"
-                style={btn}
               >
                 Nous soutenir
               </a>
+            </div>
+
+            {/* 2. Rester en lien(s) */}
+            <div className="footer-col links-col">
+              <h4 className="footer-heading">Rester en lien(s)</h4>
+              <div className="footer-subsection">
+                <h5 className="footer-subtitle">Newsletter</h5>
+                <p className="footer-text">
+                  Consentez-vous à vous abonner à notre newsletter pour recevoir nos meilleurs sélections
+                  d&apos;articles et nos événements directement dans votre boite mail ?
+                </p>
+                <a
+                  className="pill-link newsletter-link"
+                  href="https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  S&apos;inscrire à notre newsletter !
+                </a>
+              </div>
+              <div className="footer-subsection">
+                <h5 className="footer-subtitle">Suivez-nous</h5>
+                <a className="footer-link" href="https://www.instagram.com/revuebicephale" target="_blank" rel="noopener">
+                  @revuebicephale
+                </a>
+              </div>
+              <div className="footer-subsection">
+                <h5 className="footer-subtitle">Écrivez-nous</h5>
+                <a className="pill-link contact-link" href="mailto:revue@bicephale.org">
+                  revue@bicephale.org
+                </a>
+              </div>
+            </div>
+
+            {/* 3. Contribuer */}
+            <div className="footer-col contribute-col">
+              <h4 className="footer-heading">Contribuer</h4>
+              <div className="footer-subsection">
+                <h5 className="footer-subtitle">Commenter</h5>
+                <a className="footer-link" href="https://web.hypothes.is/" target="_blank" rel="noopener">
+                  Avec Hypothesis, commentez nos articles
+                </a>
+              </div>
             </div>
 
             {/* 4. Logo + droits */}
@@ -112,49 +125,100 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         .footer-sections {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 24px;
+          gap: 32px;
         }
-          @media (min-width: 468px) {
-  .footer-sections {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .footer-brand {
-    grid-column: 1 / -1;
-  }
-}
+        @media (min-width: 768px) {
+          .footer-sections {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            align-items: flex-start;
+          }
+          .footer-brand {
+            grid-column: 1 / -1;
+          }
+        }
 
         .footer-col a {
           color: ${textColor};
           text-decoration: none;
         }
+        .section-label {
+          color: #a0f2b5;
+          font-size: 14px;
+          margin: 0 0 6px;
+          font-family: 'EnbyGertrude', sans-serif;
+        }
         .footer-heading {
-          font-size: 18px;
-          margin-bottom: 8px;
+          font-size: 20px;
+          margin: 0 0 10px;
           font-weight: 300;
           color: ${textColor};
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
         }
+        .footer-subtitle {
+          font-size: 16px;
+          margin: 0 0 6px;
+          color: ${textColor};
+          font-family: "GayaRegular", "RecoletaMedium", sans-serif;
+          font-weight: 300;
+        }
         .footer-text {
           font-size: 14px;
-          margin: 0 0 8px;
-          line-height: 1.4;
+          margin: 0 0 12px;
+          line-height: 1.5;
           color: ${textColor};
-        font-family: 'EnbyGertrude', sans-serif;
+          font-family: 'EnbyGertrude', sans-serif;
         }
-        .social-row {
-          display: flex;
-          gap: 10px;
-          margin-top: 4px;
+        .footer-subsection {
+          margin-bottom: 16px;
         }
-        .footer-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        .footer-list li {
-          margin-bottom: 6px;
+        .footer-link {
+          color: #a0f2b5;
+          text-decoration: none;
           font-size: 14px;
-        font-family: 'EnbyGertrude', sans-serif;
+          font-family: 'EnbyGertrude', sans-serif;
+        }
+        .footer-link:hover {
+          text-decoration: underline;
+        }
+        .pill-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 10px 16px;
+          border-radius: 999px;
+          font-size: 14px;
+          font-family: 'EnbyGertrude', sans-serif;
+          text-decoration: none;
+          transition: transform 0.2s ease;
+        }
+        .pill-link:hover {
+          transform: translateY(-1px);
+        }
+        .newsletter-link {
+          background: #a0f2b5;
+          color: #000;
+        }
+        .contact-link {
+          background: #000;
+          color: #fff;
+          border: 1px solid #a0f2b5;
+        }
+        .support-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px 20px;
+          background: #000;
+          color: #fff;
+          border: 1px solid #a0f2b5;
+          border-radius: 999px;
+          font-family: 'EnbyGertrude', sans-serif;
+          font-size: 14px;
+          text-decoration: none;
+          transition: transform 0.2s ease;
+        }
+        .support-button:hover {
+          transform: translateY(-1px);
         }
         /* Logo full width at bottom */
         .footer-brand {
