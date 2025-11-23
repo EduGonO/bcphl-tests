@@ -58,7 +58,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
             <div className="footer-col links-col">
               <h4 className="footer-heading">Rester en lien(s)</h4>
               <div className="links-row">
-                <div className="footer-subsection">
+                <div className="footer-subsection newsletter-section">
                   <h5 className="footer-subtitle">Newsletter</h5>
                   <p className="footer-text">
                     Consentez-vous à vous abonner à notre newsletter pour recevoir nos meilleurs sélections
@@ -73,17 +73,19 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
                     S&apos;inscrire à notre newsletter !
                   </a>
                 </div>
-                <div className="footer-subsection">
-                  <h5 className="footer-subtitle">Suivez-nous</h5>
-                  <a className="footer-link" href="https://www.instagram.com/revuebicephale" target="_blank" rel="noopener">
-                    @revuebicephale
-                  </a>
-                </div>
-                <div className="footer-subsection">
-                  <h5 className="footer-subtitle">Écrivez-nous</h5>
-                  <a className="footer-link email-link" href="mailto:revue@bicephale.org">
-                    revue@bicephale.org
-                  </a>
+                <div className="footer-subsection links-stack">
+                  <div className="footer-subsection">
+                    <h5 className="footer-subtitle">Suivez-nous</h5>
+                    <a className="footer-link" href="https://www.instagram.com/revuebicephale" target="_blank" rel="noopener">
+                      @revuebicephale
+                    </a>
+                  </div>
+                  <div className="footer-subsection">
+                    <h5 className="footer-subtitle">Écrivez-nous</h5>
+                    <a className="footer-link email-link" href="mailto:revue@bicephale.org">
+                      revue@bicephale.org
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -137,11 +139,16 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         }
         @media (min-width: 768px) {
           .footer-sections {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             align-items: flex-start;
           }
           .footer-brand {
             grid-column: 1 / -1;
+          }
+        }
+        @media (min-width: 1200px) {
+          .footer-sections {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
           }
         }
 
@@ -193,8 +200,24 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
             flex-direction: row;
             gap: 24px;
           }
-          .links-row .footer-subsection {
-            flex: 1;
+        }
+        .newsletter-section {
+          flex: 2;
+          min-width: 260px;
+        }
+        .links-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          flex: 1;
+          min-width: 200px;
+        }
+        @media (min-width: 1200px) {
+          .links-row {
+            align-items: stretch;
+          }
+          .newsletter-section {
+            max-width: 520px;
           }
         }
         .footer-link {
