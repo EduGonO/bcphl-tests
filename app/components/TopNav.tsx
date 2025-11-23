@@ -71,20 +71,20 @@ const TopNav: React.FC = () => {
   }, [getCurrentPath, router.asPath, router.events, router.isReady]);
 
   return (
-    <header className="top-nav" aria-label="Navigation principale">
-      <div className="top-nav__inner">
-        <Link href="/" className="top-nav__logo" aria-label="Accueil Bicéphale">
+    <header className={styles.topNav} aria-label="Navigation principale">
+      <div className={styles.inner}>
+        <Link href="/" className={styles.logo} aria-label="Accueil Bicéphale">
           <Image
             src="/logo-rectangle_bicephale_rvb.svg"
             alt="Bicéphale"
-            className="top-nav__logo-img"
+            className={styles.logoImg}
             width={240}
             height={64}
             priority
             sizes="(max-width: 720px) 70vw, 240px"
           />
         </Link>
-        <nav className="top-nav__links">
+        <nav className={styles.links}>
           {NAV_LINKS.map((link) => {
             const hrefLower = link.href.toLowerCase();
             const isActive =
