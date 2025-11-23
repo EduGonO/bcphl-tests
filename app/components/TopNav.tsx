@@ -29,25 +29,25 @@ const NAV_LINKS = [
     label: "Réflexion",
     href: "/Reflexion",
     activeColor: "#c7b5f4",
-    hoverColor: toRgba("#c7b5f4", 0.5),
+    hoverColor: toRgba("#c7b5f4", 0.85),
   },
   {
     label: "Création",
     href: "/Creation",
     activeColor: "#e8b583",
-    hoverColor: toRgba("#e8b583", 0.5),
+    hoverColor: toRgba("#e8b583", 0.85),
   },
   {
     label: "IRL",
     href: "/IRL",
     activeColor: "#bdd6c5",
-    hoverColor: toRgba("#bdd6c5", 0.5),
+    hoverColor: toRgba("#bdd6c5", 0.85),
   },
   {
     label: "À propos",
     href: "/bios",
     activeColor: "#d6c6e0",
-    hoverColor: toRgba("#d6c6e0", 0.5),
+    hoverColor: toRgba("#d6c6e0", 0.85),
   },
 ];
 
@@ -122,7 +122,8 @@ const TopNav: React.FC = () => {
                   "--hover-color": link.hoverColor,
                 } as React.CSSProperties}
               >
-                {link.label}
+                <span className="top-nav__link-capsule" aria-hidden />
+                <span className="top-nav__link-label">{link.label}</span>
               </Link>
             );
           })}
@@ -201,12 +202,33 @@ const TopNav: React.FC = () => {
           padding: 12px 22px;
           border-radius: 999px;
           transition:
-            background-color 0.18s ease,
             color 0.18s ease,
-            text-decoration 0.18s ease;
+            text-decoration 0.18s ease,
+            transform 0.2s ease;
           white-space: nowrap;
           line-height: 1.1;
           background-color: transparent;
+          position: relative;
+          isolation: isolate;
+          z-index: 0;
+        }
+
+        .top-nav__link-capsule {
+          position: absolute;
+          inset: 4px 6px;
+          border-radius: 999px;
+          background-color: var(--hover-color, transparent);
+          border: 1.5px solid #0f0f0f;
+          opacity: 0;
+          transform: scale(0.9);
+          transition: opacity 0.22s ease, transform 0.22s ease;
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .top-nav__link-label {
+          position: relative;
+          z-index: 1;
         }
 
         .top-nav__link:hover,
@@ -214,17 +236,31 @@ const TopNav: React.FC = () => {
           text-decoration: underline;
           text-decoration-thickness: 2px;
           text-underline-offset: 6px;
-          background-color: var(--hover-color, rgba(0, 0, 0, 0.1));
+        }
+
+        .top-nav__link:hover .top-nav__link-capsule,
+        .top-nav__link:focus-visible .top-nav__link-capsule {
+          opacity: 1;
+          transform: scale(1);
         }
 
         .top-nav__link--active {
           color: #0f0f0f;
+        }
+
+        .top-nav__link--active .top-nav__link-capsule,
+        .top-nav__link--active:hover .top-nav__link-capsule,
+        .top-nav__link--active:focus-visible .top-nav__link-capsule {
+          opacity: 1;
+          transform: scale(1);
           background-color: var(--active-color, transparent);
         }
 
         .top-nav__link--active:hover,
         .top-nav__link--active:focus-visible {
-          background-color: var(--active-color, transparent);
+          text-decoration: underline;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 6px;
         }
 
         @media (max-width: 720px) {
