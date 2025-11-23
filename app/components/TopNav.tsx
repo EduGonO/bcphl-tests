@@ -3,22 +3,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 
-const toRgba = (hex: string, alpha: number) => {
-  const normalized = hex.replace("#", "");
-  const full =
-    normalized.length === 3
-      ? normalized
-          .split("")
-          .map((c) => c + c)
-          .join("")
-      : normalized;
-  const intVal = parseInt(full, 16);
-  const r = (intVal >> 16) & 255;
-  const g = (intVal >> 8) & 255;
-  const b = intVal & 255;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 const normalizePath = (raw: string) => {
   const cleaned = raw.split(/[?#]/)[0].replace(/\/+$/, "");
   return cleaned ? cleaned.toLowerCase() : "/";
@@ -29,25 +13,21 @@ const NAV_LINKS = [
     label: "Réflexion",
     href: "/Reflexion",
     activeColor: "#c7b5f4",
-    hoverColor: toRgba("#c7b5f4", 0.5),
   },
   {
     label: "Création",
     href: "/Creation",
     activeColor: "#e8b583",
-    hoverColor: toRgba("#e8b583", 0.5),
   },
   {
     label: "IRL",
     href: "/IRL",
     activeColor: "#bdd6c5",
-    hoverColor: toRgba("#bdd6c5", 0.5),
   },
   {
     label: "À propos",
     href: "/bios",
     activeColor: "#d6c6e0",
-    hoverColor: toRgba("#d6c6e0", 0.5),
   },
 ];
 
@@ -118,8 +98,7 @@ const TopNav: React.FC = () => {
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
                 style={{
-                  "--active-color": link.activeColor,
-                  "--hover-color": link.hoverColor,
+                  "--accent-color": link.activeColor,
                 } as React.CSSProperties}
               >
                 {link.label}
@@ -182,7 +161,7 @@ const TopNav: React.FC = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: clamp(18px, 4vw, 36px);
+          gap: clamp(14px, 3vw, 28px);
           flex: 1 1 auto;
           flex-wrap: nowrap;
           width: 100%;
@@ -190,41 +169,36 @@ const TopNav: React.FC = () => {
         }
 
         .top-nav__link {
+          --accent-color: #0f0f0f;
           font-family: "EnbyGertrude", sans-serif;
-          font-size: 24px;
+          font-size: 20px;
           font-weight: 400;
           color: #0f0f0f;
           text-decoration: none;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 12px 22px;
+          padding: 10px 18px;
           border-radius: 999px;
-          transition:
-            background-color 0.18s ease,
-            color 0.18s ease,
-            text-decoration 0.18s ease;
+          border: 2px solid var(--accent-color);
+          background-color: transparent;
+          transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
           white-space: nowrap;
           line-height: 1.1;
-          background-color: transparent;
         }
 
         .top-nav__link:hover,
         .top-nav__link:focus-visible {
-          text-decoration: underline;
-          text-decoration-thickness: 2px;
-          text-underline-offset: 6px;
-          background-color: var(--hover-color, rgba(0, 0, 0, 0.1));
+          background-color: var(--accent-color);
+          color: #0f0f0f;
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
         }
 
         .top-nav__link--active {
+          background-color: var(--accent-color);
           color: #0f0f0f;
-          background-color: var(--active-color, transparent);
-        }
-
-        .top-nav__link--active:hover,
-        .top-nav__link--active:focus-visible {
-          background-color: var(--active-color, transparent);
+          border-color: var(--accent-color);
         }
 
         @media (max-width: 720px) {
