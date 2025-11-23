@@ -52,7 +52,10 @@ const EMPTY_HTML = "<p><br></p>";
 
 const normalizeMarkdown = (markdown: string): string => {
   if (!markdown) return "";
-  return markdown.replace(/\\n/g, "\n");
+  return markdown
+    .replace(/\r\n?/g, "\n")
+    .replace(/\\+n/g, "\n")
+    .replace(/\\(?=\n)/g, "");
 };
 
 const renderMarkdownToHtml = (markdown: string): string => {
@@ -92,7 +95,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
 
   const initialMarkdown = useMemo(() => normalizeMarkdown(value), [value]);
   const [htmlValue, setHtmlValue] = useState<string>(() =>
-    renderMarkdownToHtml(initialMarkdown)
+    renderMarkdownToHtml(initialMarkdown) || EMPTY_HTML
   );
   const lastMarkdownRef = useRef(initialMarkdown);
 
@@ -101,14 +104,15 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     if (normalizedValue === lastMarkdownRef.current) {
       return;
     }
-    setHtmlValue(renderMarkdownToHtml(normalizeMarkdown(value)));
+    const rendered = renderMarkdownToHtml(normalizeMarkdown(value));
+    setHtmlValue(rendered || EMPTY_HTML);
     lastMarkdownRef.current = normalizedValue;
   }, [value]);
 
   const handleChange = useCallback(
     (nextHtml: string) => {
       const normalized = normalizeHtml(nextHtml);
-      setHtmlValue(normalized);
+      setHtmlValue(normalized || EMPTY_HTML);
       const markdown = normalized
         ? normalizeMarkdown(turndown.turndown(normalized))
         : "";
