@@ -80,7 +80,25 @@ const TopNav: React.FC = () => {
     [router.asPath, router.pathname]
   );
 
-  const currentPath = getCurrentPath();
+  const [currentPath, setCurrentPath] = React.useState(() => getCurrentPath());
+
+  React.useEffect(() => {
+    setCurrentPath(getCurrentPath());
+  }, [getCurrentPath]);
+
+  React.useEffect(() => {
+    const handleRouteChangeStart = (url: string) => {
+      setCurrentPath(getCurrentPath(url));
+    };
+
+    router.events?.on("routeChangeStart", handleRouteChangeStart);
+    router.events?.on("routeChangeComplete", handleRouteChangeStart);
+
+    return () => {
+      router.events?.off("routeChangeStart", handleRouteChangeStart);
+      router.events?.off("routeChangeComplete", handleRouteChangeStart);
+    };
+  }, [getCurrentPath, router.events]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
