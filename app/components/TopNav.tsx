@@ -29,25 +29,25 @@ const NAV_LINKS = [
     label: "Réflexion",
     href: "/Reflexion",
     activeColor: "#c7b5f4",
-    hoverColor: toRgba("#c7b5f4", 0.5),
+    hoverColor: toRgba("#c7b5f4", 0.85),
   },
   {
     label: "Création",
     href: "/Creation",
     activeColor: "#e8b583",
-    hoverColor: toRgba("#e8b583", 0.5),
+    hoverColor: toRgba("#e8b583", 0.85),
   },
   {
     label: "IRL",
     href: "/IRL",
     activeColor: "#bdd6c5",
-    hoverColor: toRgba("#bdd6c5", 0.5),
+    hoverColor: toRgba("#bdd6c5", 0.85),
   },
   {
     label: "À propos",
     href: "/bios",
     activeColor: "#d6c6e0",
-    hoverColor: toRgba("#d6c6e0", 0.5),
+    hoverColor: toRgba("#d6c6e0", 0.85),
   },
 ];
 
@@ -122,6 +122,7 @@ const TopNav: React.FC = () => {
                   "--hover-color": link.hoverColor,
                 } as React.CSSProperties}
               >
+                <span className="top-nav__link-capsule" aria-hidden />
                 <span className="top-nav__link-label">{link.label}</span>
               </Link>
             );
@@ -212,15 +213,15 @@ const TopNav: React.FC = () => {
           z-index: 0;
         }
 
-        .top-nav__link::before {
-          content: "";
+        .top-nav__link-capsule {
           position: absolute;
-          inset: 6px 8px;
+          inset: 4px 6px;
           border-radius: 999px;
           background-color: var(--hover-color, transparent);
+          border: 1.5px solid #0f0f0f;
           opacity: 0;
           transform: scale(0.9);
-          transition: opacity 0.2s ease, transform 0.2s ease;
+          transition: opacity 0.22s ease, transform 0.22s ease;
           z-index: 0;
           pointer-events: none;
         }
@@ -237,8 +238,8 @@ const TopNav: React.FC = () => {
           text-underline-offset: 6px;
         }
 
-        .top-nav__link:hover::before,
-        .top-nav__link:focus-visible::before {
+        .top-nav__link:hover .top-nav__link-capsule,
+        .top-nav__link:focus-visible .top-nav__link-capsule {
           opacity: 1;
           transform: scale(1);
         }
@@ -247,9 +248,9 @@ const TopNav: React.FC = () => {
           color: #0f0f0f;
         }
 
-        .top-nav__link--active::before,
-        .top-nav__link--active:hover::before,
-        .top-nav__link--active:focus-visible::before {
+        .top-nav__link--active .top-nav__link-capsule,
+        .top-nav__link--active:hover .top-nav__link-capsule,
+        .top-nav__link--active:focus-visible .top-nav__link-capsule {
           opacity: 1;
           transform: scale(1);
           background-color: var(--active-color, transparent);
