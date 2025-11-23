@@ -276,6 +276,12 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           color: #fff;
           border: 1px solid #a0f2b5;
         }
+        @media (min-width: 1024px) {
+          .newsletter-link {
+            white-space: nowrap;
+            max-width: 100%;
+          }
+        }
         .newsletter-link:hover {
           border-color: #c6ffd8;
           background: #0f2e1f;

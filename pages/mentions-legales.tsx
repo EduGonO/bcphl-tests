@@ -1,9 +1,19 @@
 import Head from "next/head";
-import React from "react";
-import Footer from "../app/components/Footer";
-import TopNav from "../app/components/TopNav";
+import React, { useState } from "react";
 
-const MentionsLegalesPage: React.FC = () => {
+import Footer from "../app/components/Footer";
+import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
+import TopNav from "../app/components/TopNav";
+import { getArticleRecords } from "../lib/articleService";
+import { Article } from "../types";
+
+interface MentionsLegalesPageProps {
+  articles: Article[];
+}
+
+const MentionsLegalesPage: React.FC<MentionsLegalesPageProps> = ({ articles }) => {
+  const [query, setQuery] = useState("");
+
   return (
     <div className="legal-page">
       <Head>
@@ -11,7 +21,13 @@ const MentionsLegalesPage: React.FC = () => {
       </Head>
       <TopNav />
       <div className="legal-layout">
-        <aside className="legal-sidebar" aria-hidden="true" />
+        <div className="sidebar-column">
+          <RedesignSearchSidebar
+            query={query}
+            onQueryChange={setQuery}
+            articles={articles}
+          />
+        </div>
         <main className="legal-main">
           <h1>Mentions légales</h1>
         </main>
@@ -23,30 +39,30 @@ const MentionsLegalesPage: React.FC = () => {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #f7f7f7;
+          background: #ffffff;
         }
 
         .legal-layout {
           flex: 1;
-          display: grid;
-          grid-template-columns: 280px 1fr;
+          display: flex;
           gap: 24px;
           padding: 32px 24px 0;
+          max-width: 1400px;
+          width: 100%;
+          box-sizing: border-box;
+          margin: 0 auto;
         }
 
-        .legal-sidebar {
-          background: #000;
-          border-radius: 12px;
-          min-height: 320px;
+        .sidebar-column {
+          flex: 0 0 300px;
+          min-width: 240px;
         }
 
         .legal-main {
-          background: #fff;
-          border-radius: 12px;
-          padding: 32px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+          flex: 1;
           display: flex;
           flex-direction: column;
+          padding: 12px 8px 0;
           gap: 16px;
         }
 
@@ -59,13 +75,13 @@ const MentionsLegalesPage: React.FC = () => {
 
         @media (max-width: 1023px) {
           .legal-layout {
-            grid-template-columns: 1fr;
+            flex-direction: column;
             padding: 24px 20px 0;
           }
 
-          .legal-sidebar {
-            min-height: 120px;
-            height: 120px;
+          .sidebar-column {
+            flex: 1;
+            min-width: 0;
           }
         }
 
@@ -73,10 +89,6 @@ const MentionsLegalesPage: React.FC = () => {
           .legal-layout {
             padding: 20px 16px 0;
             gap: 16px;
-          }
-
-          .legal-main {
-            padding: 24px;
           }
 
           h1 {
@@ -87,5 +99,12 @@ const MentionsLegalesPage: React.FC = () => {
     </div>
   );
 };
+
+export async function getServerSideProps() {
+  const records = await getArticleRecords();
+  const articles = records.map(({ article }) => article);
+
+  return { props: { articles } };
+}
 
 export default MentionsLegalesPage;
