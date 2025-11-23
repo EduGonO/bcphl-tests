@@ -78,6 +78,7 @@ const AuthorPage = ({
                       primarySrc={teamMember.portraits.primary}
                       secondarySrc={teamMember.portraits.secondary}
                       priority
+                      sizes="(max-width: 720px) 35vw, 148px"
                     />
                   </div>
                 )}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useCallback, useState } from "react";
 
 type PortraitProps = {
@@ -5,10 +6,11 @@ type PortraitProps = {
   primarySrc: string;
   secondarySrc: string;
   priority?: boolean;
+  sizes?: string;
   className?: string;
-  onSelect?: () => void;
   ariaExpanded?: boolean;
   ariaControls?: string;
+  onHoverChange?: (isHovered: boolean) => void;
 };
 
 const Portrait = ({
@@ -16,25 +18,31 @@ const Portrait = ({
   primarySrc,
   secondarySrc,
   priority,
+  sizes,
   className,
-  onSelect,
   ariaExpanded,
   ariaControls,
+  onHoverChange,
 }: PortraitProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const showAlt = useCallback(() => setIsHovered(true), []);
-  const hideAlt = useCallback(() => setIsHovered(false), []);
-  const toggleAlt = useCallback(() => setIsHovered((current) => !current), []);
-
-  const handleClick = useCallback(() => {
-    toggleAlt();
-    if (onSelect) {
-      onSelect();
+  const showAlt = useCallback(() => {
+    setIsHovered(true);
+    if (onHoverChange) {
+      onHoverChange(true);
     }
-  }, [onSelect, toggleAlt]);
+  }, [onHoverChange]);
+
+  const hideAlt = useCallback(() => {
+    setIsHovered(false);
+    if (onHoverChange) {
+      onHoverChange(false);
+    }
+  }, [onHoverChange]);
 
   const loading = priority ? "eager" : "lazy";
+  const resolvedSizes =
+    sizes ?? "(min-width: 1024px) 320px, (min-width: 640px) 33vw, 50vw";
 
   return (
     <button
@@ -45,11 +53,10 @@ const Portrait = ({
       onMouseLeave={hideAlt}
       onFocus={showAlt}
       onBlur={hideAlt}
-      onClick={handleClick}
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
     >
-      <img
+      <Image
         src={primarySrc}
         alt={`Portrait de ${name}`}
         className="portrait-img primary"
@@ -57,8 +64,11 @@ const Portrait = ({
         draggable={false}
         loading={loading}
         decoding="async"
+        fill
+        sizes={resolvedSizes}
+        priority={priority}
       />
-      <img
+      <Image
         src={secondarySrc}
         alt=""
         className="portrait-img secondary"
@@ -67,6 +77,9 @@ const Portrait = ({
         draggable={false}
         loading={loading}
         decoding="async"
+        fill
+        sizes={resolvedSizes}
+        priority={priority}
       />
     </button>
   );
