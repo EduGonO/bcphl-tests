@@ -19,9 +19,12 @@ const sanitizeFilename = (value: string) => value.replace(/[/\\]/g, '_');
 
 const coerceField = (fields: Fields, key: string): string | null => {
   const value = fields[key];
-  if (!value) return null;
-  if (Array.isArray(value)) return value[0]?.toString() ?? null;
-  return value.toString();
+  if (value === undefined || value === null) return null;
+  if (Array.isArray(value)) {
+    const first = value[0];
+    return first === undefined || first === null ? null : String(first);
+  }
+  return String(value);
 };
 
 const parseMultipart = async (req: NextApiRequest): Promise<ParsedUpload | null> => {
