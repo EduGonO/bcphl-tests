@@ -41,8 +41,8 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           <div className="footer-sections">
             {/* 1. Soutien */}
             <div className="footer-col support-col">
-              <p className="section-label">Nous soutenir</p>
-              <h4 className="footer-heading">Brigade d’Interventions Contributives</h4>
+              <h4 className="footer-heading section-heading">Nous soutenir</h4>
+              <p className="footer-subheading">Brigade d’Interventions Contributives</p>
               <p className="footer-text">La revue Bicéphale est propulsée par la Brigade d’Interventions Contributives.</p>
               <a
                 className="support-button"
@@ -50,39 +50,41 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
                 target="_blank"
                 rel="noopener"
               >
-                Nous soutenir
+                Faire un don
               </a>
             </div>
 
             {/* 2. Rester en lien(s) */}
             <div className="footer-col links-col">
               <h4 className="footer-heading">Rester en lien(s)</h4>
-              <div className="footer-subsection">
-                <h5 className="footer-subtitle">Newsletter</h5>
-                <p className="footer-text">
-                  Consentez-vous à vous abonner à notre newsletter pour recevoir nos meilleurs sélections
-                  d&apos;articles et nos événements directement dans votre boite mail ?
-                </p>
-                <a
-                  className="pill-link newsletter-link"
-                  href="https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  S&apos;inscrire à notre newsletter !
-                </a>
-              </div>
-              <div className="footer-subsection">
-                <h5 className="footer-subtitle">Suivez-nous</h5>
-                <a className="footer-link" href="https://www.instagram.com/revuebicephale" target="_blank" rel="noopener">
-                  @revuebicephale
-                </a>
-              </div>
-              <div className="footer-subsection">
-                <h5 className="footer-subtitle">Écrivez-nous</h5>
-                <a className="pill-link contact-link" href="mailto:revue@bicephale.org">
-                  revue@bicephale.org
-                </a>
+              <div className="links-row">
+                <div className="footer-subsection">
+                  <h5 className="footer-subtitle">Newsletter</h5>
+                  <p className="footer-text">
+                    Consentez-vous à vous abonner à notre newsletter pour recevoir nos meilleurs sélections
+                    d&apos;articles et nos événements directement dans votre boite mail ?
+                  </p>
+                  <a
+                    className="pill-link newsletter-link"
+                    href="https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    S&apos;inscrire à notre newsletter !
+                  </a>
+                </div>
+                <div className="footer-subsection">
+                  <h5 className="footer-subtitle">Suivez-nous</h5>
+                  <a className="footer-link" href="https://www.instagram.com/revuebicephale" target="_blank" rel="noopener">
+                    @revuebicephale
+                  </a>
+                </div>
+                <div className="footer-subsection">
+                  <h5 className="footer-subtitle">Écrivez-nous</h5>
+                  <a className="footer-link email-link" href="mailto:revue@bicephale.org">
+                    revue@bicephale.org
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -141,15 +143,19 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           color: ${textColor};
           text-decoration: none;
         }
-        .section-label {
-          color: #a0f2b5;
-          font-size: 14px;
-          margin: 0 0 6px;
-          font-family: 'EnbyGertrude', sans-serif;
-        }
         .footer-heading {
           font-size: 20px;
           margin: 0 0 10px;
+          font-weight: 300;
+          color: ${textColor};
+          font-family: "GayaRegular", "RecoletaMedium", sans-serif;
+        }
+        .section-heading {
+          margin-bottom: 8px;
+        }
+        .footer-subheading {
+          font-size: 18px;
+          margin: 0 0 8px;
           font-weight: 300;
           color: ${textColor};
           font-family: "GayaRegular", "RecoletaMedium", sans-serif;
@@ -171,6 +177,20 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         .footer-subsection {
           margin-bottom: 16px;
         }
+        .links-row {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        @media (min-width: 768px) {
+          .links-row {
+            flex-direction: row;
+            gap: 24px;
+          }
+          .links-row .footer-subsection {
+            flex: 1;
+          }
+        }
         .footer-link {
           color: #a0f2b5;
           text-decoration: none;
@@ -179,6 +199,9 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         }
         .footer-link:hover {
           text-decoration: underline;
+        }
+        .email-link {
+          color: #fff;
         }
         .pill-link {
           display: inline-flex;
@@ -197,11 +220,6 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         .newsletter-link {
           background: #a0f2b5;
           color: #000;
-        }
-        .contact-link {
-          background: #000;
-          color: #fff;
-          border: 1px solid #a0f2b5;
         }
         .support-button {
           display: inline-flex;
