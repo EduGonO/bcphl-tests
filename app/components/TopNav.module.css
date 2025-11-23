@@ -1,0 +1,120 @@
+:global(.top-nav) {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #b9b0a3;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+:global(.top-nav *),
+:global(.top-nav__inner *),
+:global(.top-nav__links *),
+:global(.top-nav__logo *) {
+  box-sizing: border-box;
+}
+
+:global(.top-nav__inner) {
+  width: min(1080px, 100%);
+  max-width: 1080px;
+  padding: 14px clamp(16px, 5vw, 32px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: clamp(36px, 8vw, 64px);
+}
+
+:global(.top-nav__logo) {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-decoration: none;
+  width: auto;
+  max-width: clamp(180px, 24vw, 240px);
+  min-width: 160px;
+  padding: 6px 0;
+}
+
+:global(.top-nav__logo-img) {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 64px;
+  object-fit: contain;
+  opacity: 1;
+}
+
+:global(.top-nav__links) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(14px, 3vw, 28px);
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  width: 100%;
+  padding-right: clamp(6px, 2vw, 18px);
+}
+
+.link {
+  --accent-color: #0f0f0f;
+  font-family: "EnbyGertrude", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #0f0f0f;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 2px solid var(--accent-color);
+  background-color: transparent;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.link:hover,
+.link:focus-visible {
+  background-color: var(--accent-color);
+  color: #0f0f0f;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+}
+
+.linkActive {
+  background-color: var(--accent-color);
+  color: #0f0f0f;
+  border-color: var(--accent-color);
+}
+
+@media (max-width: 720px) {
+  :global(.top-nav__inner) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  :global(.top-nav__logo) {
+    width: 100%;
+    justify-content: center;
+  }
+
+  :global(.top-nav__links) {
+    width: 100%;
+    justify-content: center;
+    gap: clamp(12px, 4vw, 20px);
+  }
+
+  :global(.top-nav__logo-img) {
+    height: 56px;
+  }
+}
