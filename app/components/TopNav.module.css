@@ -4,7 +4,6 @@
   z-index: 10;
   width: 100%;
   background: #ffffff;
-  border-bottom: 1px solid #b9b0a3;
   display: flex;
   justify-content: center;
   box-sizing: border-box;
@@ -66,7 +65,7 @@
   font-family: "EnbyGertrude", sans-serif;
   font-size: 16px;
   font-weight: 400;
-  color: transparent;
+  color: var(--accent-color);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -74,9 +73,7 @@
   padding: 10px 18px;
   border-radius: 999px;
   background-color: transparent;
-  opacity: 0;
-  transition: background-color 0.18s ease, color 0.18s ease, opacity 0.18s ease,
-    box-shadow 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease;
   white-space: nowrap;
   line-height: 1.1;
 }
@@ -86,14 +83,11 @@
   background-color: var(--accent-color);
   color: #0f0f0f;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
-  opacity: 1;
 }
 
 .linkActive {
   background-color: var(--accent-color);
   color: #0f0f0f;
-  opacity: 1;
 }
 
 @media (max-width: 720px) {
