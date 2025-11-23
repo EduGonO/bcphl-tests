@@ -83,10 +83,8 @@ const TopNav: React.FC = () => {
   const [currentPath, setCurrentPath] = React.useState(() => getCurrentPath());
 
   React.useEffect(() => {
-    if (router.isReady) {
-      setCurrentPath(getCurrentPath());
-    }
-  }, [getCurrentPath, router.isReady]);
+    setCurrentPath(getCurrentPath());
+  }, [getCurrentPath]);
 
   React.useEffect(() => {
     const handleRouteChangeStart = (url: string) => {
