@@ -71,7 +71,11 @@ const NAV_LINKS = [
   },
 ];
 
-const TopNav: React.FC = () => {
+interface TopNavProps {
+  activeCategorySlug?: string;
+}
+
+const TopNav: React.FC<TopNavProps> = ({ activeCategorySlug }) => {
   const router = useRouter();
 
   const getCurrentPath = React.useCallback(
@@ -89,13 +93,26 @@ const TopNav: React.FC = () => {
     [router.asPath, router.pathname]
   );
 
-  const [activeSegment, setActiveSegment] = React.useState(() =>
+  const normalizedPropSegment = React.useMemo(
+    () =>
+      activeCategorySlug &&
+      normalizeSegment(
+        activeCategorySlug.startsWith("/")
+          ? activeCategorySlug.slice(1)
+          : activeCategorySlug
+      ),
+    [activeCategorySlug]
+  );
+
+  const [pathSegment, setPathSegment] = React.useState(() =>
     getNormalizedSegment(getCurrentPath())
   );
 
+  const activeSegment = normalizedPropSegment ?? pathSegment;
+
   React.useEffect(() => {
     const updateFromPath = (path?: string) =>
-      setActiveSegment(getNormalizedSegment(getCurrentPath(path)));
+      setPathSegment(getNormalizedSegment(getCurrentPath(path)));
 
     updateFromPath();
 
@@ -113,6 +130,12 @@ const TopNav: React.FC = () => {
       window.removeEventListener("popstate", handlePopState);
     };
   }, [getCurrentPath, router.events, router.isReady]);
+
+  React.useEffect(() => {
+    if (normalizedPropSegment) {
+      setPathSegment(normalizedPropSegment);
+    }
+  }, [normalizedPropSegment]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -139,7 +162,7 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
-                onClick={() => setActiveSegment(linkSegment)}
+                onClick={() => setPathSegment(linkSegment)}
                 style={{
                   "--active-color": link.activeColor,
                   "--hover-color": link.hoverColor,

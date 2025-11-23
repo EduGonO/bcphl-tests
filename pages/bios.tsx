@@ -227,7 +227,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
         />
       </Head>
       <div className="page-wrapper">
-        <TopNav />
+        <TopNav activeCategorySlug="bios" />
 
         <main className="content">
           <RedesignSearchSidebar
