@@ -112,9 +112,9 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         .footer {
           background: ${backgroundColor};
           color: ${textColor};
-          padding: 30px 15px;
+          padding: 30px 0;
           margin-top: ${marginTop};
-        font-family: 'EnbyGertrude', sans-serif;
+          font-family: 'EnbyGertrude', sans-serif;
           font-size: 14px;
           position: relative;
           z-index: 5;
@@ -122,7 +122,13 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         .footer-inner {
           width: 100%;
           margin: 0;
+          padding: 0 24px;
           align-items: center;
+        }
+        @media (min-width: 1024px) {
+          .footer-inner {
+            padding: 0 32px;
+          }
         }
         .footer-sections {
           display: grid;
