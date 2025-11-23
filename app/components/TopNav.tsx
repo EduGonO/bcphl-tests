@@ -67,38 +67,41 @@ const NAV_LINKS = [
 
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const getCurrentPath = React.useCallback(
-    (value?: string) => {
-      if (value) return normalizePath(value);
-      if (router.asPath) return normalizePath(router.asPath);
-      if (router.pathname) return normalizePath(router.pathname);
-      if (typeof window !== "undefined" && window.location?.pathname) {
-        return normalizePath(window.location.pathname);
-      }
-      return "/";
-    },
-    [router.asPath, router.pathname]
+  const getNormalizedPath = React.useCallback((value?: string) => {
+    if (value) return normalizePath(value);
+
+    if (typeof window !== "undefined" && window.location?.pathname) {
+      return normalizePath(window.location.pathname);
+    }
+
+    if (router.asPath) return normalizePath(router.asPath);
+    if (router.pathname) return normalizePath(router.pathname);
+    return "/";
+  }, [router.asPath, router.pathname]);
+
+  const [currentPath, setCurrentPath] = React.useState(() =>
+    getNormalizedPath()
   );
 
-  const [currentPath, setCurrentPath] = React.useState(() => getCurrentPath());
+  React.useEffect(() => {
+    setCurrentPath(getNormalizedPath());
+  }, [getNormalizedPath]);
 
   React.useEffect(() => {
-    setCurrentPath(getCurrentPath());
-  }, [getCurrentPath]);
+    if (!router.isReady) return;
 
-  React.useEffect(() => {
-    const handleRouteChangeStart = (url: string) => {
-      setCurrentPath(getCurrentPath(url));
-    };
+    const syncPath = (value?: string) => setCurrentPath(getNormalizedPath(value));
 
-    router.events?.on("routeChangeStart", handleRouteChangeStart);
-    router.events?.on("routeChangeComplete", handleRouteChangeStart);
+    syncPath(router.asPath);
+
+    router.events?.on("routeChangeStart", syncPath);
+    router.events?.on("routeChangeComplete", syncPath);
 
     return () => {
-      router.events?.off("routeChangeStart", handleRouteChangeStart);
-      router.events?.off("routeChangeComplete", handleRouteChangeStart);
+      router.events?.off("routeChangeStart", syncPath);
+      router.events?.off("routeChangeComplete", syncPath);
     };
-  }, [getCurrentPath, router.events]);
+  }, [getNormalizedPath, router.asPath, router.events, router.isReady]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -133,7 +136,7 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
-                onClick={() => setCurrentPath(getCurrentPath(link.href))}
+                onClick={() => setCurrentPath(getNormalizedPath(link.href))}
                 style={{
                   "--active-color": link.activeColor,
                   "--hover-color": link.hoverColor,
