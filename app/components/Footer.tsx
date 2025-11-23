@@ -322,6 +322,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           max-height: 40px;
           margin-bottom: 4px;
           padding-right: 6px;
+          filter: invert(1);
         }
         .footer-brand-text {
           display: flex;
