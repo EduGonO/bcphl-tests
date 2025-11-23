@@ -101,14 +101,16 @@ const TopNav: React.FC = () => {
 
     if (!router.isReady) return;
 
+    const handlePopState = () => updateFromPath();
+
     router.events?.on("routeChangeStart", updateFromPath);
     router.events?.on("routeChangeComplete", updateFromPath);
-    window.addEventListener("popstate", updateFromPath);
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
       router.events?.off("routeChangeStart", updateFromPath);
       router.events?.off("routeChangeComplete", updateFromPath);
-      window.removeEventListener("popstate", updateFromPath);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [getCurrentPath, router.events, router.isReady]);
 
