@@ -38,6 +38,12 @@ const normalizeSegment = (value: string) =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
+const getNormalizedSegment = (path: string) => {
+  const normalized = normalizePath(path);
+  const [segment] = normalized.replace(/^\/+/, "").split("/");
+  return normalizeSegment(segment || "");
+};
+
 const NAV_LINKS = [
   {
     label: "Réflexion",
@@ -67,41 +73,44 @@ const NAV_LINKS = [
 
 const TopNav: React.FC = () => {
   const router = useRouter();
-  const getNormalizedPath = React.useCallback((value?: string) => {
-    if (value) return normalizePath(value);
 
-    if (typeof window !== "undefined" && window.location?.pathname) {
-      return normalizePath(window.location.pathname);
-    }
+  const getCurrentPath = React.useCallback(
+    (override?: string) => {
+      if (override) return normalizePath(override);
 
-    if (router.asPath) return normalizePath(router.asPath);
-    if (router.pathname) return normalizePath(router.pathname);
-    return "/";
-  }, [router.asPath, router.pathname]);
+      if (typeof window !== "undefined" && window.location?.pathname) {
+        return normalizePath(window.location.pathname);
+      }
 
-  const [currentPath, setCurrentPath] = React.useState(() =>
-    getNormalizedPath()
+      if (router.asPath) return normalizePath(router.asPath);
+      if (router.pathname) return normalizePath(router.pathname);
+      return "/";
+    },
+    [router.asPath, router.pathname]
+  );
+
+  const [activeSegment, setActiveSegment] = React.useState(() =>
+    getNormalizedSegment(getCurrentPath())
   );
 
   React.useEffect(() => {
-    setCurrentPath(getNormalizedPath());
-  }, [getNormalizedPath]);
+    const updateFromPath = (path?: string) =>
+      setActiveSegment(getNormalizedSegment(getCurrentPath(path)));
 
-  React.useEffect(() => {
+    updateFromPath();
+
     if (!router.isReady) return;
 
-    const syncPath = (value?: string) => setCurrentPath(getNormalizedPath(value));
-
-    syncPath(router.asPath);
-
-    router.events?.on("routeChangeStart", syncPath);
-    router.events?.on("routeChangeComplete", syncPath);
+    router.events?.on("routeChangeStart", updateFromPath);
+    router.events?.on("routeChangeComplete", updateFromPath);
+    window.addEventListener("popstate", updateFromPath);
 
     return () => {
-      router.events?.off("routeChangeStart", syncPath);
-      router.events?.off("routeChangeComplete", syncPath);
+      router.events?.off("routeChangeStart", updateFromPath);
+      router.events?.off("routeChangeComplete", updateFromPath);
+      window.removeEventListener("popstate", updateFromPath);
     };
-  }, [getNormalizedPath, router.asPath, router.events, router.isReady]);
+  }, [getCurrentPath, router.events, router.isReady]);
 
   return (
     <header className="top-nav" aria-label="Navigation principale">
@@ -119,16 +128,8 @@ const TopNav: React.FC = () => {
         </Link>
         <nav className="top-nav__links">
           {NAV_LINKS.map((link) => {
-            const hrefLower = link.href.toLowerCase();
-            const [linkSegment] = hrefLower.replace(/^\/+/g, "").split("/");
-            const [currentSegment] = currentPath.replace(/^\/+/g, "").split("/");
-
-            const normalizedLinkSegment = normalizeSegment(linkSegment || "");
-            const normalizedCurrentSegment = normalizeSegment(currentSegment || "");
-            const isActive =
-              hrefLower === "/"
-                ? currentPath === "/"
-                : normalizedCurrentSegment === normalizedLinkSegment;
+            const linkSegment = getNormalizedSegment(link.href);
+            const isActive = link.href === "/" ? activeSegment === "" : activeSegment === linkSegment;
 
             return (
               <Link
@@ -136,7 +137,7 @@ const TopNav: React.FC = () => {
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
                 className={`top-nav__link${isActive ? " top-nav__link--active" : ""}`}
-                onClick={() => setCurrentPath(getNormalizedPath(link.href))}
+                onClick={() => setActiveSegment(linkSegment)}
                 style={{
                   "--active-color": link.activeColor,
                   "--hover-color": link.hoverColor,
