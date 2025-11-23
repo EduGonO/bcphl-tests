@@ -70,7 +70,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
                     target="_blank"
                     rel="noopener"
                   >
-                    S&apos;inscrire à notre newsletter !
+                    S&apos;inscrire à notre newsletter
                   </a>
                 </div>
                 <div className="footer-subsection links-stack">
@@ -137,6 +137,9 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           grid-template-columns: 1fr;
           gap: 32px;
         }
+        .footer-col {
+          min-width: 0;
+        }
         @media (min-width: 768px) {
           .footer-sections {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -186,6 +189,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           line-height: 1.5;
           color: ${textColor};
           font-family: 'EnbyGertrude', sans-serif;
+          overflow-wrap: anywhere;
         }
         .footer-subsection {
           margin-bottom: 16px;
@@ -196,21 +200,22 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           gap: 16px;
           flex-wrap: wrap;
         }
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
           .links-row {
             flex-direction: row;
             gap: 24px;
           }
         }
         .newsletter-section {
-          flex: 2 1 320px;
+          flex: 1 1 0;
           min-width: 0;
+          width: 100%;
         }
         .links-stack {
           display: flex;
           flex-direction: column;
           gap: 12px;
-          flex: 1 1 200px;
+          flex: 1 1 0;
           min-width: 0;
         }
         @media (min-width: 1200px) {
@@ -226,9 +231,13 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           text-decoration: none;
           font-size: 14px;
           font-family: 'EnbyGertrude', sans-serif;
+          transition: color 0.2s ease, text-decoration-color 0.2s ease;
+          overflow-wrap: anywhere;
         }
         .footer-link:hover {
           text-decoration: underline;
+          text-decoration-color: #a0f2b5;
+          color: #c6ffd8;
         }
         .email-link {
           color: #fff;
@@ -242,14 +251,19 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           font-size: 14px;
           font-family: 'EnbyGertrude', sans-serif;
           text-decoration: none;
-          transition: transform 0.2s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .pill-link:hover {
           transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(160, 242, 181, 0.25);
         }
         .newsletter-link {
-          background: #a0f2b5;
-          color: #000;
+          background: #000;
+          color: #fff;
+          border: 1px solid #a0f2b5;
+        }
+        .newsletter-link:hover {
+          border-color: #c6ffd8;
         }
         .support-button {
           display: inline-flex;
@@ -263,10 +277,12 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           font-family: 'EnbyGertrude', sans-serif;
           font-size: 14px;
           text-decoration: none;
-          transition: transform 0.2s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .support-button:hover {
           transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(160, 242, 181, 0.25);
+          border-color: #c6ffd8;
         }
         /* Logo full width at bottom */
         .footer-brand {
