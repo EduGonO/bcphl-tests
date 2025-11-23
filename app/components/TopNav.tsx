@@ -201,12 +201,27 @@ const TopNav: React.FC = () => {
           padding: 12px 22px;
           border-radius: 999px;
           transition:
-            background-color 0.18s ease,
             color 0.18s ease,
-            text-decoration 0.18s ease;
+            text-decoration 0.18s ease,
+            transform 0.2s ease;
           white-space: nowrap;
           line-height: 1.1;
           background-color: transparent;
+          position: relative;
+          isolation: isolate;
+        }
+
+        .top-nav__link::before {
+          content: "";
+          position: absolute;
+          inset: 6px 8px;
+          border-radius: 999px;
+          background-color: var(--active-color, transparent);
+          opacity: 0;
+          transform: scale(0.9);
+          transition: opacity 0.2s ease, transform 0.2s ease;
+          z-index: -1;
+          pointer-events: none;
         }
 
         .top-nav__link:hover,
@@ -214,17 +229,30 @@ const TopNav: React.FC = () => {
           text-decoration: underline;
           text-decoration-thickness: 2px;
           text-underline-offset: 6px;
-          background-color: var(--hover-color, rgba(0, 0, 0, 0.1));
+        }
+
+        .top-nav__link:hover::before,
+        .top-nav__link:focus-visible::before {
+          opacity: 1;
+          transform: scale(1);
         }
 
         .top-nav__link--active {
           color: #0f0f0f;
-          background-color: var(--active-color, transparent);
+        }
+
+        .top-nav__link--active::before,
+        .top-nav__link--active:hover::before,
+        .top-nav__link--active:focus-visible::before {
+          opacity: 1;
+          transform: scale(1);
         }
 
         .top-nav__link--active:hover,
         .top-nav__link--active:focus-visible {
-          background-color: var(--active-color, transparent);
+          text-decoration: underline;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 6px;
         }
 
         @media (max-width: 720px) {
