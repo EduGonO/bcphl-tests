@@ -105,10 +105,11 @@
 
   .links {
     width: 100%;
-    justify-content: center;
-    gap: clamp(10px, 3vw, 18px);
-    row-gap: 10px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    justify-items: stretch;
+    align-items: stretch;
+    gap: clamp(6px, 2vw, 12px);
     padding-right: 0;
   }
 
@@ -117,7 +118,9 @@
   }
 
   .link {
-    font-size: 15px;
-    padding: 9px 14px;
+    font-size: 14px;
+    padding: 8px 10px;
+    width: 100%;
+    text-align: center;
   }
 }
