@@ -104,7 +104,12 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
             {/* 4. Logo + droits */}
             <div className="footer-col footer-brand">
               <img src="/media/logo.png" alt="Logo" />
-              <p className="copyright">© Bicéphale, 2025. Tous droits réservés.</p>
+              <div className="footer-brand-text">
+                <a className="legal-link" href="/mentions-legales">
+                  Mentions légales
+                </a>
+                <p className="copyright">© Bicéphale, 2025. Tous droits réservés.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -123,9 +128,11 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         }
         .footer-inner {
           width: 100%;
-          margin: 0;
+          max-width: 1400px;
+          margin: 0 auto;
           padding: 0 24px;
           align-items: center;
+          box-sizing: border-box;
         }
         @media (min-width: 1024px) {
           .footer-inner {
@@ -190,6 +197,9 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           color: ${textColor};
           font-family: 'EnbyGertrude', sans-serif;
           overflow-wrap: anywhere;
+          word-break: break-word;
+          hyphens: auto;
+          max-width: 100%;
         }
         .footer-subsection {
           margin-bottom: 16px;
@@ -199,6 +209,8 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           flex-direction: column;
           gap: 16px;
           flex-wrap: wrap;
+          width: 100%;
+          align-items: flex-start;
         }
         @media (min-width: 1024px) {
           .links-row {
@@ -217,6 +229,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           gap: 12px;
           flex: 1 1 0;
           min-width: 0;
+          width: 100%;
         }
         @media (min-width: 1200px) {
           .links-row {
@@ -228,14 +241,15 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         }
         .footer-link {
           color: #a0f2b5;
-          text-decoration: none;
+          text-decoration: underline;
+          text-decoration-color: transparent;
+          text-underline-offset: 3px;
           font-size: 14px;
           font-family: 'EnbyGertrude', sans-serif;
           transition: color 0.2s ease, text-decoration-color 0.2s ease;
           overflow-wrap: anywhere;
         }
         .footer-link:hover {
-          text-decoration: underline;
           text-decoration-color: #a0f2b5;
           color: #c6ffd8;
         }
@@ -251,7 +265,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           font-size: 14px;
           font-family: 'EnbyGertrude', sans-serif;
           text-decoration: none;
-          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
         }
         .pill-link:hover {
           transform: translateY(-1px);
@@ -264,6 +278,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
         }
         .newsletter-link:hover {
           border-color: #c6ffd8;
+          background: #0f2e1f;
         }
         .support-button {
           display: inline-flex;
@@ -277,12 +292,13 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           font-family: 'EnbyGertrude', sans-serif;
           font-size: 14px;
           text-decoration: none;
-          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
         }
         .support-button:hover {
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(160, 242, 181, 0.25);
           border-color: #c6ffd8;
+          background: #0f2e1f;
         }
         /* Logo full width at bottom */
         .footer-brand {
@@ -301,10 +317,28 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
           margin-bottom: 4px;
           padding-right: 6px;
         }
+        .footer-brand-text {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+        }
         .footer-brand p {
           margin: 0;
           font-size: 12px;
           color: ${textColor};
+        }
+        .legal-link {
+          font-size: 12px;
+          color: ${textColor};
+          text-decoration: underline;
+          text-decoration-color: transparent;
+          text-underline-offset: 2px;
+          transition: color 0.2s ease, text-decoration-color 0.2s ease;
+        }
+        .legal-link:hover {
+          color: #c6ffd8;
+          text-decoration-color: #a0f2b5;
         }
         /* Overlay */
         .overlay {
