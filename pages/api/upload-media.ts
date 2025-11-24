@@ -19,9 +19,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const safeSlug = slug.replace(/\.\./g, '');
     const safeName = filename.replace(/[/\\]/g, '_');
 
+    const base64Payload = data.includes(',') ? data.split(',').pop() as string : data;
+
     const dir = path.join(process.cwd(), 'public', 'media', safeCat, safeSlug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, safeName), Buffer.from(data, 'base64'));
+    fs.writeFileSync(path.join(dir, safeName), Buffer.from(base64Payload, 'base64'));
 
     res.status(200).json({ path: `/media/${safeCat}/${safeSlug}/${safeName}` });
   } catch (e) {
