@@ -11,6 +11,8 @@ import type {
   SupabaseCategorySummary,
 } from "../../../../types/supabase";
 
+export const config = { api: { bodyParser: { sizeLimit: "20mb" } } };
+
 const ensureClient = () => {
   const client = getSupabaseServerClient();
   if (!client) {
