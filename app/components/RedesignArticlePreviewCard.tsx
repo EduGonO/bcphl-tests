@@ -207,7 +207,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview:focus-visible {
           transform: translateY(-2px);
           box-shadow: 0 8px 18px rgba(17, 17, 17, 0.12);
-          background: rgba(255, 255, 255, 0.86);
+          background: rgba(255, 255, 255, 0.6);
         }
         .article-preview:hover::before,
         .article-preview:focus-visible::before {
