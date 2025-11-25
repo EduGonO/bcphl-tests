@@ -179,6 +179,8 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             color: inherit;
             cursor: pointer;
             pointer-events: auto;
+            width: 100%;
+            box-sizing: border-box;
           }
           .article-preview-media {
             width: 100%;
