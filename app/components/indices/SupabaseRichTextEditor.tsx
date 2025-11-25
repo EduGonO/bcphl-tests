@@ -192,6 +192,45 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     [articleId, articleSlug, sanitizeName]
   );
 
+  const insertImageAtSelection = useCallback(
+    (url: string) => {
+      const quill = getActiveQuill();
+      if (!quill) return;
+      const range = quill.getSelection(true);
+      const insertIndex = range ? range.index : quill.getLength();
+      quill.insertEmbed(insertIndex, "image", url, "user");
+      quill.setSelection(insertIndex + 1, 0, "silent");
+    },
+    [getActiveQuill]
+  );
+
+  const uploadAndInsertFiles = useCallback(
+    async (files: FileList | File[]) => {
+      const orderedFiles = Array.from(files).filter((file) =>
+        allowedImageTypes.has(file.type)
+      );
+      if (!orderedFiles.length) {
+        alert("Seuls les fichiers PNG et JPEG sont acceptés.");
+        return;
+      }
+
+      for (const file of orderedFiles) {
+        try {
+          const url = await uploadImage(file);
+          insertImageAtSelection(url);
+        } catch (error) {
+          console.error("Image upload failed", error);
+          alert(
+            error instanceof Error
+              ? error.message
+              : "Impossible de téléverser cette image."
+          );
+        }
+      }
+    },
+    [insertImageAtSelection, uploadImage]
+  );
+
   const handleImageInsert = useCallback(async () => {
     if (readOnly) return;
     const quill = getActiveQuill();
@@ -204,24 +243,53 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
-      try {
-        const url = await uploadImage(file);
-        const range = quill.getSelection(true);
-        const insertIndex = range ? range.index : quill.getLength();
-        quill.insertEmbed(insertIndex, "image", url, "user");
-        quill.setSelection(insertIndex + 1, 0, "silent");
-      } catch (error) {
-        console.error("Image upload failed", error);
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Impossible de téléverser cette image."
-        );
-      }
+      uploadAndInsertFiles([file]);
     };
 
     input.click();
-  }, [getActiveQuill, readOnly, uploadImage]);
+  }, [getActiveQuill, readOnly, uploadAndInsertFiles]);
+
+  useEffect(() => {
+    const quill = getActiveQuill();
+    if (!quill || readOnly) return;
+
+    const handlePaste = (event: ClipboardEvent) => {
+      if (!event.clipboardData) return;
+      const hasImage = Array.from(event.clipboardData.items).some((item) =>
+        item.type.startsWith("image/")
+      );
+      if (!hasImage) return;
+
+      event.preventDefault();
+      const files = event.clipboardData.files;
+      if (files && files.length) {
+        void uploadAndInsertFiles(files);
+      }
+    };
+
+    const handleDrop = (event: DragEvent) => {
+      if (!event.dataTransfer) return;
+      const hasImage = Array.from(event.dataTransfer.items).some((item) =>
+        item.type.startsWith("image/")
+      );
+      if (!hasImage) return;
+
+      event.preventDefault();
+      const files = event.dataTransfer.files;
+      if (files && files.length) {
+        void uploadAndInsertFiles(files);
+      }
+    };
+
+    const editor = quill.root;
+    editor.addEventListener("paste", handlePaste);
+    editor.addEventListener("drop", handleDrop);
+
+    return () => {
+      editor.removeEventListener("paste", handlePaste);
+      editor.removeEventListener("drop", handleDrop);
+    };
+  }, [getActiveQuill, readOnly, uploadAndInsertFiles]);
 
   useEffect(() => {
     const quill = getActiveQuill();
