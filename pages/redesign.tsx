@@ -316,7 +316,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           color: #0f0f0f;
           background-color: #c1c1f0;
           border: 1px solid #c1c1f0;
-          box-shadow: 0 12px 22px rgba(0, 0, 0, 0.14);
+          box-shadow: none;
           transition: background-color 0.2s ease, color 0.2s ease,
             box-shadow 0.2s ease, transform 0.2s ease;
           white-space: nowrap;
