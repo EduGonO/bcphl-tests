@@ -252,7 +252,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
               <div className="columns">
                 <section className="column column-featured">
                   <header className="column-header">
-                    <h2>à la une</h2>
+                    <h2>À LA UNE</h2>
                   </header>
                   <div className="column-content">
                     {featuredArticles.map((article) => (
@@ -271,7 +271,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 <section className="column column-events">
                   <header className="column-header">
                     <h2>
-                      <Link href="/IRL">nos événements</Link>
+                      <Link href="/IRL">IN REAL LIFE</Link>
                     </h2>
                   </header>
                   <div className="column-content">

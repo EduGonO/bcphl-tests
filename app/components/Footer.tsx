@@ -106,7 +106,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
               <img src="/media/logo.png" alt="Logo" />
               <div className="footer-brand-text">
                 <a className="legal-link" href="/mentions-legales">
-                  Mentions légales
+                  Mentions légales – Accessibilité: non conforme
                 </a>
                 <p className="copyright">© Bicéphale, 2025. Tous droits réservés.</p>
               </div>
