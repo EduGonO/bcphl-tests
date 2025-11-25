@@ -180,6 +180,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           cursor: pointer;
           overflow: hidden;
           isolation: isolate;
+          z-index: 0;
         }
         .article-preview::before {
           content: "";
@@ -189,7 +190,11 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           background: rgba(0, 0, 0, 0);
           transition: background 0.2s ease;
           pointer-events: none;
-          z-index: 0;
+          z-index: 1;
+        }
+        .article-preview :global(*) {
+          position: relative;
+          z-index: 2;
         }
         .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
@@ -205,7 +210,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview:hover::before,
         .article-preview:focus-visible::before {
-          background: rgba(0, 0, 0, 0.12);
+          background: rgba(0, 0, 0, 0.14);
         }
         .article-preview-media {
           width: 100%;

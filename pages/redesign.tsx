@@ -242,7 +242,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           padding: 32px clamp(24px, 6vw, 72px) 0;
           max-width: 1320px;
           margin: 0 auto;
-          width: 100%;
+          width: min(100%, 1320px);
+          box-sizing: border-box;
         }
         .intro-grid {
           display: grid;
@@ -251,6 +252,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           align-items: start;
           width: 100%;
           min-width: 0;
+          box-sizing: border-box;
         }
         .intro-column {
           font-family: "EnbyGertrude", sans-serif;
@@ -259,7 +261,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-size: clamp(14px, 1.4vw, 15.5px);
           padding: 0 clamp(6px, 1vw, 16px);
           min-width: 0;
+          max-width: 100%;
           word-break: break-word;
+          overflow-wrap: anywhere;
           hyphens: auto;
         }
         .intro-column p {
@@ -301,6 +305,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           color: #0f0f0f;
           cursor: pointer;
           border-radius: 999px;
+          border: 1px solid transparent;
           padding: 8px 16px;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
@@ -329,16 +334,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action[data-variant="featured"] {
           --intro-action-bg: #c1c1f0;
           --intro-action-hover: #c7b5f4;
+          --intro-action-color: #0f0f0f;
         }
         .intro-action[data-variant="event"] {
           --intro-action-bg: #03b262;
           --intro-action-hover: #2ad07f;
-          color: #0f0f0f;
+          --intro-action-color: #0f0f0f;
         }
         .intro-action:hover,
         .intro-action:focus-visible,
         .intro-action:active {
           background: var(--intro-action-hover, #c7b5f4);
+          color: var(--intro-action-color, #0f0f0f);
           box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
           transform: translateY(-1px);
         }
