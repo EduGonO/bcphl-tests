@@ -24,7 +24,7 @@ const quillModules = {
     [{ list: "ordered" }, { list: "bullet" }],
     [{ indent: "-1" }, { indent: "+1" }],
     [{ align: [] }],
-    ["blockquote", "code-block"],
+    ["blockquote"],
     ["link", "image"],
     ["clean"],
   ],
@@ -41,7 +41,6 @@ const quillFormats = [
   "indent",
   "align",
   "blockquote",
-  "code-block",
   "link",
   "image",
 ];
