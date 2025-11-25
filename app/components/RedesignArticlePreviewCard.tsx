@@ -169,29 +169,21 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             position: relative;
             display: flex;
             flex-direction: column;
-            gap: 24px;
-            padding: 22px 24px 26px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.82);
-            box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-            transition: transform 0.18s ease, box-shadow 0.18s ease,
-              background-color 0.18s ease, border-color 0.18s ease;
+            gap: 16px;
+            padding: 18px 18px 20px;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            transition: background-color 0.14s ease;
             text-decoration: none;
             color: inherit;
             cursor: pointer;
             pointer-events: auto;
           }
-          .article-preview.creation {
-            background: rgba(255, 255, 255, 0.84);
-          }
-          .article-preview.irl {
-            background: rgba(255, 255, 255, 0.78);
-          }
           .article-preview-media {
             width: 100%;
             height: 200px;
             max-height: 200px;
-            border-radius: 3px;
             background-position: left center;
             background-repeat: no-repeat;
             background-size: auto 100%;
@@ -208,8 +200,8 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           .article-preview-header {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin: 10px 0 12px;
+            gap: 8px;
+            margin: 6px 0 8px;
           }
           .article-preview-title {
             margin: 0;
@@ -238,7 +230,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             font-size: 15px;
             line-height: 1.5;
             color: #000000;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: -webkit-box;
             -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
@@ -284,10 +276,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         <style jsx global>{`
           a.article-preview:hover,
           a.article-preview:focus-visible {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 26px rgba(17, 17, 17, 0.2),
-              inset 0 0 0 1px rgba(17, 17, 17, 0.12);
-            background-color: rgba(255, 255, 255, 0.96);
+            background-color: rgba(0, 0, 0, 0.08);
           }
           a.article-preview:hover .article-preview-cta,
           a.article-preview:focus-visible .article-preview-cta {
