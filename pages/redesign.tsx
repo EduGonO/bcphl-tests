@@ -427,9 +427,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           line-height: 1.1;
           min-height: 30px;
           transition: transform 0.2s ease, background-color 0.2s ease,
-            color 0.2s ease;
+            color 0.2s ease, box-shadow 0.2s ease;
           color: #111111;
           cursor: pointer;
+          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
         }
         .intro-action-icon {
           width: 18px;
@@ -449,7 +450,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action:focus-visible .intro-action-pill,
         .intro-action:active .intro-action-pill,
         .intro-action.is-hovered .intro-action-pill {
-          transform: translateY(-1px);
+          transform: translateY(-1px) scale(1.02);
+          box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.22);
         }
         .intro-action:hover .intro-action-pill.featured,
         .intro-action:focus-visible .intro-action-pill.featured,
