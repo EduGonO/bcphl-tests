@@ -608,7 +608,7 @@ const ArticlePage: React.FC<ArtProps> = ({
           margin: 0 auto;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 18px;
-          line-height: 1.5;
+          line-height: 1.35;
           color: #111111;
         }
 

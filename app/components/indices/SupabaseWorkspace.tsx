@@ -1703,7 +1703,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           min-height: 0;
         }
         .supabase-rich-text .ql-editor {
-          line-height: 1.5;
+          line-height: 1.35;
         }
         .supabase-rich-text .ql-editor h6 {
           font-size: 12px;
