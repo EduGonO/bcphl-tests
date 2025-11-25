@@ -142,24 +142,24 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                       className="intro-action"
                       target="_blank"
                       rel="noopener noreferrer"
+                      data-variant="featured"
                     >
-                      <span className="intro-action-pill featured">S'abonner</span>
+                      <span className="intro-action-label">S'abonner</span>
                     </Link>
                     <Link
                       href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
                       className="intro-action"
                       target="_blank"
                       rel="noopener noreferrer"
+                      data-variant="event"
                     >
-                      <span className="intro-action-pill event">
-                        <img
-                          src="/social/instagram.png"
-                          alt=""
-                          className="intro-action-icon"
-                          aria-hidden="true"
-                        />
-                        Nous suivre
-                      </span>
+                      <img
+                        src="/social/instagram.png"
+                        alt=""
+                        className="intro-action-icon"
+                        aria-hidden="true"
+                      />
+                      <span className="intro-action-label">Nous suivre</span>
                     </Link>
                   </div>
                 </div>
@@ -236,6 +236,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           flex-direction: column;
           gap: 40px;
           background: #e4e4e4;
+          min-width: 0;
         }
         .intro {
           padding: 32px clamp(24px, 6vw, 72px) 0;
@@ -249,6 +250,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           gap: clamp(24px, 4vw, 38px);
           align-items: start;
           width: 100%;
+          min-width: 0;
         }
         .intro-column {
           font-family: "EnbyGertrude", sans-serif;
@@ -256,6 +258,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           line-height: 1.46;
           font-size: clamp(14px, 1.4vw, 15.5px);
           padding: 0 clamp(6px, 1vw, 16px);
+          min-width: 0;
+          word-break: break-word;
+          hyphens: auto;
         }
         .intro-column p {
           margin: 0;
@@ -282,17 +287,31 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-actions {
           display: flex;
-          gap: 18px;
-          margin: 14px 0 0;
+          gap: 14px;
+          margin: 16px 0 0;
           flex-wrap: wrap;
           align-items: center;
         }
         .intro-action {
           display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
           text-decoration: none;
-          color: #111111;
+          color: #0f0f0f;
           cursor: pointer;
           border-radius: 999px;
+          padding: 8px 16px;
+          font-family: "EnbyGertrude", sans-serif;
+          font-size: 14px;
+          letter-spacing: 0.05em;
+          line-height: 1.1;
+          background: var(--intro-action-bg, #c1c1f0);
+          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+          transition: background-color 0.2s ease, color 0.2s ease,
+            box-shadow 0.2s ease, transform 0.2s ease;
+          position: relative;
+          isolation: isolate;
         }
         .intro-action:visited {
           color: inherit;
@@ -300,59 +319,35 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action:focus-visible {
           outline: none;
         }
-        .intro-action-pill {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          align-self: flex-start;
-          font-family: "EnbyGertrude", sans-serif;
-          font-size: 14px;
-          letter-spacing: 0.05em;
-          padding: 6px 16px;
-          border-radius: 999px;
-          line-height: 1.1;
-          min-height: 30px;
-          transition: background-color 0.18s ease, color 0.18s ease,
-            box-shadow 0.18s ease, transform 0.18s ease;
-          color: #111111;
-          cursor: pointer;
-          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-        }
         .intro-action-icon {
           width: 18px;
           height: 18px;
-          margin-right: 8px;
           display: inline-block;
           object-fit: contain;
+          flex-shrink: 0;
         }
-        .intro-action-pill.featured {
-          background: #c1c1f0;
+        .intro-action[data-variant="featured"] {
+          --intro-action-bg: #c1c1f0;
+          --intro-action-hover: #c7b5f4;
         }
-        .intro-action-pill.event {
-          background: #03b262;
-          color: #111111;
+        .intro-action[data-variant="event"] {
+          --intro-action-bg: #03b262;
+          --intro-action-hover: #2ad07f;
+          color: #0f0f0f;
         }
-        .intro-action:hover .intro-action-pill,
-        .intro-action:focus-visible .intro-action-pill,
-        .intro-action:active .intro-action-pill {
-          background-color: #c7b5f4;
+        .intro-action:hover,
+        .intro-action:focus-visible,
+        .intro-action:active {
+          background: var(--intro-action-hover, #c7b5f4);
           box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
           transform: translateY(-1px);
         }
-        .intro-action:hover .intro-action-pill.featured,
-        .intro-action:focus-visible .intro-action-pill.featured,
-        .intro-action:active .intro-action-pill.featured {
-          background-color: #c7b5f4;
-        }
-        .intro-action:hover .intro-action-pill.event,
-        .intro-action:focus-visible .intro-action-pill.event,
-        .intro-action:active .intro-action-pill.event {
-          background: #03b262;
-          color: #0f0f0f;
-        }
-        .intro-action:focus-visible .intro-action-pill {
-          outline: 2px solid rgba(17, 17, 17, 0.4);
+        .intro-action:focus-visible {
+          outline: 2px solid rgba(17, 17, 17, 0.45);
           outline-offset: 2px;
+        }
+        .intro-action-label {
+          white-space: nowrap;
         }
         .columns-area {
           display: block;
@@ -362,6 +357,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 0;
+          min-width: 0;
         }
         .column {
           display: flex;

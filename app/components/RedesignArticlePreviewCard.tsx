@@ -173,11 +173,13 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           border-radius: 20px;
           background: rgba(255, 255, 255, 0.68);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease,
+            background 0.2s ease;
           text-decoration: none;
           color: inherit;
           cursor: pointer;
           overflow: hidden;
+          isolation: isolate;
         }
         .article-preview::before {
           content: "";
@@ -187,6 +189,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           background: rgba(0, 0, 0, 0);
           transition: background 0.2s ease;
           pointer-events: none;
+          z-index: 0;
         }
         .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
@@ -202,7 +205,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview:hover::before,
         .article-preview:focus-visible::before {
-          background: rgba(0, 0, 0, 0.08);
+          background: rgba(0, 0, 0, 0.12);
         }
         .article-preview-media {
           width: 100%;
@@ -219,6 +222,8 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           flex-direction: column;
           font-family: "EnbyGertrude", sans-serif;
           color: #000000;
+          position: relative;
+          z-index: 1;
         }
         .article-preview-header {
           display: flex;
