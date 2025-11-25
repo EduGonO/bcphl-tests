@@ -608,12 +608,12 @@ const ArticlePage: React.FC<ArtProps> = ({
           margin: 0 auto;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 18px;
-          line-height: 1.68;
+          line-height: 1.25;
           color: #111111;
         }
 
         .article-body :global(p) {
-          margin: 0 0 1.8em;
+          margin: 0 0 1em;
         }
 
         .article-body :global(h2) {
@@ -631,6 +631,15 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-size: 24px;
           font-weight: 400;
           color: #111111;
+        }
+
+        .article-body :global(h6) {
+          margin: 0.2em 0 1.2em;
+          font-size: 12px;
+          line-height: 1.4;
+          text-align: center;
+          color: #404249;
+          font-weight: 500;
         }
 
         .article-body :global(a) {
@@ -660,7 +669,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-body :global(blockquote p) {
           margin: 0;
           font-size: 20px;
-          line-height: 1.6;
+          line-height: 1.4;
         }
 
         .article-body :global(blockquote p + p) {
@@ -670,9 +679,13 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-body :global(img) {
           display: block;
           max-width: min(100%, 520px);
-          margin: 2.4em auto;
+          margin: 2em auto 0.35em;
           border-radius: 4px;
           box-shadow: 0 14px 30px rgba(17, 17, 17, 0.12);
+        }
+
+        .article-body :global(img + h6) {
+          margin-top: 0.1em;
         }
 
         .related-sidebar {

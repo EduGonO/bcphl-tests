@@ -19,13 +19,12 @@ const ReactQuill = dynamic(() => import("react-quill"), {
 
 const quillModules = {
   toolbar: [
-    [{ header: [1, 2, 3, false] }],
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
     ["bold", "italic", "underline", "strike"],
     [{ list: "ordered" }, { list: "bullet" }],
-    [{ script: "sub" }, { script: "super" }],
     [{ indent: "-1" }, { indent: "+1" }],
     [{ align: [] }],
-    ["blockquote", "code-block"],
+    ["blockquote"],
     ["link", "image"],
     ["clean"],
   ],
@@ -41,9 +40,7 @@ const quillFormats = [
   "bullet",
   "indent",
   "align",
-  "script",
   "blockquote",
-  "code-block",
   "link",
   "image",
 ];
