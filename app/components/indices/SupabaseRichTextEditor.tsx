@@ -8,6 +8,8 @@ import "react-quill/dist/quill.snow.css";
 type SupabaseRichTextEditorProps = {
   value: string;
   onChange: (markdown: string, html: string) => void;
+  articleId?: string;
+  articleSlug?: string;
   readOnly?: boolean;
   placeholder?: string;
 };
@@ -73,12 +75,18 @@ const normalizeHtml = (html: string): string => {
   return html;
 };
 
+const allowedImageTypes = new Set(["image/png", "image/jpeg"]);
+const allowedExtensions = new Set(["png", "jpg", "jpeg"]);
+
 const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   value,
   onChange,
+  articleId,
+  articleSlug,
   readOnly = false,
   placeholder,
 }) => {
+  const quillRef = useRef<any>(null);
   const turndown = useMemo(() => {
     const service = new TurndownService({
       headingStyle: "atx",
@@ -122,10 +130,104 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     [onChange, turndown]
   );
 
+  const getActiveQuill = useCallback(() => {
+    return quillRef.current?.getEditor?.();
+  }, []);
+
+  const fileToBase64 = useCallback(async (file: File): Promise<string> => {
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    bytes.forEach((byte) => {
+      binary += String.fromCharCode(byte);
+    });
+    return btoa(binary);
+  }, []);
+
+  const sanitizeName = useCallback((name: string): string => {
+    const parts = name.split(".");
+    const ext = parts.pop()?.toLowerCase() ?? "";
+    const base = parts.join(".") || "image";
+    const safeBase = base.replace(/[^a-zA-Z0-9-_]/g, "-").replace(/-{2,}/g, "-");
+    const safeExt = allowedExtensions.has(ext) ? ext : "jpg";
+    return `${safeBase}.${safeExt}`;
+  }, []);
+
+  const uploadImage = useCallback(
+    async (file: File): Promise<string> => {
+      if (!allowedImageTypes.has(file.type)) {
+        throw new Error("Formats supportés : PNG, JPEG.");
+      }
+
+      const base64 = await fileToBase64(file);
+      const safeName = sanitizeName(file.name);
+      const response = await fetch("/api/supabase/upload-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          articleId,
+          slug: articleSlug,
+          fileName: safeName,
+          fileType: file.type,
+          data: base64,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Téléversement impossible.");
+      }
+
+      return payload.publicUrl as string;
+    },
+    [articleId, articleSlug, fileToBase64, sanitizeName]
+  );
+
+  const handleImageInsert = useCallback(async () => {
+    if (readOnly) return;
+    const quill = getActiveQuill();
+    if (!quill) return;
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".png,.jpg,.jpeg,image/png,image/jpeg";
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const url = await uploadImage(file);
+        const range = quill.getSelection(true);
+        const insertIndex = range ? range.index : quill.getLength();
+        quill.insertEmbed(insertIndex, "image", url, "user");
+        quill.setSelection(insertIndex + 1, 0, "silent");
+      } catch (error) {
+        console.error("Image upload failed", error);
+        alert(
+          error instanceof Error
+            ? error.message
+            : "Impossible de téléverser cette image."
+        );
+      }
+    };
+
+    input.click();
+  }, [getActiveQuill, readOnly, uploadImage]);
+
+  useEffect(() => {
+    const quill = getActiveQuill();
+    if (!quill || readOnly) return;
+    const toolbar = quill.getModule("toolbar");
+    if (toolbar) {
+      toolbar.addHandler("image", handleImageInsert);
+    }
+  }, [getActiveQuill, handleImageInsert, readOnly]);
+
   return (
     <div className="supabase-rich-text">
       <ReactQuill
         theme="snow"
+        ref={quillRef}
         value={htmlValue}
         onChange={handleChange}
         readOnly={readOnly}
