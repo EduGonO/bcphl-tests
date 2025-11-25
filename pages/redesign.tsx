@@ -308,19 +308,19 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           color: var(--intro-action-color, #0f0f0f);
           cursor: pointer;
           border-radius: 999px;
-          border: 1px solid transparent;
-          padding: 11px 20px;
+          padding: 12px 22px;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
           line-height: 1.1;
           background-color: var(--intro-action-bg, #c1c1f0);
-          border-color: var(--intro-action-bg, #c1c1f0);
-          box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+          border: 1px solid var(--intro-action-bg, #c1c1f0);
+          box-shadow: 0 12px 22px rgba(0, 0, 0, 0.14);
           transition: background-color 0.2s ease, color 0.2s ease,
             box-shadow 0.2s ease, transform 0.2s ease;
           position: relative;
           isolation: isolate;
+          white-space: nowrap;
         }
         .intro-action:visited {
           color: inherit;
