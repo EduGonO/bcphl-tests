@@ -191,6 +191,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           transition: background 0.2s ease;
           pointer-events: none;
           z-index: 1;
+          mix-blend-mode: multiply;
         }
         .article-preview :global(*) {
           position: relative;
@@ -210,7 +211,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview:hover::before,
         .article-preview:focus-visible::before {
-          background: rgba(0, 0, 0, 0.14);
+          background: rgba(0, 0, 0, 0.22);
         }
         .article-preview-media {
           width: 100%;
