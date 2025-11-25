@@ -23,6 +23,8 @@ interface RedesignProps {
 
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
+  const newsletterHref =
+    "https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF";
   const [introHeight, setIntroHeight] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<"about" | "follow" | null>(
     null
@@ -202,17 +204,19 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                 </div>
                 <div className="intro-actions">
                   <Link
-                    href="/bios"
+                    href={newsletterHref}
                     className={`intro-action ${
                       hoveredAction === "about" ? "is-hovered" : ""
                     }`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onPointerEnter={() => handleHoverStart("about")}
                     onPointerMove={() => handleHoverStart("about")}
                     onMouseEnter={() => handleHoverStart("about")}
                     onPointerLeave={() => handleHoverEnd("about")}
                     onMouseLeave={() => handleHoverEnd("about")}
                   >
-                    <span className="intro-action-pill featured">À propos</span>
+                    <span className="intro-action-pill featured">S'abonner</span>
                   </Link>
                   <Link
                     href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
@@ -227,7 +231,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     onPointerLeave={() => handleHoverEnd("follow")}
                     onMouseLeave={() => handleHoverEnd("follow")}
                   >
-                    <span className="intro-action-pill event">Nous suivre</span>
+                    <span className="intro-action-pill event">
+                      <img
+                        src="/social/instagram.png"
+                        alt=""
+                        className="intro-action-icon"
+                        aria-hidden="true"
+                      />
+                      Nous suivre
+                    </span>
                   </Link>
                 </div>
               </div>
@@ -418,6 +430,13 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             color 0.2s ease;
           color: #111111;
           cursor: pointer;
+        }
+        .intro-action-icon {
+          width: 18px;
+          height: 18px;
+          margin-right: 8px;
+          display: inline-block;
+          object-fit: contain;
         }
         .intro-action-pill.featured {
           background: #c1c1f0;

@@ -469,8 +469,8 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-title {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: clamp(42px, 7vw, 66px);
-          line-height: 1.04;
+          font-size: clamp(32px, 5.8vw, 52px);
+          line-height: 1.08;
           font-weight: 400;
           color: #000000;
           text-align: left;
@@ -480,7 +480,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-author {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: clamp(26px, 5vw, 42px);
+          font-size: clamp(18px, 4.4vw, 30px);
           letter-spacing: normal;
           text-align: right;
           color: #000000;
@@ -513,7 +513,7 @@ const ArticlePage: React.FC<ArtProps> = ({
 
         .article-date {
           font-family: "GayaRegular", serif;
-          font-size: clamp(20px, 3.6vw, 30px);
+          font-size: clamp(16px, 3.6vw, 22px);
           letter-spacing: normal;
           text-transform: none;
           color: #000000;
