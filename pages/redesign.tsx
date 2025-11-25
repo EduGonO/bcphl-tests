@@ -301,12 +301,15 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           align-items: center;
           justify-content: center;
           gap: 8px;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          height: fit-content;
           text-decoration: none;
           color: var(--intro-action-color, #0f0f0f);
           cursor: pointer;
           border-radius: 999px;
           border: 1px solid transparent;
-          padding: 10px 18px;
+          padding: 11px 20px;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
@@ -328,7 +331,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action-icon {
           width: 18px;
           height: 18px;
-          display: block;
+          display: inline-block;
           object-fit: contain;
           flex-shrink: 0;
           align-self: center;
@@ -358,6 +361,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro-action-label {
           white-space: nowrap;
+          line-height: 1.2;
         }
         .columns-area {
           display: block;
