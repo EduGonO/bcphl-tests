@@ -188,7 +188,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             background-repeat: no-repeat;
             background-size: auto 100%;
             background-color: transparent;
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.16);
             box-sizing: border-box;
           }
           .article-preview-body {
