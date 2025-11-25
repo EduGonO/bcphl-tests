@@ -28,7 +28,7 @@ export const getArticleMediaStyle = (article: Article): CSSProperties => {
       backgroundImage: `url(${directImage})`,
       backgroundSize: "auto 100%",
       backgroundRepeat: "no-repeat",
-      backgroundPosition: "left center",
+      backgroundPosition: "center center",
     };
   }
 

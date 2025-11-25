@@ -184,10 +184,12 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
             width: 100%;
             height: 200px;
             max-height: 200px;
-            background-position: left center;
+            background-position: center;
             background-repeat: no-repeat;
             background-size: auto 100%;
             background-color: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.16);
+            box-sizing: border-box;
           }
           .article-preview-body {
             display: flex;
