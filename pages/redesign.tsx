@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Footer from "../app/components/Footer";
@@ -23,65 +23,8 @@ interface RedesignProps {
 
 const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
-  const [introHeight, setIntroHeight] = useState<number | null>(null);
-  const [hoveredAction, setHoveredAction] = useState<"about" | "follow" | null>(
-    null
-  );
-  const introCopyRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const measure = () => {
-      if (typeof window === "undefined") {
-        return;
-      }
-
-      if (window.innerWidth <= 700) {
-        setIntroHeight((previous) => (previous === null ? previous : null));
-        return;
-      }
-
-      const textNode = introCopyRef.current;
-      if (!textNode) {
-        return;
-      }
-
-      const { height } = textNode.getBoundingClientRect();
-      setIntroHeight((previous) => {
-        if (previous === null) {
-          return height;
-        }
-        return Math.abs(previous - height) > 0.5 ? height : previous;
-      });
-    };
-
-    measure();
-
-    const textNode = introCopyRef.current;
-    if (!textNode) {
-      return;
-    }
-
-    let observer: ResizeObserver | null = null;
-    if ("ResizeObserver" in window) {
-      observer = new ResizeObserver(() => {
-        measure();
-      });
-      observer.observe(textNode);
-    }
-
-    window.addEventListener("resize", measure);
-
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
+  const newsletterHref =
+    "https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF";
 
   const parseDate = (value: string) => {
     const parsed = Date.parse(value);
@@ -154,14 +97,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
     return "reflexion" as const;
   };
 
-  const handleHoverStart = (action: "about" | "follow") => {
-    setHoveredAction(action);
-  };
-
-  const handleHoverEnd = (action: "about" | "follow") => {
-    setHoveredAction((current) => (current === action ? null : current));
-  };
-
   return (
     <>
       <Head>
@@ -179,8 +114,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
           <div className="main-sections">
             <section className="intro">
-              <div className="intro-copy" ref={introCopyRef}>
-                <div className="intro-text">
+              <div className="intro-grid">
+                <div className="intro-column intro-column-primary">
                   <p>
                     Dans la même urgence que la revue {" "}
                     <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
@@ -191,6 +126,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     bicéphales et une démarche réflexive analysant les arts, les techniques
                     et la société.
                   </p>
+                </div>
+                <div className="intro-column intro-column-secondary">
                   <p>
                     Cette revue embrasse nos multiplicités et questionne les techniques
                     contemporaines afin de se faire vectrice de {" "}
@@ -199,52 +136,33 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     <span className="intro-highlight">critique</span> et de {" "}
                     <span className="intro-highlight">pensée</span>.
                   </p>
+                  <div className="intro-actions">
+                    <Link
+                      href={newsletterHref}
+                      className="intro-action"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-variant="featured"
+                    >
+                      <span className="intro-action-label">S'abonner</span>
+                    </Link>
+                    <Link
+                      href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
+                      className="intro-action"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-variant="event"
+                    >
+                      <img
+                        src="/social/instagram.png"
+                        alt=""
+                        className="intro-action-icon"
+                        aria-hidden="true"
+                      />
+                      <span className="intro-action-label">Nous suivre</span>
+                    </Link>
+                  </div>
                 </div>
-                <div className="intro-actions">
-                  <Link
-                    href="/bios"
-                    className={`intro-action ${
-                      hoveredAction === "about" ? "is-hovered" : ""
-                    }`}
-                    onPointerEnter={() => handleHoverStart("about")}
-                    onPointerMove={() => handleHoverStart("about")}
-                    onMouseEnter={() => handleHoverStart("about")}
-                    onPointerLeave={() => handleHoverEnd("about")}
-                    onMouseLeave={() => handleHoverEnd("about")}
-                  >
-                    <span className="intro-action-pill featured">À propos</span>
-                  </Link>
-                  <Link
-                    href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
-                    className={`intro-action ${
-                      hoveredAction === "follow" ? "is-hovered" : ""
-                    }`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onPointerEnter={() => handleHoverStart("follow")}
-                    onPointerMove={() => handleHoverStart("follow")}
-                    onMouseEnter={() => handleHoverStart("follow")}
-                    onPointerLeave={() => handleHoverEnd("follow")}
-                    onMouseLeave={() => handleHoverEnd("follow")}
-                  >
-                    <span className="intro-action-pill event">Nous suivre</span>
-                  </Link>
-                </div>
-              </div>
-              <div
-                className="intro-visual"
-                style={
-                  introHeight !== null
-                    ? { height: Math.min(introHeight, 360) }
-                    : undefined
-                }
-              >
-                {/*
-                <img
-                  src="/media/home_image.jpeg"
-                  alt="Illustration de la revue Bicéphale"
-                />
-                */}
               </div>
             </section>
 
@@ -318,156 +236,138 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           flex-direction: column;
           gap: 40px;
           background: #e4e4e4;
+          min-width: 0;
         }
         .intro {
+          padding: 32px clamp(24px, 6vw, 72px) 0;
+          max-width: 1320px;
+          margin: 0 auto;
+          width: min(100%, 1320px);
+          box-sizing: border-box;
+        }
+        .intro-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
-          grid-template-areas: "copy visual";
-          gap: clamp(20px, 5vw, 44px);
-          align-items: flex-start;
-          justify-items: stretch;
-          padding: 32px clamp(24px, 7vw, 88px) 0;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .intro-copy {
-          grid-area: copy;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          max-width: 560px;
-          margin: 0 auto;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: clamp(24px, 4vw, 38px);
+          align-items: start;
           width: 100%;
-          padding: 0 8px;
+          min-width: 0;
+          box-sizing: border-box;
         }
-        .intro-text {
+        .intro-column {
           font-family: "EnbyGertrude", sans-serif;
           color: #211f18;
-          line-height: 1.48;
-          font-size: 16px;
+          line-height: 1.46;
+          font-size: clamp(14px, 1.4vw, 15.5px);
+          padding: 0 clamp(6px, 1vw, 16px);
+          min-width: 0;
+          max-width: 100%;
+          word-break: break-word;
+          overflow-wrap: anywhere;
+          hyphens: auto;
         }
-        .intro-text p {
-          margin: 0 0 12px;
+        .intro-column p {
+          margin: 0;
         }
-        .intro-text em {
+        .intro-column p + p {
+          margin-top: 14px;
+        }
+        .intro-column em {
           font-style: italic;
         }
-        .intro-text strong {
+        .intro-column strong {
           font-family: "GayaRegular", serif;
           letter-spacing: 0.02em;
           font-weight: 600;
         }
-        .intro-text .intro-highlight {
+        .intro-highlight {
           font-family: "GayaRegular", serif;
           font-weight: 600;
           letter-spacing: 0.02em;
         }
-        .intro-text em.intro-highlight {
+        .intro-highlight em,
+        .intro-column em.intro-highlight {
           font-style: italic;
         }
         .intro-actions {
           display: flex;
-          gap: 18px;
-          margin: 4px 0 0;
+          gap: 14px;
+          margin: 16px 0 0;
+          flex-wrap: wrap;
+          align-items: center;
         }
-        .intro-action {
-          position: relative;
-          display: inline-flex;
-          text-decoration: none;
-          color: #111111;
-          cursor: pointer;
-        }
-        .intro-action::after {
-          content: "";
-          position: absolute;
-          left: 8px;
-          right: 8px;
-          bottom: -2px;
-          height: 2px;
-          border-radius: 999px;
-          background: rgba(17, 17, 17, 0.45);
-          opacity: 0;
-          transform: scaleX(0.5);
-          transform-origin: center;
-          transition: transform 0.18s ease, opacity 0.18s ease;
-          pointer-events: none;
-        }
-        .intro-action:hover::after,
-        .intro-action:focus-visible::after,
-        .intro-action:active::after,
-        .intro-action.is-hovered::after {
-          opacity: 1;
-          transform: scaleX(1);
-        }
-        .intro-action:visited {
-          color: inherit;
-        }
-        .intro-action-pill {
+        /* CTA pill styling kept global to avoid collisions */
+        :global(.intro-action) {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          align-self: flex-start;
+          gap: 10px;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          height: fit-content;
+          text-decoration: none;
+          cursor: pointer;
+          border-radius: 999px;
+          padding: 12px 22px;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
-          padding: 6px 16px;
-          border-radius: 999px;
           line-height: 1.1;
-          min-height: 30px;
-          transition: transform 0.2s ease, background-color 0.2s ease,
-            color 0.2s ease;
-          color: #111111;
-          cursor: pointer;
+          color: #0f0f0f;
+          background-color: #c1c1f0;
+          border: 1px solid #c1c1f0;
+          box-shadow: none;
+          transition: background-color 0.2s ease, color 0.2s ease,
+            box-shadow 0.2s ease, transform 0.2s ease;
+          white-space: nowrap;
         }
-        .intro-action-pill.featured {
-          background: #c1c1f0;
+        :global(.intro-action:visited) {
+          color: #0f0f0f;
         }
-        .intro-action-pill.event {
-          background: #03b262;
-          color: #111111;
-        }
-        .intro-action:hover .intro-action-pill,
-        .intro-action:focus-visible .intro-action-pill,
-        .intro-action:active .intro-action-pill,
-        .intro-action.is-hovered .intro-action-pill {
-          transform: translateY(-1px);
-        }
-        .intro-action:hover .intro-action-pill.featured,
-        .intro-action:focus-visible .intro-action-pill.featured,
-        .intro-action:active .intro-action-pill.featured,
-        .intro-action.is-hovered .intro-action-pill.featured {
-          background: #b2b2ec;
-        }
-        .intro-action:hover .intro-action-pill.event,
-        .intro-action:focus-visible .intro-action-pill.event,
-        .intro-action:active .intro-action-pill.event,
-        .intro-action.is-hovered .intro-action-pill.event {
-          background: #029c58;
-          color: #111111;
-        }
-        .intro-action:focus-visible .intro-action-pill {
-          outline: 2px solid rgba(17, 17, 17, 0.4);
+        :global(.intro-action:focus-visible) {
+          outline: 2px solid rgba(17, 17, 17, 0.45);
           outline-offset: 2px;
         }
-        .intro-visual {
-          position: relative;
-          grid-area: visual;
-          border-radius: 8px;
-          overflow: hidden;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          width: 100%;
-          max-width: 520px;
-        }
-        .intro-visual img {
-          height: 100%;
-          width: auto;
-          max-height: 100%;
-          max-width: 100%;
+        :global(.intro-action-icon) {
+          width: 18px;
+          height: 18px;
+          display: inline-block;
           object-fit: contain;
-          flex: 0 1 auto;
-          display: block;
+          flex-shrink: 0;
+          align-self: center;
+        }
+        :global(.intro-action[data-variant="event"]) {
+          background-color: #03b262;
+          border-color: #03b262;
+          color: #0f0f0f;
+        }
+        :global(.intro-action[data-variant="featured"]) {
+          background-color: #c1c1f0;
+          border-color: #c1c1f0;
+          color: #0f0f0f;
+        }
+        :global(.intro-action:hover),
+        :global(.intro-action:focus-visible),
+        :global(.intro-action:active) {
+          box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
+          transform: translateY(-1px);
+        }
+        :global(.intro-action[data-variant="featured"]:hover),
+        :global(.intro-action[data-variant="featured"]:focus-visible),
+        :global(.intro-action[data-variant="featured"]:active) {
+          background-color: #c7b5f4;
+          border-color: #c7b5f4;
+        }
+        :global(.intro-action[data-variant="event"]:hover),
+        :global(.intro-action[data-variant="event"]:focus-visible),
+        :global(.intro-action[data-variant="event"]:active) {
+          background-color: #2ad07f;
+          border-color: #2ad07f;
+        }
+        :global(.intro-action-label) {
+          white-space: nowrap;
+          line-height: 1.2;
+          display: inline-block;
         }
         .columns-area {
           display: block;
@@ -477,6 +377,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 0;
+          min-width: 0;
         }
         .column {
           display: flex;
@@ -511,7 +412,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .column-header h2 {
           margin: 0;
           font-size: 24px;
-          text-transform: lowercase;
+          text-transform: uppercase;
         }
         .column-content {
           overflow-y: auto;
@@ -552,44 +453,21 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             padding: 0;
           }
           .intro {
-            grid-template-columns: 1fr;
-            grid-template-areas:
-              "text"
-              "visual"
-              "actions";
             padding: 32px 20px 0;
-            gap: 16px;
-            max-width: 480px;
-            justify-items: center;
+            gap: 20px;
+            max-width: 520px;
           }
-          .intro-copy {
-            display: contents;
-            max-width: 100%;
+          .intro-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+          }
+          .intro-column {
             padding: 0;
-            margin: 0;
-          }
-          .intro-text {
-            grid-area: text;
-            max-width: 100%;
-            text-align: left;
-          }
-          .intro-visual {
-            grid-area: visual;
-            max-width: min(68vw, 260px);
-            align-items: center;
-            justify-content: center;
-          }
-          .intro-visual img {
-            width: 100%;
-            height: auto;
-            max-height: 220px;
           }
           .intro-actions {
-            grid-area: actions;
-            justify-content: center;
-            flex-wrap: wrap;
+            justify-content: flex-start;
             gap: 12px;
-            margin: 0;
+            margin-top: 10px;
           }
           .columns {
             grid-template-columns: 1fr;

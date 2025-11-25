@@ -165,6 +165,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
       </div>
       <style jsx>{`
         .article-preview {
+          position: relative;
           display: flex;
           flex-direction: column;
           gap: 24px;
@@ -172,10 +173,29 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           border-radius: 20px;
           background: rgba(255, 255, 255, 0.68);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease,
+            background 0.2s ease;
           text-decoration: none;
           color: inherit;
           cursor: pointer;
+          overflow: hidden;
+          isolation: isolate;
+          z-index: 0;
+        }
+        .article-preview::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 20px;
+          background: rgba(0, 0, 0, 0.24);
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          pointer-events: none;
+          z-index: 1;
+        }
+        .article-preview :global(*) {
+          position: relative;
+          z-index: 2;
         }
         .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
@@ -188,6 +208,10 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           transform: translateY(-2px);
           box-shadow: 0 8px 18px rgba(17, 17, 17, 0.12);
           background: rgba(255, 255, 255, 0.86);
+        }
+        .article-preview:hover::before,
+        .article-preview:focus-visible::before {
+          opacity: 1;
         }
         .article-preview-media {
           width: 100%;
@@ -204,6 +228,8 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           flex-direction: column;
           font-family: "EnbyGertrude", sans-serif;
           color: #000000;
+          position: relative;
+          z-index: 1;
         }
         .article-preview-header {
           display: flex;
@@ -214,22 +240,22 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         .article-preview-title {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: 44px;
-          line-height: 1.2;
+          font-size: clamp(26px, 5vw, 36px);
+          line-height: 1.18;
           color: #000000;
         }
         .article-preview-author {
           margin: 0;
           font-family: "GayaRegular", serif;
-          font-size: 28px;
-          line-height: 1.2;
+          font-size: clamp(18px, 4vw, 24px);
+          line-height: 1.22;
           text-align: right;
           color: #000000;
           letter-spacing: normal;
         }
         .article-preview-date {
           font-family: "GayaRegular", serif;
-          font-size: 20px;
+          font-size: clamp(14px, 3vw, 18px);
           color: #000000;
           margin: 0 0 6px;
           letter-spacing: normal;
