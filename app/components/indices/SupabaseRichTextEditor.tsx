@@ -96,7 +96,7 @@ const normalizeHtml = (html: string): string => {
   return html;
 };
 
-const allowedImageTypes = new Set(["image/png", "image/jpeg"]);
+const allowedImageTypes = new Set(["image/png", "image/jpeg", "image/jpg"]);
 const allowedExtensions = new Set(["png", "jpg", "jpeg"]);
 
 const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
@@ -155,16 +155,6 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     return quillRef.current?.getEditor?.();
   }, []);
 
-  const fileToBase64 = useCallback(async (file: File): Promise<string> => {
-    const buffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-    let binary = "";
-    bytes.forEach((byte) => {
-      binary += String.fromCharCode(byte);
-    });
-    return btoa(binary);
-  }, []);
-
   const sanitizeName = useCallback((name: string): string => {
     const parts = name.split(".");
     const ext = parts.pop()?.toLowerCase() ?? "";
@@ -180,18 +170,16 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
         throw new Error("Formats supportés : PNG, JPEG.");
       }
 
-      const base64 = await fileToBase64(file);
       const safeName = sanitizeName(file.name);
+      const formData = new FormData();
+      formData.append("file", file, safeName);
+      if (articleId) formData.append("articleId", articleId);
+      if (articleSlug) formData.append("slug", articleSlug);
+      formData.append("fileName", safeName);
+
       const response = await fetch("/api/supabase/upload-image", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          articleId,
-          slug: articleSlug,
-          fileName: safeName,
-          fileType: file.type,
-          data: base64,
-        }),
+        body: formData,
       });
 
       const payload = await response.json();
@@ -201,7 +189,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
 
       return payload.publicUrl as string;
     },
-    [articleId, articleSlug, fileToBase64, sanitizeName]
+    [articleId, articleSlug, sanitizeName]
   );
 
   const handleImageInsert = useCallback(async () => {
