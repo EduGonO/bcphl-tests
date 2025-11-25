@@ -1,7 +1,17 @@
 import dynamic from "next/dynamic";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TurndownService from "turndown";
 import { marked } from "marked";
+
+import type ReactQuillType from "react-quill";
+import type { ReactQuillProps } from "react-quill";
 
 import "react-quill/dist/quill.snow.css";
 
@@ -14,10 +24,21 @@ type SupabaseRichTextEditorProps = {
   placeholder?: string;
 };
 
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => <div className="supabase-rich-text__loading">Chargement de l’éditeur…</div>,
-});
+const ReactQuill = dynamic<ReactQuillProps>(() =>
+  import("react-quill").then(({ default: QuillComponent }) =>
+    forwardRef<ReactQuillType, ReactQuillProps>((props, ref) => (
+      <QuillComponent ref={ref} {...props} />
+    ))
+  ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="supabase-rich-text__loading">Chargement de l’éditeur…</div>
+    ),
+  }
+) as unknown as React.ForwardRefExoticComponent<
+  ReactQuillProps & React.RefAttributes<ReactQuillType>
+>;
 
 const quillModules = {
   toolbar: [
@@ -86,7 +107,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   readOnly = false,
   placeholder,
 }) => {
-  const quillRef = useRef<any>(null);
+  const quillRef = useRef<ReactQuillType | null>(null);
   const turndown = useMemo(() => {
     const service = new TurndownService({
       headingStyle: "atx",
