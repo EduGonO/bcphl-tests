@@ -634,7 +634,7 @@ const ArticlePage: React.FC<ArtProps> = ({
         }
 
         .article-body :global(h6) {
-          margin: 0.8em 0 1.4em;
+          margin: 0.2em 0 1.2em;
           font-size: 12px;
           line-height: 1.4;
           text-align: center;
@@ -679,9 +679,13 @@ const ArticlePage: React.FC<ArtProps> = ({
         .article-body :global(img) {
           display: block;
           max-width: min(100%, 520px);
-          margin: 2.4em auto;
+          margin: 2em auto 0.35em;
           border-radius: 4px;
           box-shadow: 0 14px 30px rgba(17, 17, 17, 0.12);
+        }
+
+        .article-body :global(img + h6) {
+          margin-top: 0.1em;
         }
 
         .related-sidebar {
