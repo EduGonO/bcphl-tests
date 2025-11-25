@@ -1702,6 +1702,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
         }
+        .supabase-rich-text .ql-editor h6 {
+          font-size: 12px;
+          line-height: 1.6;
+          text-align: center;
+        }
         .supabase-rich-text__loading {
           padding: 24px;
           text-align: center;
