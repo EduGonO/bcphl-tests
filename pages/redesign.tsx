@@ -313,8 +313,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-size: 14px;
           letter-spacing: 0.05em;
           line-height: 1.1;
-          background-color: var(--intro-action-bg, #c1c1f0);
-          border: 1px solid var(--intro-action-bg, #c1c1f0);
+          background: var(--intro-action-bg, #c1c1f0) !important;
+          background-color: var(--intro-action-bg, #c1c1f0) !important;
+          border: 1px solid var(--intro-action-bg, #c1c1f0) !important;
           box-shadow: 0 12px 22px rgba(0, 0, 0, 0.14);
           transition: background-color 0.2s ease, color 0.2s ease,
             box-shadow 0.2s ease, transform 0.2s ease;
@@ -331,7 +332,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action-icon {
           width: 18px;
           height: 18px;
-          display: inline-block;
+          display: block;
           object-fit: contain;
           flex-shrink: 0;
           align-self: center;
@@ -349,9 +350,9 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action:hover,
         .intro-action:focus-visible,
         .intro-action:active {
-          background: var(--intro-action-hover, #c7b5f4);
+          background: var(--intro-action-hover, #c7b5f4) !important;
           color: var(--intro-action-color, #0f0f0f);
-          border-color: transparent;
+          border-color: var(--intro-action-hover, #c7b5f4) !important;
           box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
           transform: translateY(-1px);
         }
