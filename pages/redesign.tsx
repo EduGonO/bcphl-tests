@@ -302,17 +302,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           justify-content: center;
           gap: 8px;
           text-decoration: none;
-          color: #0f0f0f;
+          color: var(--intro-action-color, #0f0f0f);
           cursor: pointer;
           border-radius: 999px;
           border: 1px solid transparent;
-          padding: 8px 16px;
+          padding: 10px 18px;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 14px;
           letter-spacing: 0.05em;
           line-height: 1.1;
-          background: var(--intro-action-bg, #c1c1f0);
-          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+          background-color: var(--intro-action-bg, #c1c1f0);
+          border-color: var(--intro-action-bg, #c1c1f0);
+          box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
           transition: background-color 0.2s ease, color 0.2s ease,
             box-shadow 0.2s ease, transform 0.2s ease;
           position: relative;
@@ -327,9 +328,10 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action-icon {
           width: 18px;
           height: 18px;
-          display: inline-block;
+          display: block;
           object-fit: contain;
           flex-shrink: 0;
+          align-self: center;
         }
         .intro-action[data-variant="featured"] {
           --intro-action-bg: #c1c1f0;
@@ -346,7 +348,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action:active {
           background: var(--intro-action-hover, #c7b5f4);
           color: var(--intro-action-color, #0f0f0f);
-          box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
+          border-color: transparent;
+          box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
           transform: translateY(-1px);
         }
         .intro-action:focus-visible {
