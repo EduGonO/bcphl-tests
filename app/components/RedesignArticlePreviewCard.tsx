@@ -165,6 +165,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
       </div>
       <style jsx>{`
         .article-preview {
+          position: relative;
           display: flex;
           flex-direction: column;
           gap: 24px;
@@ -176,6 +177,16 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           text-decoration: none;
           color: inherit;
           cursor: pointer;
+          overflow: hidden;
+        }
+        .article-preview::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 20px;
+          background: rgba(0, 0, 0, 0);
+          transition: background-color 0.2s ease;
+          pointer-events: none;
         }
         .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
@@ -188,6 +199,10 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           transform: translateY(-2px);
           box-shadow: 0 8px 18px rgba(17, 17, 17, 0.12);
           background: rgba(255, 255, 255, 0.86);
+        }
+        .article-preview:hover::before,
+        .article-preview:focus-visible::before {
+          background: rgba(0, 0, 0, 0.06);
         }
         .article-preview-media {
           width: 100%;

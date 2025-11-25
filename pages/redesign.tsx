@@ -308,13 +308,14 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         }
         .intro {
           display: grid;
-          grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
-          grid-template-areas: "copy visual";
-          gap: clamp(20px, 5vw, 44px);
+          grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+          grid-template-areas:
+            "copy visual";
+          gap: clamp(20px, 4vw, 36px);
           align-items: flex-start;
           justify-items: stretch;
-          padding: 32px clamp(24px, 7vw, 88px) 0;
-          max-width: 1200px;
+          padding: 32px clamp(24px, 6vw, 72px) 0;
+          max-width: 1320px;
           margin: 0 auto;
         }
         .intro-copy {
@@ -322,17 +323,18 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           display: flex;
           flex-direction: column;
           gap: 16px;
-          max-width: 560px;
-          margin: 0 auto;
+          max-width: none;
+          margin: 0;
           width: 100%;
-          padding: 0 8px;
+          padding: 0 clamp(6px, 1vw, 14px);
         }
         .intro-text {
           font-family: "EnbyGertrude", sans-serif;
           color: #211f18;
           line-height: 1.42;
-          font-size: clamp(14px, 1.6vw, 15.5px);
-          column-gap: clamp(18px, 3vw, 32px);
+          font-size: clamp(14px, 1.5vw, 15.5px);
+          column-gap: clamp(22px, 3.5vw, 38px);
+          column-width: clamp(320px, 42vw, 520px);
         }
         .intro-text p {
           margin: 0 0 12px;
@@ -365,35 +367,17 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           margin: 4px 0 0;
         }
         .intro-action {
-          position: relative;
           display: inline-flex;
           text-decoration: none;
           color: #111111;
           cursor: pointer;
-        }
-        .intro-action::after {
-          content: "";
-          position: absolute;
-          left: 8px;
-          right: 8px;
-          bottom: -2px;
-          height: 2px;
           border-radius: 999px;
-          background: rgba(17, 17, 17, 0.45);
-          opacity: 0;
-          transform: scaleX(0.5);
-          transform-origin: center;
-          transition: transform 0.18s ease, opacity 0.18s ease;
-          pointer-events: none;
-        }
-        .intro-action:hover::after,
-        .intro-action:focus-visible::after,
-        .intro-action:active::after {
-          opacity: 1;
-          transform: scaleX(1);
         }
         .intro-action:visited {
           color: inherit;
+        }
+        .intro-action:focus-visible {
+          outline: none;
         }
         .intro-action-pill {
           display: inline-flex;
@@ -407,8 +391,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           border-radius: 999px;
           line-height: 1.1;
           min-height: 30px;
-          transition: transform 0.2s ease, background-color 0.2s ease,
-            color 0.2s ease, box-shadow 0.2s ease;
+          transition: background-color 0.18s ease, color 0.18s ease,
+            box-shadow 0.18s ease;
           color: #111111;
           cursor: pointer;
           box-shadow: 0 0 0 rgba(0, 0, 0, 0);
@@ -430,8 +414,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action:hover .intro-action-pill,
         .intro-action:focus-visible .intro-action-pill,
         .intro-action:active .intro-action-pill {
-          transform: translateY(-1px) scale(1.02);
-          box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.22);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
         }
         .intro-action:hover .intro-action-pill.featured,
         .intro-action:focus-visible .intro-action-pill.featured,
@@ -510,7 +493,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .column-header h2 {
           margin: 0;
           font-size: 24px;
-          text-transform: lowercase;
+          text-transform: uppercase;
         }
         .column-content {
           overflow-y: auto;
