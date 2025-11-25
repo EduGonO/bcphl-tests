@@ -61,8 +61,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
                 <div className="footer-subsection newsletter-section">
                   <h5 className="footer-subtitle">Newsletter</h5>
                   <p className="footer-text">
-                    Consentez-vous à vous abonner à notre newsletter pour recevoir nos meilleurs sélections
-                    d&apos;articles et nos événements directement dans votre boite mail ?
+                    Recevez nos dernières publications et événements directement dans votre boîte mail.
                   </p>
                   <a
                     className="pill-link newsletter-link"
