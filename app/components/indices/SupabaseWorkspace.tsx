@@ -1702,10 +1702,19 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
         }
+        .supabase-rich-text .ql-editor {
+          line-height: 1.5;
+        }
         .supabase-rich-text .ql-editor h6 {
           font-size: 12px;
           line-height: 1.6;
           text-align: center;
+        }
+        .supabase-rich-text .ql-picker.ql-header
+          .ql-picker-label[data-value="6"]::before,
+        .supabase-rich-text .ql-picker.ql-header
+          .ql-picker-item[data-value="6"]::before {
+          content: "légende";
         }
         .supabase-rich-text__loading {
           padding: 24px;

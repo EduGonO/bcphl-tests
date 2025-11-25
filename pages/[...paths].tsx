@@ -608,12 +608,12 @@ const ArticlePage: React.FC<ArtProps> = ({
           margin: 0 auto;
           font-family: "EnbyGertrude", sans-serif;
           font-size: 18px;
-          line-height: 1.68;
+          line-height: 1.5;
           color: #111111;
         }
 
         .article-body :global(p) {
-          margin: 0 0 1.8em;
+          margin: 0 0 1.4em;
         }
 
         .article-body :global(h2) {
@@ -631,6 +631,15 @@ const ArticlePage: React.FC<ArtProps> = ({
           font-size: 24px;
           font-weight: 400;
           color: #111111;
+        }
+
+        .article-body :global(h6) {
+          margin: 0.8em 0 1.4em;
+          font-size: 12px;
+          line-height: 1.6;
+          text-align: center;
+          color: #404249;
+          font-weight: 500;
         }
 
         .article-body :global(a) {
