@@ -13,6 +13,14 @@ export type TeamMemberWithPortraits = TeamMember & {
 
 const buildPortraits = (member: TeamMember): Portraits => {
   const base = (member.portraitBase ?? member.slug).toLowerCase();
+
+  if (base === "jean-louis-poitevin") {
+    return {
+      primary: "/bios/jean-louis-1.jpeg",
+      secondary: "/bios/jean-louis-2.jpeg",
+    };
+  }
+
   return {
     primary: `/bios/${base}-1.jpg`,
     secondary: `/bios/${base}-2.jpg`,
