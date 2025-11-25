@@ -26,7 +26,6 @@ const quillModules = {
     [{ align: [] }],
     ["blockquote"],
     ["link", "image"],
-    ["clean"],
   ],
 };
 
