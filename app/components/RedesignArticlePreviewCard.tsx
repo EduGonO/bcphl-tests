@@ -171,31 +171,13 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           gap: 24px;
           padding: 22px 24px 26px;
           border-radius: 20px;
-          background: rgba(255, 255, 255, 0.68);
+          background: rgba(255, 255, 255, 0.72);
           box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
-          transition: transform 0.2s ease, box-shadow 0.2s ease,
-            background 0.2s ease;
+          transition: transform 0.18s ease, box-shadow 0.18s ease,
+            background-color 0.18s ease, filter 0.18s ease;
           text-decoration: none;
           color: inherit;
           cursor: pointer;
-          overflow: hidden;
-          isolation: isolate;
-          z-index: 0;
-        }
-        .article-preview::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: 20px;
-          background: rgba(0, 0, 0, 0.24);
-          opacity: 0;
-          transition: opacity 0.2s ease;
-          pointer-events: none;
-          z-index: 1;
-        }
-        .article-preview :global(*) {
-          position: relative;
-          z-index: 2;
         }
         .article-preview.creation {
           background: rgba(255, 255, 255, 0.74);
@@ -205,13 +187,10 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview:hover,
         .article-preview:focus-visible {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 18px rgba(17, 17, 17, 0.12);
-          background: rgba(255, 255, 255, 0.6);
-        }
-        .article-preview:hover::before,
-        .article-preview:focus-visible::before {
-          opacity: 1;
+          transform: translateY(-3px);
+          box-shadow: 0 12px 22px rgba(17, 17, 17, 0.16);
+          background-color: rgba(255, 255, 255, 0.58);
+          filter: brightness(0.97) saturate(1.02);
         }
         .article-preview-media {
           width: 100%;
