@@ -296,16 +296,16 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           flex-wrap: wrap;
           align-items: center;
         }
-        .intro-action {
+        /* CTA pill styling kept global to avoid collisions */
+        :global(.intro-action) {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 10px;
           flex-direction: row;
           flex-wrap: nowrap;
           height: fit-content;
           text-decoration: none;
-          color: var(--intro-action-color, #0f0f0f);
           cursor: pointer;
           border-radius: 999px;
           padding: 12px 22px;
@@ -313,56 +313,61 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           font-size: 14px;
           letter-spacing: 0.05em;
           line-height: 1.1;
-          background: var(--intro-action-bg, #c1c1f0) !important;
-          background-color: var(--intro-action-bg, #c1c1f0) !important;
-          border: 1px solid var(--intro-action-bg, #c1c1f0) !important;
+          color: #0f0f0f;
+          background-color: #c1c1f0;
+          border: 1px solid #c1c1f0;
           box-shadow: 0 12px 22px rgba(0, 0, 0, 0.14);
           transition: background-color 0.2s ease, color 0.2s ease,
             box-shadow 0.2s ease, transform 0.2s ease;
-          position: relative;
-          isolation: isolate;
           white-space: nowrap;
         }
-        .intro-action:visited {
-          color: inherit;
+        :global(.intro-action:visited) {
+          color: #0f0f0f;
         }
-        .intro-action:focus-visible {
-          outline: none;
+        :global(.intro-action:focus-visible) {
+          outline: 2px solid rgba(17, 17, 17, 0.45);
+          outline-offset: 2px;
         }
-        .intro-action-icon {
+        :global(.intro-action-icon) {
           width: 18px;
           height: 18px;
-          display: block;
+          display: inline-block;
           object-fit: contain;
           flex-shrink: 0;
           align-self: center;
         }
-        .intro-action[data-variant="featured"] {
-          --intro-action-bg: #c1c1f0;
-          --intro-action-hover: #c7b5f4;
-          --intro-action-color: #0f0f0f;
+        :global(.intro-action[data-variant="event"]) {
+          background-color: #03b262;
+          border-color: #03b262;
+          color: #0f0f0f;
         }
-        .intro-action[data-variant="event"] {
-          --intro-action-bg: #03b262;
-          --intro-action-hover: #2ad07f;
-          --intro-action-color: #0f0f0f;
+        :global(.intro-action[data-variant="featured"]) {
+          background-color: #c1c1f0;
+          border-color: #c1c1f0;
+          color: #0f0f0f;
         }
-        .intro-action:hover,
-        .intro-action:focus-visible,
-        .intro-action:active {
-          background: var(--intro-action-hover, #c7b5f4) !important;
-          color: var(--intro-action-color, #0f0f0f);
-          border-color: var(--intro-action-hover, #c7b5f4) !important;
+        :global(.intro-action:hover),
+        :global(.intro-action:focus-visible),
+        :global(.intro-action:active) {
           box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
           transform: translateY(-1px);
         }
-        .intro-action:focus-visible {
-          outline: 2px solid rgba(17, 17, 17, 0.45);
-          outline-offset: 2px;
+        :global(.intro-action[data-variant="featured"]:hover),
+        :global(.intro-action[data-variant="featured"]:focus-visible),
+        :global(.intro-action[data-variant="featured"]:active) {
+          background-color: #c7b5f4;
+          border-color: #c7b5f4;
         }
-        .intro-action-label {
+        :global(.intro-action[data-variant="event"]:hover),
+        :global(.intro-action[data-variant="event"]:focus-visible),
+        :global(.intro-action[data-variant="event"]:active) {
+          background-color: #2ad07f;
+          border-color: #2ad07f;
+        }
+        :global(.intro-action-label) {
           white-space: nowrap;
           line-height: 1.2;
+          display: inline-block;
         }
         .columns-area {
           display: block;
