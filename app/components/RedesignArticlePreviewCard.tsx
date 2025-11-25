@@ -185,7 +185,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
           inset: 0;
           border-radius: 20px;
           background: rgba(0, 0, 0, 0);
-          transition: background-color 0.2s ease;
+          transition: background 0.2s ease;
           pointer-events: none;
         }
         .article-preview.creation {
@@ -202,7 +202,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
         }
         .article-preview:hover::before,
         .article-preview:focus-visible::before {
-          background: rgba(0, 0, 0, 0.06);
+          background: rgba(0, 0, 0, 0.08);
         }
         .article-preview-media {
           width: 100%;

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Footer from "../app/components/Footer";
@@ -25,62 +25,6 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   const [query, setQuery] = useState("");
   const newsletterHref =
     "https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF";
-  const [introHeight, setIntroHeight] = useState<number | null>(null);
-  const introCopyRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const measure = () => {
-      if (typeof window === "undefined") {
-        return;
-      }
-
-      if (window.innerWidth <= 700) {
-        setIntroHeight((previous) => (previous === null ? previous : null));
-        return;
-      }
-
-      const textNode = introCopyRef.current;
-      if (!textNode) {
-        return;
-      }
-
-      const { height } = textNode.getBoundingClientRect();
-      setIntroHeight((previous) => {
-        if (previous === null) {
-          return height;
-        }
-        return Math.abs(previous - height) > 0.5 ? height : previous;
-      });
-    };
-
-    measure();
-
-    const textNode = introCopyRef.current;
-    if (!textNode) {
-      return;
-    }
-
-    let observer: ResizeObserver | null = null;
-    if ("ResizeObserver" in window) {
-      observer = new ResizeObserver(() => {
-        measure();
-      });
-      observer.observe(textNode);
-    }
-
-    window.addEventListener("resize", measure);
-
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
 
   const parseDate = (value: string) => {
     const parsed = Date.parse(value);
@@ -170,8 +114,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
 
           <div className="main-sections">
             <section className="intro">
-              <div className="intro-copy" ref={introCopyRef}>
-                <div className="intro-text">
+              <div className="intro-grid">
+                <div className="intro-column intro-column-primary">
                   <p>
                     Dans la même urgence que la revue {" "}
                     <em className="intro-highlight">Acéphale</em> publiée par Georges Bataille
@@ -182,6 +126,8 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     bicéphales et une démarche réflexive analysant les arts, les techniques
                     et la société.
                   </p>
+                </div>
+                <div className="intro-column intro-column-secondary">
                   <p>
                     Cette revue embrasse nos multiplicités et questionne les techniques
                     contemporaines afin de se faire vectrice de {" "}
@@ -190,48 +136,33 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                     <span className="intro-highlight">critique</span> et de {" "}
                     <span className="intro-highlight">pensée</span>.
                   </p>
+                  <div className="intro-actions">
+                    <Link
+                      href={newsletterHref}
+                      className="intro-action"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className="intro-action-pill featured">S'abonner</span>
+                    </Link>
+                    <Link
+                      href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
+                      className="intro-action"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className="intro-action-pill event">
+                        <img
+                          src="/social/instagram.png"
+                          alt=""
+                          className="intro-action-icon"
+                          aria-hidden="true"
+                        />
+                        Nous suivre
+                      </span>
+                    </Link>
+                  </div>
                 </div>
-                <div className="intro-actions">
-                  <Link
-                    href={newsletterHref}
-                    className="intro-action"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="intro-action-pill featured">S'abonner</span>
-                  </Link>
-                  <Link
-                    href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
-                    className="intro-action"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="intro-action-pill event">
-                      <img
-                        src="/social/instagram.png"
-                        alt=""
-                        className="intro-action-icon"
-                        aria-hidden="true"
-                      />
-                      Nous suivre
-                    </span>
-                  </Link>
-                </div>
-              </div>
-              <div
-                className="intro-visual"
-                style={
-                  introHeight !== null
-                    ? { height: Math.min(introHeight, 360) }
-                    : undefined
-                }
-              >
-                {/*
-                <img
-                  src="/media/home_image.jpeg"
-                  alt="Illustration de la revue Bicéphale"
-                />
-                */}
               </div>
             </section>
 
@@ -307,64 +238,54 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           background: #e4e4e4;
         }
         .intro {
-          display: grid;
-          grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
-          grid-template-areas:
-            "copy visual";
-          gap: clamp(20px, 4vw, 36px);
-          align-items: flex-start;
-          justify-items: stretch;
           padding: 32px clamp(24px, 6vw, 72px) 0;
           max-width: 1320px;
           margin: 0 auto;
-        }
-        .intro-copy {
-          grid-area: copy;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          max-width: none;
-          margin: 0;
           width: 100%;
-          padding: 0 clamp(6px, 1vw, 14px);
         }
-        .intro-text {
+        .intro-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: clamp(24px, 4vw, 38px);
+          align-items: start;
+          width: 100%;
+        }
+        .intro-column {
           font-family: "EnbyGertrude", sans-serif;
           color: #211f18;
-          line-height: 1.42;
-          font-size: clamp(14px, 1.5vw, 15.5px);
-          column-gap: clamp(22px, 3.5vw, 38px);
-          column-width: clamp(320px, 42vw, 520px);
+          line-height: 1.46;
+          font-size: clamp(14px, 1.4vw, 15.5px);
+          padding: 0 clamp(6px, 1vw, 16px);
         }
-        .intro-text p {
-          margin: 0 0 12px;
-          break-inside: avoid;
+        .intro-column p {
+          margin: 0;
         }
-        .intro-text em {
+        .intro-column p + p {
+          margin-top: 14px;
+        }
+        .intro-column em {
           font-style: italic;
         }
-        .intro-text strong {
+        .intro-column strong {
           font-family: "GayaRegular", serif;
           letter-spacing: 0.02em;
           font-weight: 600;
         }
-        @media (min-width: 701px) {
-          .intro-text {
-            column-count: 2;
-          }
-        }
-        .intro-text .intro-highlight {
+        .intro-highlight {
           font-family: "GayaRegular", serif;
           font-weight: 600;
           letter-spacing: 0.02em;
         }
-        .intro-text em.intro-highlight {
+        .intro-highlight em,
+        .intro-column em.intro-highlight {
           font-style: italic;
         }
         .intro-actions {
           display: flex;
           gap: 18px;
-          margin: 4px 0 0;
+          margin: 14px 0 0;
+          flex-wrap: wrap;
+          align-items: center;
         }
         .intro-action {
           display: inline-flex;
@@ -392,7 +313,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
           line-height: 1.1;
           min-height: 30px;
           transition: background-color 0.18s ease, color 0.18s ease,
-            box-shadow 0.18s ease;
+            box-shadow 0.18s ease, transform 0.18s ease;
           color: #111111;
           cursor: pointer;
           box-shadow: 0 0 0 rgba(0, 0, 0, 0);
@@ -414,42 +335,24 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
         .intro-action:hover .intro-action-pill,
         .intro-action:focus-visible .intro-action-pill,
         .intro-action:active .intro-action-pill {
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+          background-color: #c7b5f4;
+          box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
+          transform: translateY(-1px);
         }
         .intro-action:hover .intro-action-pill.featured,
         .intro-action:focus-visible .intro-action-pill.featured,
         .intro-action:active .intro-action-pill.featured {
-          background: #b2b2ec;
+          background-color: #c7b5f4;
         }
         .intro-action:hover .intro-action-pill.event,
         .intro-action:focus-visible .intro-action-pill.event,
         .intro-action:active .intro-action-pill.event {
-          background: #029c58;
-          color: #111111;
+          background: #03b262;
+          color: #0f0f0f;
         }
         .intro-action:focus-visible .intro-action-pill {
           outline: 2px solid rgba(17, 17, 17, 0.4);
           outline-offset: 2px;
-        }
-        .intro-visual {
-          position: relative;
-          grid-area: visual;
-          border-radius: 8px;
-          overflow: hidden;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          width: 100%;
-          max-width: 520px;
-        }
-        .intro-visual img {
-          height: 100%;
-          width: auto;
-          max-height: 100%;
-          max-width: 100%;
-          object-fit: contain;
-          flex: 0 1 auto;
-          display: block;
         }
         .columns-area {
           display: block;
@@ -534,44 +437,21 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
             padding: 0;
           }
           .intro {
-            grid-template-columns: 1fr;
-            grid-template-areas:
-              "text"
-              "visual"
-              "actions";
             padding: 32px 20px 0;
-            gap: 16px;
-            max-width: 480px;
-            justify-items: center;
+            gap: 20px;
+            max-width: 520px;
           }
-          .intro-copy {
-            display: contents;
-            max-width: 100%;
+          .intro-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+          }
+          .intro-column {
             padding: 0;
-            margin: 0;
-          }
-          .intro-text {
-            grid-area: text;
-            max-width: 100%;
-            text-align: left;
-          }
-          .intro-visual {
-            grid-area: visual;
-            max-width: min(68vw, 260px);
-            align-items: center;
-            justify-content: center;
-          }
-          .intro-visual img {
-            width: 100%;
-            height: auto;
-            max-height: 220px;
           }
           .intro-actions {
-            grid-area: actions;
-            justify-content: center;
-            flex-wrap: wrap;
+            justify-content: flex-start;
             gap: 12px;
-            margin: 0;
+            margin-top: 10px;
           }
           .columns {
             grid-template-columns: 1fr;
