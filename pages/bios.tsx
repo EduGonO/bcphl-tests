@@ -509,7 +509,7 @@ const BiosPage = ({ articles }: BiosPageProps) => {
           font-weight: 400;
         }
         .member-bio-inner :global(.bio-paragraph + .bio-paragraph) {
-          margin-top: 0.85rem;
+          margin-top: 0.4rem;
         }
         .member-heading {
           display: grid;
