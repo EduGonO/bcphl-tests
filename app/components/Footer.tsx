@@ -75,7 +75,7 @@ const Footer: React.FC<FooterProps> = ({ marginTop = '40px' }) => {
                 <div className="footer-subsection links-stack">
                   <div className="footer-subsection">
                     <h5 className="footer-subtitle">Suivez-nous</h5>
-                    <a className="footer-link" href="https://www.instagram.com/revuebicephale" target="_blank" rel="noopener">
+                    <a className="footer-link" href="https://www.instagram.com/revue.bicephale" target="_blank" rel="noopener">
                       @revuebicephale
                     </a>
                   </div>
