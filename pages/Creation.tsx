@@ -1,10 +1,13 @@
 import Head from "next/head";
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
 import { findArticleRecord, getArticleRecords } from "../lib/articleService";
+import { getIntroContentFor } from "../lib/introService";
 import { Article } from "../types";
 
 interface CreationPageProps {
   articles: Article[];
+  introHtml: string | null;
+  introMarkdown: string | null;
 }
 
 type ArticleWithBody = Article & {
@@ -35,7 +38,7 @@ const creationIntro: ReactNode = (
 );
 */
 
-const CreationPage = ({ articles }: CreationPageProps) => {
+const CreationPage = ({ articles, introHtml, introMarkdown }: CreationPageProps) => {
   return (
     <>
       <Head>
@@ -47,7 +50,8 @@ const CreationPage = ({ articles }: CreationPageProps) => {
       </Head>
       <CategoryLandingPage
         articles={articles}
-        // introContent={creationIntro}
+        introHtml={introHtml}
+        introMarkdown={introMarkdown}
         columnTitle="CRÉATION"
         variant="creation"
       />
@@ -56,7 +60,10 @@ const CreationPage = ({ articles }: CreationPageProps) => {
 };
 
 export async function getServerSideProps() {
-  const records = await getArticleRecords();
+  const [records, intro] = await Promise.all([
+    getArticleRecords(),
+    getIntroContentFor("creation"),
+  ]);
 
   const categoryRecords = records.filter(
     (record) =>
@@ -87,7 +94,11 @@ export async function getServerSideProps() {
   );
 
   return {
-    props: { articles },
+    props: {
+      articles,
+      introHtml: intro?.html ?? null,
+      introMarkdown: intro?.markdown ?? null,
+    },
   };
 }
 

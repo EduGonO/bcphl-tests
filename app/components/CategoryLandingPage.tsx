@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 import { Article } from "../../types";
 import Footer from "./Footer";
@@ -14,6 +15,8 @@ type CategoryLandingVariant = "reflexion" | "creation" | "irl";
 interface CategoryLandingPageProps {
   articles: Article[];
   introContent?: ReactNode;
+  introHtml?: string | null;
+  introMarkdown?: string | null;
   columnTitle: string;
   variant?: CategoryLandingVariant;
 }
@@ -47,12 +50,26 @@ const formatDate = (value: string) => {
 const CategoryLandingPage = ({
   articles,
   introContent,
+  introHtml,
+  introMarkdown,
   columnTitle,
   variant = "reflexion",
 }: CategoryLandingPageProps) => {
   const [query, setQuery] = useState("");
 
-  const hasIntro = Boolean(introContent);
+  const renderedIntro = useMemo(() => {
+    if (introHtml) {
+      return <div dangerouslySetInnerHTML={{ __html: introHtml }} />;
+    }
+
+    if (introMarkdown) {
+      return <ReactMarkdown>{introMarkdown}</ReactMarkdown>;
+    }
+
+    return introContent;
+  }, [introContent, introHtml, introMarkdown]);
+
+  const hasIntro = Boolean(renderedIntro);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -94,7 +111,7 @@ const CategoryLandingPage = ({
           {hasIntro && (
             <section className="intro">
               <div className="intro-copy">
-                <div className="intro-text">{introContent}</div>
+                <div className="intro-text">{renderedIntro}</div>
                 <div className="intro-actions">
                   <Link href="/bios" className="intro-action">
                     <span className="intro-action-pill featured">manifeste</span>
