@@ -1,10 +1,13 @@
 import Head from "next/head";
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
 import { findArticleRecord, getArticleRecords } from "../lib/articleService";
+import { getIntroContentFor } from "../lib/introService";
 import { Article } from "../types";
 
 interface ReflexionPageProps {
   articles: Article[];
+  introHtml: string | null;
+  introMarkdown: string | null;
 }
 
 type ArticleWithBody = Article & {
@@ -35,7 +38,7 @@ const reflexionIntro: ReactNode = (
 );
 */
 
-const ReflexionPage = ({ articles }: ReflexionPageProps) => {
+const ReflexionPage = ({ articles, introHtml, introMarkdown }: ReflexionPageProps) => {
   return (
     <>
       <Head>
@@ -47,7 +50,8 @@ const ReflexionPage = ({ articles }: ReflexionPageProps) => {
       </Head>
       <CategoryLandingPage
         articles={articles}
-        // introContent={reflexionIntro}
+        introHtml={introHtml}
+        introMarkdown={introMarkdown}
         columnTitle="RÉFLEXION"
         variant="reflexion"
       />
@@ -56,7 +60,10 @@ const ReflexionPage = ({ articles }: ReflexionPageProps) => {
 };
 
 export async function getServerSideProps() {
-  const records = await getArticleRecords();
+  const [records, intro] = await Promise.all([
+    getArticleRecords(),
+    getIntroContentFor("reflexion"),
+  ]);
 
   const categoryRecords = records.filter(
     (record) =>
@@ -87,7 +94,11 @@ export async function getServerSideProps() {
   );
 
   return {
-    props: { articles },
+    props: {
+      articles,
+      introHtml: intro?.html ?? null,
+      introMarkdown: intro?.markdown ?? null,
+    },
   };
 }
 

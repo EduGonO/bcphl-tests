@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 import { Article } from "../../types";
 import Footer from "./Footer";
@@ -14,6 +15,8 @@ type CategoryLandingVariant = "reflexion" | "creation" | "irl";
 interface CategoryLandingPageProps {
   articles: Article[];
   introContent?: ReactNode;
+  introHtml?: string | null;
+  introMarkdown?: string | null;
   columnTitle: string;
   variant?: CategoryLandingVariant;
 }
@@ -47,12 +50,26 @@ const formatDate = (value: string) => {
 const CategoryLandingPage = ({
   articles,
   introContent,
+  introHtml,
+  introMarkdown,
   columnTitle,
   variant = "reflexion",
 }: CategoryLandingPageProps) => {
   const [query, setQuery] = useState("");
 
-  const hasIntro = Boolean(introContent);
+  const renderedIntro = useMemo(() => {
+    if (introHtml) {
+      return <div dangerouslySetInnerHTML={{ __html: introHtml }} />;
+    }
+
+    if (introMarkdown) {
+      return <ReactMarkdown>{introMarkdown}</ReactMarkdown>;
+    }
+
+    return introContent;
+  }, [introContent, introHtml, introMarkdown]);
+
+  const hasIntro = Boolean(renderedIntro);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -86,37 +103,32 @@ const CategoryLandingPage = ({
           articles={sortedArticles}
         />
 
-        <div
-          className={`main-sections ${
-            hasIntro ? "with-intro" : "without-intro"
-          }`}
-        >
-          {hasIntro && (
-            <section className="intro">
-              <div className="intro-copy">
-                <div className="intro-text">{introContent}</div>
-                <div className="intro-actions">
-                  <Link href="/bios" className="intro-action">
-                    <span className="intro-action-pill featured">manifeste</span>
-                  </Link>
-                  <Link
-                    href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
-                    className="intro-action"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="intro-action-pill event">nous suivre</span>
-                  </Link>
-                </div>
-              </div>
-            </section>
-          )}
-
+        <div className={`main-sections ${hasIntro ? "with-intro" : "without-intro"}`}>
           <section className="columns-area">
             <div className="single-column">
               <header className="column-header">
                 <h2>{columnTitle}</h2>
               </header>
+              {hasIntro && (
+                <section className="intro">
+                  <div className="intro-copy">
+                    <div className="intro-text">{renderedIntro}</div>
+                    <div className="intro-actions">
+                      <Link href="/bios" className="intro-action">
+                        <span className="intro-action-pill featured">manifeste</span>
+                      </Link>
+                      <Link
+                        href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
+                        className="intro-action"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <span className="intro-action-pill event">nous suivre</span>
+                      </Link>
+                    </div>
+                  </div>
+                </section>
+              )}
               <div className="column-content">
                 {filteredArticles.map((article) => (
                   <RedesignArticlePreviewCard
@@ -155,16 +167,12 @@ const CategoryLandingPage = ({
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 52px;
           background: #e4e4e4;
-        }
-        .main-sections.without-intro {
-          gap: 0;
         }
         .intro {
           display: flex;
           justify-content: center;
-          padding: 48px clamp(24px, 7vw, 88px) 0;
+          padding: 16px 0 8px;
         }
         .intro-copy {
           display: flex;
@@ -247,18 +255,12 @@ const CategoryLandingPage = ({
           width: 100%;
           box-sizing: border-box;
         }
-        .main-sections.with-intro .columns-area {
-          padding-top: 0;
-        }
         .single-column {
           display: flex;
           flex-direction: column;
-          gap: 28px;
+          gap: 20px;
           width: min(640px, 100%);
           padding-top: clamp(12px, 2.8vw, 24px);
-        }
-        .main-sections.with-intro .single-column {
-          padding-top: clamp(4px, 1vw, 12px);
         }
         .column-header {
           display: flex;

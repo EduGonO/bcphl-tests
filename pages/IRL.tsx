@@ -1,10 +1,13 @@
 import Head from "next/head";
 import CategoryLandingPage from "../app/components/CategoryLandingPage";
 import { findArticleRecord, getArticleRecords } from "../lib/articleService";
+import { getIntroContentFor } from "../lib/introService";
 import { Article } from "../types";
 
 interface IRLPageProps {
   articles: Article[];
+  introHtml: string | null;
+  introMarkdown: string | null;
 }
 
 type ArticleWithBody = Article & {
@@ -16,7 +19,7 @@ type ArticleWithBody = Article & {
   public_path?: string;
 };
 
-const IRLPage = ({ articles }: IRLPageProps) => {
+const IRLPage = ({ articles, introHtml, introMarkdown }: IRLPageProps) => {
   return (
     <>
       <Head>
@@ -28,6 +31,8 @@ const IRLPage = ({ articles }: IRLPageProps) => {
       </Head>
       <CategoryLandingPage
         articles={articles}
+        introHtml={introHtml}
+        introMarkdown={introMarkdown}
         columnTitle="IRL"
         variant="irl"
       />
@@ -36,7 +41,10 @@ const IRLPage = ({ articles }: IRLPageProps) => {
 };
 
 export async function getServerSideProps() {
-  const records = await getArticleRecords();
+  const [records, intro] = await Promise.all([
+    getArticleRecords(),
+    getIntroContentFor("irl"),
+  ]);
 
   const categoryRecords = records.filter(
     (record) =>
@@ -67,7 +75,11 @@ export async function getServerSideProps() {
   );
 
   return {
-    props: { articles },
+    props: {
+      articles,
+      introHtml: intro?.html ?? null,
+      introMarkdown: intro?.markdown ?? null,
+    },
   };
 }
 

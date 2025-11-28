@@ -62,6 +62,16 @@ export type SupabaseArticleDetail = {
   updatedAt: string;
 };
 
+export type SupabaseIntroEntry = {
+  id: string;
+  title: string;
+  slug: string;
+  bodyMarkdown: string;
+  bodyHtml: string | null;
+  bodyJson: string | null;
+  updatedAt: string | null;
+};
+
 export type SupabaseArticleUpsertPayload = {
   title: string;
   slug: string;

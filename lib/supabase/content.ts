@@ -3,8 +3,11 @@ import type {
   SupabaseArticleDetail,
   SupabaseArticleSummary,
   SupabaseCategorySummary,
+  SupabaseIntroEntry,
 } from "../../types/supabase";
 import type { ServerSupabaseClient } from "./serverClient";
+
+export const INTRO_TITLES = ["Intro-Creation", "Intro-Reflexion", "Intro-IRL"] as const;
 
 const mapArticleSummary = (
   input: Record<string, any>,
@@ -164,6 +167,47 @@ export const loadSupabaseCategorySummaries = async (
         return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
       }),
   }));
+};
+
+export const loadSupabaseIntroEntries = async (
+  supabase: ServerSupabaseClient
+): Promise<SupabaseIntroEntry[]> => {
+  const { data, error } = await supabase
+    .from("bicephale_articles")
+    .select("id, slug, title, body_markdown, body_html, body_json, updated_at, author_name")
+    .eq("author_name", "Intro")
+    .in("title", INTRO_TITLES as unknown as string[]);
+
+  if (error) {
+    throw error;
+  }
+
+  const order = new Map<string, number>(
+    INTRO_TITLES.map((title, index) => [title, index])
+  );
+
+  const entries = (data ?? [])
+    .filter((row) => order.has(String(row.title)))
+    .map((row) => ({
+      id: String(row.id),
+      slug: String(row.slug ?? ""),
+      title: String(row.title ?? ""),
+      bodyMarkdown: String(row.body_markdown ?? ""),
+      bodyHtml: row.body_html ?? null,
+      bodyJson: row.body_json ? JSON.stringify(row.body_json, null, 2) : null,
+      updatedAt: row.updated_at ? String(row.updated_at) : null,
+    }));
+
+  return entries
+    .slice()
+    .sort((a, b) => {
+      const aOrder = order.get(a.title) ?? Number.MAX_SAFE_INTEGER;
+      const bOrder = order.get(b.title) ?? Number.MAX_SAFE_INTEGER;
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+      return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
+    });
 };
 
 export const loadSupabaseArticleDetail = async (
