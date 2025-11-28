@@ -1,21 +1,44 @@
 import dynamic from "next/dynamic";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TurndownService from "turndown";
 import { marked } from "marked";
+
+import type ReactQuillType from "react-quill";
+import type { ReactQuillProps } from "react-quill";
 
 import "react-quill/dist/quill.snow.css";
 
 type SupabaseRichTextEditorProps = {
   value: string;
   onChange: (markdown: string, html: string) => void;
+  articleId?: string;
+  articleSlug?: string;
   readOnly?: boolean;
   placeholder?: string;
 };
 
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => <div className="supabase-rich-text__loading">Chargement de l’éditeur…</div>,
-});
+const ReactQuill = dynamic<ReactQuillProps>(() =>
+  import("react-quill").then(({ default: QuillComponent }) =>
+    forwardRef<ReactQuillType, ReactQuillProps>((props, ref) => (
+      <QuillComponent ref={ref} {...props} />
+    ))
+  ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="supabase-rich-text__loading">Chargement de l’éditeur…</div>
+    ),
+  }
+) as unknown as React.ForwardRefExoticComponent<
+  ReactQuillProps & React.RefAttributes<ReactQuillType>
+>;
 
 const quillModules = {
   toolbar: [
@@ -69,12 +92,18 @@ const normalizeHtml = (html: string): string => {
   return html;
 };
 
+const allowedImageTypes = new Set(["image/png", "image/jpeg", "image/jpg"]);
+const allowedExtensions = new Set(["png", "jpg", "jpeg"]);
+
 const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   value,
   onChange,
+  articleId,
+  articleSlug,
   readOnly = false,
   placeholder,
 }) => {
+  const quillRef = useRef<ReactQuillType | null>(null);
   const turndown = useMemo(() => {
     const service = new TurndownService({
       headingStyle: "atx",
@@ -118,10 +147,160 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     [onChange, turndown]
   );
 
+  const getActiveQuill = useCallback(() => {
+    return quillRef.current?.getEditor?.();
+  }, []);
+
+  const sanitizeName = useCallback((name: string): string => {
+    const parts = name.split(".");
+    const ext = parts.pop()?.toLowerCase() ?? "";
+    const base = parts.join(".") || "image";
+    const safeBase = base.replace(/[^a-zA-Z0-9-_]/g, "-").replace(/-{2,}/g, "-");
+    const safeExt = allowedExtensions.has(ext) ? ext : "jpg";
+    return `${safeBase}.${safeExt}`;
+  }, []);
+
+  const uploadImage = useCallback(
+    async (file: File): Promise<string> => {
+      if (!allowedImageTypes.has(file.type)) {
+        throw new Error("Formats supportés : PNG, JPEG.");
+      }
+
+      const safeName = sanitizeName(file.name);
+      const formData = new FormData();
+      formData.append("file", file, safeName);
+      if (articleId) formData.append("articleId", articleId);
+      if (articleSlug) formData.append("slug", articleSlug);
+      formData.append("fileName", safeName);
+
+      const response = await fetch("/api/supabase/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Téléversement impossible.");
+      }
+
+      return payload.publicUrl as string;
+    },
+    [articleId, articleSlug, sanitizeName]
+  );
+
+  const insertImageAtSelection = useCallback(
+    (url: string) => {
+      const quill = getActiveQuill();
+      if (!quill) return;
+      const range = quill.getSelection(true);
+      const insertIndex = range ? range.index : quill.getLength();
+      quill.insertEmbed(insertIndex, "image", url, "user");
+      quill.setSelection(insertIndex + 1, 0, "silent");
+    },
+    [getActiveQuill]
+  );
+
+  const uploadAndInsertFiles = useCallback(
+    async (files: FileList | File[]) => {
+      const orderedFiles = Array.from(files).filter((file) =>
+        allowedImageTypes.has(file.type)
+      );
+      if (!orderedFiles.length) {
+        alert("Seuls les fichiers PNG et JPEG sont acceptés.");
+        return;
+      }
+
+      for (const file of orderedFiles) {
+        try {
+          const url = await uploadImage(file);
+          insertImageAtSelection(url);
+        } catch (error) {
+          console.error("Image upload failed", error);
+          alert(
+            error instanceof Error
+              ? error.message
+              : "Impossible de téléverser cette image."
+          );
+        }
+      }
+    },
+    [insertImageAtSelection, uploadImage]
+  );
+
+  const handleImageInsert = useCallback(async () => {
+    if (readOnly) return;
+    const quill = getActiveQuill();
+    if (!quill) return;
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".png,.jpg,.jpeg,image/png,image/jpeg";
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      uploadAndInsertFiles([file]);
+    };
+
+    input.click();
+  }, [getActiveQuill, readOnly, uploadAndInsertFiles]);
+
+  useEffect(() => {
+    const quill = getActiveQuill();
+    if (!quill || readOnly) return;
+
+    const handlePaste = (event: ClipboardEvent) => {
+      if (!event.clipboardData) return;
+      const hasImage = Array.from(event.clipboardData.items).some((item) =>
+        item.type.startsWith("image/")
+      );
+      if (!hasImage) return;
+
+      event.preventDefault();
+      const files = event.clipboardData.files;
+      if (files && files.length) {
+        void uploadAndInsertFiles(files);
+      }
+    };
+
+    const handleDrop = (event: DragEvent) => {
+      if (!event.dataTransfer) return;
+      const hasImage = Array.from(event.dataTransfer.items).some((item) =>
+        item.type.startsWith("image/")
+      );
+      if (!hasImage) return;
+
+      event.preventDefault();
+      const files = event.dataTransfer.files;
+      if (files && files.length) {
+        void uploadAndInsertFiles(files);
+      }
+    };
+
+    const editor = quill.root;
+    editor.addEventListener("paste", handlePaste);
+    editor.addEventListener("drop", handleDrop);
+
+    return () => {
+      editor.removeEventListener("paste", handlePaste);
+      editor.removeEventListener("drop", handleDrop);
+    };
+  }, [getActiveQuill, readOnly, uploadAndInsertFiles]);
+
+  useEffect(() => {
+    const quill = getActiveQuill();
+    if (!quill || readOnly) return;
+    const toolbar = quill.getModule("toolbar");
+    if (toolbar) {
+      toolbar.addHandler("image", handleImageInsert);
+    }
+  }, [getActiveQuill, handleImageInsert, readOnly]);
+
   return (
     <div className="supabase-rich-text">
       <ReactQuill
         theme="snow"
+        ref={quillRef}
         value={htmlValue}
         onChange={handleChange}
         readOnly={readOnly}
