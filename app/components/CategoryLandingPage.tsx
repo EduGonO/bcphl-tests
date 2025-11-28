@@ -56,6 +56,8 @@ const CategoryLandingPage = ({
   variant = "reflexion",
 }: CategoryLandingPageProps) => {
   const [query, setQuery] = useState("");
+  const newsletterHref =
+    "https://sibforms.com/serve/MUIFAGMMncdAyI0pK_vTiYnFqzGrGlrYzpHdjKLcy55QF9VlcZH4fBfK-qOmzJcslEcSzqsgO8T9qqWQhDm6Wivm1cKw7Emj1-aN4wdauAKe9aYW9DOrX1kGVOtzrKtN20MiOwOb_wYEKjIkEcCwmGHzk9FpEE_5XeOXDvgGfdMPgbbyoWykOn9ibDVITO5Ku0NZUfiBDZgP1nFF";
 
   const renderedIntro = useMemo(() => {
     if (introHtml) {
@@ -114,16 +116,29 @@ const CategoryLandingPage = ({
                   <div className="intro-copy">
                     <div className="intro-text">{renderedIntro}</div>
                     <div className="intro-actions">
-                      <Link href="/bios" className="intro-action">
-                        <span className="intro-action-pill featured">manifeste</span>
+                      <Link
+                        href={newsletterHref}
+                        className="intro-action"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-variant="featured"
+                      >
+                        <span className="intro-action-label">S'abonner</span>
                       </Link>
                       <Link
                         href="https://www.instagram.com/revue.bicephale?igsh=MTlhbmgxMXdhdDZybQ=="
                         className="intro-action"
                         target="_blank"
                         rel="noopener noreferrer"
+                        data-variant="event"
                       >
-                        <span className="intro-action-pill event">nous suivre</span>
+                        <img
+                          src="/social/instagram.png"
+                          alt=""
+                          className="intro-action-icon"
+                          aria-hidden="true"
+                        />
+                        <span className="intro-action-label">Nous suivre</span>
                       </Link>
                     </div>
                   </div>
@@ -200,52 +215,82 @@ const CategoryLandingPage = ({
         }
         .intro-actions {
           display: flex;
+          gap: 14px;
+          margin: 16px 0 0;
+          flex-wrap: wrap;
           align-items: center;
-          gap: 16px;
         }
-        .intro-action {
-          position: relative;
-          display: inline-flex;
-          text-decoration: none;
-        }
-        .intro-action::after {
-          content: "";
-          position: absolute;
-          left: 8px;
-          right: 8px;
-          bottom: -2px;
-          height: 2px;
-          border-radius: 999px;
-          background: rgba(17, 17, 17, 0.45);
-          opacity: 0;
-          transform: scaleX(0.5);
-          transform-origin: center;
-          transition: transform 0.18s ease, opacity 0.18s ease;
-          pointer-events: none;
-        }
-        .intro-action:hover::after,
-        .intro-action:focus-visible::after {
-          opacity: 1;
-          transform: scaleX(1);
-        }
-        .intro-action-pill {
+        :global(.intro-action) {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 10px 22px;
+          gap: 10px;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          height: fit-content;
+          text-decoration: none;
+          cursor: pointer;
           border-radius: 999px;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
+          padding: 12px 22px;
           font-family: "EnbyGertrude", sans-serif;
-          font-size: 12px;
+          font-size: 14px;
+          letter-spacing: 0.05em;
+          line-height: 1.1;
+          color: #0f0f0f;
+          background-color: #c1c1f0;
+          border: 1px solid #c1c1f0;
+          box-shadow: none;
+          transition: background-color 0.2s ease, color 0.2s ease,
+            box-shadow 0.2s ease, transform 0.2s ease;
+          white-space: nowrap;
         }
-        .intro-action-pill.featured {
-          background: #c1c1f0;
-          color: #111;
+        :global(.intro-action:visited) {
+          color: #0f0f0f;
         }
-        .intro-action-pill.event {
-          background: #f4f0ae;
-          color: #111;
+        :global(.intro-action:focus-visible) {
+          outline: 2px solid rgba(17, 17, 17, 0.45);
+          outline-offset: 2px;
+        }
+        :global(.intro-action-icon) {
+          width: 18px;
+          height: 18px;
+          display: inline-block;
+          object-fit: contain;
+          flex-shrink: 0;
+          align-self: center;
+        }
+        :global(.intro-action[data-variant="event"]) {
+          background-color: #03b262;
+          border-color: #03b262;
+          color: #0f0f0f;
+        }
+        :global(.intro-action[data-variant="featured"]) {
+          background-color: #c1c1f0;
+          border-color: #c1c1f0;
+          color: #0f0f0f;
+        }
+        :global(.intro-action:hover),
+        :global(.intro-action:focus-visible),
+        :global(.intro-action:active) {
+          box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
+          transform: translateY(-1px);
+        }
+        :global(.intro-action[data-variant="featured"]:hover),
+        :global(.intro-action[data-variant="featured"]:focus-visible),
+        :global(.intro-action[data-variant="featured"]:active) {
+          background-color: #c7b5f4;
+          border-color: #c7b5f4;
+        }
+        :global(.intro-action[data-variant="event"]:hover),
+        :global(.intro-action[data-variant="event"]:focus-visible),
+        :global(.intro-action[data-variant="event"]:active) {
+          background-color: #2ad07f;
+          border-color: #2ad07f;
+        }
+        :global(.intro-action-label) {
+          white-space: nowrap;
+          line-height: 1.2;
+          display: inline-block;
         }
         .columns-area {
           display: flex;
