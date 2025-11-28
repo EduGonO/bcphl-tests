@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type {
   SupabaseArticleDetail,
   SupabaseCategorySummary,
+  SupabaseIntroEntry,
 } from "../../../types/supabase";
 import SupabaseRichTextEditor from "./SupabaseRichTextEditor";
 
@@ -117,6 +118,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const [createStatus, setCreateStatus] = useState<"idle" | "creating">("idle");
   const [createError, setCreateError] = useState<string | null>(null);
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting">("idle");
+  const [introEntries, setIntroEntries] = useState<SupabaseIntroEntry[]>([]);
+  const [introStatus, setIntroStatus] = useState<StatusTone>("idle");
+  const [introStatusMessage, setIntroStatusMessage] = useState<string | null>(null);
+  const [introError, setIntroError] = useState<string | null>(null);
+  const [selectedIntroId, setSelectedIntroId] = useState<string | null>(null);
+  const [introBody, setIntroBody] = useState<{ markdown: string; html: string }>(
+    { markdown: "", html: "" }
+  );
+  const introDirtyRef = useRef(false);
 
   const { data: session, status: sessionStatus } = useSession();
   const sessionEmail = session?.user?.email ?? "";
@@ -165,6 +175,58 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       }
     }
   }, [supabaseCategories, selectedCategoryId, selectedArticleId]);
+
+  const fetchIntroEntries = useCallback(async () => {
+    if (!isAdmin) return;
+    setIntroStatus("loading");
+    setIntroStatusMessage("Chargement…");
+    introDirtyRef.current = false;
+    try {
+      const response = await fetch("/api/supabase/intros");
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Impossible de charger les introductions.");
+      }
+      setIntroEntries(payload.entries ?? []);
+      setIntroError(null);
+      setIntroStatus("idle");
+      setIntroStatusMessage(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      setIntroError(message);
+      setIntroStatus("error");
+      setIntroStatusMessage(message);
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetchIntroEntries().catch(() => {
+      /* handled in fetchIntroEntries */
+    });
+  }, [fetchIntroEntries, isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    if (!introEntries.length) {
+      setSelectedIntroId(null);
+      setIntroBody({ markdown: "", html: "" });
+      introDirtyRef.current = false;
+      return;
+    }
+
+    if (!selectedIntroId || !introEntries.some((entry) => entry.id === selectedIntroId)) {
+      const nextIntro = introEntries[0];
+      setSelectedIntroId(nextIntro.id);
+      setIntroBody({
+        markdown: nextIntro.bodyMarkdown,
+        html: nextIntro.bodyHtml ?? "",
+      });
+      introDirtyRef.current = false;
+      setIntroStatus("idle");
+      setIntroStatusMessage(null);
+    }
+  }, [introEntries, isAdmin, selectedIntroId]);
 
   const directoryArticles = useMemo<DirectoryArticle[]>(() => {
     const map = new Map<string, DirectoryArticle>();
@@ -246,9 +308,35 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     return { tone: "idle" as StatusTone, label: statusMessage ?? "Stable" };
   }, [status, statusMessage]);
 
+  const introDigest = useMemo(() => {
+    if (introStatus === "loading") {
+      return { tone: "loading" as StatusTone, label: "Chargement…" };
+    }
+    if (introStatus === "saving") {
+      return { tone: "saving" as StatusTone, label: "Enregistrement…" };
+    }
+    if (introStatus === "error") {
+      return { tone: "error" as StatusTone, label: introStatusMessage ?? "Erreur" };
+    }
+    if (introStatus === "saved") {
+      return { tone: "saved" as StatusTone, label: introStatusMessage ?? "Enregistré" };
+    }
+    if (introDirtyRef.current) {
+      return { tone: "dirty" as StatusTone, label: "Modifications non enregistrées" };
+    }
+    return { tone: "idle" as StatusTone, label: introStatusMessage ?? "Stable" };
+  }, [introStatus, introStatusMessage]);
+
   const confirmDiscard = useCallback(() => {
     if (!dirtyRef.current) return true;
     return window.confirm("Des modifications non enregistrées seront perdues. Continuer ?");
+  }, []);
+
+  const confirmIntroDiscard = useCallback(() => {
+    if (!introDirtyRef.current) return true;
+    return window.confirm(
+      "Des modifications non enregistrées seront perdues. Continuer ?"
+    );
   }, []);
 
   const fetchArticle = useCallback(async (articleId: string) => {
@@ -573,6 +661,76 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     [sortedArticles, selectedArticleId]
   );
 
+  const selectedIntro = useMemo(
+    () => introEntries.find((entry) => entry.id === selectedIntroId) ?? null,
+    [introEntries, selectedIntroId]
+  );
+
+  useEffect(() => {
+    if (!selectedIntro) return;
+    setIntroBody({
+      markdown: selectedIntro.bodyMarkdown,
+      html: selectedIntro.bodyHtml ?? "",
+    });
+    introDirtyRef.current = false;
+    if (introStatus === "error") {
+      setIntroStatus("idle");
+      setIntroStatusMessage(null);
+    }
+  }, [introStatus, selectedIntro]);
+
+  const handleIntroSelect = useCallback(
+    (entryId: string) => {
+      if (!confirmIntroDiscard()) return;
+      setSelectedIntroId(entryId);
+    },
+    [confirmIntroDiscard]
+  );
+
+  const handleIntroChange = useCallback(
+    (markdown: string, html: string) => {
+      setIntroBody({ markdown, html });
+      introDirtyRef.current = true;
+      if (introStatus === "saved" || introStatus === "error") {
+        setIntroStatus("idle");
+        setIntroStatusMessage(null);
+      }
+    },
+    [introStatus]
+  );
+
+  const handleIntroSave = useCallback(async () => {
+    if (!selectedIntro) return;
+    setIntroStatus("saving");
+    setIntroStatusMessage("Enregistrement…");
+    try {
+      const response = await fetch("/api/supabase/intros", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          articleId: selectedIntro.id,
+          bodyMarkdown: introBody.markdown,
+          bodyHtml: introBody.html,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Impossible d’enregistrer l’introduction.");
+      }
+      setIntroEntries(payload.entries ?? []);
+      introDirtyRef.current = false;
+      setIntroStatus("saved");
+      setIntroStatusMessage("Introduction enregistrée");
+      setTimeout(() => {
+        setIntroStatus("idle");
+        setIntroStatusMessage(null);
+      }, 1500);
+    } catch (err) {
+      setIntroStatus("error");
+      setIntroStatusMessage(err instanceof Error ? err.message : "Erreur inconnue");
+    }
+  }, [introBody.html, introBody.markdown, selectedIntro]);
+
   return (
     <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
@@ -625,6 +783,100 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           </button>
         </div>
       </header>
+
+      {isAdmin && (
+        <section className="supabase-intros">
+          <header className="supabase-intros__header">
+            <div>
+              <p className="supabase-intros__title">Textes d’introduction</p>
+              <p className="supabase-intros__subtitle">
+                Mise à jour des pages Réflexion, Création et IRL.
+              </p>
+            </div>
+            <div className="supabase-intros__actions">
+              <button
+                type="button"
+                className="supabase-button supabase-button--ghost"
+                onClick={() => fetchIntroEntries()}
+              >
+                Actualiser
+              </button>
+              <span
+                className={`supabase-editor__status supabase-editor__status--${introDigest.tone}`}
+              >
+                {introDigest.label}
+              </span>
+            </div>
+          </header>
+
+          {introError && <div className="supabase-panel__error">{introError}</div>}
+
+          <div className="supabase-intros__body">
+            <div className="supabase-intros__list">
+              {introEntries.map((entry) => {
+                const isActive = entry.id === selectedIntroId;
+                const readableTitle = entry.title.replace(/^Intro-/, "");
+                return (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    className={
+                      isActive
+                        ? "supabase-intro-card supabase-intro-card--active"
+                        : "supabase-intro-card"
+                    }
+                    onClick={() => handleIntroSelect(entry.id)}
+                  >
+                    <span className="supabase-intro-card__title">{readableTitle}</span>
+                    <span className="supabase-intro-card__slug">{entry.slug}</span>
+                    <span className="supabase-intro-card__meta">
+                      Mise à jour {formatDateTime(entry.updatedAt)}
+                    </span>
+                  </button>
+                );
+              })}
+              {!introEntries.length && (
+                <p className="supabase-intros__empty">Aucune introduction trouvée.</p>
+              )}
+            </div>
+
+            <div className="supabase-intros__editor">
+              {selectedIntro ? (
+                <>
+                  <div className="supabase-editor__richtext-header">
+                    <span>Contenu d’introduction</span>
+                    <span
+                      className={`supabase-editor__status supabase-editor__status--${introDigest.tone}`}
+                    >
+                      {introDigest.label}
+                    </span>
+                  </div>
+                  <SupabaseRichTextEditor
+                    key={selectedIntro.id}
+                    value={introBody.markdown}
+                    onChange={handleIntroChange}
+                    placeholder="Écrivez l’introduction…"
+                  />
+                  <div className="supabase-intros__actions">
+                    <button
+                      type="button"
+                      className="supabase-button supabase-button--primary"
+                      onClick={handleIntroSave}
+                      disabled={introStatus === "saving"}
+                    >
+                      {introStatus === "saving" ? "Enregistrement…" : "Enregistrer"}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="supabase-workspace__empty">
+                  Chargement des introductions…
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {panelError && <div className="supabase-panel__error">{panelError}</div>}
 
@@ -1181,6 +1433,96 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           color: #a62f21;
           font-size: 13px;
           flex-shrink: 0;
+        }
+        .supabase-intros {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding: 14px 16px;
+          border-radius: 14px;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          background: #f9fafc;
+        }
+        .supabase-intros__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .supabase-intros__title {
+          margin: 0;
+          font-size: 12px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #444651;
+        }
+        .supabase-intros__subtitle {
+          margin: 4px 0 0;
+          color: #6f717a;
+          font-size: 12px;
+        }
+        .supabase-intros__actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+        .supabase-intros__body {
+          display: grid;
+          grid-template-columns: 260px minmax(0, 1fr);
+          gap: 14px;
+        }
+        .supabase-intros__list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .supabase-intros__editor {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .supabase-intros__empty {
+          margin: 0;
+          padding: 10px 12px;
+          border-radius: 10px;
+          border: 1px dashed rgba(0, 0, 0, 0.16);
+          color: #7a7c82;
+          font-size: 12px;
+        }
+        .supabase-intro-card {
+          text-align: left;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+          padding: 10px 12px;
+          background: #ffffff;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .supabase-intro-card:hover {
+          border-color: rgba(0, 0, 0, 0.14);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+        .supabase-intro-card--active {
+          border-color: rgba(36, 119, 70, 0.28);
+          box-shadow: inset 0 0 0 1px rgba(36, 119, 70, 0.28);
+        }
+        .supabase-intro-card__title {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1f2024;
+        }
+        .supabase-intro-card__slug {
+          font-size: 11px;
+          color: #7a7c82;
+        }
+        .supabase-intro-card__meta {
+          font-size: 11px;
+          color: #5f6169;
         }
         .supabase-button {
           border: none;
@@ -1844,6 +2186,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           }
           .supabase-editor__field--categories {
             min-width: 0;
+          }
+          .supabase-intros__body {
+            grid-template-columns: minmax(0, 1fr);
           }
         }
         @media (max-width: 1080px) {
