@@ -198,7 +198,7 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
                         key={article.slug}
                         article={article}
                         variant="irl"
-                        ctaLabel="découvrir"
+                        ctaLabel="Découvrir"
                         ctaBackground="#f4f0a7"
                         formatDate={formatDate}
                       />
