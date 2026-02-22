@@ -118,7 +118,7 @@ const RedesignArticlePreviewCard: React.FC<RedesignArticlePreviewCardProps> = ({
   const formattedDate = formatDate(article.date);
   const categorySegment = article.categorySlug || article.category;
   const linkHref = `/${categorySegment}/${article.slug}`;
-  const linkLabel = ctaLabel || (variant === "creation" ? "Découvrir" : "Lire");
+  const linkLabel = ctaLabel || (variant === "irl" ? "Découvrir" : "Lire");
 
   const previewHtml = useMemo(() => {
     const snippet = buildPreviewSnippet(article as ArticleWithBody);
