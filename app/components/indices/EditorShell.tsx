@@ -2,16 +2,18 @@ import React from "react";
 import SupabaseWorkspace, {
   type SupabaseWorkspaceVariant,
 } from "./SupabaseWorkspace";
-import type { SupabaseCategorySummary } from "../../../types/supabase";
+import type { SupabaseBioEntry, SupabaseCategorySummary } from "../../../types/supabase";
 
 type EditorShellProps = {
   categories: SupabaseCategorySummary[];
+  bios: SupabaseBioEntry[];
   error?: string | null;
   variant?: SupabaseWorkspaceVariant;
 };
 
 const EditorShell: React.FC<EditorShellProps> = ({
   categories,
+  bios,
   error,
   variant = "admin",
 }) => {
@@ -20,6 +22,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
       <section className="editor-shell__workspace">
         <SupabaseWorkspace
           categories={categories}
+          bios={bios}
           error={error}
           variant={variant}
         />
@@ -29,7 +32,8 @@ const EditorShell: React.FC<EditorShellProps> = ({
         .editor-shell {
           flex: 1;
           min-height: 0;
-          padding: 28px 28px 36px;
+          height: 100%;
+          padding: 18px 22px 24px;
           background: linear-gradient(160deg, #f7f7fb 0%, #eef0f8 100%);
           display: flex;
           justify-content: center;
@@ -48,6 +52,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
           padding: 28px 32px;
           display: flex;
           flex-direction: column;
+          min-height: 0;
           height: 100%;
           overflow: hidden;
         }

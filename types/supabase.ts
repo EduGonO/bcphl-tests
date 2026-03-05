@@ -90,3 +90,14 @@ export type SupabaseArticleUpsertPayload = {
 };
 
 export type SupabaseArticleCreatePayload = SupabaseArticleUpsertPayload;
+
+export type SupabaseBioEntry = {
+  id: string;
+  slug: string;
+  name: string;
+  role: string | null;
+  rank: number;
+  portraitBase: string | null;
+  bio: string[];
+  updatedAt: string | null;
+};
