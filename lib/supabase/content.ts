@@ -2,6 +2,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import type {
   SupabaseArticleDetail,
   SupabaseArticleSummary,
+  SupabaseBioEntry,
   SupabaseCategorySummary,
   SupabaseIntroEntry,
 } from "../../types/supabase";
@@ -208,6 +209,40 @@ export const loadSupabaseIntroEntries = async (
       }
       return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
     });
+};
+
+export const loadSupabaseBios = async (
+  supabase: ServerSupabaseClient
+): Promise<SupabaseBioEntry[]> => {
+  const { data, error } = await supabase
+    .from("bicephale_bios")
+    .select("id, slug, name, role, rank, portrait_base, bio, updated_at")
+    .order("rank", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => {
+    const bioArray = Array.isArray(row.bio)
+      ? row.bio.filter((entry: unknown) => typeof entry === "string")
+      : [];
+
+    return {
+      id: String(row.id),
+      slug: String(row.slug ?? ""),
+      name: String(row.name ?? ""),
+      role: typeof row.role === "string" ? row.role : null,
+      rank: Number.isFinite(row.rank) ? Number(row.rank) : 0,
+      portraitBase:
+        typeof row.portrait_base === "string" && row.portrait_base.trim()
+          ? row.portrait_base
+          : null,
+      bio: bioArray,
+      updatedAt: row.updated_at ? String(row.updated_at) : null,
+    };
+  });
 };
 
 export const loadSupabaseArticleDetail = async (
