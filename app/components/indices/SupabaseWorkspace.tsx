@@ -2,6 +2,7 @@ import { signOut, useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   SupabaseArticleDetail,
+  SupabaseBioEntry,
   SupabaseCategorySummary,
   SupabaseIntroEntry,
 } from "../../../types/supabase";
@@ -75,6 +76,7 @@ export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
 
 type SupabaseWorkspaceProps = {
   categories: SupabaseCategorySummary[];
+  bios?: SupabaseBioEntry[];
   error?: string | null;
   variant?: SupabaseWorkspaceVariant;
 };
@@ -93,6 +95,7 @@ type DirectoryArticle = {
 
 const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   categories,
+  bios: _bios,
   error,
   variant = "admin",
 }) => {

@@ -1,6 +1,9 @@
 import teamMembersData from "../data/team.json";
 import type { TeamMember } from "../types/bios";
+import type { SupabaseBioEntry } from "../types/supabase";
 import { slugify } from "./slug";
+import { loadSupabaseBios } from "./supabase/content";
+import { getSupabaseServerClient } from "./supabase/serverClient";
 
 type Portraits = {
   primary: string;
@@ -27,33 +30,67 @@ const buildPortraits = (member: TeamMember): Portraits => {
   };
 };
 
-const teamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[])
+const localTeamMembers: TeamMemberWithPortraits[] = (teamMembersData as TeamMember[])
   .map((member) => ({
     ...member,
     portraits: buildPortraits(member),
   }))
   .sort((a, b) => a.rank - b.rank);
 
-export const getTeamMembers = (): TeamMemberWithPortraits[] => teamMembers;
+const mapSupabaseBioToTeamMember = (entry: SupabaseBioEntry): TeamMemberWithPortraits => {
+  const member: TeamMember = {
+    slug: entry.slug,
+    name: entry.name,
+    role: entry.role ?? undefined,
+    bio: entry.bio,
+    rank: entry.rank,
+    portraitBase: entry.portraitBase ?? undefined,
+  };
 
-export const findTeamMemberBySlug = (
+  return {
+    ...member,
+    portraits: buildPortraits(member),
+  };
+};
+
+export const getTeamMembers = async (): Promise<TeamMemberWithPortraits[]> => {
+  try {
+    const supabase = getSupabaseServerClient();
+    if (!supabase) {
+      return localTeamMembers;
+    }
+
+    const bios = await loadSupabaseBios(supabase);
+    if (!bios.length) {
+      return localTeamMembers;
+    }
+
+    return bios.map(mapSupabaseBioToTeamMember).sort((a, b) => a.rank - b.rank);
+  } catch {
+    return localTeamMembers;
+  }
+};
+
+export const findTeamMemberBySlug = async (
   slug: string
-): TeamMemberWithPortraits | undefined => {
+): Promise<TeamMemberWithPortraits | undefined> => {
   if (!slug) {
     return undefined;
   }
 
   const normalized = slug.toLowerCase();
+  const teamMembers = await getTeamMembers();
   return teamMembers.find((member) => member.slug.toLowerCase() === normalized);
 };
 
-export const findTeamMemberByName = (
+export const findTeamMemberByName = async (
   name: string
-): TeamMemberWithPortraits | undefined => {
+): Promise<TeamMemberWithPortraits | undefined> => {
   if (!name) {
     return undefined;
   }
 
   const normalized = slugify(name);
+  const teamMembers = await getTeamMembers();
   return teamMembers.find((member) => slugify(member.name) === normalized);
 };

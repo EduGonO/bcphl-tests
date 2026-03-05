@@ -2,16 +2,19 @@ import React from "react";
 import SupabaseWorkspace, {
   type SupabaseWorkspaceVariant,
 } from "./SupabaseWorkspace";
-import type { SupabaseCategorySummary } from "../../../types/supabase";
+import SupabaseBiosPanel from "./SupabaseBiosPanel";
+import type { SupabaseBioEntry, SupabaseCategorySummary } from "../../../types/supabase";
 
 type EditorShellProps = {
   categories: SupabaseCategorySummary[];
+  bios: SupabaseBioEntry[];
   error?: string | null;
   variant?: SupabaseWorkspaceVariant;
 };
 
 const EditorShell: React.FC<EditorShellProps> = ({
   categories,
+  bios,
   error,
   variant = "admin",
 }) => {
@@ -20,9 +23,11 @@ const EditorShell: React.FC<EditorShellProps> = ({
       <section className="editor-shell__workspace">
         <SupabaseWorkspace
           categories={categories}
+          bios={bios}
           error={error}
           variant={variant}
         />
+        <SupabaseBiosPanel bios={bios} />
       </section>
 
       <style jsx>{`
