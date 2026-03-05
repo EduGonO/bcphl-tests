@@ -1292,43 +1292,183 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           {selectedArticleId && formState ? (
             <>
               <div className="supabase-editor__content">
-                <section className="supabase-editor__primary">
-                  <label className="supabase-editor__field supabase-editor__field--title">
-                    <span>Titre</span>
-                    <input
-                      value={formState.title}
-                      onChange={(event) => updateForm("title", event.target.value)}
-                      placeholder="Titre de l’article"
-                    />
-                  </label>
-                  <div className="supabase-editor__primary-row">
-                    <label className="supabase-editor__field">
-                      <span>Auteur·rice</span>
+                <section className="supabase-editor__top">
+                  <section className="supabase-editor__primary">
+                    <label className="supabase-editor__field supabase-editor__field--title">
+                      <span>Titre</span>
                       <input
-                        value={formState.authorName}
-                        onChange={(event) => updateForm("authorName", event.target.value)}
-                        placeholder="Nom de l’auteur·rice"
+                        value={formState.title}
+                        onChange={(event) => updateForm("title", event.target.value)}
+                        placeholder="Titre de l’article"
                       />
                     </label>
-                    <fieldset className="supabase-editor__field supabase-editor__field--categories">
-                      <legend>Catégories</legend>
-                      <div className="supabase-editor__categories">
-                        {supabaseCategories.map((category) => {
-                          const checked = formState.categoryIds.includes(category.id);
-                          return (
-                            <label key={category.id} className={checked ? "active" : undefined}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleCategoryToggle(category.id)}
-                              />
-                              <span>{category.name}</span>
-                            </label>
-                          );
-                        })}
+                    <div className="supabase-editor__primary-row">
+                      <label className="supabase-editor__field">
+                        <span>Auteur·rice</span>
+                        <input
+                          value={formState.authorName}
+                          onChange={(event) => updateForm("authorName", event.target.value)}
+                          placeholder="Nom de l’auteur·rice"
+                        />
+                      </label>
+                      <fieldset className="supabase-editor__field supabase-editor__field--categories">
+                        <legend>Catégories</legend>
+                        <div className="supabase-editor__categories">
+                          {supabaseCategories.map((category) => {
+                            const checked = formState.categoryIds.includes(category.id);
+                            return (
+                              <label key={category.id} className={checked ? "active" : undefined}>
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => handleCategoryToggle(category.id)}
+                                />
+                                <span>{category.name}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </fieldset>
+                    </div>
+                  </section>
+
+                  <section className="supabase-editor__details">
+                    <div className="supabase-editor__details-grid">
+                      <label className="supabase-editor__field">
+                        <span>Adresse</span>
+                        <input
+                          value={formState.slug}
+                          onChange={(event) => updateForm("slug", event.target.value)}
+                          placeholder="exemple-d’article"
+                        />
+                      </label>
+                      <label className="supabase-editor__field supabase-editor__field--checkbox">
+                        <input
+                          type="checkbox"
+                          checked={formState.status}
+                          onChange={(event) => updateForm("status", event.target.checked)}
+                        />
+                        <span>Article publié</span>
+                      </label>
+                      <label className="supabase-editor__field">
+                        <span>Date éditoriale</span>
+                        <input
+                          type="date"
+                          value={formState.authoredDate}
+                          onChange={(event) => updateForm("authoredDate", event.target.value)}
+                        />
+                      </label>
+                      <label className="supabase-editor__field">
+                        <span>Date de publication</span>
+                        <input
+                          type="datetime-local"
+                          value={formState.publishedAt}
+                          onChange={(event) => updateForm("publishedAt", event.target.value)}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
+                      <label className="supabase-editor__field">
+                        <span>Résumé (preview)</span>
+                        <textarea
+                          value={formState.preview}
+                          onChange={(event) => updateForm("preview", event.target.value)}
+                        />
+                      </label>
+                      <label className="supabase-editor__field">
+                        <span>Extrait (excerpt)</span>
+                        <textarea
+                          value={formState.excerpt}
+                          onChange={(event) => updateForm("excerpt", event.target.value)}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="supabase-editor__stack">
+                      <label className="supabase-editor__field">
+                        <span>Image d’en-tête (URL ou chemin de stockage)</span>
+                        <input
+                          value={formState.headerImagePath}
+                          onChange={(event) => updateForm("headerImagePath", event.target.value)}
+                          placeholder="storage/articles/image.jpg"
+                        />
+                      </label>
+
+                      <label className="supabase-editor__field supabase-editor__field--related">
+                        <span>Articles liés</span>
+                        <select
+                          multiple
+                          value={formState.relatedArticleIds}
+                          onChange={(event) =>
+                            handleRelatedChange(
+                              Array.from(event.target.selectedOptions).map((option) => option.value)
+                            )
+                          }
+                        >
+                          {relatedOptions.map((article) => (
+                            <option key={article.id} value={article.id}>
+                              {article.title} · {article.categoryName}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      {articleDetail?.media?.length ? (
+                        <div className="supabase-editor__media">
+                          <h4>Médias liés</h4>
+                          <ul>
+                            {articleDetail.media.map((media) => (
+                              <li key={media.id}>
+                                <code>{media.storagePath}</code>
+                                {media.caption && <span>{media.caption}</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {showAdvanced && (
+                      <details className="supabase-editor__advanced">
+                        <summary>Afficher les champs bruts</summary>
+                        <label className="supabase-editor__field">
+                          <span>Contenu Markdown</span>
+                          <textarea
+                            className="supabase-editor__textarea"
+                            value={formState.bodyMarkdown}
+                            onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
+                          />
+                        </label>
+
+                        <label className="supabase-editor__field">
+                          <span>Contenu HTML</span>
+                          <textarea
+                            className="supabase-editor__textarea"
+                            value={formState.bodyHtml}
+                            onChange={(event) => updateForm("bodyHtml", event.target.value)}
+                          />
+                        </label>
+
+                        <label className="supabase-editor__field">
+                          <span>Contenu JSON (TipTap / Rich text)</span>
+                          <textarea
+                            className="supabase-editor__textarea"
+                            value={formState.bodyJson}
+                            onChange={(event) => updateForm("bodyJson", event.target.value)}
+                            placeholder='{ "type": "doc" }'
+                          />
+                        </label>
+                      </details>
+                    )}
+
+                    {articleDetail && (
+                      <div className="supabase-editor__meta">
+                        <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
+                        <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
                       </div>
-                    </fieldset>
-                  </div>
+                    )}
+                  </section>
                 </section>
 
                 <section className="supabase-editor__canvas">
@@ -1348,162 +1488,24 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   />
                 </section>
 
-                <section className="supabase-editor__details">
-                  <div className="supabase-editor__details-grid">
-                    <label className="supabase-editor__field">
-                      <span>Adresse</span>
-                      <input
-                        value={formState.slug}
-                        onChange={(event) => updateForm("slug", event.target.value)}
-                        placeholder="exemple-d’article"
-                      />
-                    </label>
-                    <label className="supabase-editor__field supabase-editor__field--checkbox">
-                      <input
-                        type="checkbox"
-                        checked={formState.status}
-                        onChange={(event) => updateForm("status", event.target.checked)}
-                      />
-                      <span>Article publié</span>
-                    </label>
-                    <label className="supabase-editor__field">
-                      <span>Date éditoriale</span>
-                      <input
-                        type="date"
-                        value={formState.authoredDate}
-                        onChange={(event) => updateForm("authoredDate", event.target.value)}
-                      />
-                    </label>
-                    <label className="supabase-editor__field">
-                      <span>Date de publication</span>
-                      <input
-                        type="datetime-local"
-                        value={formState.publishedAt}
-                        onChange={(event) => updateForm("publishedAt", event.target.value)}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
-                    <label className="supabase-editor__field">
-                      <span>Résumé (preview)</span>
-                      <textarea
-                        value={formState.preview}
-                        onChange={(event) => updateForm("preview", event.target.value)}
-                      />
-                    </label>
-                    <label className="supabase-editor__field">
-                      <span>Extrait (excerpt)</span>
-                      <textarea
-                        value={formState.excerpt}
-                        onChange={(event) => updateForm("excerpt", event.target.value)}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="supabase-editor__stack">
-                    <label className="supabase-editor__field">
-                      <span>Image d’en-tête (URL ou chemin de stockage)</span>
-                      <input
-                        value={formState.headerImagePath}
-                        onChange={(event) => updateForm("headerImagePath", event.target.value)}
-                        placeholder="storage/articles/image.jpg"
-                      />
-                    </label>
-
-                    <label className="supabase-editor__field supabase-editor__field--related">
-                      <span>Articles liés</span>
-                      <select
-                        multiple
-                        value={formState.relatedArticleIds}
-                        onChange={(event) =>
-                          handleRelatedChange(
-                            Array.from(event.target.selectedOptions).map((option) => option.value)
-                          )
-                        }
-                      >
-                        {relatedOptions.map((article) => (
-                          <option key={article.id} value={article.id}>
-                            {article.title} · {article.categoryName}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    {articleDetail?.media?.length ? (
-                      <div className="supabase-editor__media">
-                        <h4>Médias liés</h4>
-                        <ul>
-                          {articleDetail.media.map((media) => (
-                            <li key={media.id}>
-                              <code>{media.storagePath}</code>
-                              {media.caption && <span>{media.caption}</span>}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {showAdvanced && (
-                    <details className="supabase-editor__advanced">
-                      <summary>Afficher les champs bruts</summary>
-                      <label className="supabase-editor__field">
-                        <span>Contenu Markdown</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyMarkdown}
-                          onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
-                        />
-                      </label>
-
-                      <label className="supabase-editor__field">
-                        <span>Contenu HTML</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyHtml}
-                          onChange={(event) => updateForm("bodyHtml", event.target.value)}
-                        />
-                      </label>
-
-                      <label className="supabase-editor__field">
-                        <span>Contenu JSON (TipTap / Rich text)</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyJson}
-                          onChange={(event) => updateForm("bodyJson", event.target.value)}
-                          placeholder='{ "type": "doc" }'
-                        />
-                      </label>
-                    </details>
-                  )}
-
-                  {articleDetail && (
-                    <div className="supabase-editor__meta">
-                      <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
-                      <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
-                    </div>
-                  )}
-
-                  <footer className="supabase-editor__footer">
-                    <button
-                      type="button"
-                      className="supabase-button supabase-button--primary"
-                      onClick={handleSave}
-                      disabled={status === "saving"}
-                    >
-                      {status === "saving" ? "Enregistrement…" : "Enregistrer"}
-                    </button>
-                    <button
-                      type="button"
-                      className="supabase-button supabase-button--danger"
-                      onClick={handleDelete}
-                      disabled={deleteStatus === "deleting"}
-                    >
-                      {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
-                    </button>
-                  </footer>
-                </section>
+                <footer className="supabase-editor__footer">
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--primary"
+                    onClick={handleSave}
+                    disabled={status === "saving"}
+                  >
+                    {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                  </button>
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--danger"
+                    onClick={handleDelete}
+                    disabled={deleteStatus === "deleting"}
+                  >
+                    {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
+                  </button>
+                </footer>
               </div>
             </>
           ) : (
@@ -2175,7 +2177,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           display: flex;
           flex-direction: column;
           gap: 18px;
-          overflow: visible;
+          overflow: hidden;
         }
         .supabase-workspace__empty {
           margin: auto;
@@ -2227,11 +2229,16 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__content {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 12px;
           flex: 1;
           min-height: 0;
           overflow-y: auto;
           padding-right: 6px;
+        }
+        .supabase-editor__top {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
         }
         .supabase-editor__primary,
         .supabase-editor__canvas,
@@ -2239,10 +2246,21 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           background: #ffffff;
           border-radius: 16px;
           border: 1px solid rgba(0, 0, 0, 0.05);
-          padding: 18px;
+          padding: 14px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 10px;
+        }
+        .supabase-editor__primary {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+          border-bottom: none;
+          padding-bottom: 10px;
+        }
+        .supabase-editor__details {
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+          margin-top: -1px;
         }
         .supabase-editor__canvas {
           flex: 1;
@@ -2506,7 +2524,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-panel--writer .supabase-editor__richtext-header span:first-of-type {
           font-size: 13px;
         }
-        @media (max-width: 900px) {
+        @media (max-width: 720px) {
           .supabase-editor__primary-row {
             flex-direction: column;
           }
@@ -2517,7 +2535,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             grid-template-columns: minmax(0, 1fr);
           }
         }
-        @media (max-width: 1080px) {
+        @media (max-width: 640px) {
           .supabase-workspace {
             grid-template-columns: minmax(0, 1fr);
             grid-template-rows: minmax(0, 320px) minmax(0, 1fr);
