@@ -2443,9 +2443,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           flex: 1;
           min-height: 0;
+          height: 100%;
+          overflow-y: auto;
         }
         .supabase-rich-text .ql-editor {
           line-height: 1.35;
+          min-height: 100%;
+          overflow-y: auto;
         }
         .supabase-rich-text .ql-editor img {
           display: block;
