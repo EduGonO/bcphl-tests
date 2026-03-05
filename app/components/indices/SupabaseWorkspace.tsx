@@ -1517,7 +1517,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           </>
         ) : (
           <>
-            <aside className="supabase-workspace__sidebar supabase-workspace__sidebar--bios">
+            <aside className="supabase-workspace__sidebar">
               <section className="supabase-category">
                 <header className="supabase-category__header">
                   <span className="supabase-category__dot" style={{ backgroundColor: "#7d6f53" }} />
@@ -1536,8 +1536,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                           onClick={() => setSelectedBioId(entry.id)}
                         >
                           <span className="supabase-entry__title">{entry.rank}. {entry.name}</span>
-                          <span className="supabase-entry__slug">{entry.slug}</span>
-                          <span className="supabase-entry__status">Bio éditable</span>
+                          <span className="supabase-entry__excerpt">{entry.bio.slice(0, 2).join(" ")}</span>
                         </button>
                       </li>
                     );
@@ -1650,7 +1649,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-panel__header {
           display: flex;
           align-items: flex-start;
-          justify-content: space-between;
+          justify-content: flex-start;
           gap: 16px;
           padding-bottom: 12px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -1714,8 +1713,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-panel__actions {
           display: flex;
-          gap: 12px;
+          gap: 8px;
           align-items: center;
+          justify-content: flex-start;
           flex-wrap: wrap;
         }
         .supabase-view-toggle {
@@ -1754,7 +1754,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-intros {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
           padding: 14px 16px;
           border-radius: 14px;
           border: 1px solid rgba(0, 0, 0, 0.06);
@@ -1763,8 +1763,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-intros__header {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 12px;
+          justify-content: flex-start;
+          gap: 8px;
           flex-wrap: wrap;
         }
         .supabase-intros__title {
@@ -1782,7 +1782,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-intros__actions {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
           flex-wrap: wrap;
         }
         .supabase-intros__body {
@@ -1798,7 +1798,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-intros__editor {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
         }
         .supabase-intros__empty {
           margin: 0;
@@ -1876,7 +1876,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-create__row {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 12px;
+          gap: 8px;
         }
         .supabase-create__row label {
           display: flex;
@@ -1954,7 +1954,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
           display: grid;
-          grid-template-columns: 320px minmax(0, 1fr);
+          grid-template-columns: 270px minmax(0, 1fr);
           gap: 24px;
         }
         .supabase-workspace--admin {
@@ -1970,13 +1970,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           gap: 16px;
           padding-right: 8px;
         }
-        .supabase-workspace__sidebar--bios {
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 16px;
-          background: linear-gradient(150deg, #ffffff 0%, #f4f5fb 100%);
-          padding: 14px;
-        }
-        .supabase-workspace__table {
+                .supabase-workspace__table {
           min-height: 0;
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 20px;
@@ -2102,7 +2096,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-category__header {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
           text-transform: uppercase;
           letter-spacing: 0.18em;
           font-size: 10px;
@@ -2157,6 +2151,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-entry__slug {
           font-size: 11px;
           color: #787a80;
+        }
+        .supabase-entry__excerpt {
+          font-size: 12px;
+          color: #6b6e76;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         .supabase-entry__status {
           font-size: 11px;
@@ -2229,7 +2232,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__content {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
           flex: 1;
           min-height: 0;
           overflow-y: auto;
@@ -2246,10 +2249,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           background: #ffffff;
           border-radius: 16px;
           border: 1px solid rgba(0, 0, 0, 0.05);
-          padding: 14px;
+          padding: 12px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 8px;
         }
         .supabase-editor__primary {
           border-bottom-left-radius: 0;
@@ -2264,19 +2267,23 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__canvas {
           flex: 1;
-          min-height: 0;
+          min-height: 320px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          overflow: hidden;
           box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 18px 36px rgba(17, 18, 31, 0.06);
         }
         .supabase-editor__primary-row {
           display: flex;
           flex-wrap: wrap;
-          gap: 12px;
+          gap: 8px;
         }
         .supabase-editor__field {
           display: flex;
           flex-direction: column;
-          gap: 6px;
-          font-size: 10px;
+          gap: 4px;
+          font-size: 9px;
           text-transform: uppercase;
           letter-spacing: 0.16em;
           color: #6f717a;
@@ -2295,7 +2302,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__field input,
         .supabase-editor__field textarea,
         .supabase-editor__field select {
-          padding: 11px 14px;
+          padding: 8px 10px;
           border-radius: 12px;
           border: 1px solid rgba(0, 0, 0, 0.12);
           background: #f9f9fd;
@@ -2352,8 +2359,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__canvas .supabase-editor__richtext-header {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 12px;
+          justify-content: flex-start;
+          gap: 8px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.06);
           padding-bottom: 8px;
         }
@@ -2412,15 +2419,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__details {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
         }
         .supabase-editor__details-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 12px;
+          gap: 8px;
         }
         .supabase-editor__details-grid--wide {
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
         .supabase-editor__stack {
           display: flex;
@@ -2431,7 +2438,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           margin: 0;
         }
         .supabase-editor__field textarea {
-          min-height: 120px;
+          min-height: 84px;
           resize: vertical;
         }
         .supabase-editor__textarea {
@@ -2445,7 +2452,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__field--checkbox {
           flex-direction: row;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
           font-size: 12px;
           text-transform: none;
           letter-spacing: 0.04em;
@@ -2458,7 +2465,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__advanced {
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 14px;
-          padding: 14px;
+          padding: 12px;
           background: #f9f9fd;
         }
         .supabase-editor__advanced summary {
@@ -2500,14 +2507,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__meta {
           display: flex;
           flex-wrap: wrap;
-          gap: 12px;
+          gap: 8px;
           font-size: 11px;
           color: #7a7c82;
         }
         .supabase-editor__footer {
           display: flex;
           justify-content: flex-end;
-          gap: 12px;
+          gap: 8px;
           padding-top: 10px;
           border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
@@ -2545,11 +2552,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             padding-right: 0;
           }
         }
-        @media (max-width: 720px) {
+        @media (max-width: 640px) {
           .supabase-panel__header {
             flex-direction: column;
             align-items: flex-start;
-            gap: 12px;
+            gap: 8px;
           }
           .supabase-panel__actions {
             flex-wrap: wrap;
