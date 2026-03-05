@@ -2487,6 +2487,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex-direction: column;
           gap: 4px;
         }
+        .supabase-editor__stack .supabase-editor__field {
+          flex: 0 0 auto;
+        }
         .supabase-editor__stack > * {
           margin: 0;
         }
