@@ -26,6 +26,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
           error={error}
           variant={variant}
         />
+        <SupabaseBiosPanel bios={bios} />
       </section>
 
       <style jsx>{`
