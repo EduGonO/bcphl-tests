@@ -357,8 +357,8 @@ export const getServerSideProps: GetServerSideProps<AuthorPageProps> = async ({
   const authorName = authoredArticles[0].author;
 
   const teamMember =
-    findTeamMemberBySlug(normalizedSlug) ||
-    findTeamMemberByName(authorName) ||
+    (await findTeamMemberBySlug(normalizedSlug)) ||
+    (await findTeamMemberByName(authorName)) ||
     null;
 
   return {

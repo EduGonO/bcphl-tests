@@ -15,15 +15,14 @@ import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import TopNav from "../app/components/TopNav";
 import { getArticleData } from "../lib/articleService";
 import { Article } from "../types";
-import { getTeamMembers } from "../lib/team";
+import { getTeamMembers, type TeamMemberWithPortraits } from "../lib/team";
 
 interface BiosPageProps {
   articles: Article[];
+  teamMembers: TeamMemberWithPortraits[];
 }
 
-const teamMembers = getTeamMembers();
-
-const BiosPage = ({ articles }: BiosPageProps) => {
+const BiosPage = ({ articles, teamMembers }: BiosPageProps) => {
   const [query, setQuery] = useState("");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [renderedSlug, setRenderedSlug] = useState<string | null>(null);
@@ -586,9 +585,11 @@ const BiosPage = ({ articles }: BiosPageProps) => {
 
 export async function getServerSideProps() {
   const { articles } = await getArticleData();
+  const teamMembers = await getTeamMembers();
   return {
     props: {
       articles,
+      teamMembers,
     },
   };
 }

@@ -1,14 +1,20 @@
 import { getSupabaseServerClient } from "./serverClient";
-import { formatSupabaseError, loadSupabaseCategorySummaries } from "./content";
-import type { SupabaseCategorySummary } from "../../types/supabase";
+import {
+  formatSupabaseError,
+  loadSupabaseBios,
+  loadSupabaseCategorySummaries,
+} from "./content";
+import type { SupabaseBioEntry, SupabaseCategorySummary } from "../../types/supabase";
 
 export type WorkspaceData = {
   supabaseCats: SupabaseCategorySummary[];
+  supabaseBios: SupabaseBioEntry[];
   supabaseError: string | null;
 };
 
 export const resolveWorkspaceData = async (): Promise<WorkspaceData> => {
   let supabaseCats: SupabaseCategorySummary[] = [];
+  let supabaseBios: SupabaseBioEntry[] = [];
   let supabaseError: string | null = null;
 
   try {
@@ -18,10 +24,11 @@ export const resolveWorkspaceData = async (): Promise<WorkspaceData> => {
         "Configurer les variables d'environnement nécessaires pour activer la synchronisation des articles.";
     } else {
       supabaseCats = await loadSupabaseCategorySummaries(supabase);
+      supabaseBios = await loadSupabaseBios(supabase);
     }
   } catch (error) {
     supabaseError = formatSupabaseError(error);
   }
 
-  return { supabaseCats, supabaseError };
+  return { supabaseCats, supabaseBios, supabaseError };
 };
