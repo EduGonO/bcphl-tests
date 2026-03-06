@@ -32,6 +32,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
         .editor-shell {
           flex: 1;
           min-height: 0;
+          height: 100%;
           padding: 18px 22px;
           background: linear-gradient(160deg, #f7f7fb 0%, #eef0f8 100%);
           display: flex;
@@ -53,26 +54,17 @@ const EditorShell: React.FC<EditorShellProps> = ({
           flex-direction: column;
           flex: 1;
           min-height: 0;
+          height: 100%;
           overflow: hidden;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 640px) {
           .editor-shell {
             padding: 14px 16px;
           }
 
           .editor-shell__workspace {
-            padding: 20px;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .editor-shell {
-            padding: 10px 12px;
-          }
-
-          .editor-shell__workspace {
-            padding: 14px;
+            padding: 18px;
             border-radius: 18px;
           }
         }

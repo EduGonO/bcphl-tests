@@ -28,9 +28,10 @@ const AdminPage: React.FC<Props> = ({ supabaseCats, supabaseBios, supabaseError 
 
       <style jsx>{`
         .workspace-page {
-          min-height: 100dvh;
+          height: 100dvh;
           display: flex;
           flex-direction: column;
+          overflow: hidden;
         }
 
         .workspace-page :global(.editor-shell) {

@@ -28,9 +28,10 @@ const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseBios, supabaseErro
 
       <style jsx>{`
         .workspace-page {
-          min-height: 100dvh;
+          height: 100dvh;
           display: flex;
           flex-direction: column;
+          overflow: hidden;
         }
 
         .workspace-page :global(.editor-shell) {

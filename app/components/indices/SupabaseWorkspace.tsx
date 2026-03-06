@@ -7,7 +7,6 @@ import type {
   SupabaseIntroEntry,
 } from "../../../types/supabase";
 import SupabaseRichTextEditor from "./SupabaseRichTextEditor";
-import SupabaseBiosPanel from "./SupabaseBiosPanel";
 
 const toLocalDateTimeInput = (value: string | null) => {
   if (!value) return "";
@@ -74,6 +73,26 @@ const detailToForm = (detail: SupabaseArticleDetail): SupabaseFormState => ({
 type StatusTone = "idle" | "loading" | "saving" | "saved" | "dirty" | "error";
 type WorkspaceMode = "articles" | "bios";
 
+type BioFormState = {
+  id: string;
+  slug: string;
+  name: string;
+  role: string;
+  rank: string;
+  portraitBase: string;
+  bioText: string;
+};
+
+const bioToForm = (entry: SupabaseBioEntry): BioFormState => ({
+  id: entry.id,
+  slug: entry.slug,
+  name: entry.name,
+  role: entry.role ?? "",
+  rank: String(entry.rank),
+  portraitBase: entry.portraitBase ?? "",
+  bioText: entry.bio.join("\n\n"),
+});
+
 export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
 
 type SupabaseWorkspaceProps = {
@@ -125,6 +144,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const [createStatus, setCreateStatus] = useState<"idle" | "creating">("idle");
   const [createError, setCreateError] = useState<string | null>(null);
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting">("idle");
+  const [bioEntries, setBioEntries] = useState<SupabaseBioEntry[]>(bios);
+  const [selectedBioId, setSelectedBioId] = useState<string | null>(bios[0]?.id ?? null);
+  const [bioFormState, setBioFormState] = useState<BioFormState | null>(
+    bios[0] ? bioToForm(bios[0]) : null
+  );
+  const [bioStatus, setBioStatus] = useState<string | null>(null);
+  const [isSavingBio, setIsSavingBio] = useState(false);
   const [introEntries, setIntroEntries] = useState<SupabaseIntroEntry[]>([]);
   const [introStatus, setIntroStatus] = useState<StatusTone>("idle");
   const [introStatusMessage, setIntroStatusMessage] = useState<string | null>(null);
@@ -152,6 +178,27 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       setPanelError(error);
     }
   }, [error]);
+
+  useEffect(() => {
+    setBioEntries(bios);
+    setSelectedBioId((current) => {
+      if (current && bios.some((entry) => entry.id === current)) return current;
+      return bios[0]?.id ?? null;
+    });
+  }, [bios]);
+
+  const selectedBio = useMemo(
+    () => bioEntries.find((entry) => entry.id === selectedBioId) ?? null,
+    [bioEntries, selectedBioId]
+  );
+
+  useEffect(() => {
+    if (!selectedBio) {
+      setBioFormState(null);
+      return;
+    }
+    setBioFormState(bioToForm(selectedBio));
+  }, [selectedBio]);
 
   useEffect(() => {
     if (!supabaseCategories.length) {
@@ -658,6 +705,72 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       setStatusMessage(err instanceof Error ? err.message : "Erreur inconnue");
     }
   }, [refreshCategories, selectedArticleId]);
+
+  const refreshBios = useCallback(async () => {
+    try {
+      const response = await fetch("/api/supabase/bios");
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Impossible de charger les bios.");
+      }
+      const entries = payload.entries ?? [];
+      setBioEntries(entries);
+      setSelectedBioId((current) => {
+        if (current && entries.some((entry: SupabaseBioEntry) => entry.id === current)) {
+          return current;
+        }
+        return entries[0]?.id ?? null;
+      });
+      setBioStatus(null);
+    } catch (err) {
+      setBioStatus(err instanceof Error ? err.message : "Erreur inconnue");
+    }
+  }, []);
+
+  const handleSaveBio = useCallback(async () => {
+    if (!bioFormState) return;
+    const rank = Number(bioFormState.rank);
+    if (!Number.isFinite(rank)) {
+      setBioStatus("Le rang doit être numérique.");
+      return;
+    }
+
+    setIsSavingBio(true);
+    setBioStatus(null);
+
+    try {
+      const response = await fetch("/api/supabase/bios", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: bioFormState.id,
+          slug: bioFormState.slug,
+          name: bioFormState.name,
+          role: bioFormState.role,
+          rank,
+          portraitBase: bioFormState.portraitBase,
+          bio: bioFormState.bioText
+            .split(/\n{2,}/)
+            .map((paragraph) => paragraph.trim())
+            .filter(Boolean),
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Échec de sauvegarde.");
+      }
+
+      const entries = payload.entries ?? [];
+      setBioEntries(entries);
+      setSelectedBioId(bioFormState.id);
+      setBioStatus("Bio sauvegardée.");
+    } catch (err) {
+      setBioStatus(err instanceof Error ? err.message : "Échec de sauvegarde.");
+    } finally {
+      setIsSavingBio(false);
+    }
+  }, [bioFormState]);
 
   const relatedOptions = useMemo(
     () =>
@@ -1175,7 +1288,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           {selectedArticleId && formState ? (
             <>
               <div className="supabase-editor__content">
-                <section className="supabase-editor__primary">
+                <section className="supabase-editor__top">
                   <label className="supabase-editor__field supabase-editor__field--title">
                     <span>Titre</span>
                     <input
@@ -1212,26 +1325,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       </div>
                     </fieldset>
                   </div>
-                </section>
 
-                <section className="supabase-editor__canvas">
-                  <div className="supabase-editor__richtext-header">
-                    <span>Contenu de l’article</span>
-                    <span
-                      className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
-                    >
-                      {digest.label}
-                    </span>
-                  </div>
-                  <SupabaseRichTextEditor
-                    key={articleDetail?.id ?? "new"}
-                    value={formState.bodyMarkdown}
-                    onChange={handleRichTextChange}
-                    placeholder="Écrivez votre article…"
-                  />
-                </section>
-
-                <section className="supabase-editor__details">
                   <div className="supabase-editor__details-grid">
                     <label className="supabase-editor__field">
                       <span>Adresse</span>
@@ -1258,7 +1352,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       />
                     </label>
                     <label className="supabase-editor__field">
-                      <span>Date de publication</span>
+                      <span>Publication</span>
                       <input
                         type="datetime-local"
                         value={formState.publishedAt}
@@ -1269,14 +1363,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
                     <label className="supabase-editor__field">
-                      <span>Résumé (preview)</span>
+                      <span>Résumé pour partage</span>
                       <textarea
                         value={formState.preview}
                         onChange={(event) => updateForm("preview", event.target.value)}
                       />
                     </label>
                     <label className="supabase-editor__field">
-                      <span>Extrait (excerpt)</span>
+                      <span>Extrait affiché sur la catégorie</span>
                       <textarea
                         value={formState.excerpt}
                         onChange={(event) => updateForm("excerpt", event.target.value)}
@@ -1367,26 +1461,43 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
                     </div>
                   )}
-
-                  <footer className="supabase-editor__footer">
-                    <button
-                      type="button"
-                      className="supabase-button supabase-button--primary"
-                      onClick={handleSave}
-                      disabled={status === "saving"}
-                    >
-                      {status === "saving" ? "Enregistrement…" : "Enregistrer"}
-                    </button>
-                    <button
-                      type="button"
-                      className="supabase-button supabase-button--danger"
-                      onClick={handleDelete}
-                      disabled={deleteStatus === "deleting"}
-                    >
-                      {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
-                    </button>
-                  </footer>
                 </section>
+
+                <section className="supabase-editor__canvas">
+                  <div className="supabase-editor__richtext-header">
+                    <span>Contenu de l’article</span>
+                    <span
+                      className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
+                    >
+                      {digest.label}
+                    </span>
+                  </div>
+                  <SupabaseRichTextEditor
+                    key={articleDetail?.id ?? "new"}
+                    value={formState.bodyMarkdown}
+                    onChange={handleRichTextChange}
+                    placeholder="Écrivez votre article…"
+                  />
+                </section>
+
+                <footer className="supabase-editor__footer">
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--primary"
+                    onClick={handleSave}
+                    disabled={status === "saving"}
+                  >
+                    {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                  </button>
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--danger"
+                    onClick={handleDelete}
+                    disabled={deleteStatus === "deleting"}
+                  >
+                    {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
+                  </button>
+                </footer>
               </div>
             </>
           ) : (
@@ -1398,8 +1509,138 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       </div>
 
       ) : (
-        <div className="supabase-workspace supabase-workspace--bios">
-          <SupabaseBiosPanel bios={bios} />
+        <div className="supabase-workspace">
+          <aside className="supabase-workspace__sidebar">
+            <section className="supabase-category">
+              <header className="supabase-category__header">
+                <span className="supabase-category__dot" style={{ backgroundColor: "#6f74d7" }} />
+                <span>Bios</span>
+              </header>
+              <ul className="supabase-category__list">
+                {bioEntries.map((entry) => {
+                  const isActive = selectedBioId === entry.id;
+                  return (
+                    <li key={entry.id}>
+                      <button
+                        type="button"
+                        className={isActive ? "supabase-entry supabase-entry--active" : "supabase-entry"}
+                        onClick={() => {
+                          setSelectedBioId(entry.id);
+                          setBioStatus(null);
+                        }}
+                      >
+                        <span className="supabase-entry__title">{entry.rank}. {entry.name}</span>
+                        <span className="supabase-entry__slug">{entry.slug}</span>
+                        <span className="supabase-entry__status">{entry.role || "Équipe"}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+                {!bioEntries.length && (
+                  <li className="supabase-category__empty">Aucune bio</li>
+                )}
+              </ul>
+            </section>
+          </aside>
+
+          <div className="supabase-workspace__editor">
+            {bioFormState ? (
+              <div className="supabase-editor__content">
+                <section className="supabase-editor__top">
+                  <div className="supabase-editor__details-grid">
+                    <label className="supabase-editor__field">
+                      <span>Nom</span>
+                      <input
+                        value={bioFormState.name}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, name: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Slug</span>
+                      <input
+                        value={bioFormState.slug}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, slug: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Rôle</span>
+                      <input
+                        value={bioFormState.role}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, role: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Rang</span>
+                      <input
+                        value={bioFormState.rank}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, rank: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Portrait base</span>
+                      <input
+                        value={bioFormState.portraitBase}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, portraitBase: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Bio</span>
+                      <textarea
+                        rows={10}
+                        value={bioFormState.bioText}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, bioText: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+                </section>
+
+                <footer className="supabase-editor__footer">
+                  {bioStatus && <span className="supabase-editor__status">{bioStatus}</span>}
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--ghost"
+                    onClick={refreshBios}
+                  >
+                    Actualiser
+                  </button>
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--primary"
+                    onClick={handleSaveBio}
+                    disabled={isSavingBio}
+                  >
+                    {isSavingBio ? "Enregistrement…" : "Enregistrer"}
+                  </button>
+                </footer>
+              </div>
+            ) : (
+              <div className="supabase-workspace__empty">Sélectionnez une bio pour commencer.</div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1964,8 +2205,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           background: linear-gradient(140deg, #ffffff 0%, #f4f5fb 100%);
           display: flex;
           flex-direction: column;
-          gap: 18px;
-          overflow: visible;
+          gap: 10px;
+          overflow: hidden;
         }
         .supabase-workspace__empty {
           margin: auto;
@@ -2023,9 +2264,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           overflow-y: auto;
           padding-right: 6px;
         }
-        .supabase-editor__primary,
-        .supabase-editor__canvas,
-        .supabase-editor__details {
+        .supabase-editor__top,
+        .supabase-editor__canvas {
           background: #ffffff;
           border: 1px solid rgba(0, 0, 0, 0.05);
           padding: 12px;
@@ -2033,15 +2273,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex-direction: column;
           gap: 8px;
         }
-        .supabase-editor__primary {
+        .supabase-editor__top {
           border-radius: 14px 14px 10px 10px;
-        }
-        .supabase-editor__details {
-          border-radius: 10px;
         }
         .supabase-editor__canvas {
           flex: 1;
-          min-height: 0;
+          min-height: 320px;
           border-radius: 10px 10px 14px 14px;
           box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 8px 18px rgba(17, 18, 31, 0.04);
         }
@@ -2191,11 +2428,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-size: 13px;
           color: #5a5c62;
         }
-        .supabase-editor__details {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
         .supabase-editor__details-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -2211,6 +2443,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__stack > * {
           margin: 0;
+        }
+        .supabase-editor__stack .supabase-editor__field {
+          flex: 0 0 auto;
         }
         .supabase-editor__field textarea {
           min-height: 120px;
@@ -2313,17 +2548,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             grid-template-columns: minmax(0, 1fr);
           }
         }
-        @media (max-width: 1080px) {
+        @media (max-width: 720px) {
           .supabase-workspace {
             grid-template-columns: minmax(0, 1fr);
-            grid-template-rows: minmax(0, 320px) minmax(0, 1fr);
+            grid-template-rows: minmax(0, 220px) minmax(0, 1fr);
           }
           .supabase-workspace__sidebar {
-            max-height: none;
             padding-right: 0;
           }
-        }
-        @media (max-width: 720px) {
+
           .supabase-panel__header {
             flex-direction: column;
             align-items: flex-start;
