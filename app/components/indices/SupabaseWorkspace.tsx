@@ -1318,7 +1318,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       placeholder="Titre de l’article"
                     />
                   </label>
-                  <div className="supabase-editor__details-grid">
+                  <div className="supabase-editor__details-grid supabase-editor__details-grid--identity">
                     <label className="supabase-editor__field">
                       <span>Auteur·rice</span>
                       <input
@@ -1335,6 +1335,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                         placeholder="exemple-d’article"
                       />
                     </label>
+                  </div>
+
+                  <div className="supabase-editor__details-grid supabase-editor__details-grid--taxonomy">
                     <fieldset className="supabase-editor__field supabase-editor__field--categories">
                       <legend>Catégories</legend>
                       <div className="supabase-editor__categories">
@@ -1353,7 +1356,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                         })}
                       </div>
                     </fieldset>
-                    <label className="supabase-editor__field supabase-editor__field--checkbox supabase-editor__field--compact">
+                    <label className="supabase-editor__field supabase-editor__field--checkbox supabase-editor__field--status">
                       <input
                         type="checkbox"
                         checked={formState.status}
@@ -1361,6 +1364,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       />
                       <span>Article publié</span>
                     </label>
+                  </div>
+
+                  <div className="supabase-editor__details-grid supabase-editor__details-grid--dates">
                     <label className="supabase-editor__field supabase-editor__field--compact">
                       <span>Date éditoriale</span>
                       <input
@@ -2402,7 +2408,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           padding: 0;
           margin: 0;
           min-width: 0;
-          grid-column: span 2;
         }
         .supabase-editor__field--categories .supabase-editor__categories {
           display: flex;
@@ -2414,8 +2419,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__categories label {
           border: 1px solid rgba(0, 0, 0, 0.14);
           border-radius: 999px;
-          padding: 5px 10px;
-          font-size: 11px;
+          padding: 4px 9px;
+          font-size: 10px;
           text-transform: none;
           letter-spacing: 0;
           display: inline-flex;
@@ -2525,8 +2530,18 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__details-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 10px;
+        }
+        .supabase-editor__details-grid--identity {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .supabase-editor__details-grid--taxonomy {
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: end;
+        }
+        .supabase-editor__details-grid--dates {
+          grid-template-columns: repeat(2, minmax(200px, 1fr));
         }
         .supabase-editor__details-grid--wide {
           grid-template-columns: minmax(0, 1fr);
@@ -2556,11 +2571,21 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__field--checkbox {
           flex-direction: row;
           align-items: center;
-          gap: 10px;
-          font-size: 12px;
+          justify-content: center;
+          gap: 8px;
+          font-size: 11px;
           text-transform: none;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.03em;
           color: #2a2c34;
+        }
+        .supabase-editor__field--status {
+          flex: 0 0 auto;
+          min-width: fit-content;
+          padding: 8px 10px;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          border-radius: 12px;
+          background: #f9f9fd;
+          align-self: end;
         }
         .supabase-editor__field--checkbox input {
           width: 18px;
@@ -2640,11 +2665,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-size: 13px;
         }
         @media (max-width: 900px) {
-          .supabase-editor__primary-row {
-            flex-direction: column;
+          .supabase-editor__details-grid,
+          .supabase-editor__details-grid--identity,
+          .supabase-editor__details-grid--taxonomy,
+          .supabase-editor__details-grid--dates {
+            grid-template-columns: minmax(0, 1fr);
           }
-          .supabase-editor__field--categories {
-            min-width: 0;
+          .supabase-editor__field--status {
+            justify-content: flex-start;
+            width: fit-content;
           }
           .supabase-intros__body {
             grid-template-columns: minmax(0, 1fr);
