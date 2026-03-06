@@ -7,6 +7,7 @@ import type {
   SupabaseIntroEntry,
 } from "../../../types/supabase";
 import SupabaseRichTextEditor from "./SupabaseRichTextEditor";
+import SupabaseBiosPanel from "./SupabaseBiosPanel";
 
 const toLocalDateTimeInput = (value: string | null) => {
   if (!value) return "";
@@ -71,6 +72,7 @@ const detailToForm = (detail: SupabaseArticleDetail): SupabaseFormState => ({
 });
 
 type StatusTone = "idle" | "loading" | "saving" | "saved" | "dirty" | "error";
+type WorkspaceMode = "articles" | "bios";
 
 export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
 
@@ -95,7 +97,7 @@ type DirectoryArticle = {
 
 const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   categories,
-  bios: _bios,
+  bios = [],
   error,
   variant = "admin",
 }) => {
@@ -111,6 +113,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const dirtyRef = useRef(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [currentMode, setCurrentMode] = useState<WorkspaceMode>("articles");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [createDraft, setCreateDraft] = useState({
     title: "",
     slug: "",
@@ -412,6 +416,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const refreshCategories = useCallback(
     async (focusArticleId?: string) => {
+      setIsRefreshing(true);
       try {
         const response = await fetch("/api/supabase/articles");
         const payload = await response.json();
@@ -432,6 +437,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
       } catch (err) {
         setPanelError(err instanceof Error ? err.message : "Erreur inconnue");
+      } finally {
+        setIsRefreshing(false);
       }
     },
     [fetchArticle]
@@ -737,7 +744,42 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   return (
     <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
-        <div className="supabase-panel__intro">
+        <div className="supabase-panel__left">
+          <div className="supabase-panel__mode-toggle" role="tablist" aria-label="Mode d’édition">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={currentMode === "articles"}
+              className={
+                currentMode === "articles"
+                  ? "supabase-panel__mode-btn supabase-panel__mode-btn--active"
+                  : "supabase-panel__mode-btn"
+              }
+              onClick={() => setCurrentMode("articles")}
+            >
+              Articles
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={currentMode === "bios"}
+              className={
+                currentMode === "bios"
+                  ? "supabase-panel__mode-btn supabase-panel__mode-btn--active"
+                  : "supabase-panel__mode-btn"
+              }
+              onClick={() => setCurrentMode("bios")}
+            >
+              Bios
+            </button>
+          </div>
+          <p className="supabase-panel__subtitle">
+            {currentMode === "articles"
+              ? `${articleCount} article${articleCount > 1 ? "s" : ""} en ligne`
+              : `${bios.length} bio${bios.length > 1 ? "s" : ""} disponibles`}
+          </p>
+        </div>
+        <div className="supabase-panel__right">
           {canShowSession && (
             <div className="supabase-panel__session">
               <div className="supabase-panel__session-info">
@@ -753,37 +795,40 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
               </button>
             </div>
           )}
-          <p className="supabase-panel__subtitle">
-            {articleCount} article{articleCount > 1 ? "s" : ""} en ligne
-          </p>
-        </div>
-        <div className="supabase-panel__actions">
-          <button
-            type="button"
-            className="supabase-button supabase-button--ghost"
-            onClick={() => refreshCategories(selectedArticleId ?? undefined)}
-          >
-            Actualiser
-          </button>
-          <button
-            type="button"
-            className="supabase-button"
-            onClick={() => {
-              setCreateOpen((open) => {
-                const nextOpen = !open;
-                if (!open) {
-                  setCreateDraft((draft) => ({
-                    ...draft,
-                    categoryIds: selectedCategoryId ? [selectedCategoryId] : [],
-                  }));
-                }
-                return nextOpen;
-              });
-              setCreateError(null);
-            }}
-          >
-            {createOpen ? "Fermer" : "Nouvel article"}
-          </button>
+          <div className="supabase-panel__actions">
+            <button
+              type="button"
+              className={`supabase-button supabase-button--icon ${isRefreshing ? "is-spinning" : ""}`}
+              onClick={() => refreshCategories(selectedArticleId ?? undefined)}
+              aria-label="Actualiser"
+              title="Actualiser"
+            >
+              ↻
+            </button>
+            {currentMode === "articles" && (
+              <button
+                type="button"
+                className="supabase-button supabase-button--icon"
+                onClick={() => {
+                  setCreateOpen((open) => {
+                    const nextOpen = !open;
+                    if (!open) {
+                      setCreateDraft((draft) => ({
+                        ...draft,
+                        categoryIds: selectedCategoryId ? [selectedCategoryId] : [],
+                      }));
+                    }
+                    return nextOpen;
+                  });
+                  setCreateError(null);
+                }}
+                aria-label={createOpen ? "Fermer la création" : "Nouvel article"}
+                title={createOpen ? "Fermer" : "Nouvel article"}
+              >
+                {createOpen ? "×" : "+"}
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -883,7 +928,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
       {panelError && <div className="supabase-panel__error">{panelError}</div>}
 
-      {createOpen && (
+      {currentMode === "articles" && createOpen && (
         <form className="supabase-create" onSubmit={handleCreate}>
           <div className="supabase-create__row">
             <label>
@@ -977,6 +1022,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         </form>
       )}
 
+      {currentMode === "articles" ? (
       <div
         className={
           isAdmin
@@ -1351,35 +1397,73 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         </div>
       </div>
 
+      ) : (
+        <div className="supabase-workspace supabase-workspace--bios">
+          <SupabaseBiosPanel bios={bios} />
+        </div>
+      )}
+
       <style jsx>{`
         .supabase-panel {
           width: 100%;
           height: 100%;
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 12px;
           overflow: hidden;
         }
         .supabase-panel__header {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           justify-content: space-between;
-          gap: 16px;
-          padding-bottom: 12px;
+          gap: 10px;
+          padding-bottom: 10px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.08);
           flex-shrink: 0;
         }
-        .supabase-panel__intro {
+        .supabase-panel__left {
           display: flex;
           flex-direction: column;
           gap: 6px;
+          min-width: 0;
+        }
+        .supabase-panel__right {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          min-width: 0;
+        }
+        .supabase-panel__mode-toggle {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 3px;
+          border-radius: 999px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          background: #f4f5fb;
+        }
+        .supabase-panel__mode-btn {
+          border: none;
+          background: transparent;
+          border-radius: 999px;
+          padding: 6px 10px;
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #5a5c62;
+          cursor: pointer;
+        }
+        .supabase-panel__mode-btn--active {
+          color: #1f2024;
+          background: #ffffff;
+          box-shadow: 0 1px 4px rgba(18, 19, 27, 0.1);
         }
         .supabase-panel__session {
           display: inline-flex;
           align-items: center;
-          gap: 14px;
-          padding: 10px 16px;
-          border-radius: 18px;
+          gap: 10px;
+          padding: 7px 10px;
+          border-radius: 14px;
           border: 1px solid rgba(0, 0, 0, 0.08);
           background: rgba(255, 255, 255, 0.6);
           box-shadow: 0 10px 24px rgba(18, 19, 27, 0.08);
@@ -1393,13 +1477,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           min-width: 0;
         }
         .supabase-panel__session-label {
-          font-size: 10px;
+          font-size: 9px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
           color: #6b6e76;
         }
         .supabase-panel__session-email {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
           color: #1c1e24;
           white-space: nowrap;
@@ -1409,8 +1493,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-panel__signout {
           border: none;
           border-radius: 999px;
-          padding: 8px 16px;
-          font-size: 10px;
+          padding: 6px 10px;
+          font-size: 9px;
           letter-spacing: 0.16em;
           text-transform: uppercase;
           background: #1f2024;
@@ -1427,7 +1511,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-panel__actions {
           display: flex;
-          gap: 12px;
+          gap: 8px;
         }
         .supabase-panel__error {
           padding: 12px 16px;
@@ -1530,7 +1614,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-button {
           border: none;
           border-radius: 999px;
-          padding: 10px 18px;
+          padding: 8px 12px;
           font-size: 12px;
           text-transform: uppercase;
           letter-spacing: 0.18em;
@@ -1548,6 +1632,26 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-button--danger {
           background: #a62f21;
+        }
+        .supabase-button--icon {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          letter-spacing: 0;
+          text-transform: none;
+          line-height: 1;
+        }
+        .supabase-button--icon.is-spinning {
+          animation: supabase-spin 0.9s linear infinite;
+        }
+        @keyframes supabase-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         .supabase-create {
           display: flex;
@@ -1640,13 +1744,17 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
           display: grid;
-          grid-template-columns: 320px minmax(0, 1fr);
-          gap: 24px;
+          grid-template-columns: 300px minmax(0, 1fr);
+          gap: 12px;
+          overflow: hidden;
         }
         .supabase-workspace--admin {
           grid-template-columns: minmax(0, 1fr);
-          grid-template-rows: minmax(0, 320px) minmax(0, 1fr);
-          gap: 18px;
+          grid-template-rows: minmax(0, 300px) minmax(0, 1fr);
+          gap: 10px;
+        }
+        .supabase-workspace--bios {
+          grid-template-columns: minmax(0, 1fr);
         }
         .supabase-workspace__sidebar {
           min-height: 0;
@@ -1851,8 +1959,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 20px;
-          padding: 20px;
+          border-radius: 16px;
+          padding: 12px;
           background: linear-gradient(140deg, #ffffff 0%, #f4f5fb 100%);
           display: flex;
           flex-direction: column;
@@ -1909,7 +2017,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__content {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 8px;
           flex: 1;
           min-height: 0;
           overflow-y: auto;
@@ -1919,17 +2027,23 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__canvas,
         .supabase-editor__details {
           background: #ffffff;
-          border-radius: 16px;
           border: 1px solid rgba(0, 0, 0, 0.05);
-          padding: 18px;
+          padding: 12px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 8px;
+        }
+        .supabase-editor__primary {
+          border-radius: 14px 14px 10px 10px;
+        }
+        .supabase-editor__details {
+          border-radius: 10px;
         }
         .supabase-editor__canvas {
           flex: 1;
           min-height: 0;
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 18px 36px rgba(17, 18, 31, 0.06);
+          border-radius: 10px 10px 14px 14px;
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 8px 18px rgba(17, 18, 31, 0.04);
         }
         .supabase-editor__primary-row {
           display: flex;
@@ -1959,7 +2073,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__field input,
         .supabase-editor__field textarea,
         .supabase-editor__field select {
-          padding: 11px 14px;
+          padding: 8px 10px;
           border-radius: 12px;
           border: 1px solid rgba(0, 0, 0, 0.12);
           background: #f9f9fd;
@@ -2046,9 +2160,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           flex: 1;
           min-height: 0;
+          height: 100%;
+          overflow-y: auto;
         }
         .supabase-rich-text .ql-editor {
           line-height: 1.35;
+          min-height: 100%;
+          height: 100%;
+          overflow-y: auto;
         }
         .supabase-rich-text .ql-editor img {
           display: block;

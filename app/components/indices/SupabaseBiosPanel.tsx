@@ -64,9 +64,7 @@ const SupabaseBiosPanel: React.FC<Props> = ({ bios }) => {
   };
 
   const save = async () => {
-    if (!editState) {
-      return;
-    }
+    if (!editState) return;
 
     const rank = Number(editState.rank);
     if (!Number.isFinite(rank)) {
@@ -111,25 +109,26 @@ const SupabaseBiosPanel: React.FC<Props> = ({ bios }) => {
 
   return (
     <section className="bios-panel">
-      <header>
+      <header className="bios-panel__header">
         <h3>Bios de l’équipe</h3>
-        <button onClick={refresh} type="button">Rafraîchir</button>
+        <button onClick={refresh} type="button" className="bios-panel__refresh">↻</button>
       </header>
       <div className="bios-panel__body">
-        <aside>
+        <aside className="bios-panel__list">
           {entries.map((entry) => (
             <button
               key={entry.id}
               type="button"
-              className={entry.id === selectedId ? "active" : ""}
+              className={entry.id === selectedId ? "bios-panel__entry bios-panel__entry--active" : "bios-panel__entry"}
               onClick={() => setSelectedId(entry.id)}
             >
-              {entry.rank}. {entry.name}
+              <span>{entry.rank}. {entry.name}</span>
+              <small>{entry.slug}</small>
             </button>
           ))}
         </aside>
         {editState ? (
-          <div className="form">
+          <div className="bios-panel__form">
             <input value={editState.name} onChange={(e) => setEditState({ ...editState, name: e.target.value })} placeholder="Nom" />
             <input value={editState.slug} onChange={(e) => setEditState({ ...editState, slug: e.target.value })} placeholder="Slug" />
             <input value={editState.role} onChange={(e) => setEditState({ ...editState, role: e.target.value })} placeholder="Rôle" />
@@ -145,24 +144,37 @@ const SupabaseBiosPanel: React.FC<Props> = ({ bios }) => {
               rows={10}
               placeholder="Biographie (paragraphes séparés par une ligne vide)"
             />
-            <button onClick={save} type="button" disabled={saving}>
-              {saving ? "Sauvegarde…" : "Sauvegarder"}
-            </button>
-            {status && <p>{status}</p>}
+            <div className="bios-panel__footer">
+              <button onClick={save} type="button" disabled={saving}>
+                {saving ? "Sauvegarde…" : "Sauvegarder"}
+              </button>
+              {status && <p>{status}</p>}
+            </div>
           </div>
         ) : (
-          <p>Aucune bio sélectionnée.</p>
+          <p className="bios-panel__empty">Sélectionnez une bio pour commencer.</p>
         )}
       </div>
       <style jsx>{`
-        .bios-panel { border: 1px solid rgba(0,0,0,.08); border-radius: 12px; padding: 14px; margin-top: 16px; }
-        header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-        .bios-panel__body { display:grid; grid-template-columns: 260px 1fr; gap: 12px; }
-        aside { display:flex; flex-direction:column; gap: 6px; max-height: 500px; overflow:auto; }
-        aside button { text-align:left; border:1px solid #ddd; background:#fff; padding:8px; border-radius:8px; }
-        aside button.active { border-color:#2b7a4a; }
-        .form { display:grid; gap:8px; }
-        input, textarea { border:1px solid #ddd; border-radius:8px; padding:8px; font:inherit; }
+        .bios-panel { border: 1px solid rgba(0,0,0,.08); border-radius: 14px; padding: 10px; min-height: 0; display:flex; flex-direction:column; overflow:hidden; }
+        .bios-panel__header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .bios-panel__header h3 { margin:0; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#5a5c62; }
+        .bios-panel__refresh { width:30px; height:30px; border-radius:50%; border:none; background:#1f1f22; color:#fff; cursor:pointer; }
+        .bios-panel__body { display:grid; grid-template-columns: 240px minmax(0,1fr); gap: 10px; min-height:0; flex:1; overflow:hidden; }
+        .bios-panel__list { display:flex; flex-direction:column; gap:6px; overflow-y:auto; min-height:0; }
+        .bios-panel__entry { text-align:left; border:1px solid rgba(0,0,0,.08); background:#fff; padding:8px 10px; border-radius:10px; display:flex; flex-direction:column; gap:2px; }
+        .bios-panel__entry small { color:#787a80; }
+        .bios-panel__entry--active { border-color: rgba(36,119,70,.35); box-shadow: inset 0 0 0 1px rgba(36,119,70,.2); }
+        .bios-panel__form { display:grid; gap:8px; min-height:0; overflow-y:auto; padding-right:4px; }
+        .bios-panel__form input, .bios-panel__form textarea { border:1px solid rgba(0,0,0,.12); border-radius:10px; padding:8px 10px; font:inherit; }
+        .bios-panel__footer { display:flex; align-items:center; gap:8px; }
+        .bios-panel__footer button { border:none; border-radius:999px; padding:8px 12px; background:#2b7a4a; color:#fff; text-transform:uppercase; font-size:11px; letter-spacing:.08em; }
+        .bios-panel__footer p { margin:0; font-size:12px; color:#5a5c62; }
+        .bios-panel__empty { margin:0; border:1px dashed rgba(0,0,0,.15); border-radius:10px; padding:18px; color:#7a7c82; font-size:12px; align-self:center; }
+        @media (max-width: 900px) {
+          .bios-panel__body { grid-template-columns: minmax(0,1fr); }
+          .bios-panel__list { max-height: 220px; }
+        }
       `}</style>
     </section>
   );

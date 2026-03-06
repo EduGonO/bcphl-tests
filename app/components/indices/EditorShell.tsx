@@ -2,7 +2,6 @@ import React from "react";
 import SupabaseWorkspace, {
   type SupabaseWorkspaceVariant,
 } from "./SupabaseWorkspace";
-import SupabaseBiosPanel from "./SupabaseBiosPanel";
 import type { SupabaseBioEntry, SupabaseCategorySummary } from "../../../types/supabase";
 
 type EditorShellProps = {
@@ -27,14 +26,13 @@ const EditorShell: React.FC<EditorShellProps> = ({
           error={error}
           variant={variant}
         />
-        <SupabaseBiosPanel bios={bios} />
       </section>
 
       <style jsx>{`
         .editor-shell {
           flex: 1;
           min-height: 0;
-          padding: 28px 28px 36px;
+          padding: 18px 22px;
           background: linear-gradient(160deg, #f7f7fb 0%, #eef0f8 100%);
           display: flex;
           justify-content: center;
@@ -53,27 +51,28 @@ const EditorShell: React.FC<EditorShellProps> = ({
           padding: 28px 32px;
           display: flex;
           flex-direction: column;
-          height: 100%;
+          flex: 1;
+          min-height: 0;
           overflow: hidden;
         }
 
         @media (max-width: 1024px) {
           .editor-shell {
-            padding: 24px 22px 32px;
+            padding: 14px 16px;
           }
 
           .editor-shell__workspace {
-            padding: 24px 26px;
+            padding: 20px;
           }
         }
 
         @media (max-width: 640px) {
           .editor-shell {
-            padding: 18px 16px 26px;
+            padding: 10px 12px;
           }
 
           .editor-shell__workspace {
-            padding: 20px 18px;
+            padding: 14px;
             border-radius: 18px;
           }
         }
