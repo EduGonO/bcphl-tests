@@ -10,6 +10,7 @@ export type SupabaseArticleSummary = {
   preview: string | null;
   excerpt: string | null;
   headerImagePath: string | null;
+  bodyMarkdown: string | null;
   sortOrder: number;
 };
 

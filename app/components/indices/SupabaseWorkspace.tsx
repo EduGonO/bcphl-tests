@@ -36,6 +36,28 @@ const formatDateTime = (value: string | null): string => {
   });
 };
 
+
+
+const toPreviewText = (article: {
+  excerpt: string | null;
+  preview: string | null;
+  bodyMarkdown?: string | null;
+}): string => {
+  const fallback = (article.bodyMarkdown ?? "")
+    .replace(/^\s*```[\s\S]*?```\s*/gm, " ")
+    .replace(/^\s*>\s?/gm, "")
+    .replace(/^\s*#{1,6}\s+/gm, "")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
+    .replace(/\[[^\]]+\]\(([^)]+)\)/g, "$1")
+    .replace(/[*_~`>#-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return (article.excerpt || article.preview || fallback || "Contenu non renseigné")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
 type SupabaseFormState = {
   title: string;
   slug: string;
@@ -1269,11 +1291,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                             aria-hidden
                           />
                           <span className="supabase-entry__title">{article.title}</span>
-                          <span className="supabase-entry__preview">
-                            {(article.excerpt || article.preview || "Contenu non renseigné")
-                              .replace(/\s+/g, " ")
-                              .trim()}
-                          </span>
+                          <span className="supabase-entry__preview">{toPreviewText(article)}</span>
                         </button>
                       </li>
                     );
@@ -1300,13 +1318,21 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       placeholder="Titre de l’article"
                     />
                   </label>
-                  <div className="supabase-editor__primary-row">
+                  <div className="supabase-editor__details-grid">
                     <label className="supabase-editor__field">
                       <span>Auteur·rice</span>
                       <input
                         value={formState.authorName}
                         onChange={(event) => updateForm("authorName", event.target.value)}
                         placeholder="Nom de l’auteur·rice"
+                      />
+                    </label>
+                    <label className="supabase-editor__field">
+                      <span>Adresse</span>
+                      <input
+                        value={formState.slug}
+                        onChange={(event) => updateForm("slug", event.target.value)}
+                        placeholder="exemple-d’article"
                       />
                     </label>
                     <fieldset className="supabase-editor__field supabase-editor__field--categories">
@@ -1327,17 +1353,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                         })}
                       </div>
                     </fieldset>
-                  </div>
-
-                  <div className="supabase-editor__details-grid">
-                    <label className="supabase-editor__field">
-                      <span>Adresse</span>
-                      <input
-                        value={formState.slug}
-                        onChange={(event) => updateForm("slug", event.target.value)}
-                        placeholder="exemple-d’article"
-                      />
-                    </label>
                     <label className="supabase-editor__field supabase-editor__field--checkbox supabase-editor__field--compact">
                       <input
                         type="checkbox"
@@ -1999,6 +2014,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-workspace__sidebar {
           min-height: 0;
           overflow-y: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
           display: flex;
           flex-direction: column;
           gap: 16px;
@@ -2018,6 +2035,16 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
           overflow: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .supabase-workspace__sidebar::-webkit-scrollbar,
+        .supabase-workspace__editor::-webkit-scrollbar,
+        .supabase-table__scroll::-webkit-scrollbar,
+        .supabase-rich-text .ql-container::-webkit-scrollbar,
+        .supabase-rich-text .ql-editor::-webkit-scrollbar {
+          width: 0;
+          height: 0;
         }
         .supabase-table {
           width: 100%;
@@ -2213,6 +2240,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-workspace__editor {
           flex: 1;
           min-height: 0;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 16px;
           padding: 12px;
@@ -2372,13 +2401,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           border: none;
           padding: 0;
           margin: 0;
-          min-width: 260px;
+          min-width: 0;
+          grid-column: span 2;
         }
         .supabase-editor__field--categories .supabase-editor__categories {
           display: flex;
-          flex-wrap: nowrap;
+          flex-wrap: wrap;
           gap: 8px;
-          overflow-x: auto;
+          overflow: visible;
           padding-bottom: 2px;
         }
         .supabase-editor__categories label {
@@ -2455,6 +2485,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-rich-text .ql-container {
           border: none;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
           font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           flex: 1;
           min-height: 0;
@@ -2463,6 +2495,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-rich-text .ql-editor {
           line-height: 1.35;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
           min-height: 100%;
           height: 100%;
           overflow-y: auto;
