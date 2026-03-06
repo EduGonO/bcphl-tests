@@ -71,6 +71,27 @@ const detailToForm = (detail: SupabaseArticleDetail): SupabaseFormState => ({
 });
 
 type StatusTone = "idle" | "loading" | "saving" | "saved" | "dirty" | "error";
+type WorkspaceMode = "articles" | "bios";
+
+type BioFormState = {
+  id: string;
+  slug: string;
+  name: string;
+  role: string;
+  rank: string;
+  portraitBase: string;
+  bioText: string;
+};
+
+const bioToForm = (entry: SupabaseBioEntry): BioFormState => ({
+  id: entry.id,
+  slug: entry.slug,
+  name: entry.name,
+  role: entry.role ?? "",
+  rank: String(entry.rank),
+  portraitBase: entry.portraitBase ?? "",
+  bioText: entry.bio.join("\n\n"),
+});
 
 export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
 
@@ -95,7 +116,7 @@ type DirectoryArticle = {
 
 const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   categories,
-  bios: _bios,
+  bios = [],
   error,
   variant = "admin",
 }) => {
@@ -111,6 +132,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const dirtyRef = useRef(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [currentMode, setCurrentMode] = useState<WorkspaceMode>("articles");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [createDraft, setCreateDraft] = useState({
     title: "",
     slug: "",
@@ -121,6 +144,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const [createStatus, setCreateStatus] = useState<"idle" | "creating">("idle");
   const [createError, setCreateError] = useState<string | null>(null);
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting">("idle");
+  const [bioEntries, setBioEntries] = useState<SupabaseBioEntry[]>(bios);
+  const [selectedBioId, setSelectedBioId] = useState<string | null>(bios[0]?.id ?? null);
+  const [bioFormState, setBioFormState] = useState<BioFormState | null>(
+    bios[0] ? bioToForm(bios[0]) : null
+  );
+  const [bioStatus, setBioStatus] = useState<string | null>(null);
+  const [isSavingBio, setIsSavingBio] = useState(false);
   const [introEntries, setIntroEntries] = useState<SupabaseIntroEntry[]>([]);
   const [introStatus, setIntroStatus] = useState<StatusTone>("idle");
   const [introStatusMessage, setIntroStatusMessage] = useState<string | null>(null);
@@ -148,6 +178,27 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       setPanelError(error);
     }
   }, [error]);
+
+  useEffect(() => {
+    setBioEntries(bios);
+    setSelectedBioId((current) => {
+      if (current && bios.some((entry) => entry.id === current)) return current;
+      return bios[0]?.id ?? null;
+    });
+  }, [bios]);
+
+  const selectedBio = useMemo(
+    () => bioEntries.find((entry) => entry.id === selectedBioId) ?? null,
+    [bioEntries, selectedBioId]
+  );
+
+  useEffect(() => {
+    if (!selectedBio) {
+      setBioFormState(null);
+      return;
+    }
+    setBioFormState(bioToForm(selectedBio));
+  }, [selectedBio]);
 
   useEffect(() => {
     if (!supabaseCategories.length) {
@@ -412,6 +463,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const refreshCategories = useCallback(
     async (focusArticleId?: string) => {
+      setIsRefreshing(true);
       try {
         const response = await fetch("/api/supabase/articles");
         const payload = await response.json();
@@ -432,6 +484,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
       } catch (err) {
         setPanelError(err instanceof Error ? err.message : "Erreur inconnue");
+      } finally {
+        setIsRefreshing(false);
       }
     },
     [fetchArticle]
@@ -652,6 +706,72 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     }
   }, [refreshCategories, selectedArticleId]);
 
+  const refreshBios = useCallback(async () => {
+    try {
+      const response = await fetch("/api/supabase/bios");
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Impossible de charger les bios.");
+      }
+      const entries = payload.entries ?? [];
+      setBioEntries(entries);
+      setSelectedBioId((current) => {
+        if (current && entries.some((entry: SupabaseBioEntry) => entry.id === current)) {
+          return current;
+        }
+        return entries[0]?.id ?? null;
+      });
+      setBioStatus(null);
+    } catch (err) {
+      setBioStatus(err instanceof Error ? err.message : "Erreur inconnue");
+    }
+  }, []);
+
+  const handleSaveBio = useCallback(async () => {
+    if (!bioFormState) return;
+    const rank = Number(bioFormState.rank);
+    if (!Number.isFinite(rank)) {
+      setBioStatus("Le rang doit être numérique.");
+      return;
+    }
+
+    setIsSavingBio(true);
+    setBioStatus(null);
+
+    try {
+      const response = await fetch("/api/supabase/bios", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: bioFormState.id,
+          slug: bioFormState.slug,
+          name: bioFormState.name,
+          role: bioFormState.role,
+          rank,
+          portraitBase: bioFormState.portraitBase,
+          bio: bioFormState.bioText
+            .split(/\n{2,}/)
+            .map((paragraph) => paragraph.trim())
+            .filter(Boolean),
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Échec de sauvegarde.");
+      }
+
+      const entries = payload.entries ?? [];
+      setBioEntries(entries);
+      setSelectedBioId(bioFormState.id);
+      setBioStatus("Bio sauvegardée.");
+    } catch (err) {
+      setBioStatus(err instanceof Error ? err.message : "Échec de sauvegarde.");
+    } finally {
+      setIsSavingBio(false);
+    }
+  }, [bioFormState]);
+
   const relatedOptions = useMemo(
     () =>
       sortedArticles
@@ -737,7 +857,42 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   return (
     <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
-        <div className="supabase-panel__intro">
+        <div className="supabase-panel__left">
+          <div className="supabase-panel__mode-toggle" role="tablist" aria-label="Mode d’édition">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={currentMode === "articles"}
+              className={
+                currentMode === "articles"
+                  ? "supabase-panel__mode-btn supabase-panel__mode-btn--active"
+                  : "supabase-panel__mode-btn"
+              }
+              onClick={() => setCurrentMode("articles")}
+            >
+              Articles
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={currentMode === "bios"}
+              className={
+                currentMode === "bios"
+                  ? "supabase-panel__mode-btn supabase-panel__mode-btn--active"
+                  : "supabase-panel__mode-btn"
+              }
+              onClick={() => setCurrentMode("bios")}
+            >
+              Bios
+            </button>
+          </div>
+          <p className="supabase-panel__subtitle">
+            {currentMode === "articles"
+              ? `${articleCount} article${articleCount > 1 ? "s" : ""} en ligne`
+              : `${bios.length} bio${bios.length > 1 ? "s" : ""} disponibles`}
+          </p>
+        </div>
+        <div className="supabase-panel__right">
           {canShowSession && (
             <div className="supabase-panel__session">
               <div className="supabase-panel__session-info">
@@ -753,37 +908,40 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
               </button>
             </div>
           )}
-          <p className="supabase-panel__subtitle">
-            {articleCount} article{articleCount > 1 ? "s" : ""} en ligne
-          </p>
-        </div>
-        <div className="supabase-panel__actions">
-          <button
-            type="button"
-            className="supabase-button supabase-button--ghost"
-            onClick={() => refreshCategories(selectedArticleId ?? undefined)}
-          >
-            Actualiser
-          </button>
-          <button
-            type="button"
-            className="supabase-button"
-            onClick={() => {
-              setCreateOpen((open) => {
-                const nextOpen = !open;
-                if (!open) {
-                  setCreateDraft((draft) => ({
-                    ...draft,
-                    categoryIds: selectedCategoryId ? [selectedCategoryId] : [],
-                  }));
-                }
-                return nextOpen;
-              });
-              setCreateError(null);
-            }}
-          >
-            {createOpen ? "Fermer" : "Nouvel article"}
-          </button>
+          <div className="supabase-panel__actions">
+            <button
+              type="button"
+              className={`supabase-button supabase-button--icon ${isRefreshing ? "is-spinning" : ""}`}
+              onClick={() => refreshCategories(selectedArticleId ?? undefined)}
+              aria-label="Actualiser"
+              title="Actualiser"
+            >
+              ↻
+            </button>
+            {currentMode === "articles" && (
+              <button
+                type="button"
+                className="supabase-button supabase-button--icon"
+                onClick={() => {
+                  setCreateOpen((open) => {
+                    const nextOpen = !open;
+                    if (!open) {
+                      setCreateDraft((draft) => ({
+                        ...draft,
+                        categoryIds: selectedCategoryId ? [selectedCategoryId] : [],
+                      }));
+                    }
+                    return nextOpen;
+                  });
+                  setCreateError(null);
+                }}
+                aria-label={createOpen ? "Fermer la création" : "Nouvel article"}
+                title={createOpen ? "Fermer" : "Nouvel article"}
+              >
+                {createOpen ? "×" : "+"}
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -883,7 +1041,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
       {panelError && <div className="supabase-panel__error">{panelError}</div>}
 
-      {createOpen && (
+      {currentMode === "articles" && createOpen && (
         <form className="supabase-create" onSubmit={handleCreate}>
           <div className="supabase-create__row">
             <label>
@@ -977,6 +1135,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         </form>
       )}
 
+      {currentMode === "articles" ? (
       <div
         className={
           isAdmin
@@ -1101,16 +1260,19 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                           }
                           onClick={() => handleSelectArticle(article.id, category.id)}
                         >
-                          <span className="supabase-entry__title">{article.title}</span>
-                          <span className="supabase-entry__slug">{article.slug}</span>
                           <span
                             className={
                               article.status
-                                ? "supabase-entry__status supabase-entry__status--published"
-                                : "supabase-entry__status supabase-entry__status--draft"
+                                ? "supabase-entry__dot supabase-entry__dot--published"
+                                : "supabase-entry__dot supabase-entry__dot--draft"
                             }
-                          >
-                            {article.status ? "Publié" : "Brouillon"}
+                            aria-hidden
+                          />
+                          <span className="supabase-entry__title">{article.title}</span>
+                          <span className="supabase-entry__preview">
+                            {(article.excerpt || article.preview || "Contenu non renseigné")
+                              .replace(/\s+/g, " ")
+                              .trim()}
                           </span>
                         </button>
                       </li>
@@ -1129,7 +1291,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           {selectedArticleId && formState ? (
             <>
               <div className="supabase-editor__content">
-                <section className="supabase-editor__primary">
+                <section className="supabase-editor__top">
                   <label className="supabase-editor__field supabase-editor__field--title">
                     <span>Titre</span>
                     <input
@@ -1166,26 +1328,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       </div>
                     </fieldset>
                   </div>
-                </section>
 
-                <section className="supabase-editor__canvas">
-                  <div className="supabase-editor__richtext-header">
-                    <span>Contenu de l’article</span>
-                    <span
-                      className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
-                    >
-                      {digest.label}
-                    </span>
-                  </div>
-                  <SupabaseRichTextEditor
-                    key={articleDetail?.id ?? "new"}
-                    value={formState.bodyMarkdown}
-                    onChange={handleRichTextChange}
-                    placeholder="Écrivez votre article…"
-                  />
-                </section>
-
-                <section className="supabase-editor__details">
                   <div className="supabase-editor__details-grid">
                     <label className="supabase-editor__field">
                       <span>Adresse</span>
@@ -1195,7 +1338,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                         placeholder="exemple-d’article"
                       />
                     </label>
-                    <label className="supabase-editor__field supabase-editor__field--checkbox">
+                    <label className="supabase-editor__field supabase-editor__field--checkbox supabase-editor__field--compact">
                       <input
                         type="checkbox"
                         checked={formState.status}
@@ -1203,7 +1346,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       />
                       <span>Article publié</span>
                     </label>
-                    <label className="supabase-editor__field">
+                    <label className="supabase-editor__field supabase-editor__field--compact">
                       <span>Date éditoriale</span>
                       <input
                         type="date"
@@ -1211,8 +1354,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                         onChange={(event) => updateForm("authoredDate", event.target.value)}
                       />
                     </label>
-                    <label className="supabase-editor__field">
-                      <span>Date de publication</span>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Publication</span>
                       <input
                         type="datetime-local"
                         value={formState.publishedAt}
@@ -1222,16 +1365,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   </div>
 
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
-                    <label className="supabase-editor__field">
-                      <span>Résumé (preview)</span>
+                    <label className="supabase-editor__field supabase-editor__field--excerpt">
+                      <span>Extrait affiché sur la catégorie</span>
                       <textarea
-                        value={formState.preview}
-                        onChange={(event) => updateForm("preview", event.target.value)}
-                      />
-                    </label>
-                    <label className="supabase-editor__field">
-                      <span>Extrait (excerpt)</span>
-                      <textarea
+                        rows={3}
                         value={formState.excerpt}
                         onChange={(event) => updateForm("excerpt", event.target.value)}
                       />
@@ -1239,8 +1376,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   </div>
 
                   <div className="supabase-editor__stack">
-                    <label className="supabase-editor__field">
-                      <span>Image d’en-tête (URL ou chemin de stockage)</span>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Image d’en-tête</span>
                       <input
                         value={formState.headerImagePath}
                         onChange={(event) => updateForm("headerImagePath", event.target.value)}
@@ -1248,7 +1385,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       />
                     </label>
 
-                    <label className="supabase-editor__field supabase-editor__field--related">
+                    <label className="supabase-editor__field supabase-editor__field--related supabase-editor__field--compact">
                       <span>Articles liés</span>
                       <select
                         multiple
@@ -1321,26 +1458,43 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
                     </div>
                   )}
-
-                  <footer className="supabase-editor__footer">
-                    <button
-                      type="button"
-                      className="supabase-button supabase-button--primary"
-                      onClick={handleSave}
-                      disabled={status === "saving"}
-                    >
-                      {status === "saving" ? "Enregistrement…" : "Enregistrer"}
-                    </button>
-                    <button
-                      type="button"
-                      className="supabase-button supabase-button--danger"
-                      onClick={handleDelete}
-                      disabled={deleteStatus === "deleting"}
-                    >
-                      {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
-                    </button>
-                  </footer>
                 </section>
+
+                <section className="supabase-editor__canvas">
+                  <div className="supabase-editor__richtext-header">
+                    <span>Contenu de l’article</span>
+                    <span
+                      className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
+                    >
+                      {digest.label}
+                    </span>
+                  </div>
+                  <SupabaseRichTextEditor
+                    key={articleDetail?.id ?? "new"}
+                    value={formState.bodyMarkdown}
+                    onChange={handleRichTextChange}
+                    placeholder="Écrivez votre article…"
+                  />
+                </section>
+
+                <footer className="supabase-editor__footer">
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--primary"
+                    onClick={handleSave}
+                    disabled={status === "saving"}
+                  >
+                    {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                  </button>
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--danger"
+                    onClick={handleDelete}
+                    disabled={deleteStatus === "deleting"}
+                  >
+                    {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
+                  </button>
+                </footer>
               </div>
             </>
           ) : (
@@ -1351,35 +1505,205 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         </div>
       </div>
 
+      ) : (
+        <div className="supabase-workspace">
+          <aside className="supabase-workspace__sidebar">
+            <section className="supabase-category">
+              <header className="supabase-category__header">
+                <span className="supabase-category__dot" style={{ backgroundColor: "#6f74d7" }} />
+                <span>Bios</span>
+              </header>
+              <ul className="supabase-category__list">
+                {bioEntries.map((entry) => {
+                  const isActive = selectedBioId === entry.id;
+                  return (
+                    <li key={entry.id}>
+                      <button
+                        type="button"
+                        className={isActive ? "supabase-entry supabase-entry--active" : "supabase-entry"}
+                        onClick={() => {
+                          setSelectedBioId(entry.id);
+                          setBioStatus(null);
+                        }}
+                      >
+                        <span className="supabase-entry__title">{entry.name}</span>
+                        <span className="supabase-entry__preview">
+                          {(entry.bio || []).join(" ").replace(/\s+/g, " ").trim() || "Bio indisponible"}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+                {!bioEntries.length && (
+                  <li className="supabase-category__empty">Aucune bio</li>
+                )}
+              </ul>
+            </section>
+          </aside>
+
+          <div className="supabase-workspace__editor">
+            {bioFormState ? (
+              <div className="supabase-editor__content">
+                <section className="supabase-editor__top">
+                  <div className="supabase-editor__details-grid supabase-editor__details-grid--compact">
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Nom</span>
+                      <input
+                        value={bioFormState.name}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, name: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Slug</span>
+                      <input
+                        value={bioFormState.slug}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, slug: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Rôle</span>
+                      <input
+                        value={bioFormState.role}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, role: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact supabase-editor__field--rank">
+                      <span>Rang</span>
+                      <input
+                        value={bioFormState.rank}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, rank: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Portrait base</span>
+                      <input
+                        value={bioFormState.portraitBase}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, portraitBase: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <label className="supabase-editor__field supabase-editor__field--bio-main">
+                    <span>Bio</span>
+                    <textarea
+                      rows={14}
+                      value={bioFormState.bioText}
+                      onChange={(event) =>
+                        setBioFormState((current) =>
+                          current ? { ...current, bioText: event.target.value } : current
+                        )
+                      }
+                    />
+                  </label>
+                </section>
+
+                <footer className="supabase-editor__footer">
+                  {bioStatus && <span className="supabase-editor__status">{bioStatus}</span>}
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--ghost"
+                    onClick={refreshBios}
+                  >
+                    Actualiser
+                  </button>
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--primary"
+                    onClick={handleSaveBio}
+                    disabled={isSavingBio}
+                  >
+                    {isSavingBio ? "Enregistrement…" : "Enregistrer"}
+                  </button>
+                </footer>
+              </div>
+            ) : (
+              <div className="supabase-workspace__empty">Sélectionnez une bio pour commencer.</div>
+            )}
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .supabase-panel {
           width: 100%;
           height: 100%;
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 12px;
           overflow: hidden;
         }
         .supabase-panel__header {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           justify-content: space-between;
-          gap: 16px;
-          padding-bottom: 12px;
+          gap: 10px;
+          padding-bottom: 10px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.08);
           flex-shrink: 0;
         }
-        .supabase-panel__intro {
+        .supabase-panel__left {
           display: flex;
           flex-direction: column;
           gap: 6px;
+          min-width: 0;
+        }
+        .supabase-panel__right {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          min-width: 0;
+        }
+        .supabase-panel__mode-toggle {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 3px;
+          border-radius: 999px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          background: #f4f5fb;
+        }
+        .supabase-panel__mode-btn {
+          border: none;
+          background: transparent;
+          border-radius: 999px;
+          padding: 6px 10px;
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #5a5c62;
+          cursor: pointer;
+        }
+        .supabase-panel__mode-btn--active {
+          color: #1f2024;
+          background: #ffffff;
+          box-shadow: 0 1px 4px rgba(18, 19, 27, 0.1);
         }
         .supabase-panel__session {
           display: inline-flex;
           align-items: center;
-          gap: 14px;
-          padding: 10px 16px;
-          border-radius: 18px;
+          gap: 10px;
+          padding: 7px 10px;
+          border-radius: 14px;
           border: 1px solid rgba(0, 0, 0, 0.08);
           background: rgba(255, 255, 255, 0.6);
           box-shadow: 0 10px 24px rgba(18, 19, 27, 0.08);
@@ -1393,13 +1717,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           min-width: 0;
         }
         .supabase-panel__session-label {
-          font-size: 10px;
+          font-size: 9px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
           color: #6b6e76;
         }
         .supabase-panel__session-email {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
           color: #1c1e24;
           white-space: nowrap;
@@ -1409,8 +1733,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-panel__signout {
           border: none;
           border-radius: 999px;
-          padding: 8px 16px;
-          font-size: 10px;
+          padding: 6px 10px;
+          font-size: 9px;
           letter-spacing: 0.16em;
           text-transform: uppercase;
           background: #1f2024;
@@ -1427,7 +1751,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-panel__actions {
           display: flex;
-          gap: 12px;
+          gap: 8px;
         }
         .supabase-panel__error {
           padding: 12px 16px;
@@ -1530,7 +1854,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-button {
           border: none;
           border-radius: 999px;
-          padding: 10px 18px;
+          padding: 8px 12px;
           font-size: 12px;
           text-transform: uppercase;
           letter-spacing: 0.18em;
@@ -1548,6 +1872,26 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-button--danger {
           background: #a62f21;
+        }
+        .supabase-button--icon {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          letter-spacing: 0;
+          text-transform: none;
+          line-height: 1;
+        }
+        .supabase-button--icon.is-spinning {
+          animation: supabase-spin 0.9s linear infinite;
+        }
+        @keyframes supabase-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         .supabase-create {
           display: flex;
@@ -1640,13 +1984,17 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           flex: 1;
           min-height: 0;
           display: grid;
-          grid-template-columns: 320px minmax(0, 1fr);
-          gap: 24px;
+          grid-template-columns: 300px minmax(0, 1fr);
+          gap: 12px;
+          overflow: hidden;
         }
         .supabase-workspace--admin {
           grid-template-columns: minmax(0, 1fr);
-          grid-template-rows: minmax(0, 320px) minmax(0, 1fr);
-          gap: 18px;
+          grid-template-rows: minmax(0, 300px) minmax(0, 1fr);
+          gap: 10px;
+        }
+        .supabase-workspace--bios {
+          grid-template-columns: minmax(0, 1fr);
         }
         .supabase-workspace__sidebar {
           min-height: 0;
@@ -1812,7 +2160,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           width: 100%;
           border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 12px;
-          padding: 12px 16px;
+          padding: 10px 12px;
           display: flex;
           flex-direction: column;
           gap: 4px;
@@ -1820,6 +2168,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           text-align: left;
           cursor: pointer;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          position: relative;
+          overflow: hidden;
         }
         .supabase-entry:hover {
           border-color: rgba(0, 0, 0, 0.18);
@@ -1834,30 +2184,44 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-weight: 600;
           color: #1f2024;
         }
-        .supabase-entry__slug {
+        .supabase-entry__preview {
           font-size: 11px;
-          color: #787a80;
+          color: #666971;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          max-width: 100%;
         }
-        .supabase-entry__status {
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.16em;
-          color: #787a80;
+        .supabase-entry__dot {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.9);
+          box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
         }
-        .supabase-entry__status--published {
-          color: #2b7a4a;
+        .supabase-entry__dot--published {
+          background: #34d27a;
+        }
+        .supabase-entry__dot--draft {
+          background: #ffae42;
         }
         .supabase-workspace__editor {
           flex: 1;
           min-height: 0;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 20px;
-          padding: 20px;
+          border-radius: 16px;
+          padding: 12px;
           background: linear-gradient(140deg, #ffffff 0%, #f4f5fb 100%);
           display: flex;
           flex-direction: column;
-          gap: 18px;
-          overflow: visible;
+          gap: 10px;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
         .supabase-workspace__empty {
           margin: auto;
@@ -1909,27 +2273,35 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__content {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 8px;
           flex: 1;
           min-height: 0;
-          overflow-y: auto;
-          padding-right: 6px;
+          overflow: visible;
+          padding-right: 2px;
         }
-        .supabase-editor__primary,
-        .supabase-editor__canvas,
-        .supabase-editor__details {
+        .supabase-editor__top,
+        .supabase-editor__canvas {
           background: #ffffff;
-          border-radius: 16px;
           border: 1px solid rgba(0, 0, 0, 0.05);
-          padding: 18px;
+          padding: 12px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 8px;
+        }
+        .supabase-editor__top {
+          border-radius: 14px 14px 10px 10px;
         }
         .supabase-editor__canvas {
+          flex: 0 0 auto;
+          min-height: 520px;
+          border-radius: 10px 10px 14px 14px;
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 8px 18px rgba(17, 18, 31, 0.04);
+          overflow: hidden;
+        }
+        .supabase-editor__canvas .supabase-rich-text {
           flex: 1;
           min-height: 0;
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 18px 36px rgba(17, 18, 31, 0.06);
+          height: 460px;
         }
         .supabase-editor__primary-row {
           display: flex;
@@ -1959,7 +2331,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__field input,
         .supabase-editor__field textarea,
         .supabase-editor__field select {
-          padding: 11px 14px;
+          padding: 8px 10px;
           border-radius: 12px;
           border: 1px solid rgba(0, 0, 0, 0.12);
           background: #f9f9fd;
@@ -1973,6 +2345,20 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           outline: none;
           border-color: rgba(36, 119, 70, 0.4);
           background: #ffffff;
+        }
+        .supabase-editor__field--compact {
+          flex: 0 1 220px;
+        }
+        .supabase-editor__field--excerpt textarea {
+          min-height: 68px;
+          max-height: 90px;
+        }
+        .supabase-editor__field--bio-main textarea {
+          min-height: 320px;
+        }
+        .supabase-editor__field--rank {
+          flex: 0 0 88px;
+          max-width: 88px;
         }
         .supabase-editor__field--title {
           flex-basis: 100%;
@@ -1990,28 +2376,54 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__field--categories .supabase-editor__categories {
           display: flex;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
           gap: 8px;
+          overflow-x: auto;
+          padding-bottom: 2px;
         }
         .supabase-editor__categories label {
-          border: 1px solid rgba(0, 0, 0, 0.12);
+          border: 1px solid rgba(0, 0, 0, 0.14);
           border-radius: 999px;
-          padding: 6px 12px;
-          font-size: 12px;
+          padding: 5px 10px;
+          font-size: 11px;
           text-transform: none;
           letter-spacing: 0;
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
           background: #ffffff;
           transition: border-color 0.2s ease, background 0.2s ease;
+          white-space: nowrap;
+          flex: 0 0 auto;
         }
         .supabase-editor__categories label.active {
           border-color: rgba(36, 119, 70, 0.34);
           background: rgba(36, 119, 70, 0.1);
         }
         .supabase-editor__categories input {
-          accent-color: #2b7a4a;
+          appearance: none;
+          width: 13px;
+          height: 13px;
+          border-radius: 50%;
+          border: 1px solid rgba(31, 32, 36, 0.42);
+          display: inline-block;
+          position: relative;
+          margin: 0;
+          background: #fff;
+        }
+        .supabase-editor__categories input:checked {
+          border-color: #2b7a4a;
+          background: #2b7a4a;
+        }
+        .supabase-editor__categories input:checked::after {
+          content: "";
+          position: absolute;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #fff;
+          top: 3px;
+          left: 3px;
         }
         .supabase-editor__canvas .supabase-editor__richtext-header {
           display: flex;
@@ -2046,9 +2458,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           flex: 1;
           min-height: 0;
+          height: 100%;
+          overflow-y: auto;
         }
         .supabase-rich-text .ql-editor {
           line-height: 1.35;
+          min-height: 100%;
+          height: 100%;
+          overflow-y: auto;
         }
         .supabase-rich-text .ql-editor img {
           display: block;
@@ -2072,18 +2489,16 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           font-size: 13px;
           color: #5a5c62;
         }
-        .supabase-editor__details {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
         .supabase-editor__details-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 12px;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 10px;
         }
         .supabase-editor__details-grid--wide {
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .supabase-editor__details-grid--compact {
+          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
         }
         .supabase-editor__stack {
           display: flex;
@@ -2092,6 +2507,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }
         .supabase-editor__stack > * {
           margin: 0;
+        }
+        .supabase-editor__stack .supabase-editor__field {
+          flex: 0 0 auto;
         }
         .supabase-editor__field textarea {
           min-height: 120px;
@@ -2166,9 +2584,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .supabase-editor__footer {
           display: flex;
           justify-content: flex-end;
-          gap: 12px;
-          padding-top: 10px;
+          align-items: center;
+          gap: 10px;
+          margin-top: 2px;
+          padding: 10px 2px 2px;
           border-top: 1px solid rgba(0, 0, 0, 0.06);
+          background: transparent;
+          position: static;
         }
         .supabase-panel--writer .supabase-workspace__editor {
           background: linear-gradient(145deg, #ffffff 0%, #eef0fa 100%);
@@ -2194,17 +2616,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             grid-template-columns: minmax(0, 1fr);
           }
         }
-        @media (max-width: 1080px) {
+        @media (max-width: 720px) {
           .supabase-workspace {
             grid-template-columns: minmax(0, 1fr);
-            grid-template-rows: minmax(0, 320px) minmax(0, 1fr);
+            grid-template-rows: minmax(0, 220px) minmax(0, 1fr);
           }
           .supabase-workspace__sidebar {
-            max-height: none;
             padding-right: 0;
           }
-        }
-        @media (max-width: 720px) {
+
           .supabase-panel__header {
             flex-direction: column;
             align-items: flex-start;
