@@ -1,0 +1,10 @@
+{
+  "homePageRoute": "/",
+  "maintenanceMode": false,
+  "maintenanceHomePageRoute": "/be-right-back",
+  "maintenanceAllowedPagePrefixes": [
+    "/editeur",
+    "/admin",
+    "/master"
+  ]
+}

@@ -1,6 +1,6 @@
-// middleware.ts
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import siteSettings from "./config/site-settings.json";
 
 const protectedPrefixes = [
   "/editeur",
@@ -10,6 +10,39 @@ const protectedPrefixes = [
   "/api/file",
   "/api/save-file",
 ];
+
+const alwaysAllowedPrefixes = [
+  "/_next",
+  "/api/auth",
+  "/favicon.ico",
+  "/logo-carre_bicephale_rvb.png",
+];
+
+const blockedImageExtensions = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".avif",
+  ".ico",
+  ".bmp",
+  ".tif",
+  ".tiff",
+];
+
+const isAlwaysAllowedPath = (pathname: string) => {
+  if (pathname === "/") {
+    return false;
+  }
+
+  if (pathname.includes(".")) {
+    return true;
+  }
+
+  return alwaysAllowedPrefixes.some((prefix) => pathname.startsWith(prefix));
+};
 
 export default withAuth(
   function middleware(request) {
@@ -31,7 +64,65 @@ export default withAuth(
       return NextResponse.redirect(new URL("/IRL", request.url));
     }
 
-    return NextResponse.next();
+    if (siteSettings.maintenanceMode) {
+      if (pathname === "/robots.txt") {
+        return new NextResponse("User-agent: *\nDisallow: /\n", {
+          status: 200,
+          headers: {
+            "content-type": "text/plain; charset=utf-8",
+            "cache-control": "no-store, max-age=0",
+            "x-robots-tag": "noindex, nofollow, noarchive, nosnippet",
+          },
+        });
+      }
+
+      if (pathname === "/sitemap.xml") {
+        return new NextResponse(null, {
+          status: 404,
+          headers: {
+            "cache-control": "no-store, max-age=0",
+            "x-robots-tag": "noindex, nofollow, noarchive, nosnippet",
+          },
+        });
+      }
+
+      const isImageRequest = blockedImageExtensions.some((extension) =>
+        pathname.toLowerCase().endsWith(extension)
+      );
+      if (isImageRequest && pathname !== "/logo-carre_bicephale_rvb.png") {
+        return new NextResponse(null, {
+          status: 404,
+          headers: {
+            "cache-control": "no-store, max-age=0",
+            "x-robots-tag": "noindex, nofollow, noarchive, nosnippet",
+          },
+        });
+      }
+    }
+
+    if (siteSettings.maintenanceMode && !isAlwaysAllowedPath(pathname)) {
+      const isAllowedDuringMaintenance = siteSettings.maintenanceAllowedPagePrefixes.some(
+        (prefix) => pathname.startsWith(prefix)
+      );
+      const isMaintenanceHome = pathname === siteSettings.maintenanceHomePageRoute;
+
+      if (!isAllowedDuringMaintenance && !isMaintenanceHome) {
+        const response = NextResponse.redirect(
+          new URL(siteSettings.maintenanceHomePageRoute, request.url)
+        );
+        response.headers.set("x-robots-tag", "noindex, nofollow, noarchive, nosnippet");
+        response.headers.set("cache-control", "no-store, max-age=0");
+        return response;
+      }
+    }
+
+    const response = NextResponse.next();
+    if (siteSettings.maintenanceMode) {
+      response.headers.set("x-robots-tag", "noindex, nofollow, noarchive, nosnippet");
+      response.headers.set("cache-control", "no-store, max-age=0");
+    }
+
+    return response;
   },
   {
     callbacks: {
@@ -53,4 +144,3 @@ export default withAuth(
 export const config = {
   matcher: ["/:path*"],
 };
-
