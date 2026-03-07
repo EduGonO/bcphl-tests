@@ -6,6 +6,7 @@ export default function BeRightBackPage() {
     <>
       <Head>
         <title>Nous revenons vite – BICÉPHALE</title>
+        <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
       </Head>
 
       <main className="page">

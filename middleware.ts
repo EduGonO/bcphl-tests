@@ -16,8 +16,20 @@ const alwaysAllowedPrefixes = [
   "/api/auth",
   "/favicon.ico",
   "/logo-carre_bicephale_rvb.png",
-  "/robots.txt",
-  "/sitemap.xml",
+];
+
+const blockedImageExtensions = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".avif",
+  ".ico",
+  ".bmp",
+  ".tif",
+  ".tiff",
 ];
 
 const isAlwaysAllowedPath = (pathname: string) => {
@@ -52,6 +64,42 @@ export default withAuth(
       return NextResponse.redirect(new URL("/IRL", request.url));
     }
 
+    if (siteSettings.maintenanceMode) {
+      if (pathname === "/robots.txt") {
+        return new NextResponse("User-agent: *\nDisallow: /\n", {
+          status: 200,
+          headers: {
+            "content-type": "text/plain; charset=utf-8",
+            "cache-control": "no-store, max-age=0",
+            "x-robots-tag": "noindex, nofollow, noarchive, nosnippet",
+          },
+        });
+      }
+
+      if (pathname === "/sitemap.xml") {
+        return new NextResponse(null, {
+          status: 404,
+          headers: {
+            "cache-control": "no-store, max-age=0",
+            "x-robots-tag": "noindex, nofollow, noarchive, nosnippet",
+          },
+        });
+      }
+
+      const isImageRequest = blockedImageExtensions.some((extension) =>
+        pathname.toLowerCase().endsWith(extension)
+      );
+      if (isImageRequest && pathname !== "/logo-carre_bicephale_rvb.png") {
+        return new NextResponse(null, {
+          status: 404,
+          headers: {
+            "cache-control": "no-store, max-age=0",
+            "x-robots-tag": "noindex, nofollow, noarchive, nosnippet",
+          },
+        });
+      }
+    }
+
     if (siteSettings.maintenanceMode && !isAlwaysAllowedPath(pathname)) {
       const isAllowedDuringMaintenance = siteSettings.maintenanceAllowedPagePrefixes.some(
         (prefix) => pathname.startsWith(prefix)
@@ -59,11 +107,22 @@ export default withAuth(
       const isMaintenanceHome = pathname === siteSettings.maintenanceHomePageRoute;
 
       if (!isAllowedDuringMaintenance && !isMaintenanceHome) {
-        return NextResponse.redirect(new URL(siteSettings.maintenanceHomePageRoute, request.url));
+        const response = NextResponse.redirect(
+          new URL(siteSettings.maintenanceHomePageRoute, request.url)
+        );
+        response.headers.set("x-robots-tag", "noindex, nofollow, noarchive, nosnippet");
+        response.headers.set("cache-control", "no-store, max-age=0");
+        return response;
       }
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    if (siteSettings.maintenanceMode) {
+      response.headers.set("x-robots-tag", "noindex, nofollow, noarchive, nosnippet");
+      response.headers.set("cache-control", "no-store, max-age=0");
+    }
+
+    return response;
   },
   {
     callbacks: {
