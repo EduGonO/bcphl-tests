@@ -25,6 +25,7 @@ const mapArticleSummary = (
   preview: input.preview ?? null,
   excerpt: input.excerpt ?? null,
   headerImagePath: input.header_image_path ?? null,
+  bodyMarkdown: input.body_markdown ? String(input.body_markdown) : null,
   sortOrder,
 });
 
@@ -137,7 +138,8 @@ export const loadSupabaseCategorySummaries = async (
         updated_at,
         preview,
         excerpt,
-        header_image_path
+        header_image_path,
+        body_markdown
       )`
     );
 
