@@ -136,6 +136,8 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   );
 
   const imageHandler = useCallback(() => {
+    alert("Starting upload...");
+
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
@@ -146,6 +148,15 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
       const file = input.files?.[0];
       document.body.removeChild(input);
       if (!file) return;
+
+      // Resolve the underlying Quill editor instance.
+      // quillRef.current may be the ReactQuill wrapper (which has getEditor())
+      // or, when forwardRef indirection is involved, the inner instance exposes
+      // the editor directly via the .editor property.
+      const raw = quillRef.current as any;
+      const quill = raw?.getEditor?.() ?? raw?.editor ?? null;
+
+      alert("Editor instance: " + !!quill);
 
       const reader = new FileReader();
       reader.onload = async () => {
@@ -163,11 +174,12 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
           });
 
           const json = await response.json();
+          alert("Upload response: " + JSON.stringify(json));
+
           if (!response.ok || !json.url) {
             throw new Error(json.error ?? "Upload failed");
           }
 
-          const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection(true);
             quill.insertEmbed(range.index, "image", json.url);
