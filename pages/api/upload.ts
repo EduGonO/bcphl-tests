@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2Client } from "../../lib/r2";
+import { getManifest, putManifest } from "../../lib/manifest";
 
 export const config = {
   api: {
@@ -30,7 +31,8 @@ export default async function handler(
     return res.status(400).json({ error: "No file data provided" });
   }
 
-  const folder = slug && slug.trim() ? `articles/${slug.trim()}` : "uploads";
+  const cleanSlug = slug?.trim() ?? "";
+  const folder = cleanSlug ? `articles/${cleanSlug}` : "uploads";
   const buffer = Buffer.from(data, "base64");
   const key = `${folder}/${Date.now()}-${name ?? "upload"}`;
 
@@ -43,8 +45,21 @@ export default async function handler(
     })
   );
 
-  // Strip trailing slash from base URL to avoid double-slash in the final URL.
   const baseUrl = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/, "");
   const url = `${baseUrl}/${key}`;
+
+  // Update the manifest if we have a slug.
+  if (cleanSlug) {
+    const manifest = await getManifest(cleanSlug);
+    manifest.images.push({
+      key,
+      url,
+      filename: name ?? "upload",
+      uploadedAt: new Date().toISOString(),
+      isUsed: false,
+    });
+    await putManifest(cleanSlug, manifest);
+  }
+
   return res.status(200).json({ url });
 }

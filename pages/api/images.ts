@@ -1,32 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { r2Client } from "../../lib/r2";
+import { getManifest, putManifest } from "../../lib/manifest";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // GET ?slug= — return manifest image list
   if (req.method === "GET") {
     const { slug } = req.query;
     if (!slug || typeof slug !== "string") {
       return res.status(400).json({ error: "slug is required" });
     }
-    const prefix = `articles/${slug}/`;
-    const command = new ListObjectsV2Command({
-      Bucket: process.env.R2_BUCKET_NAME!,
-      Prefix: prefix,
-    });
-    const result = await r2Client.send(command);
-    const baseUrl = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/, "");
-    const images = (result.Contents ?? []).map((obj) => ({
-      key: obj.Key!,
-      url: `${baseUrl}/${obj.Key}`,
-    }));
-    return res.status(200).json({ images });
+    const manifest = await getManifest(slug);
+    return res.status(200).json({ images: manifest.images });
   }
 
+  // DELETE { key, slug } — remove from R2 and from manifest
   if (req.method === "DELETE") {
-    const { key } = req.body as { key: string };
+    const { key, slug } = req.body as { key: string; slug: string };
     if (!key) {
       return res.status(400).json({ error: "key is required" });
     }
@@ -36,6 +29,26 @@ export default async function handler(
         Key: key,
       })
     );
+    if (slug) {
+      const manifest = await getManifest(slug);
+      manifest.images = manifest.images.filter((img) => img.key !== key);
+      await putManifest(slug, manifest);
+    }
+    return res.status(200).json({ success: true });
+  }
+
+  // PATCH { key, slug } — mark image as isUsed: true in manifest
+  if (req.method === "PATCH") {
+    const { key, slug } = req.body as { key: string; slug: string };
+    if (!key || !slug) {
+      return res.status(400).json({ error: "key and slug are required" });
+    }
+    const manifest = await getManifest(slug);
+    const entry = manifest.images.find((img) => img.key === key);
+    if (entry) {
+      entry.isUsed = true;
+      await putManifest(slug, manifest);
+    }
     return res.status(200).json({ success: true });
   }
 

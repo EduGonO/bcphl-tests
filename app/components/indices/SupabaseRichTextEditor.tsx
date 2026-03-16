@@ -92,12 +92,16 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   readOnly = false,
   placeholder,
 }) => {
-  // quillRef holds the ReactQuill wrapper element (for the ref prop).
+  // quillRef stores the ReactQuill wrapper instance.
+  // quillInstanceRef stores it too — getEditor() is called lazily when needed,
+  // not at ref-attachment time, to avoid the timing bug where Quill isn't
+  // fully initialised yet.
   const quillRef = useRef<ReactQuill | null>(null);
-  // quillInstanceRef holds the raw underlying Quill editor instance.
-  const quillInstanceRef = useRef<any>(null);
+  const quillInstanceRef = useRef<ReactQuill | null>(null);
 
-  const [images, setImages] = useState<{ key: string; url: string }[]>([]);
+  const [images, setImages] = useState<
+    { key: string; url: string; filename: string; isUsed: boolean }[]
+  >([]);
 
   const turndown = useMemo(() => {
     const service = new TurndownService({
@@ -142,20 +146,19 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     [onChange, turndown]
   );
 
-  // Ref callback: captures both the ReactQuill wrapper and the raw Quill instance.
+  // Ref callback: store the ReactQuill wrapper instance only.
+  // getEditor() is NOT called here to avoid the timing bug — it is called
+  // lazily inside handlers after Quill has fully mounted.
   const setQuillRef = useCallback((el: ReactQuill | null) => {
     (quillRef as React.MutableRefObject<ReactQuill | null>).current = el;
-    if (el) {
-      const raw = el as any;
-      quillInstanceRef.current =
-        raw.getEditor?.() ??
-        raw.editor ??
-        raw.quill ??
-        raw.__quill ??
-        null;
-    } else {
-      quillInstanceRef.current = null;
-    }
+    quillInstanceRef.current = el;
+  }, []);
+
+  // Lazily resolve the underlying Quill editor from the ReactQuill instance.
+  const getQuillEditor = useCallback(() => {
+    const el = quillInstanceRef.current as any;
+    if (!el) return null;
+    return el.getEditor?.() ?? el.editor ?? el.quill ?? el.__quill ?? null;
   }, []);
 
   const fetchImages = useCallback(async () => {
@@ -170,8 +173,6 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   }, [fetchImages]);
 
   const imageHandler = useCallback(() => {
-    alert("v4: starting upload...");
-
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
@@ -182,10 +183,6 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
       const file = input.files?.[0];
       document.body.removeChild(input);
       if (!file) return;
-
-      // Use the raw Quill instance captured at mount time.
-      const quill = quillInstanceRef.current;
-      alert("v4: editor instance: " + !!quill);
 
       const reader = new FileReader();
       reader.onload = async () => {
@@ -204,19 +201,24 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
           });
 
           const json = await response.json();
-          alert("v4: upload response: " + JSON.stringify(json));
 
           if (!response.ok || !json.url) {
             throw new Error(json.error ?? "Upload failed");
           }
 
+          const url: string = json.url;
+          console.log("v5 insert url:", url);
+
+          const quill = getQuillEditor();
           if (quill) {
             const range =
-              quill.getSelection(true) ?? { index: quill.getLength(), length: 0 };
-            quill.insertEmbed(range.index, "image", json.url);
+              quill.getSelection(true) ??
+              { index: quill.getLength(), length: 0 };
+            quill.insertEmbed(range.index, "image", url);
             quill.setSelection(range.index + 1, 0);
           }
 
+          alert("v5: uploaded \u2192 " + url);
           fetchImages();
         } catch (err) {
           console.error("Image upload error:", err);
@@ -228,7 +230,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     };
 
     input.click();
-  }, [slug, fetchImages]);
+  }, [slug, fetchImages, getQuillEditor]);
 
   const quillModules = useMemo(
     () => ({
@@ -288,7 +290,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
               >
                 <img
                   src={img.url}
-                  alt={img.key}
+                  alt={img.filename ?? img.key}
                   style={{
                     width: 80,
                     height: 60,
@@ -309,13 +311,22 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
                       borderRadius: 4,
                       cursor: "pointer",
                     }}
-                    onClick={() => {
-                      const quill = quillInstanceRef.current;
+                    onClick={async () => {
+                      const quill = getQuillEditor();
                       if (!quill) return;
                       const range =
                         quill.getSelection(true) ??
                         { index: quill.getLength(), length: 0 };
                       quill.insertEmbed(range.index, "image", img.url);
+                      await fetch("/api/images", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          key: img.key,
+                          slug: slug ?? "",
+                        }),
+                      });
+                      fetchImages();
                     }}
                   >
                     Insert
@@ -335,7 +346,10 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
                       await fetch("/api/images", {
                         method: "DELETE",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ key: img.key }),
+                        body: JSON.stringify({
+                          key: img.key,
+                          slug: slug ?? "",
+                        }),
                       });
                       fetchImages();
                     }}
