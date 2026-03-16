@@ -94,8 +94,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
 }) => {
   // quillRef stores the ReactQuill wrapper instance.
   // quillInstanceRef stores it too — getEditor() is called lazily when needed,
-  // not at ref-attachment time, to avoid the timing bug where Quill isn't
-  // fully initialised yet.
+  // not at ref-attachment time, to avoid the timing bug.
   const quillRef = useRef<ReactQuill | null>(null);
   const quillInstanceRef = useRef<ReactQuill | null>(null);
 
@@ -147,14 +146,13 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   );
 
   // Ref callback: store the ReactQuill wrapper instance only.
-  // getEditor() is NOT called here to avoid the timing bug — it is called
-  // lazily inside handlers after Quill has fully mounted.
+  // getEditor() is called lazily inside handlers, not here.
   const setQuillRef = useCallback((el: ReactQuill | null) => {
     (quillRef as React.MutableRefObject<ReactQuill | null>).current = el;
     quillInstanceRef.current = el;
   }, []);
 
-  // Lazily resolve the underlying Quill editor from the ReactQuill instance.
+  // Lazily resolve the underlying Quill editor from the ReactQuill wrapper.
   const getQuillEditor = useCallback(() => {
     const el = quillInstanceRef.current as any;
     if (!el) return null;
@@ -173,6 +171,8 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   }, [fetchImages]);
 
   const imageHandler = useCallback(() => {
+    console.log("v6 slug value:", slug);
+
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
@@ -207,7 +207,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
           }
 
           const url: string = json.url;
-          console.log("v5 insert url:", url);
+          console.log("v6 insert url:", url);
 
           const quill = getQuillEditor();
           if (quill) {
@@ -218,7 +218,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
             quill.setSelection(range.index + 1, 0);
           }
 
-          alert("v5: uploaded \u2192 " + url);
+          alert("v6: uploaded \u2192 " + url + " | slug: " + (slug ?? "MISSING"));
           fetchImages();
         } catch (err) {
           console.error("Image upload error:", err);
@@ -264,19 +264,21 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
         formats={quillFormats}
         placeholder={placeholder}
       />
-      {images.length > 0 && (
-        <div
-          style={{
-            marginTop: 8,
-            padding: 8,
-            border: "1px solid #e5e7eb",
-            borderRadius: 6,
-            background: "#f9fafb",
-          }}
-        >
-          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>
-            Article Images
-          </p>
+      <div
+        style={{
+          marginTop: 8,
+          padding: 8,
+          border: "1px solid #e5e7eb",
+          borderRadius: 6,
+          background: "#f9fafb",
+        }}
+      >
+        <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>
+          Article Images {slug ? `(${slug})` : "(no slug)"}
+        </p>
+        {images.length === 0 ? (
+          <p style={{ fontSize: 11, color: "#9ca3af" }}>No images yet.</p>
+        ) : (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {images.map((img) => (
               <div
@@ -318,6 +320,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
                         quill.getSelection(true) ??
                         { index: quill.getLength(), length: 0 };
                       quill.insertEmbed(range.index, "image", img.url);
+                      quill.setSelection(range.index + 1, 0);
                       await fetch("/api/images", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
@@ -360,8 +363,8 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
