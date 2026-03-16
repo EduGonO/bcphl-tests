@@ -18,19 +18,21 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Expect JSON body: { name: string, type: string, data: base64string }
-  const { name, type, data } = req.body as {
+  // Expect JSON body: { name, type, data: base64string, slug? }
+  const { name, type, data, slug } = req.body as {
     name: string;
     type: string;
     data: string;
+    slug?: string;
   };
 
   if (!data) {
     return res.status(400).json({ error: "No file data provided" });
   }
 
+  const folder = slug && slug.trim() ? `articles/${slug.trim()}` : "uploads";
   const buffer = Buffer.from(data, "base64");
-  const key = `uploads/${Date.now()}-${name ?? "upload"}`;
+  const key = `${folder}/${Date.now()}-${name ?? "upload"}`;
 
   await r2Client.send(
     new PutObjectCommand({
@@ -42,7 +44,7 @@ export default async function handler(
   );
 
   // Strip trailing slash from base URL to avoid double-slash in the final URL.
-  const baseUrl = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/,  "");
+  const baseUrl = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/, "");
   const url = `${baseUrl}/${key}`;
   return res.status(200).json({ url });
 }
