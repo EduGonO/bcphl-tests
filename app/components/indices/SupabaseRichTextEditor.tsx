@@ -92,15 +92,14 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   readOnly = false,
   placeholder,
 }) => {
-  // quillRef stores the ReactQuill wrapper instance.
-  // quillInstanceRef stores it too — getEditor() is called lazily when needed,
-  // not at ref-attachment time, to avoid the timing bug.
   const quillRef = useRef<ReactQuill | null>(null);
   const quillInstanceRef = useRef<ReactQuill | null>(null);
 
   const [images, setImages] = useState<
     { key: string; url: string; filename: string; isUsed: boolean }[]
   >([]);
+  // Collapsed by default so the drawer takes up minimal space (~28px header only).
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const turndown = useMemo(() => {
     const service = new TurndownService({
@@ -253,119 +252,144 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   );
 
   return (
-    <div className="supabase-rich-text">
-      <ForwardedQuill
-        theme="snow"
-        ref={setQuillRef}
-        value={htmlValue}
-        onChange={handleChange}
-        readOnly={readOnly}
-        modules={quillModules}
-        formats={quillFormats}
-        placeholder={placeholder}
-      />
-      <div
-        style={{
-          marginTop: 8,
-          padding: 8,
-          border: "1px solid #e5e7eb",
-          borderRadius: 6,
-          background: "#f9fafb",
-        }}
-      >
-        <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>
-          Article Images {slug ? `(${slug})` : "(no slug)"}
-        </p>
-        {images.length === 0 ? (
-          <p style={{ fontSize: 11, color: "#9ca3af" }}>No images yet.</p>
-        ) : (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {images.map((img) => (
-              <div
-                key={img.key}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <img
-                  src={img.url}
-                  alt={img.filename ?? img.key}
+    <>
+      {/* Quill editor — structure completely unchanged */}
+      <div className="supabase-rich-text">
+        <ForwardedQuill
+          theme="snow"
+          ref={setQuillRef}
+          value={htmlValue}
+          onChange={handleChange}
+          readOnly={readOnly}
+          modules={quillModules}
+          formats={quillFormats}
+          placeholder={placeholder}
+        />
+      </div>
+
+      {/* Image drawer — sibling to .supabase-rich-text, never affects its layout.
+          Collapsed by default; only the toggle header (~28px) is visible. */}
+      <div style={{ fontSize: 12, color: "#6b7280", userSelect: "none" }}>
+        <button
+          type="button"
+          onClick={() => setDrawerOpen((o) => !o)}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "4px 0",
+            fontSize: 12,
+            color: "#6b7280",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          {drawerOpen ? "▲" : "▼"} Images ({images.length})
+        </button>
+        {drawerOpen && (
+          <div
+            style={{
+              maxHeight: 160,
+              overflowY: "auto",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 6,
+              padding: "4px 0",
+            }}
+          >
+            {images.length === 0 ? (
+              <span style={{ fontSize: 11, color: "#9ca3af" }}>
+                No images yet.
+              </span>
+            ) : (
+              images.map((img) => (
+                <div
+                  key={img.key}
                   style={{
-                    width: 80,
-                    height: 60,
-                    objectFit: "cover",
-                    borderRadius: 4,
-                    border: "1px solid #d1d5db",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
                   }}
-                />
-                <div style={{ display: "flex", gap: 4 }}>
-                  <button
-                    type="button"
+                >
+                  <img
+                    src={img.url}
+                    alt={img.filename ?? img.key}
                     style={{
-                      fontSize: 11,
-                      padding: "2px 6px",
-                      background: "#3b82f6",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 4,
-                      cursor: "pointer",
+                      width: 72,
+                      height: 54,
+                      objectFit: "cover",
+                      borderRadius: 3,
+                      border: "1px solid #d1d5db",
                     }}
-                    onClick={async () => {
-                      const quill = getQuillEditor();
-                      if (!quill) return;
-                      const range =
-                        quill.getSelection(true) ??
-                        { index: quill.getLength(), length: 0 };
-                      quill.insertEmbed(range.index, "image", img.url);
-                      quill.setSelection(range.index + 1, 0);
-                      await fetch("/api/images", {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          key: img.key,
-                          slug: slug ?? "",
-                        }),
-                      });
-                      fetchImages();
-                    }}
-                  >
-                    Insert
-                  </button>
-                  <button
-                    type="button"
-                    style={{
-                      fontSize: 11,
-                      padding: "2px 6px",
-                      background: "#ef4444",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 4,
-                      cursor: "pointer",
-                    }}
-                    onClick={async () => {
-                      await fetch("/api/images", {
-                        method: "DELETE",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          key: img.key,
-                          slug: slug ?? "",
-                        }),
-                      });
-                      fetchImages();
-                    }}
-                  >
-                    Delete
-                  </button>
+                  />
+                  <div style={{ display: "flex", gap: 3 }}>
+                    <button
+                      type="button"
+                      style={{
+                        fontSize: 10,
+                        padding: "1px 5px",
+                        background: "#3b82f6",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 3,
+                        cursor: "pointer",
+                      }}
+                      onClick={async () => {
+                        const quill = getQuillEditor();
+                        if (!quill) return;
+                        const range =
+                          quill.getSelection(true) ??
+                          { index: quill.getLength(), length: 0 };
+                        quill.insertEmbed(range.index, "image", img.url);
+                        quill.setSelection(range.index + 1, 0);
+                        await fetch("/api/images", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            key: img.key,
+                            slug: slug ?? "",
+                          }),
+                        });
+                        fetchImages();
+                      }}
+                    >
+                      Insert
+                    </button>
+                    <button
+                      type="button"
+                      style={{
+                        fontSize: 10,
+                        padding: "1px 5px",
+                        background: "#ef4444",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 3,
+                        cursor: "pointer",
+                      }}
+                      onClick={async () => {
+                        await fetch("/api/images", {
+                          method: "DELETE",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            key: img.key,
+                            slug: slug ?? "",
+                          }),
+                        });
+                        fetchImages();
+                      }}
+                    >
+                      Del
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };
 
