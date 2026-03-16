@@ -1,7 +1,16 @@
 import dynamic from "next/dynamic";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TurndownService from "turndown";
 import { marked } from "marked";
+import type ReactQuill from "react-quill";
+import type { ReactQuillProps } from "react-quill";
 
 import "react-quill/dist/quill.snow.css";
 
@@ -12,10 +21,28 @@ type SupabaseRichTextEditorProps = {
   placeholder?: string;
 };
 
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => <div className="supabase-rich-text__loading">Chargement de l'éditeur…</div>,
-});
+// Wrap the dynamic import in forwardRef so TypeScript accepts a ref prop.
+const ForwardedQuill = dynamic(
+  () =>
+    import("react-quill").then((mod) => {
+      const Quill = mod.default;
+      const WithRef = forwardRef<ReactQuill, ReactQuillProps>((props, ref) => (
+        <Quill {...props} ref={ref} />
+      ));
+      WithRef.displayName = "ReactQuillWithRef";
+      return WithRef;
+    }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="supabase-rich-text__loading">
+        Chargement de l&apos;éditeur&hellip;
+      </div>
+    ),
+  }
+) as React.ForwardRefExoticComponent<
+  ReactQuillProps & React.RefAttributes<ReactQuill>
+>;
 
 const quillFormats = [
   "header",
@@ -63,7 +90,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   readOnly = false,
   placeholder,
 }) => {
-  const quillRef = useRef<any>(null);
+  const quillRef = useRef<ReactQuill | null>(null);
 
   const turndown = useMemo(() => {
     const service = new TurndownService({
@@ -140,7 +167,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
             throw new Error(json.error ?? "Upload failed");
           }
 
-          const quill = quillRef.current?.getEditor?.();
+          const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection(true);
             quill.insertEmbed(range.index, "image", json.url);
@@ -180,7 +207,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
 
   return (
     <div className="supabase-rich-text">
-      <ReactQuill
+      <ForwardedQuill
         theme="snow"
         ref={quillRef}
         value={htmlValue}
