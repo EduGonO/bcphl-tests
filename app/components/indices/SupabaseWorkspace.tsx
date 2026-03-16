@@ -1495,7 +1495,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     value={formState.bodyMarkdown}
                     onChange={handleRichTextChange}
                     placeholder="Écrivez votre article…"
-                    slug={formState.slug}
                   />
                 </section>
 

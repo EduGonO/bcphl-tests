@@ -18,7 +18,6 @@ type SupabaseRichTextEditorProps = {
   onChange: (markdown: string, html: string) => void;
   readOnly?: boolean;
   placeholder?: string;
-  slug?: string;
 };
 
 const ReactQuillBase = dynamic(() => import("react-quill"), {
@@ -86,7 +85,6 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   onChange,
   readOnly = false,
   placeholder,
-  slug,
 }) => {
   const [images, setImages] = useState<ManifestImage[]>([]);
   const [imagesStatus, setImagesStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -94,15 +92,10 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   const quillRef = useRef<{ getEditor: () => any } | null>(null);
 
   const loadImages = useCallback(async () => {
-    if (!slug) {
-      setImages([]);
-      return;
-    }
-
     setImagesStatus("loading");
     setImagesError(null);
     try {
-      const response = await fetch(`/api/images?slug=${encodeURIComponent(slug)}`);
+      const response = await fetch("/api/images");
       const payload = await response.json();
       if (!response.ok) {
         throw new Error(payload?.error ?? "Erreur lors du chargement des images");
@@ -113,7 +106,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
       setImagesStatus("error");
       setImagesError(error instanceof Error ? error.message : "Erreur inconnue");
     }
-  }, [slug]);
+  }, []);
 
   useEffect(() => {
     loadImages().catch(() => {
@@ -165,19 +158,17 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   );
 
   const markImageAsUsed = useCallback(async (key: string) => {
-    if (!slug) return;
-
     try {
       await fetch("/api/images", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, key }),
+        body: JSON.stringify({ key }),
       });
       setImages((prev) => prev.map((item) => (item.key === key ? { ...item, isUsed: true } : item)));
     } catch {
       // best effort; insertion should not be blocked by metadata update
     }
-  }, [slug]);
+  }, []);
 
   const insertImage = useCallback((url: string, key: string) => {
     const editor = quillRef.current?.getEditor?.();
@@ -194,11 +185,6 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
 
   const handleToolbarImage = useCallback(async () => {
     if (readOnly) return;
-    if (!slug) {
-      setImagesError("Ajoutez un slug d’article avant d’envoyer des images.");
-      return;
-    }
-
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
@@ -217,8 +203,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
             name: file.name,
             type: file.type,
             data: dataUrl,
-            slug,
-          }),
+                    }),
         });
         const payload = await response.json();
 
@@ -239,16 +224,16 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
         setImagesError(error instanceof Error ? error.message : "Échec de l’upload");
       }
     };
-  }, [insertImage, readOnly, slug]);
+  }, [insertImage, readOnly]);
 
   const deleteImage = useCallback(async (key: string) => {
-    if (!slug || readOnly) return;
+    if (readOnly) return;
 
     try {
       const response = await fetch("/api/images", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, key }),
+        body: JSON.stringify({ key }),
       });
       const payload = await response.json();
       if (!response.ok) {
@@ -258,7 +243,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     } catch (error) {
       setImagesError(error instanceof Error ? error.message : "Suppression impossible");
     }
-  }, [readOnly, slug]);
+  }, [readOnly]);
 
   const modules = useMemo(() => ({
     toolbar: {
@@ -292,8 +277,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
         }}
       />
 
-      {slug ? (
-        <aside className="supabase-image-drawer">
+      <aside className="supabase-image-drawer">
           <div className="supabase-image-drawer__header">
             <h4>Images de l’article</h4>
             <button type="button" onClick={() => loadImages()} disabled={imagesStatus === "loading"}>
@@ -321,10 +305,9 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
                 </div>
               </div>
             ))}
-            {!images.length && <p className="supabase-image-drawer__empty">Aucune image pour ce slug.</p>}
+            {!images.length && <p className="supabase-image-drawer__empty">Aucune image.</p>}
           </div>
         </aside>
-      ) : null}
     </div>
   );
 };
