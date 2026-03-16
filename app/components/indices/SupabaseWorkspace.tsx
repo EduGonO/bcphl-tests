@@ -36,8 +36,6 @@ const formatDateTime = (value: string | null): string => {
   });
 };
 
-
-
 const toPreviewText = (article: {
   excerpt: string | null;
   preview: string | null;
@@ -52,7 +50,6 @@ const toPreviewText = (article: {
     .replace(/[*_~`>#-]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-
   return (article.excerpt || article.preview || fallback || "Contenu non renseigné")
     .replace(/\s+/g, " ")
     .trim();
@@ -191,15 +188,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const showAdvanced = workspaceVariant !== "writer";
   const isAdmin = workspaceVariant === "admin";
 
-  useEffect(() => {
-    setSupabaseCategories(categories);
-  }, [categories]);
-
-  useEffect(() => {
-    if (error) {
-      setPanelError(error);
-    }
-  }, [error]);
+  useEffect(() => { setSupabaseCategories(categories); }, [categories]);
+  useEffect(() => { if (error) setPanelError(error); }, [error]);
 
   useEffect(() => {
     setBioEntries(bios);
@@ -215,10 +205,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   );
 
   useEffect(() => {
-    if (!selectedBio) {
-      setBioFormState(null);
-      return;
-    }
+    if (!selectedBio) { setBioFormState(null); return; }
     setBioFormState(bioToForm(selectedBio));
   }, [selectedBio]);
 
@@ -231,14 +218,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       dirtyRef.current = false;
       return;
     }
-
     if (
       !selectedCategoryId ||
       !supabaseCategories.some((category) => category.id === selectedCategoryId)
     ) {
       setSelectedCategoryId(supabaseCategories[0].id);
     }
-
     if (selectedArticleId) {
       const exists = supabaseCategories.some((category) =>
         category.articles.some((article) => article.id === selectedArticleId)
@@ -260,9 +245,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     try {
       const response = await fetch("/api/supabase/intros");
       const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible de charger les introductions.");
-      }
+      if (!response.ok) throw new Error(payload?.error ?? "Impossible de charger les introductions.");
       setIntroEntries(payload.entries ?? []);
       setIntroError(null);
       setIntroStatus("idle");
@@ -277,9 +260,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   useEffect(() => {
     if (!isAdmin) return;
-    fetchIntroEntries().catch(() => {
-      /* handled in fetchIntroEntries */
-    });
+    fetchIntroEntries().catch(() => {});
   }, [fetchIntroEntries, isAdmin]);
 
   useEffect(() => {
@@ -290,14 +271,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       introDirtyRef.current = false;
       return;
     }
-
     if (!selectedIntroId || !introEntries.some((entry) => entry.id === selectedIntroId)) {
       const nextIntro = introEntries[0];
       setSelectedIntroId(nextIntro.id);
-      setIntroBody({
-        markdown: nextIntro.bodyMarkdown,
-        html: nextIntro.bodyHtml ?? "",
-      });
+      setIntroBody({ markdown: nextIntro.bodyMarkdown, html: nextIntro.bodyHtml ?? "" });
       introDirtyRef.current = false;
       setIntroStatus("idle");
       setIntroStatusMessage(null);
@@ -309,18 +286,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     supabaseCategories.forEach((category) => {
       category.articles.forEach((article) => {
         const entry = map.get(article.id);
-        const categoryInfo = {
-          id: category.id,
-          name: category.name,
-          color: category.color,
-        };
+        const categoryInfo = { id: category.id, name: category.name, color: category.color };
         if (entry) {
           if (!entry.categories.some((existing) => existing.id === category.id)) {
             entry.categories.push(categoryInfo);
           }
           return;
         }
-
         map.set(article.id, {
           id: article.id,
           title: article.title,
@@ -334,7 +306,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         });
       });
     });
-
     return Array.from(map.values()).map((article) => ({
       ...article,
       categories: article.categories
@@ -345,61 +316,35 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const sortedArticles = useMemo(
     () =>
-      directoryArticles
-        .slice()
-        .sort((a, b) => {
-          const aUpdated = a.updatedAt ? Date.parse(a.updatedAt) : 0;
-          const bUpdated = b.updatedAt ? Date.parse(b.updatedAt) : 0;
-          if (aUpdated !== bUpdated) {
-            return bUpdated - aUpdated;
-          }
-          const aPublished = a.publishedAt ? Date.parse(a.publishedAt) : 0;
-          const bPublished = b.publishedAt ? Date.parse(b.publishedAt) : 0;
-          if (aPublished !== bPublished) {
-            return bPublished - aPublished;
-          }
-          return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
-        }),
+      directoryArticles.slice().sort((a, b) => {
+        const aUpdated = a.updatedAt ? Date.parse(a.updatedAt) : 0;
+        const bUpdated = b.updatedAt ? Date.parse(b.updatedAt) : 0;
+        if (aUpdated !== bUpdated) return bUpdated - aUpdated;
+        const aPublished = a.publishedAt ? Date.parse(a.publishedAt) : 0;
+        const bPublished = b.publishedAt ? Date.parse(b.publishedAt) : 0;
+        if (aPublished !== bPublished) return bPublished - aPublished;
+        return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
+      }),
     [directoryArticles]
   );
 
   const articleCount = sortedArticles.length;
 
   const digest = useMemo(() => {
-    if (status === "loading") {
-      return { tone: "loading" as StatusTone, label: "Chargement…" };
-    }
-    if (status === "saving") {
-      return { tone: "saving" as StatusTone, label: "Enregistrement…" };
-    }
-    if (status === "error") {
-      return { tone: "error" as StatusTone, label: statusMessage ?? "Erreur" };
-    }
-    if (status === "saved") {
-      return { tone: "saved" as StatusTone, label: statusMessage ?? "Enregistré" };
-    }
-    if (dirtyRef.current) {
-      return { tone: "dirty" as StatusTone, label: "Modifications non enregistrées" };
-    }
+    if (status === "loading") return { tone: "loading" as StatusTone, label: "Chargement…" };
+    if (status === "saving") return { tone: "saving" as StatusTone, label: "Enregistrement…" };
+    if (status === "error") return { tone: "error" as StatusTone, label: statusMessage ?? "Erreur" };
+    if (status === "saved") return { tone: "saved" as StatusTone, label: statusMessage ?? "Enregistré" };
+    if (dirtyRef.current) return { tone: "dirty" as StatusTone, label: "Modifications non enregistrées" };
     return { tone: "idle" as StatusTone, label: statusMessage ?? "Stable" };
   }, [status, statusMessage]);
 
   const introDigest = useMemo(() => {
-    if (introStatus === "loading") {
-      return { tone: "loading" as StatusTone, label: "Chargement…" };
-    }
-    if (introStatus === "saving") {
-      return { tone: "saving" as StatusTone, label: "Enregistrement…" };
-    }
-    if (introStatus === "error") {
-      return { tone: "error" as StatusTone, label: introStatusMessage ?? "Erreur" };
-    }
-    if (introStatus === "saved") {
-      return { tone: "saved" as StatusTone, label: introStatusMessage ?? "Enregistré" };
-    }
-    if (introDirtyRef.current) {
-      return { tone: "dirty" as StatusTone, label: "Modifications non enregistrées" };
-    }
+    if (introStatus === "loading") return { tone: "loading" as StatusTone, label: "Chargement…" };
+    if (introStatus === "saving") return { tone: "saving" as StatusTone, label: "Enregistrement…" };
+    if (introStatus === "error") return { tone: "error" as StatusTone, label: introStatusMessage ?? "Erreur" };
+    if (introStatus === "saved") return { tone: "saved" as StatusTone, label: introStatusMessage ?? "Enregistré" };
+    if (introDirtyRef.current) return { tone: "dirty" as StatusTone, label: "Modifications non enregistrées" };
     return { tone: "idle" as StatusTone, label: introStatusMessage ?? "Stable" };
   }, [introStatus, introStatusMessage]);
 
@@ -410,9 +355,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const confirmIntroDiscard = useCallback(() => {
     if (!introDirtyRef.current) return true;
-    return window.confirm(
-      "Des modifications non enregistrées seront perdues. Continuer ?"
-    );
+    return window.confirm("Des modifications non enregistrées seront perdues. Continuer ?");
   }, []);
 
   const fetchArticle = useCallback(async (articleId: string) => {
@@ -422,9 +365,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     try {
       const response = await fetch(`/api/supabase/articles/${articleId}`);
       const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible de charger l’article.");
-      }
+      if (!response.ok) throw new Error(payload?.error ?? "Impossible de charger l'article.");
       setArticleDetail(payload.article);
       setFormState(detailToForm(payload.article));
       dirtyRef.current = false;
@@ -437,51 +378,25 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   }, []);
 
   useEffect(() => {
-    if (selectedArticleId) {
-      return;
-    }
-
+    if (selectedArticleId) return;
     if (isAdmin) {
       const firstArticle = sortedArticles[0];
-      if (!firstArticle) {
-        return;
-      }
+      if (!firstArticle) return;
       setSelectedCategoryId((current) => {
         const target = firstArticle.primaryCategoryId ?? null;
         return current === target ? current : target;
       });
       setSelectedArticleId(firstArticle.id);
-      fetchArticle(firstArticle.id).catch(() => {
-        /* handled in fetchArticle */
-      });
+      fetchArticle(firstArticle.id).catch(() => {});
       return;
     }
-
-    if (!selectedCategoryId) {
-      return;
-    }
-
-    const activeCategory = supabaseCategories.find(
-      (category) => category.id === selectedCategoryId
-    );
-
-    if (!activeCategory || !activeCategory.articles.length) {
-      return;
-    }
-
+    if (!selectedCategoryId) return;
+    const activeCategory = supabaseCategories.find((category) => category.id === selectedCategoryId);
+    if (!activeCategory || !activeCategory.articles.length) return;
     const firstArticleId = activeCategory.articles[0].id;
     setSelectedArticleId(firstArticleId);
-    fetchArticle(firstArticleId).catch(() => {
-      /* handled in fetchArticle */
-    });
-  }, [
-    fetchArticle,
-    isAdmin,
-    selectedArticleId,
-    selectedCategoryId,
-    sortedArticles,
-    supabaseCategories,
-  ]);
+    fetchArticle(firstArticleId).catch(() => {});
+  }, [fetchArticle, isAdmin, selectedArticleId, selectedCategoryId, sortedArticles, supabaseCategories]);
 
   const refreshCategories = useCallback(
     async (focusArticleId?: string) => {
@@ -489,9 +404,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       try {
         const response = await fetch("/api/supabase/articles");
         const payload = await response.json();
-        if (!response.ok) {
-          throw new Error(payload?.error ?? "Impossible de charger les articles.");
-        }
+        if (!response.ok) throw new Error(payload?.error ?? "Impossible de charger les articles.");
         setSupabaseCategories(payload.categories);
         setPanelError(null);
         if (focusArticleId) {
@@ -515,9 +428,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const handleSelectArticle = useCallback(
     async (articleId: string, categoryId?: string | null) => {
-      if (!confirmDiscard()) {
-        return;
-      }
+      if (!confirmDiscard()) return;
       setSelectedCategoryId(categoryId ?? null);
       setSelectedArticleId(articleId);
       await fetchArticle(articleId);
@@ -532,10 +443,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         return { ...current, [key]: value } as SupabaseFormState;
       });
       dirtyRef.current = true;
-      if (status === "saved" || status === "error") {
-        setStatus("idle");
-        setStatusMessage(null);
-      }
+      if (status === "saved" || status === "error") { setStatus("idle"); setStatusMessage(null); }
     },
     [status]
   );
@@ -549,10 +457,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           ? current.categoryIds.filter((id) => id !== categoryId)
           : [...current.categoryIds, categoryId];
         dirtyRef.current = true;
-        if (status === "saved" || status === "error") {
-          setStatus("idle");
-          setStatusMessage(null);
-        }
+        if (status === "saved" || status === "error") { setStatus("idle"); setStatusMessage(null); }
         return { ...current, categoryIds };
       });
     },
@@ -570,17 +475,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     (markdown: string, html: string) => {
       setFormState((current) => {
         if (!current) return current;
-        return {
-          ...current,
-          bodyMarkdown: markdown,
-          bodyHtml: html,
-        };
+        return { ...current, bodyMarkdown: markdown, bodyHtml: html };
       });
       dirtyRef.current = true;
-      if (status === "saved" || status === "error") {
-        setStatus("idle");
-        setStatusMessage(null);
-      }
+      if (status === "saved" || status === "error") { setStatus("idle"); setStatusMessage(null); }
     },
     [status]
   );
@@ -608,17 +506,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           (id) => id !== selectedArticleId
         ),
       };
-
       const response = await fetch(`/api/supabase/articles/${selectedArticleId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data?.error ?? "Impossible d’enregistrer l’article.");
-      }
-
+      if (!response.ok) throw new Error(data?.error ?? "Impossible d'enregistrer l'article.");
       setSupabaseCategories(data.categories);
       setArticleDetail(data.article);
       setFormState(detailToForm(data.article));
@@ -629,16 +523,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       const articleCategories = data.article.categories;
       if (articleCategories.length) {
         setSelectedCategoryId((current) => {
-          if (current && articleCategories.some((category: any) => category.id === current)) {
-            return current;
-          }
+          if (current && articleCategories.some((category: any) => category.id === current)) return current;
           return articleCategories[0].id;
         });
       }
-      setTimeout(() => {
-        setStatus("idle");
-        setStatusMessage(null);
-      }, 1500);
+      setTimeout(() => { setStatus("idle"); setStatusMessage(null); }, 1500);
     } catch (err) {
       setStatus("error");
       setStatusMessage(err instanceof Error ? err.message : "Erreur inconnue");
@@ -649,10 +538,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       setCreateError(null);
-      if (!createDraft.slug.trim()) {
-        setCreateError("Un slug est requis.");
-        return;
-      }
+      if (!createDraft.slug.trim()) { setCreateError("Un slug est requis."); return; }
       setCreateStatus("creating");
       try {
         const payload = {
@@ -671,17 +557,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           categoryIds: createDraft.categoryIds,
           relatedArticleIds: [],
         };
-
         const response = await fetch("/api/supabase/articles", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
         const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data?.error ?? "Création impossible.");
-        }
-
+        if (!response.ok) throw new Error(data?.error ?? "Création impossible.");
         setSupabaseCategories(data.categories);
         setCreateStatus("idle");
         setCreateOpen(false);
@@ -689,9 +571,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         dirtyRef.current = false;
         await fetchArticle(data.article.id);
         setSelectedArticleId(data.article.id);
-        if (data.article.categories.length) {
-          setSelectedCategoryId(data.article.categories[0].id);
-        }
+        if (data.article.categories.length) setSelectedCategoryId(data.article.categories[0].id);
       } catch (err) {
         setCreateStatus("idle");
         setCreateError(err instanceof Error ? err.message : "Erreur inconnue");
@@ -702,19 +582,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const handleDelete = useCallback(async () => {
     if (!selectedArticleId) return;
-    if (!window.confirm("Supprimer définitivement cet article ?")) {
-      return;
-    }
+    if (!window.confirm("Supprimer définitivement cet article ?")) return;
     setDeleteStatus("deleting");
     try {
-      const response = await fetch(`/api/supabase/articles/${selectedArticleId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(`/api/supabase/articles/${selectedArticleId}`, { method: "DELETE" });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(payload?.error ?? "Suppression impossible.");
-      }
-
+      if (!response.ok) throw new Error(payload?.error ?? "Suppression impossible.");
       setDeleteStatus("idle");
       setSelectedArticleId(null);
       setArticleDetail(null);
@@ -732,15 +605,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     try {
       const response = await fetch("/api/supabase/bios");
       const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible de charger les bios.");
-      }
+      if (!response.ok) throw new Error(payload?.error ?? "Impossible de charger les bios.");
       const entries = payload.entries ?? [];
       setBioEntries(entries);
       setSelectedBioId((current) => {
-        if (current && entries.some((entry: SupabaseBioEntry) => entry.id === current)) {
-          return current;
-        }
+        if (current && entries.some((entry: SupabaseBioEntry) => entry.id === current)) return current;
         return entries[0]?.id ?? null;
       });
       setBioStatus(null);
@@ -752,14 +621,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const handleSaveBio = useCallback(async () => {
     if (!bioFormState) return;
     const rank = Number(bioFormState.rank);
-    if (!Number.isFinite(rank)) {
-      setBioStatus("Le rang doit être numérique.");
-      return;
-    }
-
+    if (!Number.isFinite(rank)) { setBioStatus("Le rang doit être numérique."); return; }
     setIsSavingBio(true);
     setBioStatus(null);
-
     try {
       const response = await fetch("/api/supabase/bios", {
         method: "PUT",
@@ -771,18 +635,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           role: bioFormState.role,
           rank,
           portraitBase: bioFormState.portraitBase,
-          bio: bioFormState.bioText
-            .split(/\n{2,}/)
-            .map((paragraph) => paragraph.trim())
-            .filter(Boolean),
+          bio: bioFormState.bioText.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean),
         }),
       });
-
       const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error ?? "Échec de sauvegarde.");
-      }
-
+      if (!response.ok) throw new Error(payload?.error ?? "Échec de sauvegarde.");
       const entries = payload.entries ?? [];
       setBioEntries(entries);
       setSelectedBioId(bioFormState.id);
@@ -813,22 +670,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   useEffect(() => {
     if (!selectedIntro) return;
-    setIntroBody({
-      markdown: selectedIntro.bodyMarkdown,
-      html: selectedIntro.bodyHtml ?? "",
-    });
+    setIntroBody({ markdown: selectedIntro.bodyMarkdown, html: selectedIntro.bodyHtml ?? "" });
     introDirtyRef.current = false;
-    if (introStatus === "error") {
-      setIntroStatus("idle");
-      setIntroStatusMessage(null);
-    }
+    if (introStatus === "error") { setIntroStatus("idle"); setIntroStatusMessage(null); }
   }, [introStatus, selectedIntro]);
 
   const handleIntroSelect = useCallback(
-    (entryId: string) => {
-      if (!confirmIntroDiscard()) return;
-      setSelectedIntroId(entryId);
-    },
+    (entryId: string) => { if (!confirmIntroDiscard()) return; setSelectedIntroId(entryId); },
     [confirmIntroDiscard]
   );
 
@@ -837,8 +685,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       setIntroBody({ markdown, html });
       introDirtyRef.current = true;
       if (introStatus === "saved" || introStatus === "error") {
-        setIntroStatus("idle");
-        setIntroStatusMessage(null);
+        setIntroStatus("idle"); setIntroStatusMessage(null);
       }
     },
     [introStatus]
@@ -859,17 +706,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         }),
       });
       const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible d’enregistrer l’introduction.");
-      }
+      if (!response.ok) throw new Error(payload?.error ?? "Impossible d'enregistrer l'introduction.");
       setIntroEntries(payload.entries ?? []);
       introDirtyRef.current = false;
       setIntroStatus("saved");
       setIntroStatusMessage("Introduction enregistrée");
-      setTimeout(() => {
-        setIntroStatus("idle");
-        setIntroStatusMessage(null);
-      }, 1500);
+      setTimeout(() => { setIntroStatus("idle"); setIntroStatusMessage(null); }, 1500);
     } catch (err) {
       setIntroStatus("error");
       setIntroStatusMessage(err instanceof Error ? err.message : "Erreur inconnue");
@@ -880,31 +722,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     <section className={`supabase-panel supabase-panel--${workspaceVariant}`}>
       <header className="supabase-panel__header">
         <div className="supabase-panel__left">
-          <div className="supabase-panel__mode-toggle" role="tablist" aria-label="Mode d’édition">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={currentMode === "articles"}
-              className={
-                currentMode === "articles"
-                  ? "supabase-panel__mode-btn supabase-panel__mode-btn--active"
-                  : "supabase-panel__mode-btn"
-              }
-              onClick={() => setCurrentMode("articles")}
-            >
+          <div className="supabase-panel__mode-toggle" role="tablist" aria-label="Mode d'édition">
+            <button type="button" role="tab" aria-selected={currentMode === "articles"}
+              className={currentMode === "articles" ? "supabase-panel__mode-btn supabase-panel__mode-btn--active" : "supabase-panel__mode-btn"}
+              onClick={() => setCurrentMode("articles")}>
               Articles
             </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={currentMode === "bios"}
-              className={
-                currentMode === "bios"
-                  ? "supabase-panel__mode-btn supabase-panel__mode-btn--active"
-                  : "supabase-panel__mode-btn"
-              }
-              onClick={() => setCurrentMode("bios")}
-            >
+            <button type="button" role="tab" aria-selected={currentMode === "bios"}
+              className={currentMode === "bios" ? "supabase-panel__mode-btn supabase-panel__mode-btn--active" : "supabase-panel__mode-btn"}
+              onClick={() => setCurrentMode("bios")}>
               Bios
             </button>
           </div>
@@ -921,45 +747,30 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                 <span className="supabase-panel__session-label">Connecté·e</span>
                 <span className="supabase-panel__session-email">{sessionEmail}</span>
               </div>
-              <button
-                type="button"
-                className="supabase-panel__signout"
-                onClick={() => signOut()}
-              >
+              <button type="button" className="supabase-panel__signout" onClick={() => signOut()}>
                 Déconnexion
               </button>
             </div>
           )}
           <div className="supabase-panel__actions">
-            <button
-              type="button"
+            <button type="button"
               className={`supabase-button supabase-button--icon ${isRefreshing ? "is-spinning" : ""}`}
               onClick={() => refreshCategories(selectedArticleId ?? undefined)}
-              aria-label="Actualiser"
-              title="Actualiser"
-            >
+              aria-label="Actualiser" title="Actualiser">
               ↻
             </button>
             {currentMode === "articles" && (
-              <button
-                type="button"
-                className="supabase-button supabase-button--icon"
+              <button type="button" className="supabase-button supabase-button--icon"
                 onClick={() => {
                   setCreateOpen((open) => {
                     const nextOpen = !open;
-                    if (!open) {
-                      setCreateDraft((draft) => ({
-                        ...draft,
-                        categoryIds: selectedCategoryId ? [selectedCategoryId] : [],
-                      }));
-                    }
+                    if (!open) setCreateDraft((draft) => ({ ...draft, categoryIds: selectedCategoryId ? [selectedCategoryId] : [] }));
                     return nextOpen;
                   });
                   setCreateError(null);
                 }}
                 aria-label={createOpen ? "Fermer la création" : "Nouvel article"}
-                title={createOpen ? "Fermer" : "Nouvel article"}
-              >
+                title={createOpen ? "Fermer" : "Nouvel article"}>
                 {createOpen ? "×" : "+"}
               </button>
             )}
@@ -971,66 +782,41 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         <section className="supabase-intros">
           <header className="supabase-intros__header">
             <div>
-              <p className="supabase-intros__title">Textes d’introduction</p>
-              <p className="supabase-intros__subtitle">
-                Mise à jour des pages Réflexion, Création et IRL.
-              </p>
+              <p className="supabase-intros__title">Textes d'introduction</p>
+              <p className="supabase-intros__subtitle">Mise à jour des pages Réflexion, Création et IRL.</p>
             </div>
             <div className="supabase-intros__actions">
-              <button
-                type="button"
-                className="supabase-button supabase-button--ghost"
-                onClick={() => fetchIntroEntries()}
-              >
-                Actualiser
-              </button>
-              <span
-                className={`supabase-editor__status supabase-editor__status--${introDigest.tone}`}
-              >
+              <button type="button" className="supabase-button supabase-button--ghost"
+                onClick={() => fetchIntroEntries()}>Actualiser</button>
+              <span className={`supabase-editor__status supabase-editor__status--${introDigest.tone}`}>
                 {introDigest.label}
               </span>
             </div>
           </header>
-
           {introError && <div className="supabase-panel__error">{introError}</div>}
-
           <div className="supabase-intros__body">
             <div className="supabase-intros__list">
               {introEntries.map((entry) => {
                 const isActive = entry.id === selectedIntroId;
                 const readableTitle = entry.title.replace(/^Intro-/, "");
                 return (
-                  <button
-                    key={entry.id}
-                    type="button"
-                    className={
-                      isActive
-                        ? "supabase-intro-card supabase-intro-card--active"
-                        : "supabase-intro-card"
-                    }
-                    onClick={() => handleIntroSelect(entry.id)}
-                  >
+                  <button key={entry.id} type="button"
+                    className={isActive ? "supabase-intro-card supabase-intro-card--active" : "supabase-intro-card"}
+                    onClick={() => handleIntroSelect(entry.id)}>
                     <span className="supabase-intro-card__title">{readableTitle}</span>
                     <span className="supabase-intro-card__slug">{entry.slug}</span>
-                    <span className="supabase-intro-card__meta">
-                      Mise à jour {formatDateTime(entry.updatedAt)}
-                    </span>
+                    <span className="supabase-intro-card__meta">Mise à jour {formatDateTime(entry.updatedAt)}</span>
                   </button>
                 );
               })}
-              {!introEntries.length && (
-                <p className="supabase-intros__empty">Aucune introduction trouvée.</p>
-              )}
+              {!introEntries.length && <p className="supabase-intros__empty">Aucune introduction trouvée.</p>}
             </div>
-
             <div className="supabase-intros__editor">
               {selectedIntro ? (
                 <>
                   <div className="supabase-editor__richtext-header">
-                    <span>Contenu d’introduction</span>
-                    <span
-                      className={`supabase-editor__status supabase-editor__status--${introDigest.tone}`}
-                    >
+                    <span>Contenu d'introduction</span>
+                    <span className={`supabase-editor__status supabase-editor__status--${introDigest.tone}`}>
                       {introDigest.label}
                     </span>
                   </div>
@@ -1038,23 +824,17 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     key={selectedIntro.id}
                     value={introBody.markdown}
                     onChange={handleIntroChange}
-                    placeholder="Écrivez l’introduction…"
+                    placeholder="Écrivez l'introduction…"
                   />
                   <div className="supabase-intros__actions">
-                    <button
-                      type="button"
-                      className="supabase-button supabase-button--primary"
-                      onClick={handleIntroSave}
-                      disabled={introStatus === "saving"}
-                    >
+                    <button type="button" className="supabase-button supabase-button--primary"
+                      onClick={handleIntroSave} disabled={introStatus === "saving"}>
                       {introStatus === "saving" ? "Enregistrement…" : "Enregistrer"}
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="supabase-workspace__empty">
-                  Chargement des introductions…
-                </div>
+                <div className="supabase-workspace__empty">Chargement des introductions…</div>
               )}
             </div>
           </div>
@@ -1066,49 +846,27 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       {currentMode === "articles" && createOpen && (
         <form className="supabase-create" onSubmit={handleCreate}>
           <div className="supabase-create__row">
-            <label>
-              <span>Titre</span>
-              <input
-                value={createDraft.title}
-                onChange={(event) =>
-                  setCreateDraft((draft) => ({ ...draft, title: event.target.value }))
-                }
-                placeholder="Titre de l’article"
-              />
+            <label><span>Titre</span>
+              <input value={createDraft.title}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, title: e.target.value }))}
+                placeholder="Titre de l'article" />
             </label>
-            <label>
-              <span>Adresse</span>
-              <input
-                value={createDraft.slug}
-                onChange={(event) =>
-                  setCreateDraft((draft) => ({ ...draft, slug: event.target.value }))
-                }
-                placeholder="slug-unique"
-                required
-              />
+            <label><span>Adresse</span>
+              <input value={createDraft.slug}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, slug: e.target.value }))}
+                placeholder="slug-unique" required />
             </label>
-            <label>
-              <span>Auteur·rice</span>
-              <input
-                value={createDraft.authorName}
-                onChange={(event) =>
-                  setCreateDraft((draft) => ({ ...draft, authorName: event.target.value }))
-                }
-                placeholder="Nom de l’auteur·rice"
-              />
+            <label><span>Auteur·rice</span>
+              <input value={createDraft.authorName}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, authorName: e.target.value }))}
+                placeholder="Nom de l'auteur·rice" />
             </label>
             <label className="supabase-create__status">
-              <input
-                type="checkbox"
-                checked={createDraft.status}
-                onChange={(event) =>
-                  setCreateDraft((draft) => ({ ...draft, status: event.target.checked }))
-                }
-              />
+              <input type="checkbox" checked={createDraft.status}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, status: e.target.checked }))} />
               <span>Publier immédiatement</span>
             </label>
           </div>
-
           <fieldset className="supabase-create__categories">
             <legend>Catégories</legend>
             <div className="supabase-create__categories-grid">
@@ -1116,416 +874,287 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                 const checked = createDraft.categoryIds.includes(category.id);
                 return (
                   <label key={category.id} className={checked ? "active" : undefined}>
-                    <input
-                      type="checkbox"
-                      checked={checked}
+                    <input type="checkbox" checked={checked}
                       onChange={(event) => {
                         setCreateDraft((draft) => {
                           const has = draft.categoryIds.includes(category.id);
-                          if (event.target.checked && !has) {
-                            return {
-                              ...draft,
-                              categoryIds: [...draft.categoryIds, category.id],
-                            };
-                          }
-                          if (!event.target.checked && has) {
-                            return {
-                              ...draft,
-                              categoryIds: draft.categoryIds.filter((id) => id !== category.id),
-                            };
-                          }
+                          if (event.target.checked && !has) return { ...draft, categoryIds: [...draft.categoryIds, category.id] };
+                          if (!event.target.checked && has) return { ...draft, categoryIds: draft.categoryIds.filter((id) => id !== category.id) };
                           return draft;
                         });
-                      }}
-                    />
+                      }} />
                     <span>{category.name}</span>
                   </label>
                 );
               })}
             </div>
           </fieldset>
-
           {createError && <p className="supabase-create__error">{createError}</p>}
-
-          <button
-            type="submit"
-            className="supabase-button supabase-button--primary"
-            disabled={createStatus === "creating"}
-          >
-            {createStatus === "creating" ? "Création…" : "Créer l’article"}
+          <button type="submit" className="supabase-button supabase-button--primary"
+            disabled={createStatus === "creating"}>
+            {createStatus === "creating" ? "Création…" : "Créer l'article"}
           </button>
         </form>
       )}
 
       {currentMode === "articles" ? (
-      <div
-        className={
-          isAdmin
-            ? "supabase-workspace supabase-workspace--admin"
-            : "supabase-workspace"
-        }
-      >
-        {isAdmin ? (
-          <div className="supabase-workspace__table">
-            <div className="supabase-table__scroll">
-              <table className="supabase-table">
-                <thead>
-                  <tr>
-                    <th>Article</th>
-                    <th>Catégories</th>
-                    <th>Statut</th>
-                    <th>Mis à jour</th>
-                    <th>Publié</th>
-                    <th>Auteur·rice</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedArticles.length ? (
-                    sortedArticles.map((article) => {
+        <div className={isAdmin ? "supabase-workspace supabase-workspace--admin" : "supabase-workspace"}>
+          {isAdmin ? (
+            <div className="supabase-workspace__table">
+              <div className="supabase-table__scroll">
+                <table className="supabase-table">
+                  <thead>
+                    <tr>
+                      <th>Article</th><th>Catégories</th><th>Statut</th>
+                      <th>Mis à jour</th><th>Publié</th><th>Auteur·rice</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedArticles.length ? (
+                      sortedArticles.map((article) => {
+                        const isActive = selectedArticleId === article.id;
+                        return (
+                          <tr key={article.id}
+                            className={isActive ? "supabase-table__row supabase-table__row--active" : "supabase-table__row"}
+                            onClick={() => handleSelectArticle(article.id, article.primaryCategoryId)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                                e.preventDefault();
+                                handleSelectArticle(article.id, article.primaryCategoryId);
+                              }
+                            }}
+                            tabIndex={0} role="button" aria-pressed={isActive}>
+                            <td>
+                              <div className="supabase-table__title">{article.title}</div>
+                              <div className="supabase-table__slug">{article.slug}</div>
+                            </td>
+                            <td>
+                              <div className="supabase-table__categories">
+                                {article.categories.length ? (
+                                  article.categories.map((cat) => (
+                                    <span key={cat.id} className="supabase-table__category">{cat.name}</span>
+                                  ))
+                                ) : (
+                                  <span className="supabase-table__category supabase-table__category--empty">Aucune</span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <span className={article.status ? "supabase-table__status supabase-table__status--published" : "supabase-table__status supabase-table__status--draft"}>
+                                {article.status ? "Publié" : "Brouillon"}
+                              </span>
+                            </td>
+                            <td>{formatDateTime(article.updatedAt)}</td>
+                            <td>{formatDateTime(article.publishedAt)}</td>
+                            <td>
+                              {article.author
+                                ? <span className="supabase-table__author">{article.author}</span>
+                                : <span className="supabase-table__muted">—</span>}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr className="supabase-table__empty"><td colSpan={6}>Aucun article disponible.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <aside className="supabase-workspace__sidebar">
+              {supabaseCategories.map((category) => (
+                <section key={category.id} className="supabase-category">
+                  <header className="supabase-category__header">
+                    <span className="supabase-category__dot" style={{ backgroundColor: category.color || "#999" }} />
+                    <span>{category.name}</span>
+                  </header>
+                  <ul className="supabase-category__list">
+                    {category.articles.map((article) => {
                       const isActive = selectedArticleId === article.id;
                       return (
-                        <tr
-                          key={article.id}
-                          className={
-                            isActive
-                              ? "supabase-table__row supabase-table__row--active"
-                              : "supabase-table__row"
-                          }
-                          onClick={() => handleSelectArticle(article.id, article.primaryCategoryId)}
-                          onKeyDown={(event) => {
-                            if (
-                              event.key === "Enter" ||
-                              event.key === " " ||
-                              event.key === "Spacebar"
-                            ) {
-                              event.preventDefault();
-                              handleSelectArticle(article.id, article.primaryCategoryId);
-                            }
-                          }}
-                          tabIndex={0}
-                          role="button"
-                          aria-pressed={isActive}
-                        >
-                          <td>
-                            <div className="supabase-table__title">{article.title}</div>
-                            <div className="supabase-table__slug">{article.slug}</div>
-                          </td>
-                          <td>
-                            <div className="supabase-table__categories">
-                              {article.categories.length ? (
-                                article.categories.map((category) => (
-                                  <span key={category.id} className="supabase-table__category">
-                                    {category.name}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="supabase-table__category supabase-table__category--empty">
-                                  Aucune
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <span
-                              className={
-                                article.status
-                                  ? "supabase-table__status supabase-table__status--published"
-                                  : "supabase-table__status supabase-table__status--draft"
-                              }
-                            >
-                              {article.status ? "Publié" : "Brouillon"}
-                            </span>
-                          </td>
-                          <td>{formatDateTime(article.updatedAt)}</td>
-                          <td>{formatDateTime(article.publishedAt)}</td>
-                          <td>
-                            {article.author ? (
-                              <span className="supabase-table__author">{article.author}</span>
-                            ) : (
-                              <span className="supabase-table__muted">—</span>
-                            )}
-                          </td>
-                        </tr>
+                        <li key={article.id}>
+                          <button type="button"
+                            className={isActive ? "supabase-entry supabase-entry--active" : "supabase-entry"}
+                            onClick={() => handleSelectArticle(article.id, category.id)}>
+                            <span className={article.status ? "supabase-entry__dot supabase-entry__dot--published" : "supabase-entry__dot supabase-entry__dot--draft"} aria-hidden />
+                            <span className="supabase-entry__title">{article.title}</span>
+                            <span className="supabase-entry__preview">{toPreviewText(article)}</span>
+                          </button>
+                        </li>
                       );
-                    })
-                  ) : (
-                    <tr className="supabase-table__empty">
-                      <td colSpan={6}>Aucun article disponible.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <aside className="supabase-workspace__sidebar">
-            {supabaseCategories.map((category) => (
-              <section key={category.id} className="supabase-category">
-                <header className="supabase-category__header">
-                  <span
-                    className="supabase-category__dot"
-                    style={{ backgroundColor: category.color || "#999" }}
-                  />
-                  <span>{category.name}</span>
-                </header>
-                <ul className="supabase-category__list">
-                  {category.articles.map((article) => {
-                    const isActive = selectedArticleId === article.id;
-                    return (
-                      <li key={article.id}>
-                        <button
-                          type="button"
-                          className={
-                            isActive
-                              ? "supabase-entry supabase-entry--active"
-                              : "supabase-entry"
-                          }
-                          onClick={() => handleSelectArticle(article.id, category.id)}
-                        >
-                          <span
-                            className={
-                              article.status
-                                ? "supabase-entry__dot supabase-entry__dot--published"
-                                : "supabase-entry__dot supabase-entry__dot--draft"
-                            }
-                            aria-hidden
-                          />
-                          <span className="supabase-entry__title">{article.title}</span>
-                          <span className="supabase-entry__preview">{toPreviewText(article)}</span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                  {!category.articles.length && (
-                    <li className="supabase-category__empty">Aucun article</li>
-                  )}
-                </ul>
-              </section>
-            ))}
-          </aside>
-        )}
-
-        <div className="supabase-workspace__editor">
-          {selectedArticleId && formState ? (
-            <>
-              <div className="supabase-editor__content">
-                <section className="supabase-editor__top">
-                  <label className="supabase-editor__field supabase-editor__field--title">
-                    <span>Titre</span>
-                    <input
-                      value={formState.title}
-                      onChange={(event) => updateForm("title", event.target.value)}
-                      placeholder="Titre de l’article"
-                    />
-                  </label>
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--identity">
-                    <label className="supabase-editor__field">
-                      <span>Auteur·rice</span>
-                      <input
-                        value={formState.authorName}
-                        onChange={(event) => updateForm("authorName", event.target.value)}
-                        placeholder="Nom de l’auteur·rice"
-                      />
-                    </label>
-                    <label className="supabase-editor__field">
-                      <span>Adresse</span>
-                      <input
-                        value={formState.slug}
-                        onChange={(event) => updateForm("slug", event.target.value)}
-                        placeholder="exemple-d’article"
-                      />
-                    </label>
-                  </div>
-
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--taxonomy">
-                    <fieldset className="supabase-editor__field supabase-editor__field--categories">
-                      <legend>Catégories</legend>
-                      <div className="supabase-editor__categories">
-                        {supabaseCategories.map((category) => {
-                          const checked = formState.categoryIds.includes(category.id);
-                          return (
-                            <label key={category.id} className={checked ? "active" : undefined}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleCategoryToggle(category.id)}
-                              />
-                              <span>{category.name}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </fieldset>
-                    <label className="supabase-editor__field supabase-editor__field--checkbox supabase-editor__field--status">
-                      <input
-                        type="checkbox"
-                        checked={formState.status}
-                        onChange={(event) => updateForm("status", event.target.checked)}
-                      />
-                      <span>Article publié</span>
-                    </label>
-                  </div>
-
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--dates">
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Date éditoriale</span>
-                      <input
-                        type="date"
-                        value={formState.authoredDate}
-                        onChange={(event) => updateForm("authoredDate", event.target.value)}
-                      />
-                    </label>
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Publication</span>
-                      <input
-                        type="datetime-local"
-                        value={formState.publishedAt}
-                        onChange={(event) => updateForm("publishedAt", event.target.value)}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
-                    <label className="supabase-editor__field supabase-editor__field--excerpt">
-                      <span>Extrait affiché sur la catégorie</span>
-                      <textarea
-                        rows={3}
-                        value={formState.excerpt}
-                        onChange={(event) => updateForm("excerpt", event.target.value)}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="supabase-editor__stack">
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Image d’en-tête</span>
-                      <input
-                        value={formState.headerImagePath}
-                        onChange={(event) => updateForm("headerImagePath", event.target.value)}
-                        placeholder="storage/articles/image.jpg"
-                      />
-                    </label>
-
-                    <label className="supabase-editor__field supabase-editor__field--related supabase-editor__field--compact">
-                      <span>Articles liés</span>
-                      <select
-                        multiple
-                        value={formState.relatedArticleIds}
-                        onChange={(event) =>
-                          handleRelatedChange(
-                            Array.from(event.target.selectedOptions).map((option) => option.value)
-                          )
-                        }
-                      >
-                        {relatedOptions.map((article) => (
-                          <option key={article.id} value={article.id}>
-                            {article.title} · {article.categoryName}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    {articleDetail?.media?.length ? (
-                      <div className="supabase-editor__media">
-                        <h4>Médias liés</h4>
-                        <ul>
-                          {articleDetail.media.map((media) => (
-                            <li key={media.id}>
-                              <code>{media.storagePath}</code>
-                              {media.caption && <span>{media.caption}</span>}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {showAdvanced && (
-                    <details className="supabase-editor__advanced">
-                      <summary>Afficher les champs bruts</summary>
-                      <label className="supabase-editor__field">
-                        <span>Contenu Markdown</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyMarkdown}
-                          onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
-                        />
-                      </label>
-
-                      <label className="supabase-editor__field">
-                        <span>Contenu HTML</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyHtml}
-                          onChange={(event) => updateForm("bodyHtml", event.target.value)}
-                        />
-                      </label>
-
-                      <label className="supabase-editor__field">
-                        <span>Contenu JSON (TipTap / Rich text)</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyJson}
-                          onChange={(event) => updateForm("bodyJson", event.target.value)}
-                          placeholder='{ "type": "doc" }'
-                        />
-                      </label>
-                    </details>
-                  )}
-
-                  {articleDetail && (
-                    <div className="supabase-editor__meta">
-                      <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
-                      <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
-                    </div>
-                  )}
+                    })}
+                    {!category.articles.length && <li className="supabase-category__empty">Aucun article</li>}
+                  </ul>
                 </section>
-
-                <section className="supabase-editor__canvas">
-                  <div className="supabase-editor__richtext-header">
-                    <span>Contenu de l’article</span>
-                    <span
-                      className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
-                    >
-                      {digest.label}
-                    </span>
-                  </div>
-                  <SupabaseRichTextEditor
-                    key={articleDetail?.id ?? "new"}
-                    value={formState.bodyMarkdown}
-                    onChange={handleRichTextChange}
-                    placeholder="Écrivez votre article…"
-                  />
-                </section>
-
-                <footer className="supabase-editor__footer">
-                  <button
-                    type="button"
-                    className="supabase-button supabase-button--primary"
-                    onClick={handleSave}
-                    disabled={status === "saving"}
-                  >
-                    {status === "saving" ? "Enregistrement…" : "Enregistrer"}
-                  </button>
-                  <button
-                    type="button"
-                    className="supabase-button supabase-button--danger"
-                    onClick={handleDelete}
-                    disabled={deleteStatus === "deleting"}
-                  >
-                    {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
-                  </button>
-                </footer>
-              </div>
-            </>
-          ) : (
-            <div className="supabase-workspace__empty">
-              Sélectionnez un article pour commencer.
-            </div>
+              ))}
+            </aside>
           )}
-        </div>
-      </div>
 
+          <div className="supabase-workspace__editor">
+            {selectedArticleId && formState ? (
+              <>
+                <div className="supabase-editor__content">
+                  <section className="supabase-editor__top">
+                    <label className="supabase-editor__field supabase-editor__field--title">
+                      <span>Titre</span>
+                      <input value={formState.title}
+                        onChange={(e) => updateForm("title", e.target.value)}
+                        placeholder="Titre de l'article" />
+                    </label>
+                    <div className="supabase-editor__details-grid supabase-editor__details-grid--identity">
+                      <label className="supabase-editor__field">
+                        <span>Auteur·rice</span>
+                        <input value={formState.authorName}
+                          onChange={(e) => updateForm("authorName", e.target.value)}
+                          placeholder="Nom de l'auteur·rice" />
+                      </label>
+                      <label className="supabase-editor__field">
+                        <span>Adresse</span>
+                        <input value={formState.slug}
+                          onChange={(e) => updateForm("slug", e.target.value)}
+                          placeholder="exemple-d'article" />
+                      </label>
+                    </div>
+                    <div className="supabase-editor__details-grid supabase-editor__details-grid--taxonomy">
+                      <fieldset className="supabase-editor__field supabase-editor__field--categories">
+                        <legend>Catégories</legend>
+                        <div className="supabase-editor__categories">
+                          {supabaseCategories.map((category) => {
+                            const checked = formState.categoryIds.includes(category.id);
+                            return (
+                              <label key={category.id} className={checked ? "active" : undefined}>
+                                <input type="checkbox" checked={checked}
+                                  onChange={() => handleCategoryToggle(category.id)} />
+                                <span>{category.name}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </fieldset>
+                      <label className="supabase-editor__field supabase-editor__field--checkbox supabase-editor__field--status">
+                        <input type="checkbox" checked={formState.status}
+                          onChange={(e) => updateForm("status", e.target.checked)} />
+                        <span>Article publié</span>
+                      </label>
+                    </div>
+                    <div className="supabase-editor__details-grid supabase-editor__details-grid--dates">
+                      <label className="supabase-editor__field supabase-editor__field--compact">
+                        <span>Date éditoriale</span>
+                        <input type="date" value={formState.authoredDate}
+                          onChange={(e) => updateForm("authoredDate", e.target.value)} />
+                      </label>
+                      <label className="supabase-editor__field supabase-editor__field--compact">
+                        <span>Publication</span>
+                        <input type="datetime-local" value={formState.publishedAt}
+                          onChange={(e) => updateForm("publishedAt", e.target.value)} />
+                      </label>
+                    </div>
+                    <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
+                      <label className="supabase-editor__field supabase-editor__field--excerpt">
+                        <span>Extrait affiché sur la catégorie</span>
+                        <textarea rows={3} value={formState.excerpt}
+                          onChange={(e) => updateForm("excerpt", e.target.value)} />
+                      </label>
+                    </div>
+                    <div className="supabase-editor__stack">
+                      <label className="supabase-editor__field supabase-editor__field--compact">
+                        <span>Image d'en-tête</span>
+                        <input value={formState.headerImagePath}
+                          onChange={(e) => updateForm("headerImagePath", e.target.value)}
+                          placeholder="storage/articles/image.jpg" />
+                      </label>
+                      <label className="supabase-editor__field supabase-editor__field--related supabase-editor__field--compact">
+                        <span>Articles liés</span>
+                        <select multiple value={formState.relatedArticleIds}
+                          onChange={(e) =>
+                            handleRelatedChange(Array.from(e.target.selectedOptions).map((o) => o.value))
+                          }>
+                          {relatedOptions.map((article) => (
+                            <option key={article.id} value={article.id}>
+                              {article.title} · {article.categoryName}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      {articleDetail?.media?.length ? (
+                        <div className="supabase-editor__media">
+                          <h4>Médias liés</h4>
+                          <ul>
+                            {articleDetail.media.map((media) => (
+                              <li key={media.id}>
+                                <code>{media.storagePath}</code>
+                                {media.caption && <span>{media.caption}</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                    </div>
+                    {showAdvanced && (
+                      <details className="supabase-editor__advanced">
+                        <summary>Afficher les champs bruts</summary>
+                        <label className="supabase-editor__field">
+                          <span>Contenu Markdown</span>
+                          <textarea className="supabase-editor__textarea" value={formState.bodyMarkdown}
+                            onChange={(e) => updateForm("bodyMarkdown", e.target.value)} />
+                        </label>
+                        <label className="supabase-editor__field">
+                          <span>Contenu HTML</span>
+                          <textarea className="supabase-editor__textarea" value={formState.bodyHtml}
+                            onChange={(e) => updateForm("bodyHtml", e.target.value)} />
+                        </label>
+                        <label className="supabase-editor__field">
+                          <span>Contenu JSON (TipTap / Rich text)</span>
+                          <textarea className="supabase-editor__textarea" value={formState.bodyJson}
+                            onChange={(e) => updateForm("bodyJson", e.target.value)}
+                            placeholder='{ "type": "doc" }' />
+                        </label>
+                      </details>
+                    )}
+                    {articleDetail && (
+                      <div className="supabase-editor__meta">
+                        <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
+                        <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
+                      </div>
+                    )}
+                  </section>
+
+                  <section className="supabase-editor__canvas">
+                    <div className="supabase-editor__richtext-header">
+                      <span>Contenu de l'article</span>
+                      <span className={`supabase-editor__status supabase-editor__status--${digest.tone}`}>
+                        {digest.label}
+                      </span>
+                    </div>
+                    <SupabaseRichTextEditor
+                      key={articleDetail?.id ?? "new"}
+                      value={formState.bodyMarkdown}
+                      onChange={handleRichTextChange}
+                      slug={formState.slug}
+                      placeholder="Écrivez votre article…"
+                    />
+                  </section>
+
+                  <footer className="supabase-editor__footer">
+                    <button type="button" className="supabase-button supabase-button--primary"
+                      onClick={handleSave} disabled={status === "saving"}>
+                      {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                    </button>
+                    <button type="button" className="supabase-button supabase-button--danger"
+                      onClick={handleDelete} disabled={deleteStatus === "deleting"}>
+                      {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
+                    </button>
+                  </footer>
+                </div>
+              </>
+            ) : (
+              <div className="supabase-workspace__empty">
+                Sélectionnez un article pour commencer.
+              </div>
+            )}
+          </div>
+        </div>
       ) : (
         <div className="supabase-workspace">
           <aside className="supabase-workspace__sidebar">
@@ -1539,14 +1168,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   const isActive = selectedBioId === entry.id;
                   return (
                     <li key={entry.id}>
-                      <button
-                        type="button"
+                      <button type="button"
                         className={isActive ? "supabase-entry supabase-entry--active" : "supabase-entry"}
-                        onClick={() => {
-                          setSelectedBioId(entry.id);
-                          setBioStatus(null);
-                        }}
-                      >
+                        onClick={() => { setSelectedBioId(entry.id); setBioStatus(null); }}>
                         <span className="supabase-entry__title">{entry.name}</span>
                         <span className="supabase-entry__preview">
                           {(entry.bio || []).join(" ").replace(/\s+/g, " ").trim() || "Bio indisponible"}
@@ -1555,13 +1179,10 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     </li>
                   );
                 })}
-                {!bioEntries.length && (
-                  <li className="supabase-category__empty">Aucune bio</li>
-                )}
+                {!bioEntries.length && <li className="supabase-category__empty">Aucune bio</li>}
               </ul>
             </section>
           </aside>
-
           <div className="supabase-workspace__editor">
             {bioFormState ? (
               <div className="supabase-editor__content">
@@ -1569,90 +1190,42 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--compact">
                     <label className="supabase-editor__field supabase-editor__field--compact">
                       <span>Nom</span>
-                      <input
-                        value={bioFormState.name}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, name: event.target.value } : current
-                          )
-                        }
-                      />
+                      <input value={bioFormState.name}
+                        onChange={(e) => setBioFormState((s) => s ? { ...s, name: e.target.value } : s)} />
                     </label>
                     <label className="supabase-editor__field supabase-editor__field--compact">
                       <span>Slug</span>
-                      <input
-                        value={bioFormState.slug}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, slug: event.target.value } : current
-                          )
-                        }
-                      />
+                      <input value={bioFormState.slug}
+                        onChange={(e) => setBioFormState((s) => s ? { ...s, slug: e.target.value } : s)} />
                     </label>
                     <label className="supabase-editor__field supabase-editor__field--compact">
                       <span>Rôle</span>
-                      <input
-                        value={bioFormState.role}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, role: event.target.value } : current
-                          )
-                        }
-                      />
+                      <input value={bioFormState.role}
+                        onChange={(e) => setBioFormState((s) => s ? { ...s, role: e.target.value } : s)} />
                     </label>
                     <label className="supabase-editor__field supabase-editor__field--compact supabase-editor__field--rank">
                       <span>Rang</span>
-                      <input
-                        value={bioFormState.rank}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, rank: event.target.value } : current
-                          )
-                        }
-                      />
+                      <input value={bioFormState.rank}
+                        onChange={(e) => setBioFormState((s) => s ? { ...s, rank: e.target.value } : s)} />
                     </label>
                     <label className="supabase-editor__field supabase-editor__field--compact">
                       <span>Portrait base</span>
-                      <input
-                        value={bioFormState.portraitBase}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, portraitBase: event.target.value } : current
-                          )
-                        }
-                      />
+                      <input value={bioFormState.portraitBase}
+                        onChange={(e) => setBioFormState((s) => s ? { ...s, portraitBase: e.target.value } : s)} />
                     </label>
                   </div>
-
                   <label className="supabase-editor__field supabase-editor__field--bio-main">
                     <span>Bio</span>
-                    <textarea
-                      rows={14}
-                      value={bioFormState.bioText}
-                      onChange={(event) =>
-                        setBioFormState((current) =>
-                          current ? { ...current, bioText: event.target.value } : current
-                        )
-                      }
-                    />
+                    <textarea rows={14} value={bioFormState.bioText}
+                      onChange={(e) => setBioFormState((s) => s ? { ...s, bioText: e.target.value } : s)} />
                   </label>
                 </section>
-
                 <footer className="supabase-editor__footer">
                   {bioStatus && <span className="supabase-editor__status">{bioStatus}</span>}
-                  <button
-                    type="button"
-                    className="supabase-button supabase-button--ghost"
-                    onClick={refreshBios}
-                  >
-                    Actualiser
-                  </button>
-                  <button
-                    type="button"
-                    className="supabase-button supabase-button--primary"
-                    onClick={handleSaveBio}
-                    disabled={isSavingBio}
-                  >
+                  <button type="button" className="supabase-button supabase-button--ghost"
+                    onClick={refreshBios}>Actualiser</button>
+                  <button type="button" className="supabase-button supabase-button--primary"
+                    onClick={handleSaveBio} disabled={isSavingBio}>
                     {isSavingBio ? "Enregistrement…" : "Enregistrer"}
                   </button>
                 </footer>
@@ -1663,1044 +1236,6 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .supabase-panel {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          overflow: hidden;
-        }
-        .supabase-panel__header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-          flex-shrink: 0;
-        }
-        .supabase-panel__left {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          min-width: 0;
-        }
-        .supabase-panel__right {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          min-width: 0;
-        }
-        .supabase-panel__mode-toggle {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 3px;
-          border-radius: 999px;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          background: #f4f5fb;
-        }
-        .supabase-panel__mode-btn {
-          border: none;
-          background: transparent;
-          border-radius: 999px;
-          padding: 6px 10px;
-          font-size: 11px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: #5a5c62;
-          cursor: pointer;
-        }
-        .supabase-panel__mode-btn--active {
-          color: #1f2024;
-          background: #ffffff;
-          box-shadow: 0 1px 4px rgba(18, 19, 27, 0.1);
-        }
-        .supabase-panel__session {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          padding: 7px 10px;
-          border-radius: 14px;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          background: rgba(255, 255, 255, 0.6);
-          box-shadow: 0 10px 24px rgba(18, 19, 27, 0.08);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-        }
-        .supabase-panel__session-info {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          min-width: 0;
-        }
-        .supabase-panel__session-label {
-          font-size: 9px;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: #6b6e76;
-        }
-        .supabase-panel__session-email {
-          font-size: 12px;
-          font-weight: 600;
-          color: #1c1e24;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-        .supabase-panel__signout {
-          border: none;
-          border-radius: 999px;
-          padding: 6px 10px;
-          font-size: 9px;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          background: #1f2024;
-          color: #ffffff;
-          cursor: pointer;
-        }
-        .supabase-panel__signout:hover {
-          background: #292a30;
-        }
-        .supabase-panel__subtitle {
-          margin: 0;
-          font-size: 13px;
-          color: #5a5c62;
-        }
-        .supabase-panel__actions {
-          display: flex;
-          gap: 8px;
-        }
-        .supabase-panel__error {
-          padding: 12px 16px;
-          border-radius: 12px;
-          background: rgba(162, 47, 33, 0.08);
-          color: #a62f21;
-          font-size: 13px;
-          flex-shrink: 0;
-        }
-        .supabase-intros {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          padding: 14px 16px;
-          border-radius: 14px;
-          border: 1px solid rgba(0, 0, 0, 0.06);
-          background: #f9fafc;
-        }
-        .supabase-intros__header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-        .supabase-intros__title {
-          margin: 0;
-          font-size: 12px;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          color: #444651;
-        }
-        .supabase-intros__subtitle {
-          margin: 4px 0 0;
-          color: #6f717a;
-          font-size: 12px;
-        }
-        .supabase-intros__actions {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        .supabase-intros__body {
-          display: grid;
-          grid-template-columns: 260px minmax(0, 1fr);
-          gap: 14px;
-        }
-        .supabase-intros__list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .supabase-intros__editor {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .supabase-intros__empty {
-          margin: 0;
-          padding: 10px 12px;
-          border-radius: 10px;
-          border: 1px dashed rgba(0, 0, 0, 0.16);
-          color: #7a7c82;
-          font-size: 12px;
-        }
-        .supabase-intro-card {
-          text-align: left;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 12px;
-          padding: 10px 12px;
-          background: #ffffff;
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .supabase-intro-card:hover {
-          border-color: rgba(0, 0, 0, 0.14);
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-        }
-        .supabase-intro-card--active {
-          border-color: rgba(36, 119, 70, 0.28);
-          box-shadow: inset 0 0 0 1px rgba(36, 119, 70, 0.28);
-        }
-        .supabase-intro-card__title {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1f2024;
-        }
-        .supabase-intro-card__slug {
-          font-size: 11px;
-          color: #7a7c82;
-        }
-        .supabase-intro-card__meta {
-          font-size: 11px;
-          color: #5f6169;
-        }
-        .supabase-button {
-          border: none;
-          border-radius: 999px;
-          padding: 8px 12px;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          cursor: pointer;
-          background: #1f1f22;
-          color: #ffffff;
-        }
-        .supabase-button--ghost {
-          background: transparent;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          color: #1f1f22;
-        }
-        .supabase-button--primary {
-          background: #2b7a4a;
-        }
-        .supabase-button--danger {
-          background: #a62f21;
-        }
-        .supabase-button--icon {
-          width: 34px;
-          height: 34px;
-          border-radius: 50%;
-          padding: 0;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          letter-spacing: 0;
-          text-transform: none;
-          line-height: 1;
-        }
-        .supabase-button--icon.is-spinning {
-          animation: supabase-spin 0.9s linear infinite;
-        }
-        @keyframes supabase-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .supabase-create {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 12px;
-          padding: 16px;
-          background: #f9fafb;
-          flex-shrink: 0;
-        }
-        .supabase-create__row {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 12px;
-        }
-        .supabase-create__row label {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.16em;
-          color: #71737b;
-        }
-        .supabase-create__row input[type="text"],
-        .supabase-create__row input[type="checkbox"],
-        .supabase-create__row input[type="date"],
-        .supabase-create__row input[type="datetime-local"],
-        .supabase-create__row input[type="time"] {
-          font-family: inherit;
-        }
-        .supabase-create__row input[type="text"],
-        .supabase-create__row input[type="date"],
-        .supabase-create__row input[type="datetime-local"],
-        .supabase-create__row input[type="time"] {
-          padding: 10px 12px;
-          border-radius: 10px;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          background: #ffffff;
-          font-size: 13px;
-        }
-        .supabase-create__status {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 12px;
-          letter-spacing: 0;
-          text-transform: none;
-        }
-        .supabase-create__categories {
-          margin: 0;
-          border: none;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .supabase-create__categories legend {
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          color: #71737b;
-        }
-        .supabase-create__categories-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-        .supabase-create__categories-grid label {
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          border-radius: 999px;
-          padding: 6px 14px;
-          font-size: 12px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: #ffffff;
-        }
-        .supabase-create__categories-grid label.active {
-          border-color: rgba(36, 119, 70, 0.32);
-          background: rgba(36, 119, 70, 0.08);
-        }
-        .supabase-create__error {
-          margin: 0;
-          color: #a62f21;
-          font-size: 12px;
-        }
-        .supabase-workspace {
-          flex: 1;
-          min-height: 0;
-          display: grid;
-          grid-template-columns: 300px minmax(0, 1fr);
-          gap: 12px;
-          overflow: hidden;
-        }
-        .supabase-workspace--admin {
-          grid-template-columns: minmax(0, 1fr);
-          grid-template-rows: minmax(0, 300px) minmax(0, 1fr);
-          gap: 10px;
-        }
-        .supabase-workspace--bios {
-          grid-template-columns: minmax(0, 1fr);
-        }
-        .supabase-workspace__sidebar {
-          min-height: 0;
-          overflow-y: auto;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          padding-right: 8px;
-        }
-        .supabase-workspace__table {
-          min-height: 0;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 20px;
-          background: linear-gradient(150deg, #ffffff 0%, #f4f5fb 100%);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
-        .supabase-table__scroll {
-          flex: 1;
-          min-height: 0;
-          overflow: auto;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-        .supabase-workspace__sidebar::-webkit-scrollbar,
-        .supabase-workspace__editor::-webkit-scrollbar,
-        .supabase-table__scroll::-webkit-scrollbar,
-        .supabase-rich-text .ql-container::-webkit-scrollbar,
-        .supabase-rich-text .ql-editor::-webkit-scrollbar {
-          width: 0;
-          height: 0;
-        }
-        .supabase-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 12px;
-          line-height: 1.4;
-        }
-        .supabase-table th {
-          position: sticky;
-          top: 0;
-          background: rgba(246, 247, 251, 0.92);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          text-align: left;
-          padding: 12px 18px;
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          color: #6a6c72;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-          z-index: 1;
-        }
-        .supabase-table td {
-          padding: 14px 18px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-          vertical-align: top;
-          color: #1f2024;
-        }
-        .supabase-table tr:last-of-type td {
-          border-bottom: none;
-        }
-        .supabase-table__row {
-          cursor: pointer;
-          transition: background-color 0.15s ease, box-shadow 0.15s ease;
-        }
-        .supabase-table__row:hover {
-          background: rgba(32, 40, 86, 0.06);
-        }
-        .supabase-table__row:focus-visible {
-          outline: none;
-          box-shadow: inset 0 0 0 2px rgba(48, 82, 196, 0.32);
-        }
-        .supabase-table__row--active {
-          background: rgba(36, 119, 70, 0.12);
-          box-shadow: inset 0 0 0 1px rgba(36, 119, 70, 0.32);
-        }
-        .supabase-table__title {
-          font-size: 13px;
-          font-weight: 600;
-        }
-        .supabase-table__slug {
-          margin-top: 2px;
-          font-size: 11px;
-          color: #7a7c82;
-        }
-        .supabase-table__categories {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-        .supabase-table__category {
-          padding: 2px 10px;
-          border-radius: 999px;
-          background: rgba(24, 27, 44, 0.08);
-          font-size: 10px;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          color: #45474f;
-        }
-        .supabase-table__category--empty {
-          background: transparent;
-          border: 1px dashed rgba(0, 0, 0, 0.18);
-          color: #7a7c82;
-        }
-        .supabase-table__status {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 96px;
-          padding: 4px 12px;
-          border-radius: 999px;
-          font-size: 10px;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-        }
-        .supabase-table__status--published {
-          background: rgba(36, 119, 70, 0.12);
-          color: #2b7a4a;
-          border: 1px solid rgba(36, 119, 70, 0.28);
-        }
-        .supabase-table__status--draft {
-          background: rgba(139, 97, 23, 0.12);
-          color: #9a6118;
-          border: 1px solid rgba(139, 97, 23, 0.26);
-        }
-        .supabase-table__author {
-          font-weight: 500;
-        }
-        .supabase-table__muted {
-          color: #a0a2a8;
-        }
-        .supabase-table__empty td {
-          text-align: center;
-          padding: 26px 18px;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          color: #7a7c82;
-        }
-        .supabase-category__header {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          font-size: 10px;
-          color: #7a7c82;
-        }
-        .supabase-category__dot {
-          width: 9px;
-          height: 9px;
-          border-radius: 50%;
-        }
-        .supabase-category__list {
-          list-style: none;
-          margin: 8px 0 0;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .supabase-category__empty {
-          font-size: 12px;
-          color: #7a7c82;
-          padding: 8px 12px;
-          border-radius: 10px;
-          border: 1px dashed rgba(0, 0, 0, 0.08);
-        }
-        .supabase-entry {
-          width: 100%;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 12px;
-          padding: 10px 12px;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          background: #ffffff;
-          text-align: left;
-          cursor: pointer;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-          position: relative;
-          overflow: hidden;
-        }
-        .supabase-entry:hover {
-          border-color: rgba(0, 0, 0, 0.18);
-          box-shadow: 0 8px 20px rgba(17, 17, 23, 0.08);
-        }
-        .supabase-entry--active {
-          border-color: rgba(36, 119, 70, 0.32);
-          box-shadow: inset 0 0 0 1px rgba(36, 119, 70, 0.2);
-        }
-        .supabase-entry__title {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1f2024;
-        }
-        .supabase-entry__preview {
-          font-size: 11px;
-          color: #666971;
-          line-height: 1.4;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          max-width: 100%;
-        }
-        .supabase-entry__dot {
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.9);
-          box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-        }
-        .supabase-entry__dot--published {
-          background: #34d27a;
-        }
-        .supabase-entry__dot--draft {
-          background: #ffae42;
-        }
-        .supabase-workspace__editor {
-          flex: 1;
-          min-height: 0;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 16px;
-          padding: 12px;
-          background: linear-gradient(140deg, #ffffff 0%, #f4f5fb 100%);
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          overflow-y: auto;
-          overflow-x: hidden;
-        }
-        .supabase-workspace__empty {
-          margin: auto;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          color: #7a7c82;
-          border: 1px dashed rgba(0, 0, 0, 0.08);
-          border-radius: 12px;
-          padding: 40px 24px;
-          background: #fafbff;
-        }
-        .supabase-editor__status {
-          border-radius: 999px;
-          padding: 4px 10px;
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.16em;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          background: #f6f7fb;
-          color: #4c4f58;
-          flex-shrink: 0;
-        }
-        .supabase-editor__status--dirty {
-          border-color: rgba(168, 68, 52, 0.32);
-          background: rgba(168, 68, 52, 0.12);
-          color: #a64534;
-        }
-        .supabase-editor__status--loading {
-          border-color: rgba(156, 132, 35, 0.32);
-          background: rgba(156, 132, 35, 0.12);
-          color: #8a7120;
-        }
-        .supabase-editor__status--saving {
-          border-color: rgba(36, 119, 70, 0.32);
-          background: rgba(36, 119, 70, 0.12);
-          color: #2b7a4a;
-        }
-        .supabase-editor__status--saved {
-          border-color: rgba(36, 119, 70, 0.28);
-          background: rgba(36, 119, 70, 0.08);
-          color: #2b7a4a;
-        }
-        .supabase-editor__status--error {
-          border-color: rgba(162, 47, 33, 0.32);
-          background: rgba(162, 47, 33, 0.12);
-          color: #a62f21;
-        }
-        .supabase-editor__content {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          flex: 1;
-          min-height: 0;
-          overflow: visible;
-          padding-right: 2px;
-        }
-        .supabase-editor__top,
-        .supabase-editor__canvas {
-          background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.05);
-          padding: 12px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .supabase-editor__top {
-          border-radius: 14px 14px 10px 10px;
-        }
-        .supabase-editor__canvas {
-          flex: 0 0 auto;
-          min-height: 520px;
-          border-radius: 10px 10px 14px 14px;
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 8px 18px rgba(17, 18, 31, 0.04);
-          overflow: hidden;
-        }
-        .supabase-editor__canvas .supabase-rich-text {
-          flex: 1;
-          min-height: 0;
-          height: 460px;
-        }
-        .supabase-editor__primary-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-        }
-        .supabase-editor__field {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.16em;
-          color: #6f717a;
-          flex: 1 1 200px;
-        }
-        .supabase-editor__field span,
-        .supabase-editor__field legend {
-          font-size: inherit;
-          letter-spacing: inherit;
-          text-transform: inherit;
-          color: inherit;
-        }
-        .supabase-editor__field legend {
-          padding: 0;
-        }
-        .supabase-editor__field input,
-        .supabase-editor__field textarea,
-        .supabase-editor__field select {
-          padding: 8px 10px;
-          border-radius: 12px;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          background: #f9f9fd;
-          font-size: 13px;
-          color: #1f2024;
-          transition: border-color 0.2s ease, background 0.2s ease;
-        }
-        .supabase-editor__field input:focus,
-        .supabase-editor__field textarea:focus,
-        .supabase-editor__field select:focus {
-          outline: none;
-          border-color: rgba(36, 119, 70, 0.4);
-          background: #ffffff;
-        }
-        .supabase-editor__field--compact {
-          flex: 0 1 220px;
-        }
-        .supabase-editor__field--excerpt textarea {
-          min-height: 68px;
-          max-height: 90px;
-        }
-        .supabase-editor__field--bio-main textarea {
-          min-height: 320px;
-        }
-        .supabase-editor__field--rank {
-          flex: 0 0 88px;
-          max-width: 88px;
-        }
-        .supabase-editor__field--title {
-          flex-basis: 100%;
-        }
-        .supabase-editor__field--title input {
-          font-size: 22px;
-          font-weight: 600;
-          letter-spacing: -0.01em;
-        }
-        .supabase-editor__field--categories {
-          border: none;
-          padding: 0;
-          margin: 0;
-          min-width: 0;
-        }
-        .supabase-editor__field--categories .supabase-editor__categories {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          overflow: visible;
-          padding-bottom: 2px;
-        }
-        .supabase-editor__categories label {
-          border: 1px solid rgba(0, 0, 0, 0.14);
-          border-radius: 999px;
-          padding: 4px 9px;
-          font-size: 10px;
-          text-transform: none;
-          letter-spacing: 0;
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          background: #ffffff;
-          transition: border-color 0.2s ease, background 0.2s ease;
-          white-space: nowrap;
-          flex: 0 0 auto;
-        }
-        .supabase-editor__categories label.active {
-          border-color: rgba(36, 119, 70, 0.34);
-          background: rgba(36, 119, 70, 0.1);
-        }
-        .supabase-editor__categories input {
-          appearance: none;
-          width: 13px;
-          height: 13px;
-          border-radius: 50%;
-          border: 1px solid rgba(31, 32, 36, 0.42);
-          display: inline-block;
-          position: relative;
-          margin: 0;
-          background: #fff;
-        }
-        .supabase-editor__categories input:checked {
-          border-color: #2b7a4a;
-          background: #2b7a4a;
-        }
-        .supabase-editor__categories input:checked::after {
-          content: "";
-          position: absolute;
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          background: #fff;
-          top: 3px;
-          left: 3px;
-        }
-        .supabase-editor__canvas .supabase-editor__richtext-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-          padding-bottom: 8px;
-        }
-        .supabase-editor__richtext-header span:first-of-type {
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: #2a2c34;
-        }
-        .supabase-rich-text {
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 14px;
-          overflow: hidden;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          background: #ffffff;
-        }
-        .supabase-rich-text .ql-toolbar {
-          border: none;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        }
-        .supabase-rich-text .ql-container {
-          border: none;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          flex: 1;
-          min-height: 0;
-          height: 100%;
-          overflow-y: auto;
-        }
-        .supabase-rich-text .ql-editor {
-          line-height: 1.35;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          min-height: 100%;
-          height: 100%;
-          overflow-y: auto;
-        }
-        .supabase-rich-text .ql-editor img {
-          display: block;
-          margin: 1.6em auto 0.3em;
-        }
-        .supabase-rich-text .ql-editor h6 {
-          font-size: 12px;
-          line-height: 1.6;
-          text-align: center;
-          margin: 0.15em 0 1em;
-        }
-        .supabase-rich-text .ql-picker.ql-header
-          .ql-picker-label[data-value="6"]::before,
-        .supabase-rich-text .ql-picker.ql-header
-          .ql-picker-item[data-value="6"]::before {
-          content: "légende";
-        }
-        .supabase-rich-text__loading {
-          padding: 24px;
-          text-align: center;
-          font-size: 13px;
-          color: #5a5c62;
-        }
-        .supabase-editor__details-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 10px;
-        }
-        .supabase-editor__details-grid--identity {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        .supabase-editor__details-grid--taxonomy {
-          grid-template-columns: minmax(0, 1fr) auto;
-          align-items: end;
-        }
-        .supabase-editor__details-grid--dates {
-          grid-template-columns: repeat(2, minmax(200px, 1fr));
-        }
-        .supabase-editor__details-grid--wide {
-          grid-template-columns: minmax(0, 1fr);
-        }
-        .supabase-editor__details-grid--compact {
-          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-        }
-        .supabase-editor__stack {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .supabase-editor__stack > * {
-          margin: 0;
-        }
-        .supabase-editor__stack .supabase-editor__field {
-          flex: 0 0 auto;
-        }
-        .supabase-editor__field textarea {
-          min-height: 120px;
-          resize: vertical;
-        }
-        .supabase-editor__textarea {
-          min-height: 160px;
-          font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
-        }
-        .supabase-editor__field--checkbox {
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          font-size: 11px;
-          text-transform: none;
-          letter-spacing: 0.03em;
-          color: #2a2c34;
-        }
-        .supabase-editor__field--status {
-          flex: 0 0 auto;
-          min-width: fit-content;
-          padding: 8px 10px;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          border-radius: 12px;
-          background: #f9f9fd;
-          align-self: end;
-        }
-        .supabase-editor__field--checkbox input {
-          width: 18px;
-          height: 18px;
-        }
-        .supabase-editor__advanced {
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 14px;
-          padding: 14px;
-          background: #f9f9fd;
-        }
-        .supabase-editor__advanced summary {
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-        }
-        .supabase-editor__advanced[open] {
-          background: #f3f4fa;
-        }
-        .supabase-editor__advanced .supabase-editor__field {
-          margin-top: 12px;
-        }
-        .supabase-editor__media h4 {
-          margin: 0;
-          font-size: 12px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: #5a5c62;
-        }
-        .supabase-editor__media {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .supabase-editor__media ul {
-          margin: 4px 0 0;
-          padding-left: 16px;
-          color: #5a5c62;
-          font-size: 12px;
-        }
-        .supabase-editor__media code {
-          background: rgba(0, 0, 0, 0.04);
-          padding: 2px 6px;
-          border-radius: 6px;
-        }
-        .supabase-editor__meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-          font-size: 11px;
-          color: #7a7c82;
-        }
-        .supabase-editor__footer {
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          gap: 10px;
-          margin-top: 2px;
-          padding: 10px 2px 2px;
-          border-top: 1px solid rgba(0, 0, 0, 0.06);
-          background: transparent;
-          position: static;
-        }
-        .supabase-panel--writer .supabase-workspace__editor {
-          background: linear-gradient(145deg, #ffffff 0%, #eef0fa 100%);
-        }
-        .supabase-panel--writer .supabase-editor__field {
-          font-size: 9px;
-          letter-spacing: 0.18em;
-        }
-        .supabase-panel--writer .supabase-editor__field--title input {
-          font-size: 20px;
-        }
-        .supabase-panel--writer .supabase-editor__richtext-header span:first-of-type {
-          font-size: 13px;
-        }
-        @media (max-width: 900px) {
-          .supabase-editor__details-grid,
-          .supabase-editor__details-grid--identity,
-          .supabase-editor__details-grid--taxonomy,
-          .supabase-editor__details-grid--dates {
-            grid-template-columns: minmax(0, 1fr);
-          }
-          .supabase-editor__field--status {
-            justify-content: flex-start;
-            width: fit-content;
-          }
-          .supabase-intros__body {
-            grid-template-columns: minmax(0, 1fr);
-          }
-        }
-        @media (max-width: 720px) {
-          .supabase-workspace {
-            grid-template-columns: minmax(0, 1fr);
-            grid-template-rows: minmax(0, 220px) minmax(0, 1fr);
-          }
-          .supabase-workspace__sidebar {
-            padding-right: 0;
-          }
-
-          .supabase-panel__header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-          }
-          .supabase-panel__actions {
-            flex-wrap: wrap;
-          }
-          .supabase-create__row {
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-          }
-        }
-      `}</style>
     </section>
   );
 };

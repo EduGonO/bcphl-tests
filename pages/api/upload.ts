@@ -1,0 +1,49 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { r2Client } from "../../lib/r2";
+import { getManifest, putManifest } from "../../lib/manifest";
+
+export const config = { api: { bodyParser: { sizeLimit: "10mb" } } };
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  const { name, type, data, slug } = req.body as {
+    name: string;
+    type: string;
+    data: string;
+    slug?: string;
+  };
+
+  if (!data) return res.status(400).json({ error: "No file data" });
+
+  const buffer = Buffer.from(data, "base64");
+  const cleanSlug = slug?.trim() ?? "";
+  const folder = cleanSlug ? `articles/${cleanSlug}` : "uploads";
+  const key = `${folder}/${Date.now()}-${name ?? "upload"}`;
+
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME!,
+      Key: key,
+      Body: buffer,
+      ContentType: type ?? "application/octet-stream",
+    })
+  );
+
+  const url = `${(process.env.R2_PUBLIC_URL ?? "").replace(/\/$/, "")}/${key}`;
+
+  if (cleanSlug) {
+    const manifest = await getManifest(cleanSlug);
+    manifest.images.push({
+      key,
+      url,
+      filename: name ?? "upload",
+      uploadedAt: new Date().toISOString(),
+      isUsed: false,
+    });
+    await putManifest(cleanSlug, manifest);
+  }
+
+  return res.status(200).json({ url, key });
+}
