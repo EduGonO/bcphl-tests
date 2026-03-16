@@ -41,6 +41,8 @@ export default async function handler(
     })
   );
 
-  const url = `${process.env.R2_PUBLIC_URL}/${key}`;
+  // Strip trailing slash from base URL to avoid double-slash in the final URL.
+  const baseUrl = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/,  "");
+  const url = `${baseUrl}/${key}`;
   return res.status(200).json({ url });
 }

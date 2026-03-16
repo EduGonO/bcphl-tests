@@ -90,7 +90,10 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
   readOnly = false,
   placeholder,
 }) => {
+  // quillRef holds the ReactQuill wrapper element (for the ref prop).
   const quillRef = useRef<ReactQuill | null>(null);
+  // quillInstanceRef holds the raw underlying Quill editor instance.
+  const quillInstanceRef = useRef<any>(null);
 
   const turndown = useMemo(() => {
     const service = new TurndownService({
@@ -135,6 +138,22 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     [onChange, turndown]
   );
 
+  // Ref callback: captures both the ReactQuill wrapper and the raw Quill instance.
+  const setQuillRef = useCallback((el: ReactQuill | null) => {
+    (quillRef as React.MutableRefObject<ReactQuill | null>).current = el;
+    if (el) {
+      const raw = el as any;
+      quillInstanceRef.current =
+        raw.getEditor?.() ??
+        raw.editor ??
+        raw.quill ??
+        raw.__quill ??
+        null;
+    } else {
+      quillInstanceRef.current = null;
+    }
+  }, []);
+
   const imageHandler = useCallback(() => {
     alert("Starting upload...");
 
@@ -149,13 +168,8 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
       document.body.removeChild(input);
       if (!file) return;
 
-      // Resolve the underlying Quill editor instance.
-      // quillRef.current may be the ReactQuill wrapper (which has getEditor())
-      // or, when forwardRef indirection is involved, the inner instance exposes
-      // the editor directly via the .editor property.
-      const raw = quillRef.current as any;
-      const quill = raw?.getEditor?.() ?? raw?.editor ?? null;
-
+      // Use the raw Quill instance captured at mount time.
+      const quill = quillInstanceRef.current;
       alert("Editor instance: " + !!quill);
 
       const reader = new FileReader();
@@ -221,7 +235,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
     <div className="supabase-rich-text">
       <ForwardedQuill
         theme="snow"
-        ref={quillRef}
+        ref={setQuillRef}
         value={htmlValue}
         onChange={handleChange}
         readOnly={readOnly}
