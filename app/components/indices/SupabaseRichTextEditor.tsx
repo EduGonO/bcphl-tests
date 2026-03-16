@@ -33,7 +33,7 @@ const ReactQuill = dynamic<ReactQuillProps>(() =>
   {
     ssr: false,
     loading: () => (
-      <div className="supabase-rich-text__loading">Chargement de l’éditeur…</div>
+      <div className="supabase-rich-text__loading">Chargement de l'éditeur…</div>
     ),
   }
 ) as unknown as React.ForwardRefExoticComponent<
@@ -177,7 +177,7 @@ const SupabaseRichTextEditor: React.FC<SupabaseRichTextEditorProps> = ({
       if (articleSlug) formData.append("slug", articleSlug);
       formData.append("fileName", safeName);
 
-      const response = await fetch("/api/supabase/upload-image", {
+      const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
