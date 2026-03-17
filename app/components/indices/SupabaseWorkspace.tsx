@@ -1209,7 +1209,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
                     <label className="supabase-editor__field supabase-editor__field--excerpt">
-                      <span>Extrait affich\u00e9 sur la cat\u00e9gorie</span>
+                      <span>Extrait affiché sur la catégorie</span>
                       <textarea
                         rows={3}
                         value={formState.excerpt}
@@ -1220,7 +1220,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   <div className="supabase-editor__stack">
                     <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Image d'en-t\u00eate</span>
+                      <span>Image d’en-tête</span>
                       <input
                         value={formState.headerImagePath}
                         onChange={(event) => updateForm("headerImagePath", event.target.value)}
@@ -1229,7 +1229,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     </label>
 
                     <label className="supabase-editor__field supabase-editor__field--related supabase-editor__field--compact">
-                      <span>Articles li\u00e9s</span>
+                      <span>Articles liés</span>
                       <select
                         multiple
                         value={formState.relatedArticleIds}
@@ -1241,7 +1241,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       >
                         {relatedOptions.map((article) => (
                           <option key={article.id} value={article.id}>
-                            {article.title} \u00b7 {article.categoryName}
+                            {article.title} · {article.categoryName}
                           </option>
                         ))}
                       </select>
@@ -1249,7 +1249,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                     {articleDetail?.media?.length ? (
                       <div className="supabase-editor__media">
-                        <h4>M\u00e9dias li\u00e9s</h4>
+                        <h4>Médias liés</h4>
                         <ul>
                           {articleDetail.media.map((media) => (
                             <li key={media.id}>
@@ -1297,8 +1297,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   {articleDetail && (
                     <div className="supabase-editor__meta">
-                      <span>Cr\u00e9\u00e9 le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
-                      <span>Mis \u00e0 jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
+                      <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
+                      <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
                     </div>
                   )}
                 </section>
