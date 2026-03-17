@@ -482,18 +482,21 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const handleHeaderImageUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      // Capture the input element reference synchronously before any await
+      // Capture the DOM node synchronously — the synthetic event may be recycled after await
       const inputEl = event.target;
       if (!file) return;
       setIsUploadingHeader(true);
       setHeaderUploadError(null);
       try {
+        // Read file as base64 data URI
         const dataUrl = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(String(reader.result));
           reader.onerror = () => reject(new Error("Échec de lecture du fichier"));
           reader.readAsDataURL(file);
         });
+
+        // POST to /api/images — same pattern as SimpleEditor's uploadImage
         const res = await fetch("/api/images", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -504,11 +507,27 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             slug: formState?.slug || "headers",
           }),
         });
-        const payload = await res.json();
-        if (!res.ok || !payload?.url) {
-          throw new Error(payload?.error ?? "Échec de l'envoi vers R2");
+
+        // Guard res.json(): a non-JSON response (e.g. 413 from body-size limit)
+        // would throw DOMException "The string did not match the expected pattern"
+        // if we called res.json() unconditionally on a plain-text / HTML error body.
+        let payload: { url?: string; key?: string; error?: string } = {};
+        const ct = res.headers.get("content-type") ?? "";
+        if (ct.includes("application/json")) {
+          payload = await res.json();
+        } else {
+          // Non-JSON response — read as text for a useful error message
+          const text = await res.text();
+          throw new Error(
+            `Erreur serveur (${res.status}): ${text.slice(0, 120)}`
+          );
         }
-        updateForm("headerImagePath", payload.url as string);
+
+        if (!res.ok || !payload.url) {
+          throw new Error(payload.error ?? `Échec de l'envoi (${res.status})`);
+        }
+
+        updateForm("headerImagePath", payload.url);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Échec de l'upload";
         setHeaderUploadError(msg);
