@@ -539,7 +539,80 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     },
     [formState, updateForm]
   );
+  const handleHeaderImageRemove = useCallback(async () => {
+    if (!formState || !selectedArticleId || status === "saving") return;
+    const currentPath = formState.headerImagePath;
 
+    // 1. Clear the field in local form state immediately so the UI updates
+    updateForm("headerImagePath", "");
+    setHeaderUploadError(null);
+
+    // 2. Fire-and-forget: attempt to delete the file from R2.
+    //    We don't await or surface errors — Supabase is the source of truth.
+    if (currentPath && currentPath.startsWith("http")) {
+      fetch("/api/images", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: currentPath }),
+      }).catch((err) => console.error("R2 delete failed:", err));
+    }
+
+    // 3. Immediately persist headerImagePath: null to Supabase.
+    //    We cannot call handleSave() here because React's setFormState is async —
+    //    formState.headerImagePath may still hold the old value when handleSave
+    //    reads it. So we build the PUT payload directly with headerImagePath: null.
+    setStatus("saving");
+    setStatusMessage("Suppression de l'image…");
+    try {
+      const res = await fetch(`/api/supabase/articles/${selectedArticleId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formState.title.trim(),
+          slug: formState.slug.trim(),
+          authorName: formState.authorName.trim() || null,
+          status: formState.status,
+          authoredDate: formState.authoredDate.trim() || null,
+          publishedAt: formState.publishedAt ? fromLocalDateTime(formState.publishedAt) : null,
+          preview: formState.preview.trim() || null,
+          excerpt: formState.excerpt.trim() || null,
+          headerImagePath: null,
+          bodyMarkdown: formState.bodyMarkdown,
+          bodyJson: formState.bodyJson.trim() || null,
+          bodyHtml: formState.bodyHtml.trim() || null,
+          categoryIds: Array.from(new Set(formState.categoryIds)),
+          relatedArticleIds: Array.from(new Set(formState.relatedArticleIds)).filter(
+            (id) => id !== selectedArticleId
+          ),
+        }),
+      });
+      let data: Record<string, any> = {};
+      const ct = res.headers.get("content-type") ?? "";
+      if (ct.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(`Erreur serveur (${res.status}): ${text.slice(0, 120)}`);
+      }
+      if (!res.ok) {
+        throw new Error(data?.error ?? "Impossible de supprimer l'image.");
+      }
+      setSupabaseCategories(data.categories);
+      setArticleDetail(data.article);
+      setFormState(detailToForm(data.article));
+      dirtyRef.current = false;
+      setStatus("saved");
+      setStatusMessage("Image supprimée");
+      setSelectedArticleId(data.article.id);
+      setTimeout(() => {
+        setStatus("idle");
+        setStatusMessage(null);
+      }, 1500);
+    } catch (err) {
+      setStatus("error");
+      setStatusMessage(err instanceof Error ? err.message : "Erreur inconnue");
+    }
+  }, [formState, selectedArticleId, status, updateForm]);
   const handleSave = useCallback(async () => {
     if (!formState || !selectedArticleId) return;
     setStatus("saving");
@@ -1332,10 +1405,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                           <button
                             type="button"
                             className="supabase-editor__header-thumb-remove"
-                            onClick={() => {
-                              updateForm("headerImagePath", "");
-                              setHeaderUploadError(null);
-                            }}
+                            onClick={handleHeaderImageRemove}
+                            disabled={status === "saving" || isUploadingHeader}
                             title="Retirer l'image d'en-tête"
                             aria-label="Retirer l'image d'en-tête"
                           >

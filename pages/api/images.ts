@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import { createR2Client, getR2PublicUrl } from "../../lib/r2";
 
-// Raise body limit to 10 MB so large images don't cause a 413 before the handler runs.
-// The default 4 MB limit causes Next.js to return a non-JSON error response,
-// which makes res.json() throw "The string did not match the expected pattern".
+// Raise body limit to 10 MB so large images don't cause a 413 before the
+// handler runs. The default 4 MB limit causes Next.js to return a non-JSON
+// error response, making res.json() throw a DOMException on the client.
 export const config = {
   api: {
     bodyParser: {
@@ -20,6 +20,10 @@ type UploadBody = {
   contentType?: string;
   data?: string;
   slug?: string;
+};
+
+type DeleteBody = {
+  url?: string;
 };
 
 const sanitizeFilename = (filename: string): string =>
@@ -54,15 +58,24 @@ const extractBase64 = (data: string): string => {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
+  if (req.method === "POST") {
+    return handlePost(req, res);
+  }
+
+  if (req.method === "DELETE") {
+    return handleDelete(req, res);
+  }
+
+  res.setHeader("Allow", "POST,DELETE");
+  return res.status(405).json({ error: "Method not allowed" });
+}
+
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const { filename, contentType, data, slug } = req.body as UploadBody;
   if (!filename || !contentType || !data) {
     return res.status(400).json({ error: "Missing upload payload" });
@@ -97,6 +110,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error("R2 upload failed", error);
     const message = error instanceof Error ? error.message : "Failed to upload image";
+    return res.status(500).json({ error: message });
+  }
+}
+
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
+  const { url } = req.body as DeleteBody;
+  if (!url) {
+    return res.status(400).json({ error: "Missing url" });
+  }
+
+  const publicBase = process.env.R2_PUBLIC_URL;
+  if (!publicBase) {
+    return res.status(500).json({ error: "Missing R2_PUBLIC_URL" });
+  }
+
+  const normalizedBase = publicBase.replace(/\/$/, "");
+
+  if (!url.startsWith(normalizedBase)) {
+    // Not an R2-managed URL (e.g. an old storage path). Nothing to delete on R2;
+    // return 200 so the caller can still clear the Supabase field cleanly.
+    return res.status(200).json({ deleted: false, reason: "Not an R2-managed URL; no action taken" });
+  }
+
+  // Derive the object key by stripping the public base URL prefix
+  const key = url.slice(normalizedBase.length).replace(/^\//, "");
+  if (!key) {
+    return res.status(400).json({ error: "Cannot derive R2 key from URL" });
+  }
+
+  const bucketName = process.env.R2_BUCKET_NAME;
+  if (!bucketName) {
+    return res.status(500).json({ error: "Missing R2 bucket configuration" });
+  }
+
+  try {
+    const r2Client = createR2Client();
+    await r2Client.send(
+      new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      })
+    );
+    return res.status(200).json({ deleted: true, key });
+  } catch (error) {
+    console.error("R2 delete failed", error);
+    const message = error instanceof Error ? error.message : "Failed to delete image";
     return res.status(500).json({ error: message });
   }
 }
