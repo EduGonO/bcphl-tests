@@ -1,1 +1,1 @@
-export { default, getServerSideProps } from "./redesign";
+export { default, getStaticProps } from "./redesign";
