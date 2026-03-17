@@ -1,13 +1,25 @@
 import React, { useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
+import Bold from "@tiptap/extension-bold";
+import BulletList from "@tiptap/extension-bullet-list";
+import Document from "@tiptap/extension-document";
+import HardBreak from "@tiptap/extension-hard-break";
+import Heading from "@tiptap/extension-heading";
+import History from "@tiptap/extension-history";
+import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import Image from "@tiptap/extension-image";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
+import Italic from "@tiptap/extension-italic";
+import Link from "@tiptap/extension-link";
+import ListItem from "@tiptap/extension-list-item";
+import OrderedList from "@tiptap/extension-ordered-list";
+import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
-import TaskList from "@tiptap/extension-task-list";
+import Strike from "@tiptap/extension-strike";
 import TaskItem from "@tiptap/extension-task-item";
+import TaskList from "@tiptap/extension-task-list";
+import Text from "@tiptap/extension-text";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
 
 type SimpleEditorProps = {
   imageUploadSlug?: string;
@@ -19,16 +31,28 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ imageUploadSlug }) =
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      Document,
+      Paragraph,
+      Text,
+      Heading.configure({ levels: [2, 3] }),
+      Bold,
+      Italic,
       Underline,
+      Strike,
+      BulletList,
+      OrderedList,
+      ListItem,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      HorizontalRule,
+      HardBreak,
+      History,
       Link.configure({ openOnClick: false, autolink: true }),
       Image,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder: "Start writing…" }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
     ],
-    content: `<h2>Simple editor</h2><p>This is the default simple setup.</p>`,
+    content: `<h2>Simple editor</h2><p>This follows the template-style setup without replacing the current editor.</p>`,
     editorProps: {
       attributes: {
         class: "simple-editor__content",
@@ -72,6 +96,8 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ imageUploadSlug }) =
         <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()}>Italic</button>
         <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()}>Underline</button>
         <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()}>Strike</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>H2</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>H3</button>
         <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()}>Bullet list</button>
         <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()}>Ordered list</button>
         <button type="button" onClick={() => editor.chain().focus().toggleTaskList().run()}>Checklist</button>
@@ -88,12 +114,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ imageUploadSlug }) =
               editor.chain().focus().extendMarkRange("link").unsetLink().run();
               return;
             }
-            editor
-              .chain()
-              .focus()
-              .extendMarkRange("link")
-              .setLink({ href: href.trim(), target: "_blank", rel: "noopener noreferrer" })
-              .run();
+            editor.chain().focus().extendMarkRange("link").setLink({ href: href.trim() }).run();
           }}
         >
           Link
@@ -121,8 +142,8 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ imageUploadSlug }) =
             }
           }}
         />
-        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().chain().focus().undo().run()}>Undo</button>
-        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().chain().focus().redo().run()}>Redo</button>
+        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>Undo</button>
+        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>Redo</button>
       </div>
 
       <EditorContent editor={editor} />
