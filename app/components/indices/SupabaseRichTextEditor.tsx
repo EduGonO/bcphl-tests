@@ -25,7 +25,7 @@ const ForwardedQuill = dynamic(
       Comp.displayName = "ReactQuillWithRef";
       return Comp;
     }),
-  { ssr: false }
+  { ssr: false, loading: () => <div className="supabase-rich-text__loading">Chargement de l&#39;éditeur…</div> }
 ) as React.ForwardRefExoticComponent<ReactQuillProps & React.RefAttributes<ReactQuill>>;
 
 const quillFormats = [
