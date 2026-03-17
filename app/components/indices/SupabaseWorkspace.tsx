@@ -23,7 +23,16 @@ import type {
   SupabaseWorkspaceProps,
   WorkspaceMode,
 } from "./workspace/supabaseWorkspaceTypes";
-import { bioToForm, detailToForm, formatDateTime, fromLocalDateTime, toLocalDateTimeInput, toPreviewText } from "./workspace/supabaseWorkspaceUtils";
+import {
+  bioToForm,
+  decodeArticleDetail,
+  decodeCategorySummaries,
+  detailToForm,
+  formatDateTime,
+  fromLocalDateTime,
+  toLocalDateTimeInput,
+  toPreviewText,
+} from "./workspace/supabaseWorkspaceUtils";
 
 const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   categories,
@@ -82,7 +91,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const isAdmin = workspaceVariant === "admin";
 
   useEffect(() => {
-    setSupabaseCategories(categories);
+    setSupabaseCategories(decodeCategorySummaries(categories));
   }, [categories]);
 
   useEffect(() => {
@@ -315,8 +324,9 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       if (!response.ok) {
         throw new Error(payload?.error ?? "Impossible de charger l'article.");
       }
-      setArticleDetail(payload.article);
-      setFormState(detailToForm(payload.article));
+      const decodedArticle = decodeArticleDetail(payload.article);
+      setArticleDetail(decodedArticle);
+      setFormState(detailToForm(decodedArticle));
       dirtyRef.current = false;
       setStatus("idle");
       setStatusMessage(null);
@@ -382,7 +392,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         if (!response.ok) {
           throw new Error(payload?.error ?? "Impossible de charger les articles.");
         }
-        setSupabaseCategories(payload.categories);
+        setSupabaseCategories(decodeCategorySummaries(payload.categories));
         setPanelError(null);
         if (focusArticleId) {
           const containing = payload.categories.find((category: SupabaseCategorySummary) =>
