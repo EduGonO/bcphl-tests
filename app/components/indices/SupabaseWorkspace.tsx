@@ -464,7 +464,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           ...current,
           bodyMarkdown: markdown,
           bodyHtml: html,
-          bodyJson: json ? JSON.stringify(json) : current.bodyJson,
+          bodyJson: json ? JSON.stringify(json).replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16))) : current.bodyJson,
         };
       });
       dirtyRef.current = true;
