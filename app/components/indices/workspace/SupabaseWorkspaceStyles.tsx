@@ -1,7 +1,7 @@
 import React from "react";
 
 const SupabaseWorkspaceStyles: React.FC = () => (
-  <style jsx>{`
+  <style jsx global>{`
         .supabase-panel {
           width: 100%;
           height: 100%;
