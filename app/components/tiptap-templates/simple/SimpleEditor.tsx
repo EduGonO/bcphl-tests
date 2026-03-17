@@ -6,9 +6,6 @@ import Image from "@tiptap/extension-image";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 
-// Note: These packages need to be installed:
-// @tiptap/extension-highlight @tiptap/extension-typography @tiptap/extension-subscript @tiptap/extension-superscript
-
 type SimpleEditorProps = {
   value?: string;
   onChange?: (html: string, json: any) => void;
@@ -38,7 +35,7 @@ const IconBtn: React.FC<IconBtnProps> = ({ onClick, active = false, disabled = f
   </button>
 );
 
-export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u2026", imageUploadSlug, readOnly = false }: SimpleEditorProps) {
+export function SimpleEditor({ value = "", onChange, placeholder = "Écrivez ici…", imageUploadSlug, readOnly = false }: SimpleEditorProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const [linkValue, setLinkValue] = useState("https://");
@@ -77,7 +74,7 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
     const data = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(new Error("Read failed"));
+      reader.onerror = () => reject(new Error("Échec de lecture"));
       reader.readAsDataURL(file);
     });
     const res = await fetch("/api/images", {
@@ -86,7 +83,7 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
       body: JSON.stringify({ filename: file.name, contentType: file.type, data, slug: imageUploadSlug }),
     });
     const payload = await res.json();
-    if (!res.ok || !payload?.url) throw new Error(payload?.error ?? "Upload failed");
+    if (!res.ok || !payload?.url) throw new Error(payload?.error ?? "Échec de l'envoi");
     return payload.url as string;
   }, [imageUploadSlug]);
 
@@ -123,13 +120,13 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, editor?.state]);
 
-  if (!editor) return <div style={{ padding: 16, color: "#94a3b8", border: "1px solid #e2e8f0", borderRadius: 8 }}>Loading\u2026</div>;
+  if (!editor) return <div style={{ padding: 16, color: "#94a3b8", border: "1px solid #e2e8f0", borderRadius: 8 }}>Chargement…</div>;
 
   return (
     <div className="simple-editor-wrapper">
       {!readOnly && (
         <div className="simple-editor-toolbar">
-          {/* Heading */}
+          {/* Titres */}
           <div className="simple-editor-toolbar-group">
             <select
               className="simple-editor-select"
@@ -143,17 +140,17 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
                 else editor.chain().focus().setParagraph().run();
               }}
             >
-              <option value="paragraph">Paragraph</option>
-              <option value="h1">Heading 1</option>
-              <option value="h2">Heading 2</option>
-              <option value="h3">Heading 3</option>
-              <option value="h4">Heading 4</option>
+              <option value="paragraph">Paragraphe</option>
+              <option value="h1">Titre 1</option>
+              <option value="h2">Titre 2</option>
+              <option value="h3">Titre 3</option>
+              <option value="h4">Titre 4</option>
             </select>
           </div>
 
           <div className="simple-editor-toolbar-separator" />
 
-          {/* Lists */}
+          {/* Listes */}
           <div className="simple-editor-toolbar-group">
             <select
               className="simple-editor-select"
@@ -168,66 +165,63 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
                 }
               }}
             >
-              <option value="none">List</option>
-              <option value="bullet">\u2022 Bullet</option>
-              <option value="ordered">1. Ordered</option>
+              <option value="none">Liste</option>
+              <option value="bullet">• À puces</option>
+              <option value="ordered">1. Numérotée</option>
             </select>
           </div>
 
           <div className="simple-editor-toolbar-separator" />
 
-          {/* Text marks */}
+          {/* Mise en forme */}
           <div className="simple-editor-toolbar-group">
-            <IconBtn title="Bold" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")}>
+            <IconBtn title="Gras" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
             </IconBtn>
-            <IconBtn title="Italic" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")}>
+            <IconBtn title="Italique" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
             </IconBtn>
-            <IconBtn title="Underline" onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")}>
+            <IconBtn title="Souligné" onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
             </IconBtn>
-            <IconBtn title="Strikethrough" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")}>
+            <IconBtn title="Barré" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6C16 6 14.5 4 12 4C9.5 4 7 5.5 7 8C7 10 8.5 11 10 11.5"/><path d="M8 18C8 18 9.5 20 12 20C14.5 20 17 18.5 17 16C17 14 15.5 13 14 12.5"/></svg>
             </IconBtn>
           </div>
 
           <div className="simple-editor-toolbar-separator" />
 
-          {/* Block elements */}
+          {/* Bloc citation */}
           <div className="simple-editor-toolbar-group">
-            <IconBtn title="Blockquote" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")}>
+            <IconBtn title="Citation" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-            </IconBtn>
-            <IconBtn title="Code Block" onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive("codeBlock")}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </IconBtn>
           </div>
 
           <div className="simple-editor-toolbar-separator" />
 
-          {/* Alignment */}
+          {/* Alignement */}
           <div className="simple-editor-toolbar-group">
-            <IconBtn title="Align left" onClick={() => editor.chain().focus().setTextAlign("left").run()} active={editor.isActive({ textAlign: "left" })}>
+            <IconBtn title="Aligner à gauche" onClick={() => editor.chain().focus().setTextAlign("left").run()} active={editor.isActive({ textAlign: "left" })}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
             </IconBtn>
-            <IconBtn title="Align center" onClick={() => editor.chain().focus().setTextAlign("center").run()} active={editor.isActive({ textAlign: "center" })}>
+            <IconBtn title="Centrer" onClick={() => editor.chain().focus().setTextAlign("center").run()} active={editor.isActive({ textAlign: "center" })}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
             </IconBtn>
-            <IconBtn title="Align right" onClick={() => editor.chain().focus().setTextAlign("right").run()} active={editor.isActive({ textAlign: "right" })}>
+            <IconBtn title="Aligner à droite" onClick={() => editor.chain().focus().setTextAlign("right").run()} active={editor.isActive({ textAlign: "right" })}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
             </IconBtn>
-            <IconBtn title="Justify" onClick={() => editor.chain().focus().setTextAlign("justify").run()} active={editor.isActive({ textAlign: "justify" })}>
+            <IconBtn title="Justifier" onClick={() => editor.chain().focus().setTextAlign("justify").run()} active={editor.isActive({ textAlign: "justify" })}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </IconBtn>
           </div>
 
           <div className="simple-editor-toolbar-separator" />
 
-          {/* Link */}
+          {/* Lien */}
           <div className="simple-editor-toolbar-group">
             <IconBtn
-              title="Link"
+              title="Lien"
               onClick={() => {
                 const prev = editor.getAttributes("link").href as string | undefined;
                 setLinkValue(prev ?? "https://");
@@ -241,10 +235,10 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
 
           <div className="simple-editor-toolbar-separator" />
 
-          {/* Image upload */}
+          {/* Image */}
           <div className="simple-editor-toolbar-group">
             <IconBtn
-              title={isUploading ? "Uploading\u2026" : "Insert image"}
+              title={isUploading ? "Envoi en cours…" : "Insérer une image"}
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
@@ -255,12 +249,12 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
 
           <div className="simple-editor-toolbar-separator" />
 
-          {/* Undo / Redo */}
+          {/* Annuler / Rétablir */}
           <div className="simple-editor-toolbar-group">
-            <IconBtn title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
+            <IconBtn title="Annuler" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
             </IconBtn>
-            <IconBtn title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>
+            <IconBtn title="Rétablir" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-4.95"/></svg>
             </IconBtn>
           </div>
@@ -273,7 +267,7 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
             type="url"
             value={linkValue}
             onChange={(ev) => setLinkValue(ev.target.value)}
-            placeholder="https://example.com"
+            placeholder="https://exemple.com"
             onKeyDown={(ev) => {
               if (ev.key === "Enter") {
                 ev.preventDefault();
@@ -298,7 +292,7 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
               setIsLinkOpen(false);
             }}
           >
-            Apply
+            Appliquer
           </button>
           <button
             onClick={() => {
@@ -306,9 +300,9 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Write here\u
               setIsLinkOpen(false);
             }}
           >
-            Remove
+            Supprimer
           </button>
-          <button onClick={() => setIsLinkOpen(false)}>Cancel</button>
+          <button onClick={() => setIsLinkOpen(false)}>Annuler</button>
         </div>
       )}
 
