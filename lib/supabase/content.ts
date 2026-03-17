@@ -10,22 +10,29 @@ import type { ServerSupabaseClient } from "./serverClient";
 
 export const INTRO_TITLES = ["Intro-Creation", "Intro-Reflexion", "Intro-IRL"] as const;
 
+const decodeUnicodeEscapes = (value: string | null | undefined): string => {
+  if (!value) return "";
+  return value.replace(/\\[uU]([0-9a-fA-F]{4})/g, (_, hex: string) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+};
+
 const mapArticleSummary = (
   input: Record<string, any>,
   sortOrder: number
 ): SupabaseArticleSummary => ({
   id: String(input.id),
-  slug: String(input.slug),
-  title: String(input.title ?? ""),
-  author: input.author_name ? String(input.author_name) : null,
+  slug: decodeUnicodeEscapes(String(input.slug)),
+  title: decodeUnicodeEscapes(String(input.title ?? "")),
+  author: input.author_name ? decodeUnicodeEscapes(String(input.author_name)) : null,
   status: Boolean(input.status),
   authoredDate: input.authored_date ? String(input.authored_date) : null,
   publishedAt: input.published_at ? String(input.published_at) : null,
   updatedAt: input.updated_at ? String(input.updated_at) : null,
-  preview: input.preview ?? null,
-  excerpt: input.excerpt ?? null,
-  headerImagePath: input.header_image_path ?? null,
-  bodyMarkdown: input.body_markdown ? String(input.body_markdown) : null,
+  preview: input.preview ? decodeUnicodeEscapes(String(input.preview)) : null,
+  excerpt: input.excerpt ? decodeUnicodeEscapes(String(input.excerpt)) : null,
+  headerImagePath: input.header_image_path ? decodeUnicodeEscapes(String(input.header_image_path)) : null,
+  bodyMarkdown: input.body_markdown ? decodeUnicodeEscapes(String(input.body_markdown)) : null,
   sortOrder,
 });
 
@@ -48,8 +55,8 @@ const mapArticleDetailRow = (data: Record<string, any>): SupabaseArticleDetail =
         .filter((entry: any) => Boolean(entry?.related))
         .map((entry: any) => ({
           relatedId: String(entry.related.id),
-          relatedSlug: String(entry.related.slug),
-          title: String(entry.related.title ?? ""),
+          relatedSlug: decodeUnicodeEscapes(String(entry.related.slug)),
+          title: decodeUnicodeEscapes(String(entry.related.title ?? "")),
           status: Boolean(entry.related.status),
           sortOrder: (entry.sort_order as number | null) ?? 0,
         }))
@@ -62,9 +69,9 @@ const mapArticleDetailRow = (data: Record<string, any>): SupabaseArticleDetail =
           id: String(entry.id),
           storageBucket: String(entry.storage_bucket ?? "article-media"),
           storagePath: String(entry.storage_path ?? ""),
-          caption: entry.caption ?? null,
-          credit: entry.credit ?? null,
-          altText: entry.alt_text ?? null,
+          caption: entry.caption ? decodeUnicodeEscapes(String(entry.caption)) : null,
+          credit: entry.credit ? decodeUnicodeEscapes(String(entry.credit)) : null,
+          altText: entry.alt_text ? decodeUnicodeEscapes(String(entry.alt_text)) : null,
           isHeader: Boolean(entry.is_header),
           sortOrder: (entry.sort_order as number | null) ?? 0,
         }))
@@ -73,18 +80,18 @@ const mapArticleDetailRow = (data: Record<string, any>): SupabaseArticleDetail =
 
   return {
     id: String(data.id),
-    slug: String(data.slug),
-    title: String(data.title ?? ""),
-    authorName: data.author_name ? String(data.author_name) : null,
+    slug: decodeUnicodeEscapes(String(data.slug)),
+    title: decodeUnicodeEscapes(String(data.title ?? "")),
+    authorName: data.author_name ? decodeUnicodeEscapes(String(data.author_name)) : null,
     status: Boolean(data.status),
     authoredDate: data.authored_date ? String(data.authored_date) : null,
     publishedAt: data.published_at ? String(data.published_at) : null,
-    preview: data.preview ?? null,
-    excerpt: data.excerpt ?? null,
-    headerImagePath: data.header_image_path ?? null,
-    bodyMarkdown: String(data.body_markdown ?? ""),
-    bodyJson: data.body_json != null ? JSON.stringify(data.body_json, null, 2).replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16))) : null,
-    bodyHtml: data.body_html ?? null,
+    preview: data.preview ? decodeUnicodeEscapes(String(data.preview)) : null,
+    excerpt: data.excerpt ? decodeUnicodeEscapes(String(data.excerpt)) : null,
+    headerImagePath: data.header_image_path ? decodeUnicodeEscapes(String(data.header_image_path)) : null,
+    bodyMarkdown: decodeUnicodeEscapes(String(data.body_markdown ?? "")),
+    bodyJson: data.body_json != null ? decodeUnicodeEscapes(JSON.stringify(data.body_json, null, 2)) : null,
+    bodyHtml: data.body_html ? decodeUnicodeEscapes(String(data.body_html)) : null,
     categories: categories
       .slice()
       .sort((a, b) => {
@@ -193,11 +200,11 @@ export const loadSupabaseIntroEntries = async (
     .filter((row) => order.has(String(row.title)))
     .map((row) => ({
       id: String(row.id),
-      slug: String(row.slug ?? ""),
-      title: String(row.title ?? ""),
-      bodyMarkdown: String(row.body_markdown ?? ""),
-      bodyHtml: row.body_html ?? null,
-      bodyJson: row.body_json != null ? JSON.stringify(row.body_json, null, 2).replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16))) : null,
+      slug: decodeUnicodeEscapes(String(row.slug ?? "")),
+      title: decodeUnicodeEscapes(String(row.title ?? "")),
+      bodyMarkdown: decodeUnicodeEscapes(String(row.body_markdown ?? "")),
+      bodyHtml: row.body_html ? decodeUnicodeEscapes(String(row.body_html)) : null,
+      bodyJson: row.body_json != null ? decodeUnicodeEscapes(JSON.stringify(row.body_json, null, 2)) : null,
       updatedAt: row.updated_at ? String(row.updated_at) : null,
     }));
 
