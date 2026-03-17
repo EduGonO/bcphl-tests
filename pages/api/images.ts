@@ -8,6 +8,7 @@ type UploadBody = {
   filename?: string;
   contentType?: string;
   data?: string;
+  slug?: string;
 };
 
 const sanitizeFilename = (filename: string): string =>
@@ -17,6 +18,15 @@ const sanitizeFilename = (filename: string): string =>
     .replace(/[^a-z0-9-]/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "")
+    .slice(0, 120);
+
+const sanitizeSlug = (slug: string): string =>
+  slug
+    .toLowerCase()
+    .replace(/[^a-z0-9/-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/\/+/g, "/")
+    .replace(/^\/+|\/+$/g, "")
     .slice(0, 120);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -29,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { filename, contentType, data } = req.body as UploadBody;
+  const { filename, contentType, data, slug } = req.body as UploadBody;
   if (!filename || !contentType || !data) {
     return res.status(400).json({ error: "Missing upload payload" });
   }
@@ -43,7 +53,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const base64Payload = data.includes(",") ? (data.split(",").pop() as string) : data;
     const buffer = Buffer.from(base64Payload, "base64");
     const extension = filename.split(".").pop()?.toLowerCase() ?? "bin";
-    const key = `editor/${Date.now()}-${sanitizeFilename(filename)}.${extension}`;
+    const normalizedSlug = slug ? sanitizeSlug(slug) : "";
+    const folder = normalizedSlug || "unsorted";
+    const key = `images/${folder}/${Date.now()}-${sanitizeFilename(filename)}.${extension}`;
 
     const r2Client = createR2Client();
 
