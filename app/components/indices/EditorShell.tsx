@@ -18,7 +18,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
   bios,
   error,
   variant = "admin",
-  editorMode = "quill",
+  editorMode = "tiptap",
 }) => {
   return (
     <main className="editor-shell">

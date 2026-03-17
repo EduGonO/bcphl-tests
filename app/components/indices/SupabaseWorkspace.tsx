@@ -30,7 +30,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   bios = [],
   error,
   variant = "admin",
-  editorMode = "quill",
+  editorMode = "tiptap",
 }) => {
   const [supabaseCategories, setSupabaseCategories] = useState(categories);
   const [panelError, setPanelError] = useState<string | null>(error ?? null);
@@ -859,6 +859,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     htmlValue={introBody.html}
                     onChange={handleIntroChange}
                     placeholder="Écrivez l’introduction…"
+                    imageUploadSlug={selectedIntro.slug}
                     mode={editorMode}
                   />
                   <div className="supabase-intros__actions">
@@ -1317,6 +1318,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     htmlValue={formState.bodyHtml}
                     onChange={handleRichTextChange}
                     placeholder="Écrivez votre article…"
+                    imageUploadSlug={formState.slug}
                     mode={editorMode}
                   />
                 </section>

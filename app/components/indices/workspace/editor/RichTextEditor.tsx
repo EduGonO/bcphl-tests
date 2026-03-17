@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
 import TurndownService from "turndown";
 import { marked } from "marked";
-import RichTextEditorQuill from "./RichTextEditor.Quill";
 import RichTextEditorTipTap from "./RichTextEditor.TipTap";
 
-export type RichTextEditorMode = "quill" | "tiptap";
+export type RichTextEditorMode = "tiptap";
 
 type Props = {
   value: string;
@@ -13,6 +12,7 @@ type Props = {
   placeholder?: string;
   readOnly?: boolean;
   mode?: RichTextEditorMode;
+  imageUploadSlug?: string;
 };
 
 const normalizeMarkdown = (markdown: string): string =>
@@ -23,7 +23,7 @@ const markdownToHtml = (markdown: string): string => {
   return normalized.trim() ? ((marked.parse(normalized, { breaks: true }) as string) ?? "") : "";
 };
 
-const RichTextEditor: React.FC<Props> = ({ mode = "quill", value, htmlValue, onChange, ...rest }) => {
+const RichTextEditor: React.FC<Props> = ({ value, htmlValue, onChange, placeholder, readOnly, imageUploadSlug }) => {
   const turndown = useMemo(
     () =>
       new TurndownService({
@@ -34,20 +34,18 @@ const RichTextEditor: React.FC<Props> = ({ mode = "quill", value, htmlValue, onC
     []
   );
 
-  if (mode === "tiptap") {
-    return (
-      <RichTextEditorTipTap
-        value={htmlValue || markdownToHtml(value)}
-        onChange={(html, json) => {
-          const markdown = html.trim() ? normalizeMarkdown(turndown.turndown(html)) : "";
-          onChange(markdown, html, json);
-        }}
-        {...rest}
-      />
-    );
-  }
-
-  return <RichTextEditorQuill value={value} onChange={onChange} {...rest} />;
+  return (
+    <RichTextEditorTipTap
+      value={htmlValue || markdownToHtml(value)}
+      onChange={(html, json) => {
+        const markdown = html.trim() ? normalizeMarkdown(turndown.turndown(html)) : "";
+        onChange(markdown, html, json);
+      }}
+      placeholder={placeholder}
+      readOnly={readOnly}
+      imageUploadSlug={imageUploadSlug}
+    />
+  );
 };
 
 export default RichTextEditor;
