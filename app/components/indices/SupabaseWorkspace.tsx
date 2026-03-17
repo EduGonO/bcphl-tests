@@ -479,7 +479,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const handleSave = useCallback(async () => {
     if (!formState || !selectedArticleId) return;
     setStatus("saving");
-    setStatusMessage("Enregistrement en cours\u2026");
+    setStatusMessage("Enregistrement en cours…");
     try {
       const payload = {
         title: formState.title.trim(),
@@ -515,7 +515,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       setFormState(detailToForm(data.article));
       dirtyRef.current = false;
       setStatus("saved");
-      setStatusMessage("Modifications enregistr\u00e9es");
+      setStatusMessage("Modifications enregistrées");
       setSelectedArticleId(data.article.id);
       const articleCategories = data.article.categories;
       if (articleCategories.length) {
@@ -858,7 +858,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     value={introBody.markdown}
                     htmlValue={introBody.html}
                     onChange={handleIntroChange}
-                    placeholder="\u00c9crivez l'introduction\u2026"
+                    placeholder="Écrivez l'introduction…"
                     imageUploadSlug={selectedIntro.slug}
                     mode={editorMode}
                   />
@@ -1317,7 +1317,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     value={formState.bodyMarkdown}
                     htmlValue={formState.bodyHtml}
                     onChange={handleRichTextChange}
-                    placeholder="\u00c9crivez votre article\u2026"
+                    placeholder="Écrivez votre article…"
                     imageUploadSlug={formState.slug}
                     mode={editorMode}
                   />
