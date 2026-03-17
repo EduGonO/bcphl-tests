@@ -53,3 +53,138 @@ a:active {
   color: inherit;
   text-decoration: none;
 }
+
+/* Tiptap simple template-like toolbar styles */
+.simple-template-ui {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: visible;
+  position: relative;
+}
+
+.simple-template-ui__toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.simple-template-ui__toolbar--floating {
+  position: sticky;
+  top: 12px;
+  margin: 12px;
+  z-index: 5;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+}
+
+.simple-template-ui__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.simple-template-ui__separator {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+}
+
+.simple-template-ui__menu-trigger,
+.simple-template-ui__btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #334155;
+  cursor: pointer;
+}
+
+.simple-template-ui__menu-trigger {
+  width: auto;
+  gap: 6px;
+  padding: 0 8px;
+}
+
+.simple-template-ui__trigger-label {
+  font-size: 12px;
+}
+
+.simple-template-ui__btn.is-active,
+.simple-template-ui__menu-item.is-active {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #6d28d9;
+}
+
+.simple-template-ui__btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.simple-template-ui__btn:hover::after,
+.simple-template-ui__btn:focus-visible::after {
+  opacity: 1;
+}
+
+.simple-template-ui__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 150px;
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+}
+
+.simple-template-ui__menu-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: #fff;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.simple-template-ui__menu-item:hover {
+  background: #f8fafc;
+}
+
+.simple-template-ui__content {
+  min-height: 330px;
+  padding: 18px;
+  outline: none;
+}
+
+.simple-template-ui__content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+  height: 0;
+  float: left;
+}
