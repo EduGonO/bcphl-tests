@@ -484,7 +484,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       const file = event.target.files?.[0];
       // Capture the DOM node synchronously — the synthetic event may be recycled after await
       const inputEl = event.target;
-      if (!file) return;
+      if (!file || !formState || !selectedArticleId) return;
       setIsUploadingHeader(true);
       setHeaderUploadError(null);
       try {
@@ -497,37 +497,89 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         });
 
         // POST to /api/images — same pattern as SimpleEditor's uploadImage
-        const res = await fetch("/api/images", {
+        const uploadRes = await fetch("/api/images", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             filename: file.name,
             contentType: file.type,
             data: dataUrl,
-            slug: formState?.slug || "headers",
+            slug: formState.slug || "headers",
           }),
         });
 
         // Guard res.json(): a non-JSON response (e.g. 413 from body-size limit)
         // would throw DOMException "The string did not match the expected pattern"
         // if we called res.json() unconditionally on a plain-text / HTML error body.
-        let payload: { url?: string; key?: string; error?: string } = {};
-        const ct = res.headers.get("content-type") ?? "";
-        if (ct.includes("application/json")) {
-          payload = await res.json();
+        let uploadPayload: { url?: string; key?: string; error?: string } = {};
+        const uploadCt = uploadRes.headers.get("content-type") ?? "";
+        if (uploadCt.includes("application/json")) {
+          uploadPayload = await uploadRes.json();
         } else {
-          // Non-JSON response — read as text for a useful error message
-          const text = await res.text();
-          throw new Error(
-            `Erreur serveur (${res.status}): ${text.slice(0, 120)}`
-          );
+          const text = await uploadRes.text();
+          throw new Error(`Erreur serveur (${uploadRes.status}): ${text.slice(0, 120)}`);
         }
 
-        if (!res.ok || !payload.url) {
-          throw new Error(payload.error ?? `Échec de l'envoi (${res.status})`);
+        if (!uploadRes.ok || !uploadPayload.url) {
+          throw new Error(uploadPayload.error ?? `Échec de l'envoi (${uploadRes.status})`);
         }
 
-        updateForm("headerImagePath", payload.url);
+        const uploadedUrl = uploadPayload.url;
+
+        // 1. Update local form state immediately so the thumbnail appears
+        updateForm("headerImagePath", uploadedUrl);
+
+        // 2. Persist the new URL to Supabase immediately.
+        //    We cannot call handleSave() here because React's setFormState is async —
+        //    formState.headerImagePath would still hold the old value when handleSave
+        //    reads it. So we build the PUT payload directly with the new URL.
+        const saveRes = await fetch(`/api/supabase/articles/${selectedArticleId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: formState.title.trim(),
+            slug: formState.slug.trim(),
+            authorName: formState.authorName.trim() || null,
+            status: formState.status,
+            authoredDate: formState.authoredDate.trim() || null,
+            publishedAt: formState.publishedAt ? fromLocalDateTime(formState.publishedAt) : null,
+            preview: formState.preview.trim() || null,
+            excerpt: formState.excerpt.trim() || null,
+            headerImagePath: uploadedUrl,
+            bodyMarkdown: formState.bodyMarkdown,
+            bodyJson: formState.bodyJson.trim() || null,
+            bodyHtml: formState.bodyHtml.trim() || null,
+            categoryIds: Array.from(new Set(formState.categoryIds)),
+            relatedArticleIds: Array.from(new Set(formState.relatedArticleIds)).filter(
+              (id) => id !== selectedArticleId
+            ),
+          }),
+        });
+
+        let saveData: Record<string, any> = {};
+        const saveCt = saveRes.headers.get("content-type") ?? "";
+        if (saveCt.includes("application/json")) {
+          saveData = await saveRes.json();
+        } else {
+          const text = await saveRes.text();
+          throw new Error(`Erreur serveur (${saveRes.status}): ${text.slice(0, 120)}`);
+        }
+
+        if (!saveRes.ok) {
+          throw new Error(saveData?.error ?? "Impossible d'enregistrer l'image.");
+        }
+
+        setSupabaseCategories(saveData.categories);
+        setArticleDetail(saveData.article);
+        setFormState(detailToForm(saveData.article));
+        dirtyRef.current = false;
+        setStatus("saved");
+        setStatusMessage("Image enregistrée");
+        setSelectedArticleId(saveData.article.id);
+        setTimeout(() => {
+          setStatus("idle");
+          setStatusMessage(null);
+        }, 1500);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Échec de l'upload";
         setHeaderUploadError(msg);
@@ -537,7 +589,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         try { inputEl.value = ""; } catch (_) { /* ignore */ }
       }
     },
-    [formState, updateForm]
+    [formState, selectedArticleId, updateForm]
   );
   const handleHeaderImageRemove = useCallback(async () => {
     if (!formState || !selectedArticleId || status === "saving") return;
