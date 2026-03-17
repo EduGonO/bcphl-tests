@@ -1,5 +1,6 @@
 import React from "react";
 import SupabaseWorkspace, {
+  type SupabaseWorkspaceEditorMode,
   type SupabaseWorkspaceVariant,
 } from "./SupabaseWorkspace";
 import type { SupabaseBioEntry, SupabaseCategorySummary } from "../../../types/supabase";
@@ -9,6 +10,7 @@ type EditorShellProps = {
   bios: SupabaseBioEntry[];
   error?: string | null;
   variant?: SupabaseWorkspaceVariant;
+  editorMode?: SupabaseWorkspaceEditorMode;
 };
 
 const EditorShell: React.FC<EditorShellProps> = ({
@@ -16,6 +18,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
   bios,
   error,
   variant = "admin",
+  editorMode = "quill",
 }) => {
   return (
     <main className="editor-shell">
@@ -25,6 +28,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
           bios={bios}
           error={error}
           variant={variant}
+          editorMode={editorMode}
         />
       </section>
 
