@@ -145,7 +145,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const fetchIntroEntries = useCallback(async () => {
     if (!isAdmin) return;
     setIntroStatus("loading");
-    setIntroStatusMessage("Chargement…");
+    setIntroStatusMessage("Chargement\u2026");
     introDirtyRef.current = false;
     try {
       const response = await fetch("/api/supabase/intros");
@@ -257,57 +257,57 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const digest = useMemo(() => {
     if (status === "loading") {
-      return { tone: "loading" as StatusTone, label: "Chargement…" };
+      return { tone: "loading" as StatusTone, label: "Chargement\u2026" };
     }
     if (status === "saving") {
-      return { tone: "saving" as StatusTone, label: "Enregistrement…" };
+      return { tone: "saving" as StatusTone, label: "Enregistrement\u2026" };
     }
     if (status === "error") {
       return { tone: "error" as StatusTone, label: statusMessage ?? "Erreur" };
     }
     if (status === "saved") {
-      return { tone: "saved" as StatusTone, label: statusMessage ?? "Enregistré" };
+      return { tone: "saved" as StatusTone, label: statusMessage ?? "Enregistr\u00e9" };
     }
     if (dirtyRef.current) {
-      return { tone: "dirty" as StatusTone, label: "Modifications non enregistrées" };
+      return { tone: "dirty" as StatusTone, label: "Modifications non enregistr\u00e9es" };
     }
     return { tone: "idle" as StatusTone, label: statusMessage ?? "Stable" };
   }, [status, statusMessage]);
 
   const introDigest = useMemo(() => {
     if (introStatus === "loading") {
-      return { tone: "loading" as StatusTone, label: "Chargement…" };
+      return { tone: "loading" as StatusTone, label: "Chargement\u2026" };
     }
     if (introStatus === "saving") {
-      return { tone: "saving" as StatusTone, label: "Enregistrement…" };
+      return { tone: "saving" as StatusTone, label: "Enregistrement\u2026" };
     }
     if (introStatus === "error") {
       return { tone: "error" as StatusTone, label: introStatusMessage ?? "Erreur" };
     }
     if (introStatus === "saved") {
-      return { tone: "saved" as StatusTone, label: introStatusMessage ?? "Enregistré" };
+      return { tone: "saved" as StatusTone, label: introStatusMessage ?? "Enregistr\u00e9" };
     }
     if (introDirtyRef.current) {
-      return { tone: "dirty" as StatusTone, label: "Modifications non enregistrées" };
+      return { tone: "dirty" as StatusTone, label: "Modifications non enregistr\u00e9es" };
     }
     return { tone: "idle" as StatusTone, label: introStatusMessage ?? "Stable" };
   }, [introStatus, introStatusMessage]);
 
   const confirmDiscard = useCallback(() => {
     if (!dirtyRef.current) return true;
-    return window.confirm("Des modifications non enregistrées seront perdues. Continuer ?");
+    return window.confirm("Des modifications non enregistr\u00e9es seront perdues. Continuer ?");
   }, []);
 
   const confirmIntroDiscard = useCallback(() => {
     if (!introDirtyRef.current) return true;
     return window.confirm(
-      "Des modifications non enregistrées seront perdues. Continuer ?"
+      "Des modifications non enregistr\u00e9es seront perdues. Continuer ?"
     );
   }, []);
 
   const fetchArticle = useCallback(async (articleId: string) => {
     setStatus("loading");
-    setStatusMessage("Chargement…");
+    setStatusMessage("Chargement\u2026");
     dirtyRef.current = false;
     try {
       const response = await fetch(`/api/supabase/articles/${articleId}`);
@@ -479,7 +479,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const handleSave = useCallback(async () => {
     if (!formState || !selectedArticleId) return;
     setStatus("saving");
-    setStatusMessage("Enregistrement en cours…");
+    setStatusMessage("Enregistrement en cours\u2026");
     try {
       const payload = {
         title: formState.title.trim(),
@@ -515,7 +515,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       setFormState(detailToForm(data.article));
       dirtyRef.current = false;
       setStatus("saved");
-      setStatusMessage("Modifications enregistrées");
+      setStatusMessage("Modifications enregistr\u00e9es");
       setSelectedArticleId(data.article.id);
       const articleCategories = data.article.categories;
       if (articleCategories.length) {
@@ -570,7 +570,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data?.error ?? "Création impossible.");
+          throw new Error(data?.error ?? "Cr\u00e9ation impossible.");
         }
 
         setSupabaseCategories(data.categories);
@@ -593,7 +593,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
   const handleDelete = useCallback(async () => {
     if (!selectedArticleId) return;
-    if (!window.confirm("Supprimer définitivement cet article ?")) {
+    if (!window.confirm("Supprimer d\u00e9finitivement cet article ?")) {
       return;
     }
     setDeleteStatus("deleting");
@@ -644,7 +644,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
     if (!bioFormState) return;
     const rank = Number(bioFormState.rank);
     if (!Number.isFinite(rank)) {
-      setBioStatus("Le rang doit être numérique.");
+      setBioStatus("Le rang doit \u00eatre num\u00e9rique.");
       return;
     }
 
@@ -671,15 +671,15 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload?.error ?? "Échec de sauvegarde.");
+        throw new Error(payload?.error ?? "\u00c9chec de sauvegarde.");
       }
 
       const entries = payload.entries ?? [];
       setBioEntries(entries);
       setSelectedBioId(bioFormState.id);
-      setBioStatus("Bio sauvegardée.");
+      setBioStatus("Bio sauvegard\u00e9e.");
     } catch (err) {
-      setBioStatus(err instanceof Error ? err.message : "Échec de sauvegarde.");
+      setBioStatus(err instanceof Error ? err.message : "\u00c9chec de sauvegarde.");
     } finally {
       setIsSavingBio(false);
     }
@@ -692,7 +692,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         .map((article) => ({
           id: article.id,
           title: article.title,
-          categoryName: article.categories[0]?.name ?? "Sans catégorie",
+          categoryName: article.categories[0]?.name ?? "Sans cat\u00e9gorie",
         })),
     [sortedArticles, selectedArticleId]
   );
@@ -738,7 +738,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const handleIntroSave = useCallback(async () => {
     if (!selectedIntro) return;
     setIntroStatus("saving");
-    setIntroStatusMessage("Enregistrement…");
+    setIntroStatusMessage("Enregistrement\u2026");
     try {
       const response = await fetch("/api/supabase/intros", {
         method: "PUT",
@@ -756,7 +756,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       setIntroEntries(payload.entries ?? []);
       introDirtyRef.current = false;
       setIntroStatus("saved");
-      setIntroStatusMessage("Introduction enregistrée");
+      setIntroStatusMessage("Introduction enregistr\u00e9e");
       setTimeout(() => {
         setIntroStatus("idle");
         setIntroStatusMessage(null);
@@ -800,7 +800,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             <div>
               <p className="supabase-intros__title">Textes d'introduction</p>
               <p className="supabase-intros__subtitle">
-                Mise à jour des pages Réflexion, Création et IRL.
+                Mise \u00e0 jour des pages R\u00e9flexion, Cr\u00e9ation et IRL.
               </p>
             </div>
             <div className="supabase-intros__actions">
@@ -836,13 +836,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     <span className="supabase-intro-card__title">{readableTitle}</span>
                     <span className="supabase-intro-card__slug">{entry.slug}</span>
                     <span className="supabase-intro-card__meta">
-                      Mise à jour {formatDateTime(entry.updatedAt)}
+                      Mise \u00e0 jour {formatDateTime(entry.updatedAt)}
                     </span>
                   </button>
                 );
               })}
               {!introEntries.length && (
-                <p className="supabase-intros__empty">Aucune introduction trouvée.</p>
+                <p className="supabase-intros__empty">Aucune introduction trouv\u00e9e.</p>
               )}
             </div>
 
@@ -858,7 +858,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     value={introBody.markdown}
                     htmlValue={introBody.html}
                     onChange={handleIntroChange}
-                    placeholder="Écrivez l'introduction…"
+                    placeholder="\u00c9crivez l'introduction\u2026"
                     imageUploadSlug={selectedIntro.slug}
                     mode={editorMode}
                   />
@@ -869,13 +869,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       onClick={handleIntroSave}
                       disabled={introStatus === "saving"}
                     >
-                      {introStatus === "saving" ? "Enregistrement…" : "Enregistrer"}
+                      {introStatus === "saving" ? "Enregistrement\u2026" : "Enregistrer"}
                     </button>
                   </div>
                 </>
               ) : (
                 <div className="supabase-workspace__empty">
-                  Chargement des introductions…
+                  Chargement des introductions\u2026
                 </div>
               )}
             </div>
@@ -910,13 +910,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
               />
             </label>
             <label>
-              <span>Auteur·rice</span>
+              <span>Auteur\u00b7rice</span>
               <input
                 value={createDraft.authorName}
                 onChange={(event) =>
                   setCreateDraft((draft) => ({ ...draft, authorName: event.target.value }))
                 }
-                placeholder="Nom de l'auteur·rice"
+                placeholder="Nom de l'auteur\u00b7rice"
               />
             </label>
             <label className="supabase-create__status">
@@ -927,12 +927,12 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   setCreateDraft((draft) => ({ ...draft, status: event.target.checked }))
                 }
               />
-              <span>Publier immédiatement</span>
+              <span>Publier imm\u00e9diatement</span>
             </label>
           </div>
 
           <fieldset className="supabase-create__categories">
-            <legend>Catégories</legend>
+            <legend>Cat\u00e9gories</legend>
             <div className="supabase-create__categories-grid">
               {supabaseCategories.map((category) => {
                 const checked = createDraft.categoryIds.includes(category.id);
@@ -974,7 +974,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             className="supabase-button supabase-button--primary"
             disabled={createStatus === "creating"}
           >
-            {createStatus === "creating" ? "Création…" : "Créer l'article"}
+            {createStatus === "creating" ? "Cr\u00e9ation\u2026" : "Cr\u00e9er l'article"}
           </button>
         </form>
       )}
@@ -994,11 +994,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                 <thead>
                   <tr>
                     <th>Article</th>
-                    <th>Catégories</th>
+                    <th>Cat\u00e9gories</th>
                     <th>Statut</th>
-                    <th>Mis à jour</th>
-                    <th>Publié</th>
-                    <th>Auteur·rice</th>
+                    <th>Mis \u00e0 jour</th>
+                    <th>Publi\u00e9</th>
+                    <th>Auteur\u00b7rice</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1055,7 +1055,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                                   : "supabase-table__status supabase-table__status--draft"
                               }
                             >
-                              {article.status ? "Publié" : "Brouillon"}
+                              {article.status ? "Publi\u00e9" : "Brouillon"}
                             </span>
                           </td>
                           <td>{formatDateTime(article.updatedAt)}</td>
@@ -1064,7 +1064,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                             {article.author ? (
                               <span className="supabase-table__author">{article.author}</span>
                             ) : (
-                              <span className="supabase-table__muted">—</span>
+                              <span className="supabase-table__muted">\u2014</span>
                             )}
                           </td>
                         </tr>
@@ -1142,11 +1142,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   </label>
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--identity">
                     <label className="supabase-editor__field">
-                      <span>Auteur·rice</span>
+                      <span>Auteur\u00b7rice</span>
                       <input
                         value={formState.authorName}
                         onChange={(event) => updateForm("authorName", event.target.value)}
-                        placeholder="Nom de l'auteur·rice"
+                        placeholder="Nom de l'auteur\u00b7rice"
                       />
                     </label>
                     <label className="supabase-editor__field">
@@ -1161,7 +1161,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--taxonomy">
                     <fieldset className="supabase-editor__field supabase-editor__field--categories">
-                      <legend>Catégories</legend>
+                      <legend>Cat\u00e9gories</legend>
                       <div className="supabase-editor__categories">
                         {supabaseCategories.map((category) => {
                           const checked = formState.categoryIds.includes(category.id);
@@ -1184,13 +1184,13 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                         checked={formState.status}
                         onChange={(event) => updateForm("status", event.target.checked)}
                       />
-                      <span>Article publié</span>
+                      <span>Article publi\u00e9</span>
                     </label>
                   </div>
 
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--dates">
                     <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Date éditoriale</span>
+                      <span>Date \u00e9ditoriale</span>
                       <input
                         type="date"
                         value={formState.authoredDate}
@@ -1209,7 +1209,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
                     <label className="supabase-editor__field supabase-editor__field--excerpt">
-                      <span>Extrait affiché sur la catégorie</span>
+                      <span>Extrait affich\u00e9 sur la cat\u00e9gorie</span>
                       <textarea
                         rows={3}
                         value={formState.excerpt}
@@ -1220,7 +1220,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   <div className="supabase-editor__stack">
                     <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Image d'en-tête</span>
+                      <span>Image d'en-t\u00eate</span>
                       <input
                         value={formState.headerImagePath}
                         onChange={(event) => updateForm("headerImagePath", event.target.value)}
@@ -1229,7 +1229,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     </label>
 
                     <label className="supabase-editor__field supabase-editor__field--related supabase-editor__field--compact">
-                      <span>Articles liés</span>
+                      <span>Articles li\u00e9s</span>
                       <select
                         multiple
                         value={formState.relatedArticleIds}
@@ -1241,7 +1241,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       >
                         {relatedOptions.map((article) => (
                           <option key={article.id} value={article.id}>
-                            {article.title} · {article.categoryName}
+                            {article.title} \u00b7 {article.categoryName}
                           </option>
                         ))}
                       </select>
@@ -1249,7 +1249,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                     {articleDetail?.media?.length ? (
                       <div className="supabase-editor__media">
-                        <h4>Médias liés</h4>
+                        <h4>M\u00e9dias li\u00e9s</h4>
                         <ul>
                           {articleDetail.media.map((media) => (
                             <li key={media.id}>
@@ -1297,8 +1297,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   {articleDetail && (
                     <div className="supabase-editor__meta">
-                      <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
-                      <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
+                      <span>Cr\u00e9\u00e9 le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
+                      <span>Mis \u00e0 jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
                     </div>
                   )}
                 </section>
@@ -1317,7 +1317,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     value={formState.bodyMarkdown}
                     htmlValue={formState.bodyHtml}
                     onChange={handleRichTextChange}
-                    placeholder="Écrivez votre article…"
+                    placeholder="\u00c9crivez votre article\u2026"
                     imageUploadSlug={formState.slug}
                     mode={editorMode}
                   />
@@ -1330,7 +1330,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     onClick={handleSave}
                     disabled={status === "saving"}
                   >
-                    {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                    {status === "saving" ? "Enregistrement\u2026" : "Enregistrer"}
                   </button>
                   <button
                     type="button"
@@ -1338,32 +1338,156 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     onClick={handleDelete}
                     disabled={deleteStatus === "deleting"}
                   >
-                    {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
+                    {deleteStatus === "deleting" ? "Suppression\u2026" : "Supprimer"}
                   </button>
-                  <WorkspaceStatusBadge tone={digest.tone} label={digest.label} />
                 </footer>
               </div>
             </>
           ) : (
             <div className="supabase-workspace__empty">
-              {status === "loading" ? "Chargement…" : "Sélectionnez un article."}
+              S\u00e9lectionnez un article pour commencer.
             </div>
           )}
         </div>
       </div>
-      ) : currentMode === "bios" ? (
-        <SupabaseBiosPanel
-          bioEntries={bioEntries}
-          selectedBioId={selectedBioId}
-          bioFormState={bioFormState}
-          bioStatus={bioStatus}
-          isSavingBio={isSavingBio}
-          onSelectBio={setSelectedBioId}
-          onChangeBioForm={setBioFormState}
-          onSaveBio={handleSaveBio}
-          onRefreshBios={refreshBios}
-        />
-      ) : null}
+
+      ) : (
+        <div className="supabase-workspace">
+          <aside className="supabase-workspace__sidebar">
+            <section className="supabase-category">
+              <header className="supabase-category__header">
+                <span className="supabase-category__dot" style={{ backgroundColor: "#6f74d7" }} />
+                <span>Bios</span>
+              </header>
+              <ul className="supabase-category__list">
+                {bioEntries.map((entry) => {
+                  const isActive = selectedBioId === entry.id;
+                  return (
+                    <li key={entry.id}>
+                      <button
+                        type="button"
+                        className={isActive ? "supabase-entry supabase-entry--active" : "supabase-entry"}
+                        onClick={() => {
+                          setSelectedBioId(entry.id);
+                          setBioStatus(null);
+                        }}
+                      >
+                        <span className="supabase-entry__title">{entry.name}</span>
+                        <span className="supabase-entry__preview">
+                          {(entry.bio || []).join(" ").replace(/\s+/g, " ").trim() || "Bio indisponible"}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+                {!bioEntries.length && (
+                  <li className="supabase-category__empty">Aucune bio</li>
+                )}
+              </ul>
+            </section>
+          </aside>
+
+          <div className="supabase-workspace__editor">
+            {bioFormState ? (
+              <div className="supabase-editor__content">
+                <section className="supabase-editor__top">
+                  <div className="supabase-editor__details-grid supabase-editor__details-grid--compact">
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Nom</span>
+                      <input
+                        value={bioFormState.name}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, name: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Slug</span>
+                      <input
+                        value={bioFormState.slug}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, slug: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>R\u00f4le</span>
+                      <input
+                        value={bioFormState.role}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, role: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact supabase-editor__field--rank">
+                      <span>Rang</span>
+                      <input
+                        value={bioFormState.rank}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, rank: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="supabase-editor__field supabase-editor__field--compact">
+                      <span>Portrait base</span>
+                      <input
+                        value={bioFormState.portraitBase}
+                        onChange={(event) =>
+                          setBioFormState((current) =>
+                            current ? { ...current, portraitBase: event.target.value } : current
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <label className="supabase-editor__field supabase-editor__field--bio-main">
+                    <span>Bio</span>
+                    <textarea
+                      rows={14}
+                      value={bioFormState.bioText}
+                      onChange={(event) =>
+                        setBioFormState((current) =>
+                          current ? { ...current, bioText: event.target.value } : current
+                        )
+                      }
+                    />
+                  </label>
+                </section>
+
+                <footer className="supabase-editor__footer">
+                  {bioStatus && <span className="supabase-editor__status">{bioStatus}</span>}
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--ghost"
+                    onClick={refreshBios}
+                  >
+                    Actualiser
+                  </button>
+                  <button
+                    type="button"
+                    className="supabase-button supabase-button--primary"
+                    onClick={handleSaveBio}
+                    disabled={isSavingBio}
+                  >
+                    {isSavingBio ? "Enregistrement\u2026" : "Enregistrer"}
+                  </button>
+                </footer>
+              </div>
+            ) : (
+              <div className="supabase-workspace__empty">S\u00e9lectionnez une bio pour commencer.</div>
+            )}
+          </div>
+        </div>
+      )}
 
       <SupabaseWorkspaceStyles />
     </section>
