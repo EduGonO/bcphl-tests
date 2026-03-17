@@ -73,6 +73,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   );
   const introDirtyRef = useRef(false);
   const [isUploadingHeader, setIsUploadingHeader] = useState(false);
+  const [headerUploadError, setHeaderUploadError] = useState<string | null>(null);
   const headerFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { data: session, status: sessionStatus } = useSession();
@@ -481,13 +482,16 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   const handleHeaderImageUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      if (!file || !formState) return;
+      // Capture the input element reference synchronously before any await
+      const inputEl = event.target;
+      if (!file) return;
       setIsUploadingHeader(true);
+      setHeaderUploadError(null);
       try {
-        const data = await new Promise<string>((resolve, reject) => {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(new Error("Échec de lecture"));
+          reader.onerror = () => reject(new Error("Échec de lecture du fichier"));
           reader.readAsDataURL(file);
         });
         const res = await fetch("/api/images", {
@@ -496,18 +500,22 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
           body: JSON.stringify({
             filename: file.name,
             contentType: file.type,
-            data,
-            slug: formState.slug || "headers",
+            data: dataUrl,
+            slug: formState?.slug || "headers",
           }),
         });
         const payload = await res.json();
-        if (!res.ok || !payload?.url) throw new Error(payload?.error ?? "Échec de l'envoi");
+        if (!res.ok || !payload?.url) {
+          throw new Error(payload?.error ?? "Échec de l'envoi vers R2");
+        }
         updateForm("headerImagePath", payload.url as string);
       } catch (err) {
+        const msg = err instanceof Error ? err.message : "Échec de l'upload";
+        setHeaderUploadError(msg);
         console.error("Header image upload failed:", err);
       } finally {
         setIsUploadingHeader(false);
-        event.target.value = "";
+        try { inputEl.value = ""; } catch (_) { /* ignore */ }
       }
     },
     [formState, updateForm]
@@ -1256,23 +1264,29 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   </div>
 
                   <div className="supabase-editor__stack">
-                    <div className="supabase-editor__field supabase-editor__field--compact">
+                    <div className="supabase-editor__field supabase-editor__field--compact supabase-editor__field--header-image">
                       <span>Image d'en-tête</span>
                       <div className="supabase-editor__header-image-row">
                         <input
                           value={formState.headerImagePath}
-                          onChange={(event) => updateForm("headerImagePath", event.target.value)}
-                          placeholder="https://... ou storage/articles/image.jpg"
+                          onChange={(event) => {
+                            updateForm("headerImagePath", event.target.value);
+                            setHeaderUploadError(null);
+                          }}
+                          placeholder="https://... ou laisser vide"
                           className="supabase-editor__header-image-input"
                         />
                         <button
                           type="button"
-                          className="supabase-button supabase-button--ghost supabase-editor__header-image-btn"
+                          className={`supabase-button supabase-button--ghost supabase-editor__header-image-btn${isUploadingHeader ? " is-uploading" : ""}`}
                           onClick={() => headerFileInputRef.current?.click()}
                           disabled={isUploadingHeader}
-                          title={isUploadingHeader ? "Envoi en cours…" : "Choisir une image"}
+                          title={isUploadingHeader ? "Envoi en cours…" : "Uploader vers R2"}
+                          aria-label={isUploadingHeader ? "Envoi en cours…" : "Uploader une image vers R2"}
                         >
-                          {isUploadingHeader ? "…" : "↑"}
+                          <span className={isUploadingHeader ? "supabase-editor__upload-spin" : ""}>
+                            {isUploadingHeader ? "↻" : "↑"}
+                          </span>
                         </button>
                         <input
                           ref={headerFileInputRef}
@@ -1282,13 +1296,33 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                           onChange={handleHeaderImageUpload}
                         />
                       </div>
-                      {formState.headerImagePath && (
-                        <img
-                          src={formState.headerImagePath}
-                          alt="Aperçu de l'image d'en-tête"
-                          className="supabase-editor__header-image-preview"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                        />
+                      {headerUploadError && (
+                        <p className="supabase-editor__header-upload-error">{headerUploadError}</p>
+                      )}
+                      {formState.headerImagePath && !headerUploadError && (
+                        <div className="supabase-editor__header-thumb-wrap">
+                          <img
+                            src={formState.headerImagePath}
+                            alt=""
+                            className="supabase-editor__header-thumb"
+                            onError={(e) => {
+                              const wrap = (e.target as HTMLImageElement).parentElement;
+                              if (wrap) wrap.style.display = "none";
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="supabase-editor__header-thumb-remove"
+                            onClick={() => {
+                              updateForm("headerImagePath", "");
+                              setHeaderUploadError(null);
+                            }}
+                            title="Retirer l'image d'en-tête"
+                            aria-label="Retirer l'image d'en-tête"
+                          >
+                            ×
+                          </button>
+                        </div>
                       )}
                     </div>
 

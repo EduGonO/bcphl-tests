@@ -1037,6 +1037,9 @@ const SupabaseWorkspaceStyles: React.FC = () => (
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
           }
         }
+        .supabase-editor__field--header-image {
+          flex-basis: 100%;
+        }
         .supabase-editor__header-image-row {
           display: flex;
           align-items: center;
@@ -1046,25 +1049,77 @@ const SupabaseWorkspaceStyles: React.FC = () => (
         .supabase-editor__header-image-input {
           flex: 1;
           min-width: 0;
+          font-family: inherit;
         }
         .supabase-editor__header-image-btn {
           flex-shrink: 0;
-          width: 32px;
-          height: 32px;
+          width: 30px;
+          height: 30px;
+          border-radius: 8px;
           padding: 0;
-          font-size: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
+          font-size: 15px;
+          line-height: 1;
+          letter-spacing: 0;
+          text-transform: none;
+          transition: opacity 0.15s ease;
         }
-        .supabase-editor__header-image-preview {
-          display: block;
-          max-width: 100%;
-          max-height: 120px;
-          margin-top: 6px;
-          border-radius: 4px;
+        .supabase-editor__header-image-btn.is-uploading {
+          opacity: 0.55;
+          cursor: not-allowed;
+        }
+        .supabase-editor__upload-spin {
+          display: inline-block;
+          animation: supabase-spin 0.85s linear infinite;
+        }
+        .supabase-editor__header-upload-error {
+          margin: 4px 0 0;
+          font-size: 11px;
+          color: #a62f21;
+          letter-spacing: 0;
+          text-transform: none;
+        }
+        .supabase-editor__header-thumb-wrap {
+          display: inline-flex;
+          align-items: flex-start;
+          gap: 5px;
+          margin-top: 7px;
+          position: relative;
+        }
+        .supabase-editor__header-thumb {
+          height: 52px;
+          width: auto;
+          max-width: 140px;
           object-fit: cover;
-          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          display: block;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .supabase-editor__header-thumb-remove {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          border: none;
+          background: rgba(0, 0, 0, 0.45);
+          color: #fff;
+          font-size: 13px;
+          line-height: 1;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          flex-shrink: 0;
+          margin-top: 1px;
+          transition: background 0.15s ease;
+          letter-spacing: 0;
+          text-transform: none;
+        }
+        .supabase-editor__header-thumb-remove:hover {
+          background: rgba(162, 47, 33, 0.82);
         }
       `}</style>
 );
