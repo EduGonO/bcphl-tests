@@ -83,7 +83,7 @@ const mapArticleDetailRow = (data: Record<string, any>): SupabaseArticleDetail =
     excerpt: data.excerpt ?? null,
     headerImagePath: data.header_image_path ?? null,
     bodyMarkdown: String(data.body_markdown ?? ""),
-    bodyJson: data.body_json ? JSON.stringify(data.body_json, null, 2) : null,
+    bodyJson: data.body_json != null ? JSON.stringify(data.body_json, null, 2).replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16))) : null,
     bodyHtml: data.body_html ?? null,
     categories: categories
       .slice()
@@ -197,7 +197,7 @@ export const loadSupabaseIntroEntries = async (
       title: String(row.title ?? ""),
       bodyMarkdown: String(row.body_markdown ?? ""),
       bodyHtml: row.body_html ?? null,
-      bodyJson: row.body_json ? JSON.stringify(row.body_json, null, 2) : null,
+      bodyJson: row.body_json != null ? JSON.stringify(row.body_json, null, 2).replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16))) : null,
       updatedAt: row.updated_at ? String(row.updated_at) : null,
     }));
 
