@@ -12,7 +12,8 @@ export const INTRO_TITLES = ["Intro-Creation", "Intro-Reflexion", "Intro-IRL"] a
 
 const decodeUnicodeEscapes = (value: string | null | undefined): string => {
   if (!value) return "";
-  return value.replace(/\\[uU]([0-9a-fA-F]{4})/g, (_, hex: string) =>
+  const normalized = value.replace(/\\\\([uU][0-9a-fA-F]{4})/g, "\\$1");
+  return normalized.replace(/\\[uU]([0-9a-fA-F]{4})/g, (_, hex: string) =>
     String.fromCharCode(parseInt(hex, 16))
   );
 };
