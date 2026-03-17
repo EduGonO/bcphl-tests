@@ -1037,6 +1037,35 @@ const SupabaseWorkspaceStyles: React.FC = () => (
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
           }
         }
+        .supabase-editor__header-image-row {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 4px;
+        }
+        .supabase-editor__header-image-input {
+          flex: 1;
+          min-width: 0;
+        }
+        .supabase-editor__header-image-btn {
+          flex-shrink: 0;
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .supabase-editor__header-image-preview {
+          display: block;
+          max-width: 100%;
+          max-height: 120px;
+          margin-top: 6px;
+          border-radius: 4px;
+          object-fit: cover;
+          border: 1px solid #e2e8f0;
+        }
       `}</style>
 );
 
