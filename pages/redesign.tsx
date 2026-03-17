@@ -6,7 +6,7 @@ import RedesignArticlePreviewCard from "../app/components/RedesignArticlePreview
 import RedesignSearchSidebar from "../app/components/RedesignSearchSidebar";
 import TopNav from "../app/components/TopNav";
 import { Article } from "../types";
-import { findArticleRecord, getArticleRecords } from "../lib/articleService";
+import { getArticleRecords } from "../lib/articleService";
 
 type ArticleWithBody = Article & {
   body?: string;
@@ -504,32 +504,27 @@ const RedesignPage: React.FC<RedesignProps> = ({ articles }) => {
   );
 };
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const records = await getArticleRecords();
 
-  const articles: ArticleWithBody[] = await Promise.all(
-    records.map(async (record) => {
-      const hydrated =
-        (await findArticleRecord(
-          record.article.categorySlug || record.article.category,
-          record.article.slug
-        )) || record;
+  const articles: ArticleWithBody[] = records.map((record) => {
+    const publicPath = record.publicBasePath || "";
 
-      const publicPath = hydrated.publicBasePath || record.publicBasePath || "";
+    return {
+      ...record.article,
+      body: record.body,
+      bodyHtml: record.bodyHtml,
+      bodyMarkdown: record.body,
+      content: record.body,
+      publicBasePath: publicPath,
+      public_path: publicPath,
+    };
+  });
 
-      return {
-        ...hydrated.article,
-        body: hydrated.body,
-        bodyHtml: hydrated.bodyHtml,
-        bodyMarkdown: hydrated.body,
-        content: hydrated.body,
-        publicBasePath: publicPath,
-        public_path: publicPath,
-      };
-    })
-  );
-
-  return { props: { articles } };
+  return {
+    props: { articles },
+    revalidate: 60,
+  };
 }
 
 export default RedesignPage;
