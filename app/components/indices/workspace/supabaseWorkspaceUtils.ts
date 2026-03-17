@@ -1,6 +1,14 @@
 import type { SupabaseArticleDetail, SupabaseBioEntry } from "../../../../types/supabase";
 import type { BioFormState, SupabaseFormState } from "./supabaseWorkspaceTypes";
 
+const decodeUnicodeEscapes = (value: string | null | undefined): string => {
+  if (!value) return "";
+  const normalized = value.replace(/\\\\([uU][0-9a-fA-F]{4})/g, "\\$1");
+  return normalized.replace(/\\[uU]([0-9a-fA-F]{4})/g, (_, hex: string) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+};
+
 export const toLocalDateTimeInput = (value: string | null) => {
   if (!value) return "";
   const date = new Date(value);
@@ -44,18 +52,18 @@ export const toPreviewText = (article: { excerpt: string | null; preview: string
 };
 
 export const detailToForm = (detail: SupabaseArticleDetail): SupabaseFormState => ({
-  title: detail.title ?? "",
-  slug: detail.slug ?? "",
-  authorName: detail.authorName ?? "",
+  title: decodeUnicodeEscapes(detail.title),
+  slug: decodeUnicodeEscapes(detail.slug),
+  authorName: decodeUnicodeEscapes(detail.authorName),
   status: detail.status,
   authoredDate: detail.authoredDate ?? "",
   publishedAt: toLocalDateTimeInput(detail.publishedAt ?? null),
-  preview: detail.preview ?? "",
-  excerpt: detail.excerpt ?? "",
-  headerImagePath: detail.headerImagePath ?? "",
-  bodyMarkdown: detail.bodyMarkdown ?? "",
-  bodyJson: detail.bodyJson ?? "",
-  bodyHtml: detail.bodyHtml ?? "",
+  preview: decodeUnicodeEscapes(detail.preview),
+  excerpt: decodeUnicodeEscapes(detail.excerpt),
+  headerImagePath: decodeUnicodeEscapes(detail.headerImagePath),
+  bodyMarkdown: decodeUnicodeEscapes(detail.bodyMarkdown),
+  bodyJson: decodeUnicodeEscapes(detail.bodyJson),
+  bodyHtml: decodeUnicodeEscapes(detail.bodyHtml),
   categoryIds: detail.categories.map((category) => category.id),
   relatedArticleIds: detail.relatedArticles.map((relation) => relation.relatedId),
 });
