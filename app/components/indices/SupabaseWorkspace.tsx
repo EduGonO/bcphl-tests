@@ -1,4 +1,7 @@
-export type { SupabaseWorkspaceVariant } from "./workspace/supabaseWorkspaceTypes";
+export type {
+  SupabaseWorkspaceEditorMode,
+  SupabaseWorkspaceVariant,
+} from "./workspace/supabaseWorkspaceTypes";
 
 import { signOut, useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -12,7 +15,14 @@ import RichTextEditor from "./workspace/editor/RichTextEditor";
 import SupabaseWorkspaceStyles from "./workspace/SupabaseWorkspaceStyles";
 import WorkspaceHeader from "./workspace/WorkspaceHeader";
 import WorkspaceStatusBadge from "./workspace/WorkspaceStatusBadge";
-import type { BioFormState, DirectoryArticle, StatusTone, SupabaseWorkspaceProps, SupabaseWorkspaceVariant, SupabaseFormState, WorkspaceMode } from "./workspace/supabaseWorkspaceTypes";
+import type {
+  BioFormState,
+  DirectoryArticle,
+  StatusTone,
+  SupabaseFormState,
+  SupabaseWorkspaceProps,
+  WorkspaceMode,
+} from "./workspace/supabaseWorkspaceTypes";
 import { bioToForm, detailToForm, formatDateTime, fromLocalDateTime, toLocalDateTimeInput, toPreviewText } from "./workspace/supabaseWorkspaceUtils";
 
 const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
@@ -20,6 +30,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   bios = [],
   error,
   variant = "admin",
+  editorMode = "quill",
 }) => {
   const [supabaseCategories, setSupabaseCategories] = useState(categories);
   const [panelError, setPanelError] = useState<string | null>(error ?? null);
@@ -446,13 +457,14 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   );
 
   const handleRichTextChange = useCallback(
-    (markdown: string, html: string) => {
+    (markdown: string, html: string, json?: any) => {
       setFormState((current) => {
         if (!current) return current;
         return {
           ...current,
           bodyMarkdown: markdown,
           bodyHtml: html,
+          bodyJson: json ? JSON.stringify(json) : current.bodyJson,
         };
       });
       dirtyRef.current = true;
@@ -844,8 +856,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   <RichTextEditor
                     key={selectedIntro.id}
                     value={introBody.markdown}
+                    htmlValue={introBody.html}
                     onChange={handleIntroChange}
                     placeholder="Écrivez l’introduction…"
+                    mode={editorMode}
+                    imageUploadSlug={selectedIntro.slug}
                   />
                   <div className="supabase-intros__actions">
                     <button
@@ -1300,8 +1315,11 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                   <RichTextEditor
                     key={articleDetail?.id ?? "new"}
                     value={formState.bodyMarkdown}
+                    htmlValue={formState.bodyHtml}
                     onChange={handleRichTextChange}
                     placeholder="Écrivez votre article…"
+                    mode={editorMode}
+                    imageUploadSlug={formState.slug}
                   />
                 </section>
 

@@ -43,9 +43,12 @@ export type StatusTone = "idle" | "loading" | "saving" | "saved" | "dirty" | "er
 export type WorkspaceMode = "articles" | "bios";
 export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
 
+export type SupabaseWorkspaceEditorMode = "quill" | "tiptap";
+
 export type SupabaseWorkspaceProps = {
   categories: SupabaseCategorySummary[];
   bios?: SupabaseBioEntry[];
   error?: string | null;
   variant?: SupabaseWorkspaceVariant;
+  editorMode?: SupabaseWorkspaceEditorMode;
 };
