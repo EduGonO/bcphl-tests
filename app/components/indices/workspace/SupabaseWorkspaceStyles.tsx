@@ -897,6 +897,34 @@ const SupabaseWorkspaceStyles: React.FC = () => (
         .supabase-editor__stack .supabase-editor__field {
           flex: 0 0 auto;
         }
+        .supabase-editor__header-image-controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .supabase-editor__header-image-controls input[type="text"],
+        .supabase-editor__header-image-controls input:not([type]) {
+          flex: 1;
+        }
+        .supabase-editor__file-input {
+          display: none;
+        }
+        .supabase-editor__header-image-thumb {
+          margin-top: 4px;
+          display: inline-flex;
+          width: 44px;
+          height: 44px;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid rgba(0, 0, 0, 0.14);
+          background: #ffffff;
+        }
+        .supabase-editor__header-image-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
         .supabase-editor__field textarea {
           min-height: 120px;
           resize: vertical;
