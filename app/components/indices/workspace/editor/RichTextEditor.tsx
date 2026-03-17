@@ -1,7 +1,19 @@
 import React, { useMemo } from "react";
+import dynamic from "next/dynamic";
 import TurndownService from "turndown";
 import { marked } from "marked";
-import RichTextEditorTipTap from "./RichTextEditor.TipTap";
+
+// Dynamic import to avoid SSR issues with Tiptap (Pages Router compatible)
+// Path: app/components/indices/workspace/editor/RichTextEditor.tsx
+//    -> app/components/tiptap-templates/simple/SimpleEditor.tsx
+// Relative: ../../../tiptap-templates/simple/SimpleEditor
+const SimpleEditorClient = dynamic(
+  () =>
+    import("../../../tiptap-templates/simple/SimpleEditor").then(
+      (m) => m.SimpleEditor
+    ),
+  { ssr: false }
+);
 
 export type RichTextEditorMode = "tiptap";
 
@@ -20,10 +32,19 @@ const normalizeMarkdown = (markdown: string): string =>
 
 const markdownToHtml = (markdown: string): string => {
   const normalized = normalizeMarkdown(markdown);
-  return normalized.trim() ? ((marked.parse(normalized, { breaks: true }) as string) ?? "") : "";
+  return normalized.trim()
+    ? ((marked.parse(normalized, { breaks: true }) as string) ?? "")
+    : "";
 };
 
-const RichTextEditor: React.FC<Props> = ({ value, htmlValue, onChange, placeholder, readOnly, imageUploadSlug }) => {
+const RichTextEditor: React.FC<Props> = ({
+  value,
+  htmlValue,
+  onChange,
+  placeholder,
+  readOnly,
+  imageUploadSlug,
+}) => {
   const turndown = useMemo(
     () =>
       new TurndownService({
@@ -35,10 +56,12 @@ const RichTextEditor: React.FC<Props> = ({ value, htmlValue, onChange, placehold
   );
 
   return (
-    <RichTextEditorTipTap
+    <SimpleEditorClient
       value={htmlValue || markdownToHtml(value)}
-      onChange={(html, json) => {
-        const markdown = html.trim() ? normalizeMarkdown(turndown.turndown(html)) : "";
+      onChange={(html: string, json: any) => {
+        const markdown = html.trim()
+          ? normalizeMarkdown(turndown.turndown(html))
+          : "";
         onChange(markdown, html, json);
       }}
       placeholder={placeholder}
