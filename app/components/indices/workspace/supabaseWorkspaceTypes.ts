@@ -43,7 +43,7 @@ export type StatusTone = "idle" | "loading" | "saving" | "saved" | "dirty" | "er
 export type WorkspaceMode = "articles" | "bios";
 export type SupabaseWorkspaceVariant = "writer" | "admin" | "master";
 
-export type SupabaseWorkspaceEditorMode = "tiptap" | "quill";
+export type SupabaseWorkspaceEditorMode = "tiptap";
 
 export type SupabaseWorkspaceProps = {
   categories: SupabaseCategorySummary[];

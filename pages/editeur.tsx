@@ -16,7 +16,7 @@ const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseBios, supabaseErro
   return (
     <div className="workspace-page">
       <Head>
-        <title>Bic\u00e9phale \u00b7 \u00c9diteur</title>
+        <title>Bicéphale · Éditeur</title>
       </Head>
       <TopNav />
 
@@ -25,7 +25,6 @@ const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseBios, supabaseErro
         bios={supabaseBios}
         error={supabaseError}
         variant="writer"
-        editorMode="tiptap"
       />
 
       <style jsx>{`
@@ -39,7 +38,6 @@ const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseBios, supabaseErro
         .workspace-page :global(.editor-shell) {
           flex: 1;
           display: flex;
-          min-height: 0;
         }
       `}</style>
     </div>
@@ -48,8 +46,13 @@ const EditeurPage: React.FC<Props> = ({ supabaseCats, supabaseBios, supabaseErro
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const { supabaseCats, supabaseBios, supabaseError } = await resolveWorkspaceData();
+
   return {
-    props: { supabaseCats, supabaseBios, supabaseError },
+    props: {
+      supabaseCats,
+      supabaseBios,
+      supabaseError,
+    },
   };
 };
 
