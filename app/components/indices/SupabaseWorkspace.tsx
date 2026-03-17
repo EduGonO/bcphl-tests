@@ -3,6 +3,7 @@ export type {
   SupabaseWorkspaceVariant,
 } from "./workspace/supabaseWorkspaceTypes";
 
+import dynamic from "next/dynamic";
 import { signOut, useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -24,6 +25,8 @@ import type {
   WorkspaceMode,
 } from "./workspace/supabaseWorkspaceTypes";
 import { bioToForm, detailToForm, formatDateTime, fromLocalDateTime, toLocalDateTimeInput, toPreviewText } from "./workspace/supabaseWorkspaceUtils";
+
+const QuillEditor = dynamic(() => import("../SupabaseRichTextEditor"), { ssr: false });
 
 const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
   categories,
@@ -313,7 +316,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       const response = await fetch(`/api/supabase/articles/${articleId}`);
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible de charger l’article.");
+        throw new Error(payload?.error ?? "Impossible de charger l'article.");
       }
       setArticleDetail(payload.article);
       setFormState(detailToForm(payload.article));
@@ -507,7 +510,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data?.error ?? "Impossible d’enregistrer l’article.");
+        throw new Error(data?.error ?? "Impossible d'enregistrer l'article.");
       }
 
       setSupabaseCategories(data.categories);
@@ -751,7 +754,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       });
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload?.error ?? "Impossible d’enregistrer l’introduction.");
+        throw new Error(payload?.error ?? "Impossible d'enregistrer l'introduction.");
       }
       setIntroEntries(payload.entries ?? []);
       introDirtyRef.current = false;
@@ -798,7 +801,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         <section className="supabase-intros">
           <header className="supabase-intros__header">
             <div>
-              <p className="supabase-intros__title">Textes d’introduction</p>
+              <p className="supabase-intros__title">Textes d'introduction</p>
               <p className="supabase-intros__subtitle">
                 Mise à jour des pages Réflexion, Création et IRL.
               </p>
@@ -850,18 +853,25 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
               {selectedIntro ? (
                 <>
                   <div className="supabase-editor__richtext-header">
-                    <span>Contenu d’introduction</span>
+                    <span>Contenu d'introduction</span>
                     <WorkspaceStatusBadge tone={introDigest.tone} label={introDigest.label} />
                   </div>
-                  <RichTextEditor
-                    key={selectedIntro.id}
-                    value={introBody.markdown}
-                    htmlValue={introBody.html}
-                    onChange={handleIntroChange}
-                    placeholder="Écrivez l’introduction…"
-                    imageUploadSlug={selectedIntro.slug}
-                    mode={editorMode}
-                  />
+                  {editorMode === "quill" ? (
+                    <QuillEditor
+                      value={introBody.markdown}
+                      onChange={(markdown: string, html: string) => handleIntroChange(markdown, html)}
+                    />
+                  ) : (
+                    <RichTextEditor
+                      key={selectedIntro.id}
+                      value={introBody.markdown}
+                      htmlValue={introBody.html}
+                      onChange={handleIntroChange}
+                      placeholder="Écrivez l'introduction…"
+                      imageUploadSlug={selectedIntro.slug}
+                      mode={editorMode}
+                    />
+                  )}
                   <div className="supabase-intros__actions">
                     <button
                       type="button"
@@ -895,7 +905,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                 onChange={(event) =>
                   setCreateDraft((draft) => ({ ...draft, title: event.target.value }))
                 }
-                placeholder="Titre de l’article"
+                placeholder="Titre de l'article"
               />
             </label>
             <label>
@@ -916,7 +926,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                 onChange={(event) =>
                   setCreateDraft((draft) => ({ ...draft, authorName: event.target.value }))
                 }
-                placeholder="Nom de l’auteur·rice"
+                placeholder="Nom de l'auteur·rice"
               />
             </label>
             <label className="supabase-create__status">
@@ -974,7 +984,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
             className="supabase-button supabase-button--primary"
             disabled={createStatus === "creating"}
           >
-            {createStatus === "creating" ? "Création…" : "Créer l’article"}
+            {createStatus === "creating" ? "Création…" : "Créer l'article"}
           </button>
         </form>
       )}
@@ -1137,7 +1147,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     <input
                       value={formState.title}
                       onChange={(event) => updateForm("title", event.target.value)}
-                      placeholder="Titre de l’article"
+                      placeholder="Titre de l'article"
                     />
                   </label>
                   <div className="supabase-editor__details-grid supabase-editor__details-grid--identity">
@@ -1146,7 +1156,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       <input
                         value={formState.authorName}
                         onChange={(event) => updateForm("authorName", event.target.value)}
-                        placeholder="Nom de l’auteur·rice"
+                        placeholder="Nom de l'auteur·rice"
                       />
                     </label>
                     <label className="supabase-editor__field">
@@ -1154,7 +1164,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                       <input
                         value={formState.slug}
                         onChange={(event) => updateForm("slug", event.target.value)}
-                        placeholder="exemple-d’article"
+                        placeholder="exemple-d'article"
                       />
                     </label>
                   </div>
@@ -1220,7 +1230,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                   <div className="supabase-editor__stack">
                     <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Image d’en-tête</span>
+                      <span>Image d'en-tête</span>
                       <input
                         value={formState.headerImagePath}
                         onChange={(event) => updateForm("headerImagePath", event.target.value)}
@@ -1305,22 +1315,29 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
 
                 <section className="supabase-editor__canvas">
                   <div className="supabase-editor__richtext-header">
-                    <span>Contenu de l’article</span>
+                    <span>Contenu de l'article</span>
                     <span
                       className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
                     >
                       {digest.label}
                     </span>
                   </div>
-                  <RichTextEditor
-                    key={articleDetail?.id ?? "new"}
-                    value={formState.bodyMarkdown}
-                    htmlValue={formState.bodyHtml}
-                    onChange={handleRichTextChange}
-                    placeholder="Écrivez votre article…"
-                    imageUploadSlug={formState.slug}
-                    mode={editorMode}
-                  />
+                  {editorMode === "quill" ? (
+                    <QuillEditor
+                      value={formState.bodyMarkdown}
+                      onChange={(markdown: string, html: string) => handleRichTextChange(markdown, html)}
+                    />
+                  ) : (
+                    <RichTextEditor
+                      key={articleDetail?.id ?? "new"}
+                      value={formState.bodyMarkdown}
+                      htmlValue={formState.bodyHtml}
+                      onChange={handleRichTextChange}
+                      placeholder="Écrivez votre article…"
+                      imageUploadSlug={formState.slug}
+                      mode={editorMode}
+                    />
+                  )}
                 </section>
 
                 <footer className="supabase-editor__footer">
