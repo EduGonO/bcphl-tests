@@ -37,7 +37,6 @@ const IconBtn: React.FC<IconBtnProps> = ({ onClick, active = false, disabled = f
 
 export function SimpleEditor({ value = "", onChange, placeholder = "Écrivez ici…", imageUploadSlug, readOnly = false }: SimpleEditorProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const [linkValue, setLinkValue] = useState("https://");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -83,14 +82,7 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Écrivez ici
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ filename: file.name, contentType: file.type, data, slug: imageUploadSlug }),
     });
-    let payload: { url?: string; error?: string } = {};
-    const ct = res.headers.get("content-type") ?? "";
-    if (ct.includes("application/json")) {
-      payload = await res.json();
-    } else {
-      const text = await res.text();
-      throw new Error(`Erreur serveur (${res.status}): ${text.slice(0, 120)}`);
-    }
+    const payload = await res.json();
     if (!res.ok || !payload?.url) throw new Error(payload?.error ?? "Échec de l'envoi");
     return payload.url as string;
   }, [imageUploadSlug]);
@@ -98,25 +90,11 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Écrivez ici
   const onImageSelected = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editor) return;
-    // Client-side validation before any network call
-    if (file.size > 15 * 1024 * 1024) {
-      setUploadError("Image trop lourde (max 15 Mo)");
-      e.target.value = "";
-      return;
-    }
-    if (!file.type.startsWith("image/")) {
-      setUploadError("Format non supporté");
-      e.target.value = "";
-      return;
-    }
     setIsUploading(true);
-    setUploadError(null);
     try {
       const url = await uploadImage(file);
       editor.chain().focus().setImage({ src: url, alt: file.name }).run();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Échec de l'envoi";
-      setUploadError(msg);
       console.error(err);
     } finally {
       setIsUploading(false);
@@ -260,8 +238,8 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Écrivez ici
           {/* Image */}
           <div className="simple-editor-toolbar-group">
             <IconBtn
-              title={isUploading ? "Ajout de l'image…" : "Insérer une image"}
-              onClick={() => { setUploadError(null); fileInputRef.current?.click(); }}
+              title={isUploading ? "Envoi en cours…" : "Insérer une image"}
+              onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -328,20 +306,6 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Écrivez ici
         </div>
       )}
 
-      {uploadError && (
-        <div className="simple-editor-upload-error" role="alert">
-          <span>{uploadError}</span>
-          <button
-            type="button"
-            className="simple-editor-upload-error__dismiss"
-            onClick={() => setUploadError(null)}
-            aria-label="Fermer"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
       <div className="simple-editor-content">
         <EditorContent editor={editor} />
       </div>
@@ -353,27 +317,6 @@ export function SimpleEditor({ value = "", onChange, placeholder = "Écrivez ici
           float: left;
           height: 0;
           pointer-events: none;
-        }
-        .simple-editor-upload-error {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 8px;
-          padding: 5px 10px;
-          font-size: 12px;
-          color: #a62f21;
-          background: rgba(162, 47, 33, 0.07);
-          border-left: 3px solid #a62f21;
-        }
-        .simple-editor-upload-error__dismiss {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #a62f21;
-          font-size: 14px;
-          line-height: 1;
-          padding: 0 2px;
-          flex-shrink: 0;
         }
       `}</style>
     </div>

@@ -485,21 +485,8 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       // Capture the DOM node synchronously — the synthetic event may be recycled after await
       const inputEl = event.target;
       if (!file || !formState || !selectedArticleId) return;
-      // Client-side validation before any network call
-      if (file.size > 15 * 1024 * 1024) {
-        setHeaderUploadError("Image trop lourde (max 15 Mo)");
-        try { inputEl.value = ""; } catch (_) { /* ignore */ }
-        return;
-      }
-      if (!file.type.startsWith("image/")) {
-        setHeaderUploadError("Format non supporté");
-        try { inputEl.value = ""; } catch (_) { /* ignore */ }
-        return;
-      }
       setIsUploadingHeader(true);
       setHeaderUploadError(null);
-      setStatus("saving");
-      setStatusMessage("Ajout de l'image…");
       try {
         // Read file as base64 data URI
         const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -587,7 +574,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         setFormState(detailToForm(saveData.article));
         dirtyRef.current = false;
         setStatus("saved");
-        setStatusMessage("Image ajoutée");
+        setStatusMessage("Image enregistrée");
         setSelectedArticleId(saveData.article.id);
         setTimeout(() => {
           setStatus("idle");
@@ -1361,45 +1348,17 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                     </label>
                   </div>
 
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--taxonomy">
-                    <fieldset className="supabase-editor__field supabase-editor__field--categories">
-                      <legend>Catégories</legend>
-                      <div className="supabase-editor__categories">
-                        {supabaseCategories.map((category) => {
-                          const checked = formState.categoryIds.includes(category.id);
-                          return (
-                            <label key={category.id} className={checked ? "active" : undefined}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleCategoryToggle(category.id)}
-                              />
-                              <span>{category.name}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </fieldset>
-                    <label className="supabase-editor__field supabase-editor__field--checkbox supabase-editor__field--status">
+                  <div className="supabase-editor__details-grid">
+                    <label className="supabase-editor__field">
+                      <span>Date de rédaction</span>
                       <input
-                        type="checkbox"
-                        checked={formState.status}
-                        onChange={(event) => updateForm("status", event.target.checked)}
-                      />
-                      <span>Article publié</span>
-                    </label>
-                  </div>
-
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--dates">
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Date éditoriale</span>
-                      <input
-                        type="date"
+                        type="text"
                         value={formState.authoredDate}
                         onChange={(event) => updateForm("authoredDate", event.target.value)}
+                        placeholder="Automne 2024"
                       />
                     </label>
-                    <label className="supabase-editor__field supabase-editor__field--compact">
+                    <label className="supabase-editor__field">
                       <span>Publication</span>
                       <input
                         type="datetime-local"
@@ -1407,340 +1366,290 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
                         onChange={(event) => updateForm("publishedAt", event.target.value)}
                       />
                     </label>
-                  </div>
-
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--wide">
-                    <label className="supabase-editor__field supabase-editor__field--excerpt">
-                      <span>Extrait affiché sur la catégorie</span>
-                      <textarea
-                        rows={3}
-                        value={formState.excerpt}
-                        onChange={(event) => updateForm("excerpt", event.target.value)}
+                    <label className="supabase-editor__field supabase-editor__field--status">
+                      <input
+                        type="checkbox"
+                        checked={formState.status}
+                        onChange={(event) => updateForm("status", event.target.checked)}
                       />
+                      <span>Publié</span>
                     </label>
-                  </div>
-
-                  <div className="supabase-editor__stack">
-                    <div className="supabase-editor__field supabase-editor__field--compact supabase-editor__field--header-image">
-                      <span>Image d'en-tête</span>
-                      <div className="supabase-editor__header-image-row">
-                        <input
-                          value={formState.headerImagePath}
-                          onChange={(event) => {
-                            updateForm("headerImagePath", event.target.value);
-                            setHeaderUploadError(null);
-                          }}
-                          placeholder="https://... ou laisser vide"
-                          className="supabase-editor__header-image-input"
-                        />
-                        <button
-                          type="button"
-                          className={`supabase-button supabase-button--ghost supabase-editor__header-image-btn${isUploadingHeader ? " is-uploading" : ""}`}
-                          onClick={() => headerFileInputRef.current?.click()}
-                          disabled={isUploadingHeader}
-                          title={isUploadingHeader ? "Envoi en cours…" : "Uploader vers R2"}
-                          aria-label={isUploadingHeader ? "Envoi en cours…" : "Uploader une image vers R2"}
-                        >
-                          <span className={isUploadingHeader ? "supabase-editor__upload-spin" : ""}>
-                            {isUploadingHeader ? "↻" : "↑"}
-                          </span>
-                        </button>
-                        <input
-                          ref={headerFileInputRef}
-                          type="file"
-                          accept="image/*"
-                          style={{ display: "none" }}
-                          onChange={handleHeaderImageUpload}
-                        />
-                      </div>
-                      {headerUploadError && (
-                        <p className="supabase-editor__header-upload-error">{headerUploadError}</p>
-                      )}
-                      {formState.headerImagePath && !headerUploadError && (
-                        <div className="supabase-editor__header-thumb-wrap">
-                          <img
-                            src={formState.headerImagePath}
-                            alt=""
-                            className="supabase-editor__header-thumb"
-                            onError={(e) => {
-                              const wrap = (e.target as HTMLImageElement).parentElement;
-                              if (wrap) wrap.style.display = "none";
-                            }}
-                          />
-                          <button
-                            type="button"
-                            className="supabase-editor__header-thumb-remove"
-                            onClick={handleHeaderImageRemove}
-                            disabled={status === "saving" || isUploadingHeader}
-                            title="Retirer l'image d'en-tête"
-                            aria-label="Retirer l'image d'en-tête"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <label className="supabase-editor__field supabase-editor__field--related supabase-editor__field--compact">
-                      <span>Articles liés</span>
-                      <select
-                        multiple
-                        value={formState.relatedArticleIds}
-                        onChange={(event) =>
-                          handleRelatedChange(
-                            Array.from(event.target.selectedOptions).map((option) => option.value)
-                          )
-                        }
-                      >
-                        {relatedOptions.map((article) => (
-                          <option key={article.id} value={article.id}>
-                            {article.title} · {article.categoryName}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    {articleDetail?.media?.length ? (
-                      <div className="supabase-editor__media">
-                        <h4>Médias liés</h4>
-                        <ul>
-                          {articleDetail.media.map((media) => (
-                            <li key={media.id}>
-                              <code>{media.storagePath}</code>
-                              {media.caption && <span>{media.caption}</span>}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
                   </div>
 
                   {showAdvanced && (
-                    <details className="supabase-editor__advanced">
-                      <summary>Afficher les champs bruts</summary>
-                      <label className="supabase-editor__field">
-                        <span>Contenu Markdown</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyMarkdown}
-                          onChange={(event) => updateForm("bodyMarkdown", event.target.value)}
-                        />
-                      </label>
-
-                      <label className="supabase-editor__field">
-                        <span>Contenu HTML</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyHtml}
-                          onChange={(event) => updateForm("bodyHtml", event.target.value)}
-                        />
-                      </label>
-
-                      <label className="supabase-editor__field">
-                        <span>Contenu JSON (TipTap / Rich text)</span>
-                        <textarea
-                          className="supabase-editor__textarea"
-                          value={formState.bodyJson}
-                          onChange={(event) => updateForm("bodyJson", event.target.value)}
-                          placeholder='{ "type": "doc" }'
-                        />
-                      </label>
-                    </details>
-                  )}
-
-                  {articleDetail && (
-                    <div className="supabase-editor__meta">
-                      <span>Créé le {new Date(articleDetail.createdAt).toLocaleString("fr-FR")}</span>
-                      <span>Mis à jour le {new Date(articleDetail.updatedAt).toLocaleString("fr-FR")}</span>
+                    <div className="supabase-editor__categories">
+                      <span className="supabase-editor__categories-label">Catégories</span>
+                      <div className="supabase-editor__categories-grid">
+                        {supabaseCategories.map((category) => {
+                          const isChecked = formState.categoryIds.includes(category.id);
+                          return (
+                            <label
+                              key={category.id}
+                              className={isChecked ? "active" : undefined}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => handleCategoryToggle(category.id)}
+                              />
+                              <span>{category.name}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
-                </section>
 
-                <section className="supabase-editor__canvas">
-                  <div className="supabase-editor__richtext-header">
-                    <span>Contenu de l'article</span>
-                    <span
-                      className={`supabase-editor__status supabase-editor__status--${digest.tone}`}
-                    >
-                      {digest.label}
-                    </span>
-                  </div>
-                  <RichTextEditor
-                    key={articleDetail?.id ?? "new"}
-                    value={formState.bodyMarkdown}
-                    htmlValue={formState.bodyHtml}
-                    onChange={handleRichTextChange}
-                    placeholder="Écrivez votre article…"
-                    imageUploadSlug={formState.slug}
-                    mode={editorMode}
-                  />
-                </section>
-
-                <footer className="supabase-editor__footer">
-                  <button
-                    type="button"
-                    className="supabase-button supabase-button--primary"
-                    onClick={handleSave}
-                    disabled={status === "saving"}
-                  >
-                    {status === "saving" ? "Enregistrement…" : "Enregistrer"}
-                  </button>
-                  <button
-                    type="button"
-                    className="supabase-button supabase-button--danger"
-                    onClick={handleDelete}
-                    disabled={deleteStatus === "deleting"}
-                  >
-                    {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
-                  </button>
-                </footer>
-              </div>
-            </>
-          ) : (
-            <div className="supabase-workspace__empty">
-              Sélectionnez un article pour commencer.
-            </div>
-          )}
-        </div>
-      </div>
-
-      ) : (
-        <div className="supabase-workspace">
-          <aside className="supabase-workspace__sidebar">
-            <section className="supabase-category">
-              <header className="supabase-category__header">
-                <span className="supabase-category__dot" style={{ backgroundColor: "#6f74d7" }} />
-                <span>Bios</span>
-              </header>
-              <ul className="supabase-category__list">
-                {bioEntries.map((entry) => {
-                  const isActive = selectedBioId === entry.id;
-                  return (
-                    <li key={entry.id}>
-                      <button
-                        type="button"
-                        className={isActive ? "supabase-entry supabase-entry--active" : "supabase-entry"}
-                        onClick={() => {
-                          setSelectedBioId(entry.id);
-                          setBioStatus(null);
-                        }}
-                      >
-                        <span className="supabase-entry__title">{entry.name}</span>
-                        <span className="supabase-entry__preview">
-                          {(entry.bio || []).join(" ").replace(/\s+/g, " ").trim() || "Bio indisponible"}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-                {!bioEntries.length && (
-                  <li className="supabase-category__empty">Aucune bio</li>
-                )}
-              </ul>
-            </section>
-          </aside>
-
-          <div className="supabase-workspace__editor">
-            {bioFormState ? (
-              <div className="supabase-editor__content">
-                <section className="supabase-editor__top">
-                  <div className="supabase-editor__details-grid supabase-editor__details-grid--compact">
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Nom</span>
-                      <input
-                        value={bioFormState.name}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, name: event.target.value } : current
-                          )
-                        }
-                      />
-                    </label>
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Slug</span>
-                      <input
-                        value={bioFormState.slug}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, slug: event.target.value } : current
-                          )
-                        }
-                      />
-                    </label>
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Rôle</span>
-                      <input
-                        value={bioFormState.role}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, role: event.target.value } : current
-                          )
-                        }
-                      />
-                    </label>
-                    <label className="supabase-editor__field supabase-editor__field--compact supabase-editor__field--rank">
-                      <span>Rang</span>
-                      <input
-                        value={bioFormState.rank}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, rank: event.target.value } : current
-                          )
-                        }
-                      />
-                    </label>
-                    <label className="supabase-editor__field supabase-editor__field--compact">
-                      <span>Portrait base</span>
-                      <input
-                        value={bioFormState.portraitBase}
-                        onChange={(event) =>
-                          setBioFormState((current) =>
-                            current ? { ...current, portraitBase: event.target.value } : current
-                          )
-                        }
-                      />
-                    </label>
+                  <div className="supabase-editor__header-image">
+                    <span className="supabase-editor__field-label">Image d'en-tête</span>
+                    {formState.headerImagePath ? (
+                      <div className="supabase-editor__header-preview">
+                        <img
+                          src={formState.headerImagePath}
+                          alt="En-tête"
+                          className="supabase-editor__header-thumb"
+                        />
+                        <div className="supabase-editor__header-actions">
+                          <button
+                            type="button"
+                            className="supabase-button supabase-button--ghost"
+                            onClick={() => headerFileInputRef.current?.click()}
+                            disabled={isUploadingHeader}
+                          >
+                            {isUploadingHeader ? "Envoi…" : "Remplacer"}
+                          </button>
+                          <button
+                            type="button"
+                            className="supabase-button supabase-button--danger"
+                            onClick={handleHeaderImageRemove}
+                            disabled={isUploadingHeader || status === "saving"}
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                        {headerUploadError && (
+                          <p className="supabase-editor__upload-error">{headerUploadError}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="supabase-editor__header-upload">
+                        <button
+                          type="button"
+                          className="supabase-button supabase-button--ghost"
+                          onClick={() => headerFileInputRef.current?.click()}
+                          disabled={isUploadingHeader}
+                        >
+                          {isUploadingHeader ? "Envoi en cours…" : "Choisir une image"}
+                        </button>
+                        {headerUploadError && (
+                          <p className="supabase-editor__upload-error">{headerUploadError}</p>
+                        )}
+                      </div>
+                    )}
+                    <input
+                      ref={headerFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleHeaderImageUpload}
+                    />
                   </div>
 
-                  <label className="supabase-editor__field supabase-editor__field--bio-main">
-                    <span>Bio</span>
+                  <label className="supabase-editor__field">
+                    <span>Aperçu (preview)</span>
                     <textarea
-                      rows={14}
-                      value={bioFormState.bioText}
-                      onChange={(event) =>
-                        setBioFormState((current) =>
-                          current ? { ...current, bioText: event.target.value } : current
-                        )
-                      }
+                      value={formState.preview}
+                      onChange={(event) => updateForm("preview", event.target.value)}
+                      placeholder="Courte description affichée dans les listes…"
+                      rows={2}
+                    />
+                  </label>
+
+                  <label className="supabase-editor__field">
+                    <span>Extrait (excerpt)</span>
+                    <textarea
+                      value={formState.excerpt}
+                      onChange={(event) => updateForm("excerpt", event.target.value)}
+                      placeholder="Citation ou extrait mis en avant…"
+                      rows={3}
                     />
                   </label>
                 </section>
 
-                <footer className="supabase-editor__footer">
-                  {bioStatus && <span className="supabase-editor__status">{bioStatus}</span>}
+                <div className="supabase-editor__richtext-header">
+                  <span>Corps de l'article</span>
+                  <WorkspaceStatusBadge tone={digest.tone} label={digest.label} />
+                </div>
+
+                <RichTextEditor
+                  key={selectedArticleId}
+                  value={formState.bodyMarkdown}
+                  htmlValue={formState.bodyHtml}
+                  onChange={handleRichTextChange}
+                  placeholder="Rédigez l'article ici…"
+                  imageUploadSlug={formState.slug}
+                  mode={editorMode}
+                />
+
+                {showAdvanced && (
+                  <div className="supabase-editor__related">
+                    <span className="supabase-editor__field-label">Articles liés</span>
+                    <div className="supabase-editor__related-list">
+                      {relatedOptions.map((option) => {
+                        const isChecked = formState.relatedArticleIds.includes(option.id);
+                        return (
+                          <label
+                            key={option.id}
+                            className={isChecked ? "active" : undefined}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {
+                                const next = isChecked
+                                  ? formState.relatedArticleIds.filter((id) => id !== option.id)
+                                  : [...formState.relatedArticleIds, option.id];
+                                updateForm("relatedArticleIds", next);
+                              }}
+                            />
+                            <span className="supabase-editor__related-category">
+                              {option.categoryName}
+                            </span>
+                            <span>{option.title}</span>
+                          </label>
+                        );
+                      })}
+                      {!relatedOptions.length && (
+                        <p className="supabase-editor__related-empty">Aucun autre article disponible.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="supabase-editor__actions">
+                <WorkspaceStatusBadge tone={digest.tone} label={digest.label} />
+                {isAdmin && (
                   <button
                     type="button"
-                    className="supabase-button supabase-button--ghost"
-                    onClick={refreshBios}
+                    className="supabase-button supabase-button--danger"
+                    onClick={handleDelete}
+                    disabled={deleteStatus === "deleting" || status === "saving"}
                   >
-                    Actualiser
+                    {deleteStatus === "deleting" ? "Suppression…" : "Supprimer"}
                   </button>
+                )}
+                <button
+                  type="button"
+                  className="supabase-button supabase-button--primary"
+                  onClick={handleSave}
+                  disabled={status === "saving"}
+                >
+                  {status === "saving" ? "Enregistrement…" : "Enregistrer"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="supabase-workspace__empty">
+              {status === "loading" ? "Chargement…" : "Sélectionnez un article"}
+            </div>
+          )}
+        </div>
+      </div>
+      ) : currentMode === "bios" ? (
+        <div className="supabase-bios">
+          <div className="supabase-bios__list">
+            {bioEntries.map((entry) => {
+              const isActive = entry.id === selectedBioId;
+              return (
+                <button
+                  key={entry.id}
+                  type="button"
+                  className={
+                    isActive ? "supabase-bio-card supabase-bio-card--active" : "supabase-bio-card"
+                  }
+                  onClick={() => setSelectedBioId(entry.id)}
+                >
+                  <span className="supabase-bio-card__name">{entry.name}</span>
+                  <span className="supabase-bio-card__role">{entry.role ?? ""}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="supabase-bios__editor">
+            {bioFormState ? (
+              <>
+                <div className="supabase-editor__details-grid">
+                  <label className="supabase-editor__field">
+                    <span>Nom</span>
+                    <input
+                      value={bioFormState.name}
+                      onChange={(ev) =>
+                        setBioFormState((s) => s && { ...s, name: ev.target.value })
+                      }
+                    />
+                  </label>
+                  <label className="supabase-editor__field">
+                    <span>Rôle</span>
+                    <input
+                      value={bioFormState.role ?? ""}
+                      onChange={(ev) =>
+                        setBioFormState((s) => s && { ...s, role: ev.target.value })
+                      }
+                    />
+                  </label>
+                  <label className="supabase-editor__field">
+                    <span>Rang</span>
+                    <input
+                      type="number"
+                      value={bioFormState.rank}
+                      onChange={(ev) =>
+                        setBioFormState((s) => s && { ...s, rank: ev.target.value })
+                      }
+                    />
+                  </label>
+                  <label className="supabase-editor__field">
+                    <span>Slug</span>
+                    <input
+                      value={bioFormState.slug}
+                      onChange={(ev) =>
+                        setBioFormState((s) => s && { ...s, slug: ev.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+
+                <label className="supabase-editor__field">
+                  <span>Bio (paragraphes séparés par une ligne vide)</span>
+                  <textarea
+                    rows={8}
+                    value={bioFormState.bioText}
+                    onChange={(ev) =>
+                      setBioFormState((s) => s && { ...s, bioText: ev.target.value })
+                    }
+                  />
+                </label>
+
+                {bioStatus && <p className="supabase-editor__bio-status">{bioStatus}</p>}
+
+                <div className="supabase-editor__actions">
                   <button
                     type="button"
                     className="supabase-button supabase-button--primary"
                     onClick={handleSaveBio}
                     disabled={isSavingBio}
                   >
-                    {isSavingBio ? "Enregistrement…" : "Enregistrer"}
+                    {isSavingBio ? "Enregistrement…" : "Enregistrer la bio"}
                   </button>
-                </footer>
-              </div>
+                </div>
+              </>
             ) : (
-              <div className="supabase-workspace__empty">Sélectionnez une bio pour commencer.</div>
+              <div className="supabase-workspace__empty">Aucune bio sélectionnée.</div>
             )}
           </div>
         </div>
-      )}
+      ) : null}
 
       <SupabaseWorkspaceStyles />
     </section>
