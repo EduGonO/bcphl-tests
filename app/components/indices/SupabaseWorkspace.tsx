@@ -485,8 +485,21 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
       // Capture the DOM node synchronously — the synthetic event may be recycled after await
       const inputEl = event.target;
       if (!file || !formState || !selectedArticleId) return;
+      // Client-side validation before any network call
+      if (file.size > 15 * 1024 * 1024) {
+        setHeaderUploadError("Image trop lourde (max 15 Mo)");
+        try { inputEl.value = ""; } catch (_) { /* ignore */ }
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        setHeaderUploadError("Format non supporté");
+        try { inputEl.value = ""; } catch (_) { /* ignore */ }
+        return;
+      }
       setIsUploadingHeader(true);
       setHeaderUploadError(null);
+      setStatus("saving");
+      setStatusMessage("Ajout de l'image…");
       try {
         // Read file as base64 data URI
         const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -574,7 +587,7 @@ const SupabaseWorkspace: React.FC<SupabaseWorkspaceProps> = ({
         setFormState(detailToForm(saveData.article));
         dirtyRef.current = false;
         setStatus("saved");
-        setStatusMessage("Image enregistrée");
+        setStatusMessage("Image ajoutée");
         setSelectedArticleId(saveData.article.id);
         setTimeout(() => {
           setStatus("idle");

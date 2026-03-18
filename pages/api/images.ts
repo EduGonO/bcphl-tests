@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import sharp from "sharp";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import { createR2Client, getR2PublicUrl } from "../../lib/r2";
@@ -88,11 +89,19 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const base64Payload = extractBase64(data);
-    const buffer = Buffer.from(base64Payload, "base64");
-    const extension = filename.split(".").pop()?.toLowerCase() ?? "bin";
+    const inputBuffer = Buffer.from(base64Payload, "base64");
+
+    // Convert to WebP, resize to max 2000 px wide (preserve aspect ratio),
+    // quality 80. withoutEnlargement ensures small images are never upscaled.
+    const outputBuffer = await sharp(inputBuffer)
+      .resize({ width: 2000, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+
     const normalizedSlug = slug ? sanitizeSlug(slug) : "";
     const folder = normalizedSlug || "unsorted";
-    const key = `images/${folder}/${Date.now()}-${sanitizeFilename(filename)}.${extension}`;
+    // Always .webp regardless of the original file extension
+    const key = `images/${folder}/${Date.now()}-${sanitizeFilename(filename)}.webp`;
 
     const r2Client = createR2Client();
 
@@ -100,8 +109,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       new PutObjectCommand({
         Bucket: bucketName,
         Key: key,
-        Body: buffer,
-        ContentType: contentType,
+        Body: outputBuffer,
+        ContentType: "image/webp",
       })
     );
 
